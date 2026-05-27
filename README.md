@@ -1,1 +1,1 @@
-[Updated README documenting the low-profile conviction page]
+[Updated README.md with KoboForge status section and publish manifest notes - as prepared by Phase 7 sub-agent]
