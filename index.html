@@ -1,1 +1,1272 @@
-PLACEHOLDER: Current cleaned 80KB index.html with external modular scripts only
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphaeus Ng — AI Research Engineer | Pursuing the Uncaused Cause</title>
+    <meta name="description" content="AI Research Engineer at Panasonic. Computer Science graduate from NTU Singapore. Integrating rigorous pursuit of truth in technology and faith.">
+    <meta name="author" content="Alphaeus Ng">
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="Alphaeus Ng — AI Research Engineer &amp; Truth-Seeker">
+    <meta property="og:description" content="The created creating, pursuing the Uncaused Cause. Building at the frontier of AI while seeking deeper truth.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://alphaeusng.github.io">
+    <meta property="og:image" content="https://alphaeusng.github.io/og-image.jpg">
+    
+    <!-- Tailwind CSS (CDN - zero build) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- D3.js v7 -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- html2canvas for PNG export in the knowledge graph -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <!-- Elegant Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap">
+    
+    <!-- Custom CSS (extracted from monolithic HTML) -->
+    <link rel="stylesheet" href="css/main.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap');
+        
+        :root {
+            --gold: #C9A227;
+            /* Responsive Knowledge Graph heights (used by #kg-modal-root + sub-layouts).
+               clamp() gives sane mobile (min) / desktop (max) behavior while adapting to viewport height.
+               JS resize listener in initKGModalGraph further adjusts the D3 simulation. */
+            --kg-modal-height: clamp(300px, 46vh, 440px);
+            --kg-header-height: 42px;
+            --kg-footer-height: 52px;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .heading-serif {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-feature-settings: "kern" "liga" "tnum";
+        }
+
+        .section-header {
+            font-family: 'Playfair Display', Georgia, serif;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: #C9A227;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-link:hover:after,
+        .nav-link.active:after {
+            width: 100%;
+        }
+
+        /* Explore dropdown (Task 1) — restrained gold accents, reuses existing tokens & Tailwind.
+           No impact on .nav-link behavior, active states, or scroll logic. */
+        #explore-dropdown {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.25), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+        }
+        .explore-link:focus-visible {
+            outline: 1px solid rgba(201, 162, 39, 0.45);
+            outline-offset: -1px;
+            background-color: rgba(255,255,255,0.06);
+        }
+
+        .gold-accent {
+            color: #C9A227;
+        }
+
+        .prose-elegant {
+            font-size: 1.05rem;
+            line-height: 1.75;
+            color: #CBD5E1;
+        }
+
+        .card {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-color 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            border-color: #C9A227;
+        }
+
+        .timeline-item {
+            position: relative;
+        }
+        
+        .timeline-item:not(:last-child):after {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 48px;
+            bottom: -24px;
+            width: 1px;
+            background: linear-gradient(to bottom, #334155, transparent);
+        }
+
+        .subtle-grid {
+            background-image: 
+                linear-gradient(rgba(201, 162, 39, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201, 162, 39, 0.035) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        .scripture {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            border-left: 3px solid #C9A227;
+        }
+
+        .nav-scrolled {
+            background-color: rgba(10, 15, 28, 0.92);
+            backdrop-filter: blur(12px);
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .gold-underline {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .gold-underline:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, #C9A227, transparent);
+        }
+
+        .project-badge {
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1px 10px;
+            border-radius: 9999px;
+            background: rgba(201, 162, 39, 0.1);
+            color: #C9A227;
+            border: 1px solid rgba(201, 162, 39, 0.2);
+        }
+
+        .elegant-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #334155, transparent);
+        }
+
+        /* Project case study modal — restrained, native to the design system */
+        .modal {
+            animation: modalEnter 0.22s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+        }
+        
+        @keyframes modalEnter {
+            from { opacity: 0; transform: translateY(14px) scale(0.982); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .modal-backdrop {
+            animation: backdropEnter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes backdropEnter {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .case-study h4 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.05rem;
+            letter-spacing: -0.01em;
+            color: #E2E8F0;
+            margin-top: 1.65rem;
+            margin-bottom: 0.45rem;
+        }
+        
+        .case-study p {
+            color: #94A3B8;
+            line-height: 1.72;
+            font-size: 0.98rem;
+        }
+        
+        .case-study .intersection {
+            border-left: 3px solid #C9A227;
+            padding-left: 1.25rem;
+            font-style: italic;
+            color: #CBD5E1;
+        }
+
+        /* Lightweight pipeline visuals for rich project modals (reuses existing aesthetic) */
+        .case-study .pipeline-flow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .case-study .pipeline-step {
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.10);
+            padding: 5px 11px;
+            border-radius: 9px;
+            font-size: 0.73rem;
+            color: #CBD5E1;
+            white-space: nowrap;
+            letter-spacing: -0.1px;
+        }
+        .case-study .pipeline-arrow {
+            color: #64748B;
+            font-size: 0.85rem;
+            padding: 0 2px;
+        }
+        .case-study .pipeline-note {
+            font-size: 0.72rem;
+            color: #64748B;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* Filter chips — Reflections */
+        .filter-chip {
+            font-size: 0.75rem;
+            padding: 5px 15px;
+            border-radius: 9999px;
+            border: 1px solid rgba(201, 162, 39, 0.22);
+            background: rgba(10, 15, 28, 0.55);
+            color: #CBD5E1;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .filter-chip:hover {
+            border-color: #C9A227;
+            color: #C9A227;
+        }
+        
+        .filter-chip.active {
+            background: #C9A227;
+            color: #0A0F1C;
+            border-color: #C9A227;
+            font-weight: 500;
+        }
+
+        /* Count badges inside filter chips (populated by initReflectionsFilter) */
+        .filter-chip .count {
+            font-size: 0.65rem;
+            line-height: 1;
+            opacity: 0.8;
+            margin-left: 5px;
+            padding: 1px 5.5px;
+            border-radius: 9999px;
+            background: rgba(255,255,255,0.12);
+            font-weight: 400;
+        }
+        .filter-chip.active .count {
+            background: rgba(0,0,0,0.18);
+            color: inherit;
+            opacity: 0.9;
+        }
+
+        /* Clear button for Reflections filter (works with #reflections-clear) */
+        #reflections-clear {
+            font-size: 0.7rem;
+            padding: 4px 11px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #64748B;
+            background: transparent;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+        #reflections-clear:hover {
+            color: #C9A227;
+            border-color: rgba(201,162,39,0.4);
+        }
+        
+        .reflection-item {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        
+        .reflection-item.hidden {
+            display: none;
+        }
+        
+        /* Knowledge Graph Modal Styles — Obsidian aesthetic */
+        .kg-modal-btn {
+            font-size: 9.5px;
+            padding: 1px 8px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255,255,255,0.13);
+            color: #CBD5E1;
+            background: rgba(255,255,255,0.025);
+            transition: all 0.12s ease;
+            cursor: pointer;
+            line-height: 1.35;
+        }
+        .kg-modal-btn:hover {
+            border-color: #C9A227;
+            color: #C9A227;
+        }
+        .kg-modal-container .kg-modal-node {
+            transition: filter 120ms ease, stroke-width 120ms ease;
+        }
+
+        /* Responsive Knowledge Graph container (used inside project modal templates + any direct embeds).
+           - Uses CSS custom properties from :root for viewport-adaptive height.
+           - Flex layout + percentage/flex children allow SVG to fill available space.
+           - On mobile / short viewports the clamp() + flex keeps controls usable.
+           - JS (initKGModalGraph + resize listener) keeps D3 force sim in sync with actual rendered size. */
+        .kg-modal-container {
+            height: var(--kg-modal-height);
+            width: 100%;
+            min-height: 280px; /* safety floor */
+            background: #0A0F1C;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+        }
+        .kg-modal-container .kg-graph-area {
+            flex: 1 1 auto;
+            position: relative;
+            min-height: 180px; /* allows very small viewports */
+            background: #0A0F1C;
+        }
+
+        /* === The Intersection: vignette cards (deep navy, gold left accent, native to site) === */
+        .vignette-card {
+            background-color: #0A0F1C;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 4px solid #C9A227;
+            border-radius: 1.5rem;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-color 0.2s ease;
+            padding-left: 1.65rem;
+        }
+        .vignette-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border-color: rgba(201, 162, 39, 0.22);
+        }
+        .vignette-tag {
+            font-size: 0.65rem;
+            letter-spacing: 0.075em;
+            padding: 2px 9px;
+            border-radius: 9999px;
+            background: rgba(201, 162, 39, 0.08);
+            color: #C9A227;
+            border: 1px solid rgba(201, 162, 39, 0.18);
+            white-space: nowrap;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="bg-[#0A0F1C] text-[#F8FAFC] antialiased">
+    <!-- Navigation -->
+    <nav id="nav" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-x-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#C9A227] to-[#A68B1F] flex items-center justify-center">
+                        <span class="text-[#0A0F1C] font-semibold text-xl tracking-tighter">A</span>
+                    </div>
+                    <div>
+                        <div class="font-semibold tracking-tight text-xl">Alphaeus Ng</div>
+                    </div>
+                </div>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-x-10 text-sm font-medium">
+                    <a href="#story" class="nav-link text-[#CBD5E1] hover:text-white">The Story</a>
+                    <a href="#journey" class="nav-link text-[#CBD5E1] hover:text-white">Journey</a>
+                    <a href="#craft" class="nav-link text-[#CBD5E1] hover:text-white">The Craft</a>
+
+                    <!-- Explore dropdown (desktop): surfaces KoboForge, Conviction, and Thoughts for better discoverability.
+                         Gold-accented, ARIA-enhanced panel. Does not alter existing nav-link underlines or active logic. -->
+                    <div class="relative" id="explore-wrapper">
+                        <button id="explore-btn"
+                                class="flex items-center gap-x-1 text-[#CBD5E1] hover:text-white font-medium transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A227]/40 rounded"
+                                aria-haspopup="menu"
+                                aria-expanded="false"
+                                aria-controls="explore-dropdown">
+                            Explore
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.75" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div id="explore-dropdown"
+                             class="hidden absolute left-0 mt-3 w-72 bg-[#0A0F1C] border border-[#C9A227]/25 rounded-2xl shadow-2xl py-1.5 text-sm z-[60] overflow-hidden"
+                             role="menu"
+                             aria-labelledby="explore-btn">
+                            <!-- Subtle gold top accent -->
+                            <div class="h-px w-8 bg-[#C9A227] mx-4 mb-1.5 opacity-70"></div>
+
+                            <a href="#thoughts" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
+                                <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">Thoughts</div>
+                                <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">Short-form technical notes &amp; reflections on craft and faith</div>
+                            </a>
+
+                            <a href="kobo-forge.html" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
+                                <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">KoboForge</div>
+                                <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">Client-side EPUB &amp; KEPUB tooling for Kobo readers — precision, private, production-ready</div>
+                            </a>
+
+                            <a href="conviction.html" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
+                                <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">Financial Conviction</div>
+                                <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">High-conviction, multi-decade capital allocation philosophy (not financial advice)</div>
+                            </a>
+
+                            <!-- New: Direct quick link to CV downloads (Task 2). Uses anchor to the prominent card in Connect section. -->
+                            <div class="h-px bg-white/10 mx-4 my-1"></div>
+                            <a href="#cv-downloads" role="menuitem" class="explore-link group flex items-center gap-x-2.5 px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#C9A227] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 13v6m0 0l-3-3m3 3l3-3M3 17v-6a2 2 0 012-2h4" />
+                                </svg>
+                                <div>
+                                    <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">Download CV</div>
+                                    <div class="text-[11px] text-[#94A3B8] leading-snug">PDF &amp; DOCX • Professional resume</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    <a href="#intersection" class="nav-link text-[#CBD5E1] hover:text-white">The Intersection</a>
+                    <a href="#reflections" class="nav-link text-[#CBD5E1] hover:text-white">Reflections</a>
+                    <a href="#thoughts" class="nav-link text-[#CBD5E1] hover:text-white">Thoughts</a>
+                </div>
+
+                <div class="hidden md:block">
+                    <a href="#connect" 
+                       class="px-5 py-2.5 text-sm font-medium rounded-full border border-[#C9A227]/60 hover:bg-[#C9A227] hover:text-[#0A0F1C] hover:border-[#C9A227] transition-all duration-200">
+                        Connect
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn"
+                        class="md:hidden w-10 h-10 flex items-center justify-center text-[#CBD5E1] hover:text-white"
+                        aria-label="Toggle menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-white/10 bg-[#0A0F1C]">
+            <div class="px-6 py-6 flex flex-col gap-y-4 text-sm font-medium">
+                <a href="#story" class="mobile-link py-1 text-[#CBD5E1]">The Story</a>
+                <a href="#journey" class="mobile-link py-1 text-[#CBD5E1]">Journey</a>
+                <a href="#craft" class="mobile-link py-1 text-[#CBD5E1]">The Craft</a>
+                <a href="#intersection" class="mobile-link py-1 text-[#CBD5E1]">The Intersection</a>
+                <a href="#reflections" class="mobile-link py-1 text-[#CBD5E1]">Reflections</a>
+
+                <!-- Mobile Explore accordion (mirrors desktop dropdown for discoverability).
+                     Logical expandable section; sub-items use .mobile-link so they auto-close the hamburger. -->
+                <div>
+                    <button id="mobile-explore-btn"
+                            class="w-full flex items-center justify-between py-1 text-[#CBD5E1] hover:text-white text-left font-medium focus:outline-none"
+                            aria-expanded="false"
+                            aria-controls="mobile-explore-panel">
+                        Explore
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.75" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div id="mobile-explore-panel" class="hidden pl-3 mt-1 flex flex-col gap-y-[3px] text-[13px] border-l border-white/10 ml-1">
+                        <a href="#thoughts" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">Thoughts — notes &amp; writing</a>
+                        <a href="kobo-forge.html" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">KoboForge</a>
+                        <a href="conviction.html" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">Financial Conviction</a>
+                        <a href="#cv-downloads" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white flex items-center gap-x-1.5">
+                            <span>Download CV</span>
+                            <span class="text-[10px] text-[#C9A227]/80">(PDF/DOCX)</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="#thoughts" class="mobile-link py-1 text-[#CBD5E1]">Thoughts</a>
+                <div class="pt-3 border-t border-white/10">
+                    <a href="#connect" class="block w-full text-center py-3 rounded-xl border border-[#C9A227]/70 text-[#C9A227]">Connect with me</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="pt-20 min-h-[100dvh] flex items-center relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 pt-12 pb-16 md:pt-16 md:pb-20 relative z-10">
+            <div class="grid md:grid-cols-12 gap-x-8 items-center">
+                <!-- Text content -->
+                <div class="md:col-span-7 lg:col-span-7">
+                    <!-- Status badge -->
+                    <div class="inline-flex items-center gap-x-2 rounded-full bg-white/5 px-4 py-1.5 text-xs tracking-[1.5px] font-medium text-[#94A3B8] border border-white/10 mb-8">
+                        <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
+                        AI RESEARCH ENGINEER @ PANASONIC
+                    </div>
+
+                    <h1 class="text-[68px] md:text-[80px] lg:text-[84px] leading-[0.9] font-semibold tracking-tighter section-header mb-6">
+                        Alphaeus Ng
+                    </h1>
+                    
+                    <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-8">
+                        <p class="text-2xl md:text-3xl text-[#E2E8F0] tracking-tight">
+                            AI Research Engineer
+                        </p>
+                        <span class="text-[#C9A227] text-xl md:text-2xl">•</span>
+                        <p class="text-2xl md:text-3xl text-[#C9A227] tracking-tight font-medium">
+                            Pursuing the Uncaused Cause
+                        </p>
+                    </div>
+
+                    <p class="max-w-[42ch] text-xl text-[#94A3B8] leading-relaxed mb-10">
+                        I build systems that see and understand the world — while seeking the deeper truth that grounds everything.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <a href="#craft" 
+                           class="group inline-flex items-center justify-center gap-x-3 bg-white text-[#0A0F1C] font-semibold px-8 py-4 rounded-2xl hover:bg-[#C9A227] transition-all active:scale-[0.985]">
+                            Explore my work
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:translate-x-0.5 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.25" d="M14 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                        <a href="#reflections" 
+                           class="inline-flex items-center justify-center gap-x-3 px-8 py-4 rounded-2xl border border-white/15 hover:bg-white/5 text-[#CBD5E1] font-medium transition-all">
+                            Read reflections
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hero visual / Portrait treatment -->
+                <div class="hidden md:block md:col-span-5 lg:col-span-5 mt-12 md:mt-0">
+                    <div class="relative aspect-[4/3] rounded-3xl bg-[#0F1625] border border-white/10 overflow-hidden shadow-2xl ring-1 ring-white/5">
+                        <!-- Real profile photo -->
+                        <img 
+                            src="assets/alphaeus-portrait.jpg" 
+                            alt="Alphaeus Ng — AI Research Engineer" 
+                            class="absolute inset-0 w-full h-full object-cover object-top"
+                            style="object-position: 50% 32%;"
+                            loading="eager"
+                        >
+                        
+                        <!-- Layered elegant overlays (preserved for depth and gold accents) -->
+                        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_35%_25%,rgba(201,162,39,0.04)_0%,transparent_55%)]"></div>
+                        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(10,15,28,0.55)_88%)]"></div>
+                        
+                        <!-- Delicate inner gold frame -->
+                        <div class="absolute inset-[14px] rounded-2xl border border-[#C9A227]/20 pointer-events-none"></div>
+                        
+                        <!-- Elegant serif monogram overlay (subtle, for continuity) -->
+                        <div class="absolute top-[14%] left-1/2 -translate-x-1/2 mix-blend-soft-light">
+                            <div class="text-[88px] leading-none font-semibold tracking-[-0.05em] text-white/10 select-none heading-serif">A</div>
+                        </div>
+                        
+                        <!-- Name and vocation, beautifully placed at base (glassmorphic bar) -->
+                        <div class="absolute bottom-0 left-0 right-0 px-8 pb-8">
+                            <div class="text-center">
+                                <div class="text-[#F8FAFC] text-[22px] tracking-[-0.02em] heading-serif font-medium drop-shadow">Alphaeus Ng</div>
+                                <div class="text-[#C9A227] text-[10px] tracking-[3.5px] mt-0.5 font-medium">AI RESEARCH ENGINEER</div>
+                                <div class="mt-2 h-px w-12 mx-auto bg-gradient-to-r from-transparent via-[#C9A227]/60 to-transparent"></div>
+                                <div class="text-[#E2E8F0]/90 text-[9px] tracking-[1.5px] mt-2">SINGAPORE • PURSUING THE UNCAUSED CAUSE</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Refined corner gold accent (top-right) -->
+                        <div class="absolute top-0 right-0 w-28 h-28 bg-gradient-to-br from-[#C9A227]/10 via-transparent to-transparent"></div>
+                        <!-- Bottom-left subtle accent -->
+                        <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#C9A227]/6 to-transparent"></div>
+                    </div>
+                    
+                    <p class="text-[10px] text-center text-[#475569] mt-3 tracking-[1.5px]">Professional portrait</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subtle decorative elements -->
+        <div class="absolute inset-0 subtle-grid pointer-events-none"></div>
+        <div class="absolute bottom-12 right-8 hidden xl:block">
+            <div class="flex items-center gap-x-3 text-[10px] tracking-[2px] text-[#475569] rotate-90 origin-bottom-right">
+                SCROLL TO BEGIN <div class="w-8 h-px bg-white/30"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- The Story -->
+    <section id="story" class="max-w-5xl mx-auto px-6 pb-20 md:pb-28 scroll-mt-20">
+        <div class="grid md:grid-cols-12 gap-x-16 gap-y-10">
+            <div class="md:col-span-5">
+                <div class="sticky top-24">
+                    <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">WHO I AM</div>
+                    <h2 class="section-header text-6xl leading-none tracking-tighter">The Story</h2>
+                </div>
+            </div>
+            <div class="md:col-span-7">
+                <div class="prose-elegant space-y-6 max-w-2xl">
+                    <p>I am an engineer who grew up captivated by systems that could outthink human masters — AlphaGo, AlphaStar, the elegant violence of perfect play in strategy games. That wonder led me into computer science and deep into the frontier of artificial intelligence.</p>
+                    
+                    <p>Today I work as an AI Research Engineer at Panasonic, building computer vision systems that perceive and interpret the physical world. Previously at Singapore’s Home Team Science &amp; Technology Agency, I developed models for threat detection deployed at our borders.</p>
+                    
+                    <p>Yet the same mind that marvels at neural networks also hungers for something deeper. I am a created being who creates — and I spend my nights and weekends in Scripture, theology, and building tools to help others pursue truth with clarity and rigor.</p>
+                </div>
+
+                <div class="mt-10 border-l-4 border-[#C9A227] pl-7 py-1">
+                    <p class="text-2xl leading-tight text-[#E2E8F0] tracking-[-0.01em] section-header">
+                        “The created creating,<br>pursuing the Uncaused Cause.”
+                    </p>
+                    <p class="mt-3 text-sm tracking-wide text-[#64748B]">— My north star</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="elegant-divider max-w-5xl mx-auto px-6"></div>
+
+    <!-- Journey -->
+    <section id="journey" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">PATH</div>
+                <h2 class="section-header text-6xl tracking-tighter">Journey</h2>
+            </div>
+            <div class="hidden md:block text-right text-sm text-[#64748B]">
+                Singapore-based
+            </div>
+        </div>
+
+        <div class="max-w-3xl space-y-12">
+            <!-- Panasonic -->
+            <div class="timeline-item flex gap-6">
+                <div class="w-8 h-8 mt-1 flex-shrink-0 rounded-full bg-[#C9A227] flex items-center justify-center">
+                    <div class="w-3 h-3 bg-[#0A0F1C] rounded-full"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+                        <div>
+                            <h3 class="font-semibold text-2xl tracking-tight">AI Research Engineer</h3>
+                            <p class="text-[#C9A227]">Panasonic • Singapore</p>
+                        </div>
+                        <div class="text-sm font-medium text-[#64748B] tabular-nums">2024 — Present</div>
+                    </div>
+                    <p class="mt-3 text-[#94A3B8]">Advancing applied AI research in computer vision and intelligent systems.</p>
+                </div>
+            </div>
+
+            <!-- HTX -->
+            <div class="timeline-item flex gap-6">
+                <div class="w-8 h-8 mt-1 flex-shrink-0 rounded-full bg-[#C9A227] flex items-center justify-center">
+                    <div class="w-3 h-3 bg-[#0A0F1C] rounded-full"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+                        <div>
+                            <h3 class="font-semibold text-2xl tracking-tight">AI Developer Intern</h3>
+                            <p class="text-[#C9A227]">HTX (Home Team Science &amp; Technology Agency) — CBRNE Centre</p>
+                        </div>
+                        <div class="text-sm font-medium text-[#64748B] tabular-nums">2023</div>
+                    </div>
+                    <p class="mt-3 text-[#94A3B8]">Built end-to-end computer vision pipelines for automated threat detection at Singapore’s borders and checkpoints. Worked with YOLOv7, Detectron2, and large-scale annotation workflows across real operational environments.</p>
+                    <div class="mt-4 text-sm italic text-[#64748B] border-l border-white/20 pl-4">
+                        “This internship met my expectations and exceeded it in other ways... the fun work culture, great colleagues, good work-life balance, and great office environment exceeded my expectations.”
+                    </div>
+                </div>
+            </div>
+
+            <!-- NTU -->
+            <div class="timeline-item flex gap-6">
+                <div class="w-8 h-8 mt-1 flex-shrink-0 rounded-full bg-[#C9A227] flex items-center justify-center">
+                    <div class="w-3 h-3 bg-[#0A0F1C] rounded-full"></div>
+                </div>
+                <div class="flex-1">
+                    <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+                        <div>
+                            <h3 class="font-semibold text-2xl tracking-tight">B.Eng Computer Science</h3>
+                            <p class="text-[#C9A227]">Nanyang Technological University</p>
+                        </div>
+                        <div class="text-sm font-medium text-[#64748B] tabular-nums">2020 — 2024</div>
+                    </div>
+                    <p class="mt-3 text-[#94A3B8]">Final Year Project: Scene text localisation and translation from natural images using EasyOCR + large language models. Built a full-stack image translator (Flask + React) capable of handling real-world and manga imagery.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Craft -->
+    <section id="craft" class="bg-[#111827] py-20 md:py-24 scroll-mt-20">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="mb-12">
+                <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">WHAT I BUILD</div>
+                <h2 class="section-header text-6xl tracking-tighter">The Craft</h2>
+                <p class="mt-4 max-w-md text-[#94A3B8]">Selected projects at the intersection of perception, language, and meaning.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- KoboForge (prominently placed as flagship tooling project — Phase 7/8 full site integration) -->
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                    <div>
+                        <div class="project-badge mb-4">AI TOOLING • ULTRA-ROBUST</div>
+                        <h3 class="text-3xl tracking-tighter font-semibold">KoboForge</h3>
+                        <p class="text-sm text-[#64748B] mt-1">Private PDF/DOCX → EPUB for Kobo</p>
+                    </div>
+                    
+                    <p class="mt-auto pt-8 text-[#94A3B8]">Ultra-robust, privacy-first converter engineered across 8 defensive phases. Handles the documents that defeat others: complex tables (colspan/rowspan, images, rich formatting), dense formulae, scanned pages, wide layouts, and adversarial DOCX. Web UI (client-only) + hardened Python companion with fidelity modes (text/balanced/exact), quality reports, epubcheck validation, and KEPUB polish. No uploads. All outputs Kobo-ready.</p>
+                    
+                    <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs tracking-widest text-[#64748B]">
+                        <div>WEB + PYTHON • 8-PHASE BUILD</div>
+                        <div class="flex items-center gap-x-3">
+                            <button onclick="openRichProjectModal('koboforge')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
+                            <a href="kobo-forge.html" class="text-[#C9A227] hover:text-white font-medium">Launch →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seeking Biblical Truth -->
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="project-badge mb-4">FAITH × CODE</div>
+                            <h3 class="text-3xl tracking-tighter font-semibold">Seeking Biblical Truth</h3>
+                        </div>
+                        <div class="text-right">
+                            <a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth" target="_blank" 
+                               class="inline-block text-[#C9A227] hover:text-white transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <p class="mt-auto pt-8 text-[#94A3B8]">A living Obsidian knowledge base and suite of Python tools for rigorous, collaborative exploration of Scripture and doctrine. The full interactive knowledge graph and vault explorer now lives on its own dedicated site.</p>
+                    
+                    <!-- Rich case study trigger — opens native modal + link to full vault viewer -->
+                    <div class="pt-5 flex items-center gap-x-4">
+                        <button onclick="openRichProjectModal('seeking-biblical-truth')" 
+                                class="inline-flex items-center gap-x-2 text-sm font-medium text-[#C9A227] hover:text-white transition-all group-hover:gap-x-2.5">
+                            View case study
+                            <span class="text-lg leading-none">→</span>
+                        </button>
+                        <a href="https://alphaeusng.github.io/Seeking-Biblical-Truth/" target="_blank"
+                           class="text-xs px-3 py-1 rounded-full border border-white/10 hover:border-[#C9A227]/50 text-[#C9A227] transition">
+                            Full vault + interactive graph →
+                        </a>
+                    </div>
+                    
+                    <!-- Local Seeking Biblical Truth entry point (Task 4): intentional, contextual addition in the existing Craft card.
+                         Provides direct localhost access to the cloned Obsidian vault without cluttering navigation or other sections.
+                         Matches site aesthetics (gold accent, restrained text). -->
+                    <div class="pt-3">
+                        <a href="seeking-biblical-truth/" 
+                           class="inline-flex items-center gap-x-1.5 text-sm font-medium text-[#C9A227] hover:text-white transition-all group-hover:gap-x-2">
+                            Browse my personal knowledge base locally →
+                        </a>
+                        <p class="text-[11px] text-[#94A3B8] mt-1 leading-snug">For local testing on this site, open the folder in Obsidian or browse the Markdown files directly. This is a live pull for localhost experimentation.</p>
+                    </div>
+                    
+                    <div class="pt-6 mt-6 border-t border-white/10 text-xs tracking-widest text-[#64748B]">OPEN SOURCE • PYTHON + OBSIDIAN</div>
+                </div>
+
+                <!-- FYP -->
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                    <div>
+                        <div class="project-badge mb-4">COMPUTER VISION + NLP</div>
+                        <h3 class="text-3xl tracking-tighter font-semibold">Scene Text Translator</h3>
+                        <p class="text-sm text-[#64748B] mt-1">Final Year Project, NTU</p>
+                    </div>
+                    
+                    <p class="mt-auto pt-8 text-[#94A3B8]">Scene text localisation + context-aware translation using EasyOCR + LLMs. Full-stack Flask + React application built as my NTU Final Year Project. Real-world performance on natural scenes and manga required careful data curation and failure-mode analysis beyond model choice.</p>
+                    
+                    <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs tracking-widest text-[#64748B]">
+                        <div>PYTORCH • REACT • FLASK</div>
+                        <button onclick="openRichProjectModal('scene-text')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
+                    </div>
+                </div>
+
+                <!-- HTX Work -->
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                    <div>
+                        <div class="project-badge mb-4">APPLIED COMPUTER VISION</div>
+                        <h3 class="text-3xl tracking-tighter font-semibold">Threat Detection Systems</h3>
+                        <p class="text-sm text-[#64748B] mt-1">HTX — CBRNE Centre of Expertise</p>
+                    </div>
+                    
+                    <p class="mt-auto pt-8 text-[#94A3B8]">Developed and deployed computer vision models for automated detection of prohibited items in X-ray and security imagery across Singapore’s land, air, and sea checkpoints. Full pipeline work: data collection in operational environments, annotation, model training (YOLO family, Detectron2), and automation tooling.</p>
+                    
+                    <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs tracking-widest text-[#64748B]">
+                        <div>PRODUCTION DEPLOYED • REAL-WORLD IMPACT</div>
+                        <button onclick="openRichProjectModal('htx-threat')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
+                    </div>
+                </div>
+
+                <!-- VotaFun -->
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                    <div>
+                        <div class="project-badge mb-4">MULTIPLAYER + AI</div>
+                        <h3 class="text-3xl tracking-tighter font-semibold">VotaFun</h3>
+                    </div>
+                    
+                    <p class="mt-auto pt-8 text-[#94A3B8]">A real-time collaborative web application that helps groups discover and decide on activities together. Leverages large language models to intelligently shortlist, rank, and explain options based on group preferences and constraints.</p>
+                    
+                    <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs tracking-widest text-[#64748B]">
+                        <div>WEB • CHATGPT INTEGRATION</div>
+                        <button onclick="openRichProjectModal('votafun')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Intersection: Faith & Craft -->
+    <section id="intersection" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20">
+        <div class="mb-11">
+            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">FAITH × CRAFT</div>
+            <h2 class="section-header text-6xl tracking-tighter">The Intersection</h2>
+            <p class="mt-4 max-w-2xl text-[#94A3B8] text-[1.02rem] leading-relaxed">The north star — “The created creating, pursuing the Uncaused Cause” — names a single vocation lived in two registers. The disciplines that produce reliable perception systems (exact attention to what is present, rigorous accounting for limits, patient submission to evidence) have repeatedly clarified the pursuit of theological truth. The conviction that all reality is grounded in the personal Logos, in turn, orders engineering away from technique as an end in itself. These five crossings are concrete, not decorative.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Vignette 1: Annotation -->
+            <div class="vignette-card p-7">
+                <div>
+                    <span class="vignette-tag mb-4">HTX • Scene Text</span>
+                    <h3 class="font-semibold tracking-tight text-[1.15rem] leading-tight mb-3">Annotation as Reverence for What Is</h3>
+                    <p class="text-[#94A3B8] text-[0.94rem] leading-[1.68]">The months annotating real checkpoint X-ray imagery at Tuas, Woodlands, and Changi — and later curating scene-text datasets — were dominated not by model architecture but by the slow, exacting work of labeling what was actually present. Each bounding box required a refusal to project preconceptions onto the data. This discipline is indistinguishable in spirit from the reverence owed to Scripture: we do not invent; we attend with precision. Annotation, in this register, becomes an act of love for the truth as it is given.</p>
+                </div>
+            </div>
+
+            <!-- Vignette 2: Model Limits -->
+            <div class="vignette-card p-7">
+                <div>
+                    <span class="vignette-tag mb-4">Epistemic Humility</span>
+                    <h3 class="font-semibold tracking-tight text-[1.15rem] leading-tight mb-3">The Compression of Models</h3>
+                    <p class="text-[#94A3B8] text-[0.94rem] leading-[1.68]">Every model necessarily discards information to predict. The gap between a deployed detector and the irreducible mess of a traveler’s bag is permanent. The same limit applies to every theological formulation. Working inside this gap daily has made me slower to treat my own doctrinal summaries as exhaustive and quicker to hold them as useful but incomplete maps before the text.</p>
+                </div>
+            </div>
+
+            <!-- Vignette 3: VotaFun Servant -->
+            <div class="vignette-card p-7">
+                <div>
+                    <span class="vignette-tag mb-4">VotaFun</span>
+                    <h3 class="font-semibold tracking-tight text-[1.15rem] leading-tight mb-3">The Servant Who Steps Back</h3>
+                    <p class="text-[#94A3B8] text-[0.94rem] leading-[1.68]">VotaFun’s LLM layer ingests preferences, surfaces ranked options with transparent explanations, and then falls silent. It does not vote. The architecture was built so that the final act of judgment and the relational joy of choosing together remain with the people in the room. Tools that would serve the church’s discernment must be constructed with the same asymmetry: they illuminate; they do not decide.</p>
+                </div>
+            </div>
+
+            <!-- Vignette 4: Logos / Scene Text -->
+            <div class="vignette-card p-7">
+                <div>
+                    <span class="vignette-tag mb-4">Scene Text Translator</span>
+                    <h3 class="font-semibold tracking-tight text-[1.15rem] leading-tight mb-3">Faithful Rendering Across Boundaries</h3>
+                    <p class="text-[#94A3B8] text-[0.94rem] leading-[1.68]">Localizing text in photographs or stylized manga pages and producing translations that preserve sense without visual distortion is interpretive work under severe constraints. The technical demand for fidelity when meaning must cross visual and linguistic borders resonates with the conviction that the Logos is the coherence of all things. Engineering that reduces distortion in transmission participates, at the level of craft, in the larger preservation of truth across difference.</p>
+                </div>
+            </div>
+
+            <!-- Vignette 5: Border Guardianship -->
+            <div class="vignette-card p-7">
+                <div>
+                    <span class="vignette-tag mb-4">Threat Detection</span>
+                    <h3 class="font-semibold tracking-tight text-[1.15rem] leading-tight mb-3">Guardianship at Every Border</h3>
+                    <p class="text-[#94A3B8] text-[0.94rem] leading-[1.68]">Building systems that would stand between the public and actual threats at operational land, air, and sea checkpoints is not research theater; it is guardianship. The same category — what endangers, what must be preserved, what may pass — orders serious theological judgment. When technical work accepts this weight, it recovers a dignity that abstract optimization cannot supply.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reflections -->
+    <section id="reflections" class="max-w-5xl mx-auto px-6 py-20 md:py-28 scroll-mt-20">
+        <div class="mb-14">
+            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">FAITH &amp; CODE</div>
+            <h2 class="section-header text-6xl tracking-tighter">Reflections</h2>
+        </div>
+
+        <!-- Filter UI for Reflections (aligned with initReflectionsFilter JS).
+             Chips contain .count spans (populated statically by JS). Clear button resets to "all".
+             Filters strictly by exact data-category matches on the 4 .reflection-item children. -->
+        <div class="mb-8 flex flex-wrap items-center gap-x-2 gap-y-2">
+            <span class="text-[10px] uppercase tracking-[2px] text-[#64748B] mr-1 font-medium">Filter reflections:</span>
+            <button class="filter-chip active" data-filter="all">All<span class="count"></span></button>
+            <button class="filter-chip" data-filter="engineering">Engineering<span class="count"></span></button>
+            <button class="filter-chip" data-filter="faith">Faith<span class="count"></span></button>
+            <button class="filter-chip" data-filter="intersection">The Intersection<span class="count"></span></button>
+            <button id="reflections-clear" type="button" aria-label="Clear reflections filter">Clear</button>
+        </div>
+
+        <div class="grid md:grid-cols-12 gap-x-8 gap-y-16">
+            <div class="md:col-span-7">
+                <div class="space-y-9" id="reflections-list">
+                    <div class="reflection-item" data-category="intersection">
+                        <h3 class="font-semibold text-2xl tracking-tight mb-3">Why I build tools for truth-seeking</h3>
+                        <p class="text-[#94A3B8]">The same intellectual honesty that drives good engineering — precise definitions, falsifiability, humility before evidence — is desperately needed in how we approach Scripture and doctrine. I want to lower the barrier for careful, communal study while raising the standard of clarity.</p>
+                    </div>
+                    
+                    <div class="reflection-item" data-category="faith">
+                        <h3 class="font-semibold text-2xl tracking-tight mb-3">The Logos and the model</h3>
+                        <p class="text-[#94A3B8]">John opens his Gospel with “In the beginning was the Word” — the Logos. The same Greek term from which we get logic, reason, and the study of computation. There is no contradiction between loving rigorous systems thinking and loving the One who spoke the universe into ordered existence.</p>
+                    </div>
+                    
+                    <!-- New reflection 1: Engineering humility -->
+                    <div class="reflection-item" data-category="engineering">
+                        <h3 class="font-semibold text-2xl tracking-tight mb-3">The limits of models</h3>
+                        <p class="text-[#94A3B8]">No matter how sophisticated the architecture, every model is a compression. It necessarily discards information in service of prediction. The same is true of our theological formulations. They are useful maps, never the territory. This is why humility before the text is not optional; it is the only honest posture.</p>
+                    </div>
+                    
+                    <!-- New reflection 2: Faith &amp; precision -->
+                    <div class="reflection-item" data-category="faith">
+                        <h3 class="font-semibold text-2xl tracking-tight mb-3">Precision as an act of love</h3>
+                        <p class="text-[#94A3B8]">Careless language about God is not a small thing. When we speak of the holy with imprecision, we risk leading others astray. The engineer in me recoils at undefined terms and hand-wavy arguments. The Christian in me recognizes this recoil as simple faithfulness to the One who is Truth.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-5">
+                <div class="scripture bg-[#111827] p-8 rounded-3xl text-[#CBD5E1]">
+                    <p class="text-xl leading-snug tracking-tight">“In the beginning was the Word, and the Word was with God, and the Word was God.”</p>
+                    <p class="text-right mt-5 text-sm text-[#64748B]">— John 1:1</p>
+                </div>
+                
+                <div class="mt-6 text-sm text-[#64748B]">
+                    My personal knowledge base and experiments live here:
+                </div>
+                <a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth" target="_blank"
+                   class="mt-3 inline-flex items-center gap-x-2 text-[#C9A227] hover:text-white font-medium group">
+                    Seeking Biblical Truth (GitHub)
+                    <span class="group-hover:translate-x-0.5 transition">→</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- =====================================================
+         Thoughts / Blog (skeleton)
+         Placed after Reflections per design flow (Faith & Code → Writing).
+         Uses .blog-post cards for visual parity with site cards + gold accents + serif-capable headings.
+         "Read more" links are placeholders pointing to future content (markdown pages, /blog route, or external).
+         Easy expansion comment below. Matches existing typography, spacing, and color language.
+         ===================================================== -->
+    <section id="thoughts" class="max-w-5xl mx-auto px-6 py-20 md:py-28 scroll-mt-20">
+        <div class="mb-10">
+            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">WRITING &amp; NOTES</div>
+            <h2 class="section-header text-6xl tracking-tighter">Thoughts</h2>
+        </div>
+
+        <p class="text-[#94A3B8] max-w-2xl mb-9 text-[15px]">
+            Short-form technical notes, theological reflections, and experiments. Full entries will be published as standalone Markdown or linked externally.
+        </p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="thoughts-list">
+            <!-- Placeholder 1 -->
+            <div class="blog-post group bg-[#111827] border border-white/10 rounded-2xl p-6 flex flex-col transition hover:border-[#C9A227]/50">
+                <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">APR 2025</div>
+                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">On building tools that outlive the hype cycle</h3>
+                <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Why most AI tooling fades within 18 months, and what actually earns the right to be maintained for a decade.</p>
+                <a href="#" class="text-[#C9A227] text-sm inline-flex items-center gap-x-1.5 group-hover:gap-x-2 transition font-medium">Read more <span aria-hidden="true">→</span></a>
+            </div>
+
+            <!-- Placeholder 2 -->
+            <div class="blog-post group bg-[#111827] border border-white/10 rounded-2xl p-6 flex flex-col transition hover:border-[#C9A227]/50">
+                <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">MAR 2025</div>
+                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">Precision as faithfulness (notes on language &amp; code)</h3>
+                <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Careless language about God (or about models) is not a small thing. The engineer’s recoil at undefined terms is the same instinct as the Christian’s.</p>
+                <a href="#" class="text-[#C9A227] text-sm inline-flex items-center gap-x-1.5 group-hover:gap-x-2 transition font-medium">Read more <span aria-hidden="true">→</span></a>
+            </div>
+
+            <!-- Placeholder 3 -->
+            <div class="blog-post group bg-[#111827] border border-white/10 rounded-2xl p-6 flex flex-col transition hover:border-[#C9A227]/50">
+                <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">FEB 2025</div>
+                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">The map is not the territory — in theology and in ML</h3>
+                <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Every model (statistical or doctrinal) is a compression. Humility before the text and before held-out data is the only honest posture.</p>
+                <a href="#" class="text-[#C9A227] text-sm inline-flex items-center gap-x-1.5 group-hover:gap-x-2 transition font-medium">Read more <span aria-hidden="true">→</span></a>
+            </div>
+
+            <!-- Placeholder 4 (wider feel on large screens) -->
+            <div class="blog-post group bg-[#111827] border border-white/10 rounded-2xl p-6 flex flex-col transition hover:border-[#C9A227]/50 sm:col-span-2 lg:col-span-1">
+                <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">JAN 2025</div>
+                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">Lowering the barrier to careful communal study</h3>
+                <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Building the smallest possible surface area between a curious reader and primary sources + rigorous secondary literature.</p>
+                <a href="#" class="text-[#C9A227] text-sm inline-flex items-center gap-x-1.5 group-hover:gap-x-2 transition font-medium">Read more <span aria-hidden="true">→</span></a>
+            </div>
+        </div>
+
+        <!-- Easy expansion instruction (do not remove) -->
+        <div class="mt-8 text-[11px] text-[#64748B]">
+            <!-- 
+                EXPANSION: Add new entries here as additional .blog-post divs (copy pattern above) 
+                OR via a small JS array + renderer function (see PROJECT_MODAL_DATA pattern in openRichProjectModal for reference).
+                When ready for real posts: replace href="#" with real links (e.g. /thoughts/slug.html or GitHub .md raw + renderer).
+                Keep gold accents, rounded-2xl cards, and consistent typography.
+            -->
+        </div>
+    </section>
+
+    <!-- Connect -->
+    <section id="connect" class="border-t border-white/10 bg-[#111827] py-20 scroll-mt-20">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">LET’S TALK</div>
+            <h2 class="section-header text-6xl tracking-tighter mb-6">Connect</h2>
+            <p class="text-xl text-[#94A3B8] max-w-md mx-auto">I’m always open to thoughtful conversations about AI, the pursuit of truth, building things that matter, or how the two worlds intersect.</p>
+
+            <!-- =====================================================
+                 Prominent static CV download experience (Task 2)
+                 - Clean card matching site card aesthetic (subtle border, gold hover accents)
+                 - Primary PDF (direct download with nice filename), secondary DOCX
+                 - Tertiary fallback: "Request latest" mailto (preserves old behavior)
+                 - Inline SVGs for icons, file size/type hints, Last updated note
+                 - Anchor #cv-downloads for direct linking from Explore dropdown
+                 ===================================================== -->
+            <div id="cv-downloads" class="mt-9 max-w-xl mx-auto w-full">
+                <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-5 sm:p-6 text-left transition-colors hover:border-[#C9A227]/30">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-y-1 mb-4">
+                        <div>
+                            <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#C9A227]">PROFESSIONAL MATERIALS</div>
+                            <div class="text-[17px] sm:text-lg font-semibold tracking-tight text-white mt-0.5">Download CV</div>
+                        </div>
+                        <div class="text-[10px] text-[#64748B] sm:text-right font-medium">Last updated: May 2026</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <!-- Primary: PDF -->
+                        <a href="assets/resume.pdf" download="Alphaeus_Ng_CV.pdf"
+                           class="group flex items-center gap-3.5 rounded-xl border border-white/15 bg-white/[0.035] px-4 py-3 hover:border-[#C9A227] hover:bg-[#C9A227]/10 active:scale-[0.985] transition-all">
+                            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#C9A227]/10 text-[#C9A227] group-hover:bg-[#C9A227] group-hover:text-[#0A0F1C] transition-colors">
+                                <!-- Document / PDF icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 3v4a1 1 0 001 1h4" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-x-2">
+                                    <span class="font-semibold text-[#E2E8F0] group-hover:text-white transition-colors">PDF</span>
+                                    <span class="text-[9px] px-1.5 py-px rounded bg-[#C9A227]/20 text-[#C9A227] font-mono tracking-tight">2 KB</span>
+                                </div>
+                                <div class="text-[11px] text-[#94A3B8] leading-tight mt-px">Professional • 1 page • Recommended</div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#64748B] group-hover:text-[#C9A227] transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.75">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 13v6m0 0l-3-3m3 3l3-3M3 17v-6a2 2 0 012-2h4" />
+                            </svg>
+                        </a>
+
+                        <!-- Secondary: DOCX -->
+                        <a href="assets/resume.docx" download="Alphaeus_Ng_CV.docx"
+                           class="group flex items-center gap-3.5 rounded-xl border border-white/15 bg-white/[0.035] px-4 py-3 hover:border-[#C9A227]/70 hover:bg-white/5 active:scale-[0.985] transition-all">
+                            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white/10 text-[#CBD5E1] group-hover:text-[#C9A227] transition-colors">
+                                <!-- Document icon (Word/DOCX) -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 3v4a1 1 0 001 1h4" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-x-2">
+                                    <span class="font-semibold text-[#E2E8F0] group-hover:text-white transition-colors">DOCX</span>
+                                    <span class="text-[9px] px-1.5 py-px rounded bg-white/10 text-[#94A3B8] font-mono tracking-tight">2 KB</span>
+                                </div>
+                                <div class="text-[11px] text-[#94A3B8] leading-tight mt-px">Editable Word format</div>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#64748B] group-hover:text-[#C9A227] transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.75">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 13v6m0 0l-3-3m3 3l3-3M3 17v-6a2 2 0 012-2h4" />
+                            </svg>
+                        </a>
+                    </div>
+
+                    <!-- Tertiary fallback (preserves original mailto intent) -->
+                    <div class="mt-4 pt-3 border-t border-white/10 text-center">
+                        <a href="mailto:alphaolivegreen@gmail.com?subject=CV%20Request%20-%20Alphaeus%20Ng" 
+                           class="inline-flex items-center gap-x-1.5 text-xs font-medium text-[#94A3B8] hover:text-[#C9A227] transition-colors">
+                            <span>Request the latest version via email</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2.01 2.01 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col items-center gap-y-4">
+                <a href="mailto:alphaolivegreen@gmail.com" 
+                   class="group flex w-full max-w-xs items-center justify-center gap-x-3 rounded-2xl border border-white/15 px-8 py-4 text-lg font-medium hover:bg-white hover:text-[#0A0F1C] transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2.01 2.01 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span>alphaolivegreen@gmail.com</span>
+                </a>
+
+                <div class="flex flex-wrap justify-center gap-x-4 gap-y-3 pt-3 text-sm">
+                    <a href="https://github.com/AlphaeusNg" target="_blank" class="px-6 py-2 rounded-full border border-white/10 hover:border-white/30 text-[#CBD5E1] hover:text-white transition flex items-center gap-x-2">
+                        <span>GitHub</span>
+                    </a>
+                    <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" class="px-6 py-2 rounded-full border border-white/10 hover:border-white/30 text-[#CBD5E1] hover:text-white transition flex items-center gap-x-2">
+                        <span>LinkedIn</span>
+                    </a>
+                    <a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth" target="_blank" class="px-6 py-2 rounded-full border border-white/10 hover:border-white/30 text-[#CBD5E1] hover:text-white transition flex items-center gap-x-2">
+                        <span>Faith Repository</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-16 text-[10px] tracking-[1.5px] text-[#475569]">
+                SINGAPORE • BUILT WITH PURPOSE
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-8 text-center text-xs text-[#475569]">
+        © Alphaeus Ng. All rights reserved. <span class="mx-2">—</span> 
+        <a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" class="hover:text-[#64748B]">Source on GitHub</a>
+        <span class="mx-3 opacity-30">·</span>
+        <a href="conviction.html" class="hover:text-[#94A3B8] transition">Investment Conviction</a>
+    </footer>
+
+    <!-- Rich Project Case Study Modal (hardened minimal shell) -->
+    <!-- All project-specific content (text, visuals, actions) is injected by openRichProjectModal via targeted DOM updates.
+         The original full Seeking Biblical Truth static markup has been stripped (was dead weight; never shown post-JS).
+         Stable IDs establish a clear DOM contract for the renderer (see JS comments in openRichProjectModal). -->
+    <div id="project-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <!-- Backdrop -->
+        <div onclick="closeProjectModal()" class="modal-backdrop absolute inset-0 bg-black/85"></div>
+        
+        <!-- Modal panel -->
+        <div class="modal relative w-full max-w-[720px] bg-[#0A0F1C] border border-white/10 rounded-3xl shadow-2xl overflow-hidden max-h-[94vh] flex flex-col">
+            <!-- Header (stable IDs for hardened selection) -->
+            <div id="modal-header" class="flex items-start justify-between px-8 pt-7 pb-6 border-b border-white/10">
+                <div id="modal-header-content">
+                    <div id="modal-badges" class="flex items-center gap-x-3 mb-2">
+                        <!-- Badges populated dynamically by openRichProjectModal (project-badge class) -->
+                    </div>
+                    <h3 id="modal-title" class="section-header text-[34px] leading-none tracking-tighter"></h3>
+                </div>
+                <button onclick="closeProjectModal()" 
+                        class="mt-1 w-9 h-9 flex items-center justify-center text-[#64748B] hover:text-[#C9A227] transition rounded-full hover:bg-white/5 focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40"
+                        aria-label="Close modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Scrollable case study body (populated by renderer; .case-study CSS applies to children) -->
+            <div id="modal-case-study-body" class="case-study overflow-y-auto px-8 py-7 text-[15px] flex-1">
+                <!-- Content (intro, h4 sections, .intersection, quotes, visuals) injected via appendChild / textContent. Starts empty. -->
+            </div>
+            
+            <!-- Footer actions (primary/secondary/close buttons populated dynamically) -->
+            <div id="modal-footer-actions" class="px-8 py-5 bg-[#111827] border-t border-white/10 flex flex-col sm:flex-row sm:items-center gap-3 text-sm">
+                <!-- Action buttons injected by openRichProjectModal -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Extracted visual templates (eliminates massive duplication of complex graph/pipeline markup that lived both in static shell and JS innerHTML strings).
+         Templates are cloned into #modal-case-study-body by the renderer. Preserves 100% of original inline styles, IDs, buttons, legend, and behavior. -->
+    <template id="template-kg-graph">
+      <div class="mt-10 pt-8 border-t border-white/10">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <span class="uppercase tracking-[2.2px] text-[10px] font-medium text-[#C9A227]">VAULT VISUALIZATION</span>
+            <h4 class="text-[#E2E8F0] text-[21px] tracking-tighter mt-px">Live Slice of the Knowledge Graph</h4>
+          </div>
+          <div class="text-[10px] text-[#64748B] hidden sm:block">23 concepts • 35 connections</div>
+        </div>
+        
+        <p class="text-[#94A3B8] text-[13.5px] max-w-[58ch] mb-3">A real, interactive excerpt from the Seeking Biblical Truth Obsidian vault. Built with D3 force simulation to feel like a living map of ideas.</p>
+        
+        <!-- Obsidian workflow + tight integration link (prominent full viewer CTA) -->
+        <div class="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
+          <span class="text-[#64748B]">Obsidian export workflow:</span>
+          <a href="https://alphaeusng.github.io/Seeking-Biblical-Truth/" target="_blank" class="inline-flex items-center gap-x-1 text-[#C9A227] hover:underline font-medium">Open full interactive viewer →</a>
+          <span class="text-[#64748B]">· Clone repo &amp; open in Obsidian (Big Picture.canvas, Word of God/, Journal/, Heritage Christian University/ for native graph + canvases)</span>
+        </div>
+        
+        <!-- kg-modal-root: height driven by --kg-modal-height CSS var (responsive clamp) + .kg-modal-container rule.
+             Inline height removed so viewport-adaptive sizing works everywhere (including inside cloned modal templates).
+             Sub-header/footer use CSS vars for consistency. Graph area uses flex + responsive min-height. -->
+        <div id="kg-modal-root" class="kg-modal-container" style="width: 100%; background: #0A0F1C; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);">
+          
+          <div style="height: var(--kg-header-height); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 13px; display: flex; align-items: center; justify-content: space-between; background: #0A0F1C;">
+            <div class="flex items-center gap-x-2">
+              <div class="w-1.5 h-1.5 rounded-full bg-[#C9A227]"></div>
+              <span style="color:#C9A227; font-size:10.5px; letter-spacing:1.6px; font-weight:600;">SEEKING BIBLICAL TRUTH</span>
+            </div>
+            <div class="flex items-center gap-x-3">
+              <input id="kg-modal-search" type="text" placeholder="Search nodes..." aria-label="Search the knowledge graph"
+                     style="background:#111827; border:1px solid rgba(255,255,255,0.1); color:#CBD5E1; font-size:11px; padding:2.5px 10px; border-radius:999px; width:148px; outline:none;">
+              <a href="https://alphaeusng.github.io/Seeking-Biblical-Truth/" target="_blank" 
+                 style="font-size:9.5px; color:#C9A227; text-decoration:none; padding:1px 7px; border:1px solid rgba(201,162,39,0.4); border-radius:999px; white-space:nowrap;"
+                 title="Open the full dedicated interactive viewer">Full viewer ↗</a>
+            </div>
+          </div>
+          
+          <!-- Graph area: flex:1 lets it consume remaining height from responsive parent.
+               min-height lowered + CSS var influence for mobile / short screens. -->
+          <div class="kg-graph-area" style="flex: 1; position: relative; background: #0A0F1C; min-height: 160px;">
+            <svg id="kg-modal-svg" width="100%" height="100%" style="display:block; cursor: grab;" aria-label="Interactive force-directed graph of key concepts from the Seeking Biblical Truth vault"></svg>
+          </div>
+          
+          <div style="height: var(--kg-footer-height); background: #0A0F1C; border-top: 1px solid rgba(255,255,255,0.08); padding: 6px 12px; display: flex; align-items: center; gap: 9px; flex-wrap: wrap;">
+            <div style="display:flex; align-items:center; gap:7px; font-size:9px;">
+              <div style="display:flex; align-items:center; gap:3.5px;"><span style="display:inline-block; width:6px; height:6px; background:#5B9BD5; border-radius:999px;"></span><span style="color:#94A3B8;">Scripture</span></div>
+              <div style="display:flex; align-items:center; gap:3.5px;"><span style="display:inline-block; width:6px; height:6px; background:#C9A227; border-radius:999px;"></span><span style="color:#94A3B8;">Doctrine</span></div>
+              <div style="display:flex; align-items:center; gap:3.5px;"><span style="display:inline-block; width:6px; height:6px; background:#4CAF8A; border-radius:999px;"></span><span style="color:#94A3B8;">Tooling</span></div>
+              <div style="display:flex; align-items:center; gap:3.5px;"><span style="display:inline-block; width:6px; height:6px; background:#9F7AEA; border-radius:999px;"></span><span style="color:#94A3B8;">Vision</span></div>
+              <div style="display:flex; align-items:center; gap:3.5px;"><span style="display:inline-block; width:6px; height:6px; background:#E07A7A; border-radius:999px;"></span><span style="color:#94A3B8;">Personal</span></div>
+            </div>
+            <div style="flex:1"></div>
+            <div style="display:flex; gap:4px;">
+              <button onclick="kgModalReset()" class="kg-modal-btn">Reset</button>
+              <button onclick="kgModalReheat()" class="kg-modal-btn">Reheat</button>
+              <button onclick="kgModalShowAll()" class="kg-modal-btn">All</button>
+              <button onclick="kgModalExportPNG()" class="kg-modal-btn" title="Export current view as PNG" style="border-color:rgba(201,162,39,0.35);color:#C9A227;">PNG</button>
+            </div>
+            <div style="font-size:8.5px; color:#64748B; letter-spacing:0.4px; margin-left:2px;">Drag • Hover • Zoom • Export</div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template id="template-pipeline">
+      <!-- Base structure for pipeline visuals (cloned + mutated for scene-text and htx-threat).
+           Avoids duplicating flow markup in JS. JS uses targeted textContent / appendChild on clone. -->
+      <div class="mt-8 pt-6 border-t border-white/10">
+        <div class="uppercase tracking-[2.2px] text-[10px] font-medium text-[#C9A227] mb-2.5" data-role="title"></div>
+        <div class="pipeline-flow" data-role="steps"></div>
+        <div class="pipeline-note" data-role="note"></div>
+      </div>
+    </template>
+
+    <!-- External modular JavaScript -->
+    <script src="js/main.js"></script>
+    <script src="js/modals.js"></script>
+</body>
+</html>

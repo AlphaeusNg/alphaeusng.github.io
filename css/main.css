@@ -1,1 +1,180 @@
-PLACEHOLDER: Extracted custom CSS
+/* Custom styles for Alphaeus Ng portfolio - extracted from monolithic HTML for maintainability */
+
+/* Base typography & variables (kept for compatibility with existing inline styles) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap');
+
+:root {
+    --gold: #C9A227;
+    --kg-modal-height: clamp(300px, 46vh, 440px);
+    --kg-header-height: 42px;
+    --kg-footer-height: 52px;
+}
+
+body {
+    font-family: 'Inter', system_ui, sans-serif;
+}
+
+.heading-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-feature-settings: "kern" "liga" "tnum";
+}
+
+.section-header {
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.025em;
+}
+
+/* Card and visual components */
+.card {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.3s ease;
+}
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    border-color: #C9A227;
+}
+
+.vignette-card {
+    background-color: #0A0F1C;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 4px solid #C9A227;
+    border-radius: 1.5rem;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.2s ease;
+    padding-left: 1.65rem;
+}
+.vignette-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    border-color: rgba(201, 162, 39, 0.22);
+}
+.vignette-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.075em;
+    padding: 2px 9px;
+    border-radius: 9999px;
+    background: rgba(201, 162, 39, 0.08);
+    color: #C9A227;
+    border: 1px solid rgba(201, 162, 39, 0.18);
+    white-space: nowrap;
+    display: inline-block;
+}
+
+/* Modal and case study styles */
+.case-study h4 {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: #E2E8F0;
+    font-size: 1.05rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+.case-study p {
+    color: #94A3B8;
+    font-size: 0.98rem;
+    line-height: 1.72;
+}
+.case-study .intersection {
+    border-left: 3px solid #C9A227;
+    font-style: italic;
+    color: #CBD5E1;
+    background: #111827;
+    padding-left: 1rem;
+}
+.project-badge {
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 1px 10px;
+    border-radius: 9999px;
+    background: rgba(201, 162, 39, 0.1);
+    color: #C9A227;
+    border: 1px solid rgba(201, 162, 39, 0.2);
+}
+
+/* Pipeline visuals for rich modals */
+.case-study .pipeline-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin: 0.75rem 0;
+}
+.case-study .pipeline-step {
+    background: #111827;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.75rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    color: #CBD5E1;
+}
+.case-study .pipeline-arrow {
+    color: #64748B;
+    font-size: 0.9rem;
+}
+.case-study .pipeline-note {
+    font-size: 0.75rem;
+    color: #64748B;
+    margin-top: 0.25rem;
+}
+
+/* Knowledge Graph modal styles */
+.kg-modal-btn {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #CBD5E1;
+    background: rgba(255,255,255,0.03);
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+.kg-modal-btn:hover {
+    border-color: #C9A227;
+    color: #C9A227;
+}
+
+/* Filter chips for reflections */
+.filter-chip {
+    font-size: 10px;
+    padding: 1px 9px;
+    border-radius: 9999px;
+    border: 1px solid rgba(201,162,39,.22);
+    background: rgba(10,15,28,.7);
+    color: #CBD5E1;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+}
+.filter-chip.active {
+    background: #C9A227;
+    color: #0A0F1C;
+    border-color: #C9A227;
+    font-weight: 500;
+}
+.filter-chip:hover:not(.active) {
+    border-color: #C9A227;
+}
+
+/* General utilities */
+.elegant-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #334155, transparent);
+}
+
+.thesis-quote {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    border-left: 4px solid #C9A227;
+}
+
+/* Conviction page specific */
+.conviction-card {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.conviction-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
