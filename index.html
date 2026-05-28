@@ -13,6 +13,9 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://alphaeusng.github.io">
     <meta property="og:image" content="https://alphaeusng.github.io/assets/alphaeus-portrait.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" href="https://alphaeusng.github.io/">
+    <link rel="icon" href="assets/alphaeus-portrait.jpg" type="image/jpeg">
     
     <!-- Tailwind CSS (CDN - zero build) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -344,6 +347,11 @@
                                 <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">Short-form technical notes &amp; reflections on craft and faith</div>
                             </a>
 
+                            <a href="pages/seeking-biblical-truth/" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
+                                <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">Seeking Biblical Truth</div>
+                                <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">Interactive Obsidian vault with rendered Markdown previews, raw note source, and graph navigation</div>
+                            </a>
+
                             <a href="kobo-forge.html" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
                                 <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">KoboForge</div>
                                 <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">Client-side EPUB &amp; KEPUB tooling for Kobo readers — precision, private, production-ready</div>
@@ -351,7 +359,7 @@
 
                             <a href="conviction.html" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
                                 <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">Financial Conviction</div>
-                                <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">High-conviction, multi-decade capital allocation philosophy (not financial advice)</div>
+                                <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">TSLA position value versus an S&amp;P 500 benchmark funded by the same dated cash flows</div>
                             </a>
 
                             <!-- New: Direct quick link to CV downloads (Task 2). Uses anchor to the prominent card in Connect section. -->
@@ -412,6 +420,7 @@
                     </button>
                     <div id="mobile-explore-panel" class="hidden pl-3 mt-1 flex flex-col gap-y-[3px] text-[13px] border-l border-white/10 ml-1">
                         <a href="#thoughts" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">Thoughts — notes &amp; writing</a>
+                        <a href="pages/seeking-biblical-truth/" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">Seeking Biblical Truth</a>
                         <a href="kobo-forge.html" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">KoboForge</a>
                         <a href="conviction.html" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">Financial Conviction</a>
                         <a href="#cv-downloads" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white flex items-center gap-x-1.5">
@@ -662,6 +671,7 @@
                     </div>
                     
                     <p class="mt-6 text-[#94A3B8] flex-1">Ultra-robust, privacy-first converter engineered across 8 defensive phases. Handles the documents that defeat others: complex tables (colspan/rowspan, images, rich formatting), dense formulae, scanned pages, wide layouts, and adversarial DOCX. Web UI (client-only) + hardened Python companion with fidelity modes (text/balanced/exact), quality reports, epubcheck validation, and KEPUB polish. No uploads. All outputs Kobo-ready.</p>
+                    <p class="mt-6 text-[#94A3B8] flex-1">Ultra-robust, privacy-first converter engineered across 8 defensive phases. Handles the documents that defeat others: complex tables (colspan/rowspan, images, rich formatting), dense formulae, scanned pages, wide layouts, and adversarial DOCX. Web UI (client-only) + hardened Python companion with fidelity modes (text/balanced/exact), quality reports, epubcheck validation, and KEPUB polish. No uploads. All outputs Kobo-ready.</p>
                     
                     <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs tracking-widest text-[#64748B]">
                         <div>WEB + PYTHON • 8-PHASE BUILD</div>
@@ -695,7 +705,7 @@
                         <div>OPEN SOURCE • PYTHON + OBSIDIAN</div>
                         <div class="flex items-center gap-x-3 text-sm normal-case tracking-normal">
                             <button onclick="openRichProjectModal('seeking-biblical-truth')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
-                            <a href="https://alphaeusng.github.io/Seeking-Biblical-Truth/" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white font-medium">Launch vault →</a>
+                            <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white font-medium">Launch vault →</a>
                         </div>
                     </div>
                 </div>
@@ -775,7 +785,7 @@
          Thoughts / Blog (skeleton)
          Placed before the closing faith section so writing stays near the project work.
          Uses .blog-post cards for visual parity with site cards + gold accents + serif-capable headings.
-         "Read more" links are placeholders pointing to future content (markdown pages, /blog route, or external).
+         Draft note labels mark future content until standalone posts exist.
          Easy expansion comment below. Matches existing typography, spacing, and color language.
          ===================================================== -->
     <section id="thoughts" class="max-w-5xl mx-auto px-6 py-20 md:py-28 scroll-mt-20">
@@ -794,7 +804,7 @@
                 <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">APR 2025</div>
                 <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">On building tools that outlive the hype cycle</h3>
                 <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Why most AI tooling fades within 18 months, and what actually earns the right to be maintained for a decade.</p>
-                <a href="#" class="text-[#C9A227] text-sm inline-flex items-center gap-x-1.5 group-hover:gap-x-2 transition font-medium">Read more <span aria-hidden="true">→</span></a>
+                <span class="text-[#64748B] text-xs font-medium">Draft note</span>
             </div>
 
             <!-- Placeholder 2 -->
@@ -802,7 +812,7 @@
                 <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">MAR 2025</div>
                 <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">Precision as faithfulness (notes on language &amp; code)</h3>
                 <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Careless language about God (or about models) is not a small thing. The engineer’s recoil at undefined terms is the same instinct as the Christian’s.</p>
-                <a href="#" class="text-[#C9A227] text-sm inline-flex items-center gap-x-1.5 group-hover:gap-x-2 transition font-medium">Read more <span aria-hidden="true">→</span></a>
+                <span class="text-[#64748B] text-xs font-medium">Draft note</span>
             </div>
 
             <!-- Placeholder 3 -->
@@ -810,7 +820,7 @@
                 <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">FEB 2025</div>
                 <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">The map is not the territory — in theology and in ML</h3>
                 <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Every model (statistical or doctrinal) is a compression. Humility before the text and before held-out data is the only honest posture.</p>
-                <a href="#" class="text-[#C9A227] text-sm inline-flex items-center gap-x-1.5 group-hover:gap-x-2 transition font-medium">Read more <span aria-hidden="true">→</span></a>
+                <span class="text-[#64748B] text-xs font-medium">Draft note</span>
             </div>
 
             <!-- Placeholder 4 (wider feel on large screens) -->
@@ -818,7 +828,7 @@
                 <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">JAN 2025</div>
                 <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">Lowering the barrier to careful communal study</h3>
                 <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Building the smallest possible surface area between a curious reader and primary sources + rigorous secondary literature.</p>
-                <a href="#" class="text-[#C9A227] text-sm inline-flex items-center gap-x-1.5 group-hover:gap-x-2 transition font-medium">Read more <span aria-hidden="true">→</span></a>
+                <span class="text-[#64748B] text-xs font-medium">Draft note</span>
             </div>
         </div>
 
@@ -827,7 +837,7 @@
             <!-- 
                 EXPANSION: Add new entries here as additional .blog-post divs (copy pattern above) 
                 OR via a small JS array + renderer function (see PROJECT_MODAL_DATA pattern in openRichProjectModal for reference).
-                When ready for real posts: replace href="#" with real links (e.g. /thoughts/slug.html or GitHub .md raw + renderer).
+                When ready for real posts: replace Draft note labels with real links (e.g. /thoughts/slug.html or GitHub .md raw + renderer).
                 Keep gold accents, rounded-2xl cards, and consistent typography.
             -->
         </div>
@@ -853,14 +863,14 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-y-1 mb-4">
                         <div>
                             <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#C9A227]">PROFESSIONAL MATERIALS</div>
-                            <div class="text-[17px] sm:text-lg font-semibold tracking-tight text-white mt-0.5">Download CV</div>
+                            <div class="text-[17px] sm:text-lg font-semibold tracking-tight text-white mt-0.5">Resume / CV</div>
                         </div>
                         <div class="text-[10px] text-[#64748B] sm:text-right font-medium">Last updated: May 2026</div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <!-- Primary: PDF -->
-                        <a href="assets/resume.pdf" download="Alphaeus_Ng_CV.pdf"
+                        <!-- Primary: shared Drive resume -->
+                        <a href="https://docs.google.com/document/d/13kFCvREXmmXATNZhuG3DNd3wkhK-uHIq/edit?usp=drive_link&amp;ouid=117813149167461262984&amp;rtpof=true&amp;sd=true" target="_blank" rel="noopener noreferrer"
                            class="group flex items-center gap-3.5 rounded-xl border border-white/15 bg-white/[0.035] px-4 py-3 hover:border-[#C9A227] hover:bg-[#C9A227]/10 active:scale-[0.985] transition-all">
                             <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#C9A227]/10 text-[#C9A227] group-hover:bg-[#C9A227] group-hover:text-[#0A0F1C] transition-colors">
                                 <!-- Document / PDF icon -->
@@ -871,18 +881,18 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-x-2">
-                                    <span class="font-semibold text-[#E2E8F0] group-hover:text-white transition-colors">PDF</span>
-                                    <span class="text-[9px] px-1.5 py-px rounded bg-[#C9A227]/20 text-[#C9A227] font-mono tracking-tight">2 KB</span>
+                                    <span class="font-semibold text-[#E2E8F0] group-hover:text-white transition-colors">Open resume</span>
+                                    <span class="text-[9px] px-1.5 py-px rounded bg-[#C9A227]/20 text-[#C9A227] font-mono tracking-tight">DRIVE</span>
                                 </div>
-                                <div class="text-[11px] text-[#94A3B8] leading-tight mt-px">Professional • 1 page • Recommended</div>
+                                <div class="text-[11px] text-[#94A3B8] leading-tight mt-px">Canonical shared link</div>
                             </div>
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#64748B] group-hover:text-[#C9A227] transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.75">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 13v6m0 0l-3-3m3 3l3-3M3 17v-6a2 2 0 012-2h4" />
                             </svg>
                         </a>
 
-                        <!-- Secondary: DOCX -->
-                        <a href="assets/resume.docx" download="Alphaeus_Ng_CV.docx"
+                        <!-- Secondary: direct share link for forwarding -->
+                        <a href="https://docs.google.com/document/d/13kFCvREXmmXATNZhuG3DNd3wkhK-uHIq/edit?usp=drive_link&amp;ouid=117813149167461262984&amp;rtpof=true&amp;sd=true" target="_blank" rel="noopener noreferrer"
                            class="group flex items-center gap-3.5 rounded-xl border border-white/15 bg-white/[0.035] px-4 py-3 hover:border-[#C9A227]/70 hover:bg-white/5 active:scale-[0.985] transition-all">
                             <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white/10 text-[#CBD5E1] group-hover:text-[#C9A227] transition-colors">
                                 <!-- Document icon (Word/DOCX) -->
@@ -893,10 +903,10 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-x-2">
-                                    <span class="font-semibold text-[#E2E8F0] group-hover:text-white transition-colors">DOCX</span>
-                                    <span class="text-[9px] px-1.5 py-px rounded bg-white/10 text-[#94A3B8] font-mono tracking-tight">2 KB</span>
+                                    <span class="font-semibold text-[#E2E8F0] group-hover:text-white transition-colors">Share link</span>
+                                    <span class="text-[9px] px-1.5 py-px rounded bg-white/10 text-[#94A3B8] font-mono tracking-tight">URL</span>
                                 </div>
-                                <div class="text-[11px] text-[#94A3B8] leading-tight mt-px">Editable Word format</div>
+                                <div class="text-[11px] text-[#94A3B8] leading-tight mt-px">Best for recruiters and referrals</div>
                             </div>
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#64748B] group-hover:text-[#C9A227] transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.75">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 13v6m0 0l-3-3m3 3l3-3M3 17v-6a2 2 0 012-2h4" />
@@ -927,10 +937,10 @@
                 </a>
 
                 <div class="flex flex-wrap justify-center gap-x-4 gap-y-3 pt-3 text-sm">
-                    <a href="https://github.com/AlphaeusNg" target="_blank" class="px-6 py-2 rounded-full border border-white/10 hover:border-white/30 text-[#CBD5E1] hover:text-white transition flex items-center gap-x-2">
+                    <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="px-6 py-2 rounded-full border border-white/10 hover:border-white/30 text-[#CBD5E1] hover:text-white transition flex items-center gap-x-2">
                         <span>GitHub</span>
                     </a>
-                    <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" class="px-6 py-2 rounded-full border border-white/10 hover:border-white/30 text-[#CBD5E1] hover:text-white transition flex items-center gap-x-2">
+                    <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="px-6 py-2 rounded-full border border-white/10 hover:border-white/30 text-[#CBD5E1] hover:text-white transition flex items-center gap-x-2">
                         <span>LinkedIn</span>
                     </a>
                 </div>
@@ -1020,7 +1030,7 @@
 
     <footer class="py-8 text-center text-xs text-[#475569]">
         © Alphaeus Ng. All rights reserved. <span class="mx-2">—</span> 
-        <a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" class="hover:text-[#64748B]">Source on GitHub</a>
+        <a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer" class="hover:text-[#64748B]">Source on GitHub</a>
         <span class="mx-3 opacity-30">·</span>
         <a href="conviction.html" class="hover:text-[#94A3B8] transition">Investment Conviction</a>
     </footer>
@@ -1081,7 +1091,7 @@
         <!-- Obsidian workflow + tight integration link (prominent full viewer CTA) -->
         <div class="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
           <span class="text-[#64748B]">Obsidian export workflow:</span>
-          <a href="https://alphaeusng.github.io/Seeking-Biblical-Truth/" target="_blank" class="inline-flex items-center gap-x-1 text-[#C9A227] hover:underline font-medium">Open full interactive viewer →</a>
+          <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-x-1 text-[#C9A227] hover:underline font-medium">Open full interactive viewer →</a>
           <span class="text-[#64748B]">· Clone repo &amp; open in Obsidian (Big Picture.canvas, Word of God/, Journal/, Heritage Christian University/ for native graph + canvases)</span>
         </div>
         
@@ -1098,7 +1108,7 @@
             <div class="flex items-center gap-x-3">
               <input id="kg-modal-search" type="text" placeholder="Search nodes..." aria-label="Search the knowledge graph"
                      style="background:#111827; border:1px solid rgba(255,255,255,0.1); color:#CBD5E1; font-size:11px; padding:2.5px 10px; border-radius:999px; width:148px; outline:none;">
-              <a href="https://alphaeusng.github.io/Seeking-Biblical-Truth/" target="_blank" 
+              <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer"
                  style="font-size:9.5px; color:#C9A227; text-decoration:none; padding:1px 7px; border:1px solid rgba(201,162,39,0.4); border-radius:999px; white-space:nowrap;"
                  title="Open the full dedicated interactive viewer">Full viewer ↗</a>
             </div>

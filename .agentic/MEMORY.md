@@ -10,17 +10,19 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `css/main.css`: extracted shared styles used by the main page.
 - `js/main.js`: navbar, mobile menu, smooth scroll, active section highlighting, accessibility behavior.
 - `js/modals.js`: rich project case-study modal data and rendering.
+- `conviction.html`: standalone TSLA conviction page rendered from imported IBKR transaction history.
+- `kobo-forge.html`: standalone client-side EPUB builder page.
 - `pages/`: secondary public pages.
-- `pages/conviction.html`: standalone TSLA-versus-SPY benchmark page loaded from static JSON.
-- `pages/kobo-forge.html`: standalone KoboForge project page.
 - `pages/seeking-biblical-truth/index.html`: data-driven interactive viewer for the Biblical Truth knowledge-base project.
 - `pages/seeking-biblical-truth/vault-data.json`: generated from `/home/alph/codex/Seeking-Biblical-Truth` Markdown notes and `Big Picture.canvas`.
 - `assets/`: images and share assets referenced by public pages.
 - `tools/`: maintenance scripts grouped by domain.
 - `tools/koboforge/`: KoboForge companion tooling.
 - `tools/finance/`: financial data extraction utilities.
-- `pages/data/tsla-vs-spy.json`: generated monthly benchmark series for the conviction page.
-- Root `conviction.html`, `kobo-forge.html`, and `seeking-biblical-truth/index.html`: compatibility redirects.
+- `data/tsla_transactions.csv`: imported IBKR TSLA transaction history.
+- `data/conviction_tsla_history.json`: split-adjusted monthly dataset consumed by `js/conviction.js`.
+- `pages/data/tsla-vs-spy.json`: upstream benchmark series retained for reference.
+- `seeking-biblical-truth/index.html`: compatibility redirect.
 
 ## Deployment
 
@@ -28,14 +30,12 @@ GitHub Pages serves the repository root from `main`. The current site is zero-bu
 
 ## Known Issues And Risks
 
-- Some prior commits attempted to deploy binary assets but the cloned repo contained text placeholders. Verify with `file assets/alphaeus-portrait.jpg og-image.jpg`.
+- Some prior commits attempted to deploy binary assets but the cloned repo contained text placeholders. Verify with `file assets/alphaeus-portrait.jpg`.
 - GitHub Pages paths are case-sensitive. Use `pages/seeking-biblical-truth/` for the canonical viewer path.
-- `kobo-forge.html` is a redirect; the actual page is `pages/kobo-forge.html`.
 - The site depends on third-party CDNs. Local rendering requires network access for full styling/scripts.
 - The Biblical Truth viewer now defaults to rendered Markdown previews and offers a raw-source toggle. Verify both modes after viewer edits.
 - Local resume PDFs/DOCX may become stale. The canonical resume share target is the provided Google Drive link.
-- The conviction page is intentionally static and should not load private spreadsheets in the browser. Regenerate `pages/data/tsla-vs-spy.json` locally when the source ledger or benchmark method changes.
-- The conviction page currently uses monthly-close TSLA/SPY history and mirrors signed cash flows into SPY. Keep the benchmark method and its limitations visible on the page.
+- The conviction page is intentionally static and should not load private spreadsheets in the browser. Regenerate `data/conviction_tsla_history.json` from `data/tsla_transactions.csv` when the source ledger changes.
 - Legacy Jekyll/Minimal Mistakes files were removed after reference checks confirmed the current static entry pages do not use them.
 
 ## Validation Steps
@@ -43,15 +43,15 @@ GitHub Pages serves the repository root from `main`. The current site is zero-bu
 Run:
 
 ```bash
-cd /home/alph/codex/alphaeusng.github.io
+cd /home/alph/alphaeusng.github.io
 python3 -m http.server 8000
 ```
 
 Then inspect:
 
 - `http://127.0.0.1:8000/`
-- `http://127.0.0.1:8000/pages/kobo-forge.html`
-- `http://127.0.0.1:8000/pages/conviction.html`
+- `http://127.0.0.1:8000/kobo-forge.html`
+- `http://127.0.0.1:8000/conviction.html`
 - `http://127.0.0.1:8000/pages/seeking-biblical-truth/`
 - `http://127.0.0.1:8000/seeking-biblical-truth/` redirect
 

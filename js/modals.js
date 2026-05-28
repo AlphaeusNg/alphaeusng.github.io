@@ -43,7 +43,48 @@ const PROJECT_MODAL_DATA = {
       },
       secondary: {
         label: 'Full vault + interactive graph →',
-        url: 'https://alphaeusng.github.io/Seeking-Biblical-Truth/'
+        url: 'pages/seeking-biblical-truth/'
+      }
+    }
+  },
+
+  'koboforge': {
+    slug: 'koboforge',
+    title: 'KoboForge',
+    badges: ['AI TOOLING', 'LOCAL-FIRST'],
+    contextLine: 'Private EPUB workflow for Kobo readers',
+    introParagraph: 'KoboForge is a browser-based EPUB builder for Kobo readers that keeps private files local while doing a better job of preserving paragraph boundaries and indentation.',
+    sections: [
+      {
+        heading: 'The Problem',
+        content: 'Many document converters handle simple prose but fail on the files readers actually keep: reports with complex tables, scanned material, wide layouts, and formula-heavy pages. KoboForge treats those cases as first-class conversion problems rather than edge cases.'
+      },
+      {
+        heading: 'The Approach',
+        content: 'The restored public page runs fully client-side. DOCX, PDF, TXT, and Markdown inputs are parsed in the browser, previewed before export, and then packaged into an EPUB without any upload step. PDF handling now uses line-height and x-position heuristics to reconstruct spaces, paragraph breaks, and indentation more faithfully than the older version.',
+        techNote: 'Tech: static HTML, JSZip, Mammoth, PDF.js, client-side EPUB packaging, plus optional Python companion tooling under tools/.'
+      }
+    ],
+    intersection: {
+      content: 'This project reflects the same engineering instinct as the rest of the site: preserve meaning across format boundaries, be honest about failure modes, and keep private material private by default.'
+    },
+    challenges: {
+      heading: 'Current Limitations',
+      content: 'PDF extraction is still heuristic rather than semantically perfect. DOCX remains the cleanest path because it carries native paragraph structure; PDFs require inference from coordinates, spacing, and indentation.'
+    },
+    currentState: {
+      heading: 'Current State',
+      content: 'The deployed site now includes the client-side converter again, with local preview and EPUB export. The Python companion remains useful for tougher offline experiments and future fidelity work.'
+    },
+    actions: {
+      primary: {
+        label: 'Open KoboForge page',
+        url: 'kobo-forge.html',
+        icon: 'external-link'
+      },
+      secondary: {
+        label: 'Read companion notes',
+        url: 'tools/koboforge/README.md'
       }
     }
   },
@@ -281,6 +322,38 @@ function openRichProjectModal(slug) {
       q.innerHTML = `“${data.quote.text}” — <span class="not-italic">${data.quote.attribution}</span>`;
       body.appendChild(q);
     }
+
+    if (data.visual && data.visual.enabled && data.visual.type === 'd3-knowledge-graph') {
+      const template = document.getElementById('template-kg-graph');
+      if (template) body.appendChild(template.content.cloneNode(true));
+    }
+  }
+
+  const footer = document.getElementById('modal-footer-actions');
+  if (footer) {
+    footer.innerHTML = '';
+
+    const actions = [data.actions && data.actions.primary, data.actions && data.actions.secondary].filter(Boolean);
+    actions.forEach((action, index) => {
+      const link = document.createElement('a');
+      link.href = action.url;
+      link.textContent = action.label;
+      link.className = index === 0
+        ? 'inline-flex items-center justify-center rounded-full bg-[#C9A227] px-5 py-2.5 font-medium text-[#0A0F1C] hover:bg-[#EAB308] transition-colors'
+        : 'inline-flex items-center justify-center rounded-full border border-white/15 px-5 py-2.5 font-medium text-[#CBD5E1] hover:border-[#C9A227]/60 hover:text-white transition-colors';
+      if (/^https?:\/\//.test(action.url)) {
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+      }
+      footer.appendChild(link);
+    });
+
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.textContent = 'Close';
+    close.className = 'inline-flex items-center justify-center rounded-full px-5 py-2.5 font-medium text-[#94A3B8] hover:text-white transition-colors sm:ml-auto';
+    close.addEventListener('click', closeProjectModal);
+    footer.appendChild(close);
   }
 
   // Show modal
@@ -304,5 +377,153 @@ function closeProjectModal() {
   document.body.style.overflow = '';
 }
 
+const KG_MODAL_DATA = {
+  nodes: [
+    { id: 'bible', label: 'Bible', group: 'scripture' },
+    { id: 'truth_weight', label: 'Truth Weight', group: 'doctrine' },
+    { id: 'salvation', label: 'Salvation', group: 'doctrine' },
+    { id: 'epistemic', label: 'Epistemic Humility', group: 'personal' },
+    { id: 'discussion_app', label: 'Christian Discussion App', group: 'vision' },
+    { id: 'obsidian', label: 'Obsidian Vault', group: 'tooling' },
+    { id: 'logos', label: 'Logos', group: 'scripture' },
+    { id: 'annotations', label: 'Annotation Pipelines', group: 'tooling' },
+    { id: 'big_picture', label: 'Big Picture Canvas', group: 'vision' }
+  ],
+  links: [
+    { source: 'bible', target: 'salvation' },
+    { source: 'truth_weight', target: 'salvation' },
+    { source: 'truth_weight', target: 'epistemic' },
+    { source: 'truth_weight', target: 'discussion_app' },
+    { source: 'discussion_app', target: 'bible' },
+    { source: 'epistemic', target: 'logos' },
+    { source: 'obsidian', target: 'big_picture' },
+    { source: 'annotations', target: 'obsidian' }
+  ]
+};
+
+let kgModalSimulation = null;
+
+function kgColor(group) {
+  return {
+    scripture: '#5B9BD5',
+    doctrine: '#C9A227',
+    vision: '#9F7AEA',
+    tooling: '#4CAF8A',
+    personal: '#E07A7A'
+  }[group] || '#CBD5E1';
+}
+
+function initKGModalGraph() {
+  const root = document.getElementById('kg-modal-root');
+  const svgEl = document.getElementById('kg-modal-svg');
+  if (!root || !svgEl || typeof d3 === 'undefined') return;
+
+  const graphArea = root.querySelector('.kg-graph-area') || root;
+  const width = Math.max(280, graphArea.clientWidth || root.clientWidth || 640);
+  const height = Math.max(180, graphArea.clientHeight || 300);
+  const nodes = KG_MODAL_DATA.nodes.map(node => ({ ...node }));
+  const links = KG_MODAL_DATA.links.map(link => ({ ...link }));
+
+  if (kgModalSimulation) kgModalSimulation.stop();
+
+  const svg = d3.select(svgEl);
+  svg.selectAll('*').remove();
+  svg.attr('viewBox', `0 0 ${width} ${height}`);
+
+  const link = svg.append('g')
+    .attr('stroke', '#4B5563')
+    .attr('stroke-opacity', 0.65)
+    .selectAll('line')
+    .data(links)
+    .join('line')
+    .attr('stroke-width', 1.3);
+
+  const node = svg.append('g')
+    .selectAll('g')
+    .data(nodes)
+    .join('g')
+    .attr('class', 'kg-modal-node')
+    .call(d3.drag()
+      .on('start', (event, d) => {
+        if (!event.active) kgModalSimulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      })
+      .on('drag', (event, d) => {
+        d.fx = event.x;
+        d.fy = event.y;
+      })
+      .on('end', (event, d) => {
+        if (!event.active) kgModalSimulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      }));
+
+  node.append('circle')
+    .attr('r', d => d.group === 'doctrine' ? 10 : 8)
+    .attr('fill', d => kgColor(d.group));
+
+  node.append('text')
+    .text(d => d.label)
+    .attr('x', 14)
+    .attr('y', 4)
+    .attr('fill', '#E5E7EB')
+    .attr('font-size', 11);
+
+  kgModalSimulation = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(86))
+    .force('charge', d3.forceManyBody().strength(-260))
+    .force('center', d3.forceCenter(width / 2, height / 2))
+    .on('tick', () => {
+      link
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y);
+      node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+
+  const search = document.getElementById('kg-modal-search');
+  if (search) {
+    search.addEventListener('input', () => {
+      const term = search.value.trim().toLowerCase();
+      node.style('opacity', d => !term || d.label.toLowerCase().includes(term) ? 1 : 0.18);
+    });
+  }
+}
+
+function kgModalReset() {
+  initKGModalGraph();
+}
+
+function kgModalReheat() {
+  if (kgModalSimulation) kgModalSimulation.alpha(0.8).restart();
+}
+
+function kgModalShowAll() {
+  const search = document.getElementById('kg-modal-search');
+  if (search) search.value = '';
+  document.querySelectorAll('.kg-modal-node').forEach(node => {
+    node.style.opacity = '1';
+  });
+}
+
+function kgModalExportPNG() {
+  const root = document.getElementById('kg-modal-root');
+  if (!root || typeof html2canvas === 'undefined') return;
+  html2canvas(root, { backgroundColor: '#0A0F1C', scale: 2 }).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'seeking-biblical-truth-graph.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+
 // Expose for debugging if needed
 window.openRichProjectModal = openRichProjectModal;
+window.closeProjectModal = closeProjectModal;
+window.initKGModalGraph = initKGModalGraph;
+window.kgModalReset = kgModalReset;
+window.kgModalReheat = kgModalReheat;
+window.kgModalShowAll = kgModalShowAll;
+window.kgModalExportPNG = kgModalExportPNG;

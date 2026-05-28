@@ -15,11 +15,12 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Seeking Biblical Truth integration (Task 4)
-# Cloned locally via `git clone --depth 1` for localhost testing and Obsidian vault browsing.
-# The vault contents are NOT committed to this site repo (separate source of truth).
-# This keeps the site repo lean; users run the clone command locally for experimentation.
-seeking-biblical-truth/
+# Seeking Biblical Truth integration
+# The committed public viewer lives in `pages/seeking-biblical-truth/` and is
+# generated from the separate source vault repo. Do not clone the full vault into
+# this repository.
+seeking-biblical-truth/*
+!seeking-biblical-truth/index.html
 
 # Obsidian vault caches & volatile files (large or session-specific; exclude even if folder present)
 **/.obsidian/workspace.json
