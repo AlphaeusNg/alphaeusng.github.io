@@ -11,7 +11,7 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `js/main.js`: navbar, mobile menu, smooth scroll, active section highlighting, accessibility behavior.
 - `js/modals.js`: rich project case-study modal data and rendering.
 - `pages/`: secondary public pages.
-- `pages/conviction.html`: standalone investment philosophy page, intentionally lower-profile.
+- `pages/conviction.html`: standalone financial-conviction page with an owner-anonymized TSLA accumulation chart loaded from static JSON.
 - `pages/kobo-forge.html`: standalone KoboForge project page.
 - `pages/seeking-biblical-truth/index.html`: data-driven interactive viewer for the Biblical Truth knowledge-base project.
 - `pages/seeking-biblical-truth/vault-data.json`: generated from `/home/alph/codex/Seeking-Biblical-Truth` Markdown notes and `Big Picture.canvas`.
@@ -19,6 +19,7 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `tools/`: maintenance scripts grouped by domain.
 - `tools/koboforge/`: KoboForge companion tooling.
 - `tools/finance/`: financial data extraction utilities.
+- `pages/data/tsla-accumulation.json`: generated monthly series for the conviction page.
 - Root `conviction.html`, `kobo-forge.html`, and `seeking-biblical-truth/index.html`: compatibility redirects.
 
 ## Deployment
@@ -33,6 +34,7 @@ GitHub Pages serves the repository root from `main`. The current site is zero-bu
 - The site depends on third-party CDNs. Local rendering requires network access for full styling/scripts.
 - The Biblical Truth viewer now defaults to rendered Markdown previews and offers a raw-source toggle. Verify both modes after viewer edits.
 - Local resume PDFs/DOCX may become stale. The canonical resume share target is the provided Google Drive link.
+- The conviction page is intentionally static and should not load private spreadsheets in the browser. Regenerate `pages/data/tsla-accumulation.json` locally when the source ledger changes.
 - Legacy Jekyll/Minimal Mistakes files were removed after reference checks confirmed the current static entry pages do not use them.
 
 ## Validation Steps

@@ -3,52 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>High Conviction • Alphaeus Ng</title>
-    <meta name="description" content="Personal investment philosophy and high-conviction approach. Not financial advice.">
+    <title>Financial Conviction • Alphaeus Ng</title>
+    <meta name="description" content="Why concentration in one exceptional company is not automatically reckless, with an owner-anonymized TSLA accumulation case study. Not financial advice.">
+    <link rel="canonical" href="https://alphaeusng.github.io/pages/conviction.html">
     <link rel="icon" href="../assets/alphaeus-portrait.jpg" type="image/jpeg">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for interactive Net Worth / Network growth visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS (xlsx) via CDN — enables fully client-side .xlsx parsing for the drag-and-drop loader below.
-         Practical for static GitHub Pages: ~250KB transfer, no server, works offline after first load.
-         Version pinned for reproducibility. -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap');
-        
         body {
-            font-family: 'Inter', system_ui, sans-serif;
-        }
-        
-        .heading-serif {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-feature-settings: "kern" "liga" "tnum";
+            font-family: "Inter", system-ui, sans-serif;
         }
 
         .section-header {
-            font-family: 'Playfair Display', Georgia, serif;
-            letter-spacing: -0.025em;
-        }
-
-        .gold-accent {
-            color: #C9A227;
-        }
-
-        .prose-elegant {
-            font-size: 1.05rem;
-            line-height: 1.75;
-            color: #CBD5E1;
-        }
-
-        .conviction-card {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .conviction-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            font-family: "Playfair Display", Georgia, serif;
         }
 
         .elegant-divider {
@@ -56,643 +24,558 @@
             background: linear-gradient(to right, transparent, #334155, transparent);
         }
 
-        .thesis-quote {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-style: italic;
-            border-left: 4px solid #C9A227;
+        .view-toggle[aria-pressed="true"] {
+            background: #c9a227;
+            border-color: #c9a227;
+            color: #0a0f1c;
         }
     </style>
 </head>
 <body class="bg-[#0A0F1C] text-[#F8FAFC] antialiased">
-    <!-- Minimal top bar -->
     <div class="border-b border-white/10">
-        <div class="max-w-5xl mx-auto px-6">
+        <div class="max-w-6xl mx-auto px-6">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-x-3">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#C9A227] to-[#A68B1F] flex items-center justify-center">
-                        <span class="text-[#0A0F1C] font-semibold text-lg tracking-tighter">A</span>
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-[#C9A227] flex items-center justify-center">
+                        <span class="text-[#0A0F1C] font-semibold text-lg">A</span>
                     </div>
-                    <a href="../index.html" class="font-semibold tracking-tight hover:text-[#C9A227] transition">Alphaeus Ng</a>
+                    <a href="../index.html" class="font-semibold tracking-tight hover:text-[#C9A227] transition-colors">Alphaeus Ng</a>
                 </div>
-                <a href="../index.html" class="text-sm text-[#94A3B8] hover:text-white transition flex items-center gap-x-2">
-                    ← Back to main site
-                </a>
+                <a href="../index.html" class="text-sm text-[#94A3B8] hover:text-white transition-colors">Back to main site</a>
             </div>
         </div>
     </div>
 
-    <!-- Hero -->
-    <header class="max-w-4xl mx-auto px-6 pt-16 pb-12">
-        <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-4">PERSONAL PHILOSOPHY</div>
-        
-        <h1 class="section-header text-7xl leading-none tracking-tighter mb-6">
-            High Conviction
-        </h1>
-        
-        <p class="max-w-2xl text-2xl text-[#CBD5E1] leading-tight">
-            Concentrated capital allocation in the highest-conviction ideas after deep, multi-year research.
-        </p>
-        
-        <div class="mt-8 flex items-center gap-x-4 text-sm">
-            <div class="px-4 py-1.5 rounded-full border border-white/10 text-[#94A3B8]">
-                Similar framework to Steven Mark Ryan
+    <header class="px-6 py-16 md:py-20">
+        <div class="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">Financial Conviction</p>
+                <h1 class="section-header mt-5 text-5xl md:text-7xl leading-none text-white">A single stock is not automatically foolish.</h1>
+                <p class="mt-6 max-w-3xl text-xl md:text-2xl leading-tight text-[#CBD5E1]">
+                    Concentration becomes rational when the business is exceptional, the research is deep, the holding period is long, and the owner knows what evidence would prove the thesis wrong.
+                </p>
+                <div class="mt-8 flex flex-wrap gap-3 text-sm text-[#CBD5E1]">
+                    <span class="px-4 py-2 rounded-full border border-white/10">Business quality first</span>
+                    <span class="px-4 py-2 rounded-full border border-white/10">Long-horizon ownership</span>
+                    <span class="px-4 py-2 rounded-full border border-white/10">Explicit falsification</span>
+                </div>
             </div>
-            <div class="text-[#64748B]">•</div>
-            <div class="text-[#94A3B8]">Multi-decade time horizon</div>
+
+            <div class="border border-white/10 rounded-2xl bg-white/[0.03] p-6 md:p-7">
+                <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">Boundary</p>
+                <p class="mt-4 text-lg leading-relaxed text-[#E2E8F0]">
+                    This page is not a performance flex and not an argument against diversification in general.
+                </p>
+                <p class="mt-4 text-sm leading-7 text-[#94A3B8]">
+                    The narrower claim is that concentration in one exceptional company can be coherent. The case study below anonymizes the owner and shows the shape of disciplined accumulation over time, not what anyone else should buy.
+                </p>
+            </div>
         </div>
     </header>
 
-    <div class="elegant-divider max-w-4xl mx-auto px-6"></div>
+    <div class="elegant-divider max-w-6xl mx-auto px-6"></div>
 
-    <!-- Core Thesis -->
-    <section class="max-w-4xl mx-auto px-6 py-16">
-        <div class="prose-elegant max-w-3xl">
-            <p class="text-xl">After years of studying markets, businesses, and my own psychology, I arrived at the same conclusion as other high-conviction investors: when you have developed genuine edge through obsessive research, the rational response is not diversification — it is concentration.</p>
-            
-            <p>I follow a framework very similar to Steven Mark Ryan: identify one (or very few) exceptional opportunities where my understanding is significantly deeper than the market’s, then allocate aggressively and hold for decades through volatility.</p>
-        </div>
+    <section class="px-6 py-16">
+        <div class="max-w-6xl mx-auto">
+            <div class="max-w-3xl">
+                <h2 class="section-header text-3xl md:text-4xl text-white">What makes concentration rational</h2>
+                <p class="mt-4 text-lg leading-8 text-[#94A3B8]">
+                    Diversification is excellent when knowledge is shallow or the opportunity set is similar. It is less compelling when one business stands apart in quality, durability, and expected long-term compounding.
+                </p>
+            </div>
 
-        <div class="mt-10 border-l-4 border-[#C9A227] pl-7">
-            <p class="text-2xl leading-tight text-[#E2E8F0] tracking-[-0.01em] section-header">
-                “Diversification is a hedge against ignorance. If you know what you’re doing, concentration is the only logical choice.”
-            </p>
-            <p class="mt-4 text-sm tracking-wide text-[#64748B]">— Core principle I share with the high-conviction school</p>
-        </div>
-    </section>
-
-    <!-- Principles -->
-    <section class="max-w-4xl mx-auto px-6 pb-16">
-        <h2 class="section-header text-4xl tracking-tight mb-10">Core Principles</h2>
-        
-        <div class="grid md:grid-cols-2 gap-6">
-            <div class="conviction-card bg-[#111827] border border-white/10 rounded-3xl p-8">
-                <div class="text-[#C9A227] text-sm tracking-[2px] mb-3">01</div>
-                <h3 class="text-2xl font-semibold tracking-tight mb-4">Conviction Must Be Earned</h3>
-                <p class="text-[#94A3B8]">I only reach high conviction after thousands of hours across financials, technology, competitive dynamics, management character, and second-order effects. Surface-level understanding is not enough.</p>
-            </div>
-            
-            <div class="conviction-card bg-[#111827] border border-white/10 rounded-3xl p-8">
-                <div class="text-[#C9A227] text-sm tracking-[2px] mb-3">02</div>
-                <h3 class="text-2xl font-semibold tracking-tight mb-4">Concentration Over Diversification</h3>
-                <p class="text-[#94A3B8]">When the probability-weighted upside of one idea dwarfs everything else in your universe, spreading capital dilutes returns. I would rather be 80-100% in my best idea than 5% in twenty good ones.</p>
-            </div>
-            
-            <div class="conviction-card bg-[#111827] border border-white/10 rounded-3xl p-8">
-                <div class="text-[#C9A227] text-sm tracking-[2px] mb-3">03</div>
-                <h3 class="text-2xl font-semibold tracking-tight mb-4">Multi-Decade Time Horizon</h3>
-                <p class="text-[#94A3B8]">True compounding requires patience most investors do not possess. I optimize for 15–30+ year outcomes, not quarterly or even annual performance.</p>
-            </div>
-            
-            <div class="conviction-card bg-[#111827] border border-white/10 rounded-3xl p-8">
-                <div class="text-[#C9A227] text-sm tracking-[2px] mb-3">04</div>
-                <h3 class="text-2xl font-semibold tracking-tight mb-4">Ruthless Measurement &amp; Frugality</h3>
-                <p class="text-[#94A3B8]">I track income, expenses, and capital allocation with extreme granularity (see “My Finances” and “Network Tracker” sheets). Every dollar not spent on lifestyle is capital that can compound in the highest-conviction idea.</p>
+            <div class="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">01</p>
+                    <h3 class="mt-4 text-xl font-semibold text-white">The company is genuinely rare</h3>
+                    <p class="mt-3 text-sm leading-7 text-[#94A3B8]">
+                        Market leadership, unusual execution, expanding economics, and a product or platform that compounds advantage rather than defending a stagnant position.
+                    </p>
+                </article>
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">02</p>
+                    <h3 class="mt-4 text-xl font-semibold text-white">The research goes beyond headlines</h3>
+                    <p class="mt-3 text-sm leading-7 text-[#94A3B8]">
+                        Concentration only makes sense when the owner understands the business model, leadership, competitive structure, and key assumptions better than a casual observer.
+                    </p>
+                </article>
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">03</p>
+                    <h3 class="mt-4 text-xl font-semibold text-white">Time horizon does the heavy lifting</h3>
+                    <p class="mt-3 text-sm leading-7 text-[#94A3B8]">
+                        The expected payoff comes from years of ownership. If the holder cannot tolerate volatility or public disagreement, the thesis is not strong enough for concentration.
+                    </p>
+                </article>
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">04</p>
+                    <h3 class="mt-4 text-xl font-semibold text-white">There is a clear exit test</h3>
+                    <p class="mt-3 text-sm leading-7 text-[#94A3B8]">
+                        Concentration without falsification is ego. The owner should know which broken assumptions, capital-allocation mistakes, or structural changes would justify reducing or exiting the position.
+                    </p>
+                </article>
             </div>
         </div>
     </section>
 
-    <!-- Process & Tracking -->
-    <section class="bg-[#111827] py-16">
-        <div class="max-w-4xl mx-auto px-6">
-            <h2 class="section-header text-4xl tracking-tight mb-8">Process &amp; Tracking</h2>
-            
-            <div class="prose-elegant max-w-3xl">
-                <p>My two primary private tools are:</p>
-                
-                <ul class="mt-6 space-y-4 text-[#CBD5E1]">
-                    <li><strong class="text-[#E2E8F0]">My Finances</strong> — Detailed tracking of income, savings rate, capital deployment, and net worth over time. The goal is radical clarity on how much capital I can actually put to work each year.</li>
-                    <li><strong class="text-[#E2E8F0]">Network Tracker</strong> — Systematic mapping of relationships, information flow, and opportunity sources. In high-conviction investing, who you know and what asymmetric information you can access matters enormously.</li>
-                </ul>
-                
-                <p class="mt-6">This mirrors the discipline I admire in Steven Mark Ryan: obsessive documentation of the inputs (income, savings, research time) that enable the output (concentrated ownership in an exceptional business).</p>
+    <section class="border-y border-white/10 bg-[#0F172A] px-6 py-16">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                <div class="max-w-3xl">
+                    <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">Case Study</p>
+                    <h2 class="section-header mt-4 text-3xl md:text-4xl text-white">A transaction-led concentration case study</h2>
+                    <p class="mt-4 text-lg leading-8 text-[#94A3B8]">
+                        This example uses TSLA because that is what the source ledger contains. The point is still broader than one ticker: not net worth, not bragging, just a transaction-led view of how a concentrated position can be built gradually across years.
+                    </p>
+                </div>
+
+                <div class="inline-flex rounded-xl border border-white/10 p-1 bg-[#0A0F1C] self-start" role="group" aria-label="Chart view toggle">
+                    <button type="button" class="view-toggle min-w-[120px] px-4 py-2 text-sm rounded-lg text-[#CBD5E1] border border-transparent transition-colors" data-view="shares" aria-pressed="true">Share Buys</button>
+                    <button type="button" class="view-toggle min-w-[120px] px-4 py-2 text-sm rounded-lg text-[#CBD5E1] border border-transparent transition-colors" data-view="capital" aria-pressed="false">Capital</button>
+                    <button type="button" class="view-toggle min-w-[120px] px-4 py-2 text-sm rounded-lg text-[#CBD5E1] border border-transparent transition-colors" data-view="monthly" aria-pressed="false">Monthly Buys</button>
+                </div>
             </div>
+
+            <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4" id="summary-cards">
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-5">
+                    <p class="text-[11px] font-medium uppercase tracking-[2px] text-[#64748B]">First Recorded Buy</p>
+                    <p id="metric-first-buy" class="mt-3 text-2xl font-semibold text-white">Loading...</p>
+                </article>
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-5">
+                    <p class="text-[11px] font-medium uppercase tracking-[2px] text-[#64748B]">Purchase Entries</p>
+                    <p id="metric-purchases" class="mt-3 text-2xl font-semibold text-white">Loading...</p>
+                </article>
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-5">
+                    <p class="text-[11px] font-medium uppercase tracking-[2px] text-[#64748B]">Gross Shares Bought</p>
+                    <p id="metric-shares" class="mt-3 text-2xl font-semibold text-white">Loading...</p>
+                </article>
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-5">
+                    <p class="text-[11px] font-medium uppercase tracking-[2px] text-[#64748B]">Buy-Side Capital</p>
+                    <p id="metric-capital" class="mt-3 text-2xl font-semibold text-white">Loading...</p>
+                </article>
+            </div>
+
+            <div class="mt-6 border border-white/10 rounded-2xl bg-[#0A0F1C] p-4 md:p-6">
+                <canvas id="convictionChart" aria-label="Single-company accumulation case study chart" role="img"></canvas>
+            </div>
+
+            <div class="mt-5 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+                <div class="border border-white/10 rounded-2xl bg-white/[0.03] p-6">
+                    <p class="text-sm leading-7 text-[#CBD5E1]">
+                        The published series starts on <span class="text-white">November 1, 2019</span> as a zero-share baseline because that is the narrative start point requested for the public chart.
+                        The exported source ledger's first recorded TSLA purchase is <span class="text-white">September 12, 2020</span>.
+                    </p>
+                </div>
+                <div class="border border-white/10 rounded-2xl bg-white/[0.03] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">What Would Break The Thesis</p>
+                    <ul class="mt-4 space-y-3 text-sm leading-7 text-[#CBD5E1]">
+                        <li>Capital allocation starts favoring narrative over cash-generation reality.</li>
+                        <li>Execution quality, product leadership, or cost advantage deteriorates for structural reasons.</li>
+                        <li>The original long-duration growth assumptions stop being defensible under fresh evidence.</li>
+                    </ul>
+                    <p class="mt-4 text-sm leading-7 text-[#94A3B8]">
+                        This public chart is purchase-only by design. It shows accumulation behavior, not net position after future sales.
+                    </p>
+                    <p class="mt-3 text-sm leading-7 text-[#94A3B8]">
+                        Source JSON:
+                        <a href="data/tsla-accumulation.json" class="text-[#C9A227] hover:text-white transition-colors">View the published dataset</a>.
+                    </p>
+                </div>
+            </div>
+
+            <p id="chart-status" class="mt-4 text-sm text-[#94A3B8]"></p>
         </div>
     </section>
 
-    <!-- Brokerage & Current Position -->
-    <section class="max-w-4xl mx-auto px-6 py-12">
-        <h2 class="section-header text-4xl tracking-tight mb-8">Execution</h2>
-        
-        <div class="grid md:grid-cols-2 gap-8">
+    <section class="px-6 py-16">
+        <div class="max-w-6xl mx-auto grid gap-8 lg:grid-cols-2">
             <div>
-                <h3 class="font-semibold text-xl mb-3">Brokerage</h3>
-                <p class="text-[#94A3B8]">I primarily execute through <strong class="text-[#E2E8F0]">Interactive Brokers (IBKR)</strong> for its low commissions, excellent global access, and robust platform for long-term concentrated positions.</p>
+                <h2 class="section-header text-3xl md:text-4xl text-white">Why the chart matters</h2>
+                <div class="mt-5 space-y-5 text-[#94A3B8] leading-8">
+                    <p>
+                        The important signal is not price prediction. It is repeated ownership over time despite volatility, noise, and long stretches where the market offers no emotional reward for patience.
+                    </p>
+                    <p>
+                        A broad index is still the default answer for most people. This page is arguing for a narrower point: concentration is a demanding strategy, but it is not irrational by definition when the underlying business is unusually strong and the owner understands what they own.
+                    </p>
+                </div>
             </div>
-            
-            <div>
-                <h3 class="font-semibold text-xl mb-3">Current Position</h3>
-                <p class="text-[#94A3B8]">Approximately <strong class="text-[#C9A227]">160 shares</strong> in my highest-conviction holding. Strong compounded returns since shifting to this concentrated approach, consistent with the philosophy of maximizing exposure to ideas where research edge is highest.</p>
-                <p class="text-xs text-[#64748B] mt-2">Detailed P&amp;L, cost basis, and returns tracked in my private Networth Tracker.</p>
+
+            <div class="grid gap-4">
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">Failure Mode</p>
+                    <h3 class="mt-3 text-xl font-semibold text-white">Overconfidence disguised as conviction</h3>
+                    <p class="mt-3 text-sm leading-7 text-[#94A3B8]">
+                        If the thesis rests on slogans, borrowed conviction, or untested assumptions, concentration is simply risk that has not been examined carefully enough.
+                    </p>
+                </article>
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">Failure Mode</p>
+                    <h3 class="mt-3 text-xl font-semibold text-white">Confusing volatility with broken fundamentals</h3>
+                    <p class="mt-3 text-sm leading-7 text-[#94A3B8]">
+                        Price drawdowns are normal in concentrated ownership. What matters is whether the business economics, management quality, or competitive edge have actually deteriorated.
+                    </p>
+                </article>
+                <article class="border border-white/10 rounded-2xl bg-white/[0.03] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[2px] text-[#C9A227]">Failure Mode</p>
+                    <h3 class="mt-3 text-xl font-semibold text-white">No documented invalidation path</h3>
+                    <p class="mt-3 text-sm leading-7 text-[#94A3B8]">
+                        A concentrated position should come with explicit reasons to keep holding and explicit reasons to stop. Without that discipline, the strategy becomes identity rather than judgment.
+                    </p>
+                </article>
             </div>
         </div>
     </section>
 
-    <!-- Net Worth / Network Growth -->
-    <section class="bg-[#111827] py-16">
-        <div class="max-w-4xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-                <div>
-                    <h2 class="section-header text-4xl tracking-tight">Net Worth Growth</h2>
-                    <p class="text-[#94A3B8] mt-2">Visualisation of capital compounding through high-conviction allocation (illustrative data — update with your actual Networth Tracker.xlsx).</p>
-                </div>
-                <div class="text-xs text-[#64748B]">
-                    Data from "Networth Tracker.xlsx"
-                </div>
-            </div>
-
-            <div class="bg-[#0A0F1C] border border-white/10 rounded-3xl p-6">
-                <canvas id="networthChart" height="110"></canvas>
-            </div>
-
-            <p class="text-xs text-[#64748B] mt-4 text-center">This chart demonstrates the power of aggressive deployment into a single high-conviction idea over time. Replace the data array below with your actual figures for a live view.</p>
-
-            <!-- ============================================================
-                 CLIENT-SIDE XLSX LOADER (SheetJS + drag & drop)
-                 ============================================================
-                 Fully self-contained. Works on static GitHub Pages / any host.
-                 - Loads your local "Networth Tracker.xlsx" (or any file with
-                   a "Data" sheet containing Date + Networth columns, or the
-                   JSON produced by tools/finance/extract_networth_data.py).
-                 - Auto-updates the Chart.js instance above.
-                 - Also extracts high-conviction share count (TSLA in this
-                   tracker) and shows a live summary.
-                 - Nothing is uploaded. All parsing happens in the browser.
-                 - Matches the exact output shape of the Python extractor.
-                 Instructions for authors / contributors are in the <script>
-                 block at the bottom of this file.
-            -->
-            <div class="mt-6 border border-white/10 rounded-3xl p-6 bg-[#0A0F1C]">
-                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-y-1 mb-4">
-                    <div>
-                        <div class="flex items-center gap-x-2">
-                            <div class="text-sm font-semibold tracking-wide text-[#C9A227]">LIVE DATA LOADER</div>
-                            <div class="text-[9px] px-1.5 py-px rounded-full border border-white/15 text-[#64748B] tracking-[0.5px]" title="All parsing happens locally in your browser. Nothing is uploaded or stored.">How this works</div>
-                        </div>
-                        <div class="text-xs text-[#94A3B8] mt-0.5">Drag your Networth Tracker.xlsx here — updates charts instantly</div>
-                    </div>
-                    <button id="resetDataBtn"
-                            class="text-xs px-3 py-1.5 rounded-full border border-white/20 hover:bg-white/5 hover:border-white/30 transition self-start md:self-auto">
-                        Reset to default
-                    </button>
-                </div>
-
-                <div id="dropzone"
-                     class="border border-dashed border-white/15 hover:border-[#C9A227]/70 focus-within:border-[#C9A227]/70 rounded-3xl px-6 py-7 md:py-8 text-center transition-all cursor-pointer bg-[#111827] hover:bg-[#0F1625]">
-                    <div class="text-[#94A3B8]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto mb-2.5 h-5 w-5 text-[#C9A227]/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903 5 5 0 019.76-1.584 4.5 4.5 0 01.88 8.487M9 19l3 3m0 0l3-3m-3 3V10" />
-                        </svg>
-                        <div class="text-sm">Drop .xlsx here or <span class="underline decoration-[#C9A227]/40 hover:decoration-[#C9A227] underline-offset-2">click to browse</span></div>
-                        <div class="text-[10px] mt-1.5 text-[#64748B] tracking-wide">Parses monthly net worth + conviction position from your tracker</div>
-                    </div>
-                    <input type="file" id="fileInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hidden">
-                </div>
-
-                <div id="loaderStatus" class="mt-3 text-xs text-[#64748B] min-h-[1.25rem] tracking-wide"></div>
-
-                <!-- Extracted summary (populated by JS after successful load) -->
-                <div id="extractedSummary" class="hidden mt-4 text-xs grid grid-cols-2 md:grid-cols-4 gap-3 text-[#94A3B8]">
-                    <div class="bg-[#111827] border border-white/10 rounded-2xl px-3 py-2.5">
-                        <div class="text-[10px] uppercase tracking-[1px] text-[#64748B] mb-px">Net Worth</div>
-                        <div id="sumNetworth" class="font-mono text-[#E2E8F0] text-[15px]"></div>
-                    </div>
-                    <div class="bg-[#111827] border border-white/10 rounded-2xl px-3 py-2.5">
-                        <div class="text-[10px] uppercase tracking-[1px] text-[#64748B] mb-px">Conviction Position</div>
-                        <div id="sumShares" class="font-mono text-[#E2E8F0] text-[15px]"></div>
-                    </div>
-                    <div class="bg-[#111827] border border-white/10 rounded-2xl px-3 py-2.5">
-                        <div class="text-[10px] uppercase tracking-[1px] text-[#64748B] mb-px">Coverage</div>
-                        <div id="sumSpan" class="font-mono text-[#E2E8F0] text-[15px]"></div>
-                    </div>
-                    <div class="bg-[#111827] border border-white/10 rounded-2xl px-3 py-2.5">
-                        <div class="text-[10px] uppercase tracking-[1px] text-[#64748B] mb-px">File</div>
-                        <div id="sumSource" class="font-mono text-[#E2E8F0] text-[15px] truncate"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Why This Fits Me -->
-    <section class="max-w-4xl mx-auto px-6 py-16">
-        <h2 class="section-header text-4xl tracking-tight mb-8">Why This Approach Fits</h2>
-        
-        <div class="grid md:grid-cols-12 gap-x-12 gap-y-10">
-            <div class="md:col-span-7">
-                <div class="prose-elegant">
-                    <p>High-conviction concentration is not for everyone. It requires specific traits I have spent years developing:</p>
-                    
-                    <p class="mt-6">• Tolerance for extreme volatility without emotional interference<br>
-                    • Genuine enjoyment of deep, solitary research<br>
-                    • Willingness to look wrong for long periods<br>
-                    • Strong internal scorecard rather than external validation</p>
-                    
-                    <p class="mt-6">The same rigor I apply to engineering and theological inquiry — precise definitions, falsifiability, humility before evidence — transfers directly to capital allocation.</p>
-                </div>
-            </div>
-            
-            <div class="md:col-span-5">
-                <div class="bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 text-sm">
-                    <div class="uppercase tracking-[2px] text-[#C9A227] text-xs mb-3">Important</div>
-                    <p class="text-[#94A3B8]">This is a personal philosophy, not advice. Concentrated investing can lead to permanent capital loss. I have high risk tolerance, a long time horizon, and (I believe) informational and analytical edge in specific areas. Most people are better served with broad diversification.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="elegant-divider max-w-4xl mx-auto px-6"></div>
-
-    <!-- Footer -->
-    <footer class="max-w-4xl mx-auto px-6 py-12 text-xs text-[#475569]">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-y-4">
-            <div>
-                © Alphaeus Ng. Personal views only. Not financial advice.<br>
-                High risk of loss. Past performance is not indicative of future results.
-            </div>
-            <div>
-                <a href="../index.html" class="hover:text-[#64748B] transition">Return to professional site</a>
+    <footer class="border-t border-white/10 px-6 py-8">
+        <div class="max-w-6xl mx-auto flex flex-col gap-3 md:flex-row md:items-center md:justify-between text-sm text-[#64748B]">
+            <p>Personal views only. Not financial advice.</p>
+            <div class="flex flex-wrap gap-4">
+                <a href="../index.html" class="hover:text-white transition-colors">Main site</a>
+                <a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Source</a>
             </div>
         </div>
     </footer>
 
     <script>
-        // ============================================================
-        // NET WORTH / NETWORK GROWTH CHART + XLSX LOADER
-        // ============================================================
-        //
-        // DEFAULT (illustrative) DATA — overwritten by live loader or manual paste.
-        // For production use with your real tracker:
-        //   1. python tools/finance/extract_networth_data.py "Networth Tracker.xlsx"
-        //   2. Paste the generated const networthData block (or use the drag-drop
-        //      loader on this page — it produces identical arrays client-side).
-        //
-        // The loader below (SheetJS) understands:
-        //   - The exact "Data" sheet structure from this specific Networth Tracker.xlsx
-        //     (Date in col A, Networth in col E + Cash/Stock/CPF)
-        //   - Any sheet whose first row contains both a "Date" and "Networth" header
-        //   - The JSON file emitted by the Python extractor
-        //   - Transaction sheets for share-count reconstruction (TSLA dominant)
-        //
-        // GitHub Pages / static hosting notes:
-        //   • SheetJS is loaded from a public CDN (jsDelivr). First visit downloads ~250KB.
-        //   • All parsing is 100% in-browser using FileReader + XLSX.read(ArrayBuffer).
-        //   • No data ever leaves the user's machine. Perfect for private trackers.
-        //   • Works on mobile (file picker) and desktop (drag + drop + picker).
-        //   • If you commit a networth_data.json next to conviction.html you can also
-        //     add a "Load from networth_data.json" button in a future iteration.
-        //
-        // ============================================================
+        const numberFormatter = new Intl.NumberFormat("en-US", {
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 0,
+        });
 
-        // Default illustrative data (years of aggressive compounding)
-        const DEFAULT_NETWORTH = {
-            labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
-            values: [85000, 142000, 285000, 310000, 520000, 780000, 1250000, 1680000]
+        const currencyFormatter = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            maximumFractionDigits: 0,
+        });
+
+        const dateFormatter = new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
+
+        const monthFormatter = new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "short",
+        });
+
+        const chartCanvas = document.getElementById("convictionChart");
+        const statusNode = document.getElementById("chart-status");
+        const viewButtons = Array.from(document.querySelectorAll(".view-toggle"));
+        const metrics = {
+            firstBuy: document.getElementById("metric-first-buy"),
+            purchases: document.getElementById("metric-purchases"),
+            shares: document.getElementById("metric-shares"),
+            capital: document.getElementById("metric-capital"),
         };
 
-        // Global chart handle so the XLSX loader (and future code) can mutate it
-        let networthChart = null;
+        let chart;
+        let seriesPayload;
+        let currentView = "shares";
 
-        function createNetworthChart(labels, values) {
-            const ctx = document.getElementById('networthChart');
-            if (networthChart) {
-                networthChart.destroy();
+        function parseIsoDate(value) {
+            return new Date(`${value}T00:00:00`);
+        }
+
+        function parseMonthLabel(value) {
+            const dateValue = parseIsoDate(value);
+            return monthFormatter.format(dateValue);
+        }
+
+        function updateMetrics(meta) {
+            metrics.firstBuy.textContent = dateFormatter.format(parseIsoDate(meta.first_recorded_trade_date));
+            metrics.purchases.textContent = numberFormatter.format(meta.purchase_count);
+            metrics.shares.textContent = numberFormatter.format(meta.final_cumulative_shares);
+            metrics.capital.textContent = currencyFormatter.format(meta.final_cumulative_buy_usd);
+        }
+
+        function buildDatasets(points, view) {
+            if (view === "capital") {
+                return [
+                    {
+                        type: "line",
+                        label: "Cumulative buy-side capital",
+                        data: points.map((point) => point.cumulative_buy_usd),
+                        borderColor: "#C9A227",
+                        backgroundColor: "rgba(201, 162, 39, 0.15)",
+                        borderWidth: 2.5,
+                        tension: 0.25,
+                        pointRadius: 0,
+                        yAxisID: "y",
+                    },
+                    {
+                        type: "bar",
+                        label: "Monthly buy-side capital",
+                        data: points.map((point) => point.buy_usd),
+                        backgroundColor: "rgba(148, 163, 184, 0.28)",
+                        borderRadius: 4,
+                        yAxisID: "y1",
+                    },
+                ];
             }
-            networthChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Net Worth (USD)',
-                        data: values,
-                        borderColor: '#C9A227',
-                        backgroundColor: 'rgba(201, 162, 39, 0.12)',
-                        borderWidth: 3,
-                        tension: 0.35,
-                        fill: true,
-                        pointBackgroundColor: '#C9A227',
-                        pointBorderColor: '#0A0F1C',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 7
-                    }]
+
+            if (view === "monthly") {
+                return [
+                    {
+                        type: "bar",
+                        label: "Monthly shares bought",
+                        data: points.map((point) => point.net_shares),
+                        backgroundColor: "rgba(201, 162, 39, 0.78)",
+                        borderRadius: 4,
+                        yAxisID: "y",
+                    },
+                ];
+            }
+
+            return [
+                {
+                    type: "line",
+                    label: "Cumulative bought shares",
+                    data: points.map((point) => point.cumulative_shares),
+                    borderColor: "#C9A227",
+                    backgroundColor: "rgba(201, 162, 39, 0.15)",
+                    borderWidth: 2.5,
+                    tension: 0.25,
+                    pointRadius: 0,
+                    yAxisID: "y",
                 },
-                options: {
+                {
+                    type: "bar",
+                    label: "Monthly shares bought",
+                    data: points.map((point) => point.net_shares),
+                    backgroundColor: "rgba(148, 163, 184, 0.28)",
+                    borderRadius: 4,
+                    yAxisID: "y1",
+                },
+            ];
+        }
+
+        function buildOptions(view) {
+            const currencyTick = (value) => currencyFormatter.format(value);
+            const shareTick = (value) => numberFormatter.format(value);
+
+            if (view === "capital") {
+                return {
                     responsive: true,
                     maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: "index",
+                    },
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            labels: {
+                                color: "#CBD5E1",
+                            },
+                        },
                         tooltip: {
-                            backgroundColor: '#111827',
-                            titleColor: '#C9A227',
-                            bodyColor: '#E5E7EB',
-                            borderColor: '#C9A227',
-                            borderWidth: 1,
                             callbacks: {
-                                label: (ctx) => '$' + ctx.raw.toLocaleString()
-                            }
-                        }
+                                label(context) {
+                                    return `${context.dataset.label}: ${currencyFormatter.format(context.parsed.y)}`;
+                                },
+                            },
+                        },
                     },
                     scales: {
                         x: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#64748B', font: { size: 11 } }
+                            ticks: {
+                                color: "#94A3B8",
+                                maxRotation: 0,
+                                autoSkip: true,
+                            },
+                            grid: {
+                                color: "rgba(148, 163, 184, 0.08)",
+                            },
                         },
                         y: {
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { 
-                                color: '#64748B',
-                                callback: (value) => '$' + (value / 1000) + 'k'
-                            }
-                        }
+                            ticks: {
+                                color: "#CBD5E1",
+                                callback: currencyTick,
+                            },
+                            grid: {
+                                color: "rgba(148, 163, 184, 0.08)",
+                            },
+                        },
+                        y1: {
+                            position: "right",
+                            ticks: {
+                                color: "#94A3B8",
+                                callback: currencyTick,
+                            },
+                            grid: {
+                                display: false,
+                            },
+                        },
                     },
-                    elements: {
-                        line: { borderJoinStyle: 'round' },
-                        point: { hitRadius: 10 }
-                    }
-                }
-            });
-            return networthChart;
-        }
-
-        // Public updater used by the drag-drop loader
-        function updateNetworthChart(labels, values, sourceLabel = 'Live XLSX') {
-            if (!networthChart) {
-                createNetworthChart(labels, values);
-            } else {
-                networthChart.data.labels = labels;
-                networthChart.data.datasets[0].data = values;
-                networthChart.update();
+                };
             }
-            // Optional: flash a tiny source indicator in console for debugging
-            console.log('%c[Conviction] Chart updated from ' + sourceLabel, 'color:#475569;font-size:10px');
+
+            if (view === "monthly") {
+                return {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: "#CBD5E1",
+                            },
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label(context) {
+                                    return `${context.dataset.label}: ${shareTick(context.parsed.y)}`;
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: "#94A3B8",
+                                maxRotation: 0,
+                                autoSkip: true,
+                            },
+                            grid: {
+                                color: "rgba(148, 163, 184, 0.08)",
+                            },
+                        },
+                        y: {
+                            ticks: {
+                                color: "#CBD5E1",
+                                callback: shareTick,
+                            },
+                            grid: {
+                                color: "rgba(148, 163, 184, 0.08)",
+                            },
+                        },
+                    },
+                };
+            }
+
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: "index",
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: "#CBD5E1",
+                        },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label(context) {
+                                return `${context.dataset.label}: ${shareTick(context.parsed.y)}`;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: "#94A3B8",
+                            maxRotation: 0,
+                            autoSkip: true,
+                        },
+                        grid: {
+                            color: "rgba(148, 163, 184, 0.08)",
+                        },
+                    },
+                    y: {
+                        ticks: {
+                            color: "#CBD5E1",
+                            callback: shareTick,
+                        },
+                        grid: {
+                            color: "rgba(148, 163, 184, 0.08)",
+                        },
+                    },
+                    y1: {
+                        position: "right",
+                        ticks: {
+                            color: "#94A3B8",
+                            callback: shareTick,
+                        },
+                        grid: {
+                            display: false,
+                        },
+                    },
+                },
+            };
         }
 
-        // Boot with default data
-        createNetworthChart(DEFAULT_NETWORTH.labels, DEFAULT_NETWORTH.values);
+        function renderChart(view) {
+            const labels = seriesPayload.points.map((point) => parseMonthLabel(point.month));
+            const datasets = buildDatasets(seriesPayload.points, view);
+            const options = buildOptions(view);
 
-        // ============================================================
-        // SHEETJS DRAG-AND-DROP LOADER (self-contained)
-        // ============================================================
-        (function initXlsxLoader() {
-            const dropzone = document.getElementById('dropzone');
-            const fileInput = document.getElementById('fileInput');
-            const statusEl = document.getElementById('loaderStatus');
-            const summaryEl = document.getElementById('extractedSummary');
-            const sumNet = document.getElementById('sumNetworth');
-            const sumShares = document.getElementById('sumShares');
-            const sumSpan = document.getElementById('sumSpan');
-            const sumSource = document.getElementById('sumSource');
-            const resetBtn = document.getElementById('resetDataBtn');
-
-            if (!dropzone || !window.XLSX) {
-                console.warn('[Conviction] SheetJS or dropzone not available — loader disabled');
+            if (!chart) {
+                chartCanvas.parentElement.style.height = "440px";
+                chart = new Chart(chartCanvas, {
+                    type: "bar",
+                    data: {
+                        labels,
+                        datasets,
+                    },
+                    options,
+                });
                 return;
             }
 
-            function setStatus(msg, isError = false) {
-                statusEl.textContent = msg;
-                statusEl.style.color = isError ? '#f87171' : '#64748B';
-            }
+            chart.data.labels = labels;
+            chart.data.datasets = datasets;
+            chart.options = options;
+            chart.update();
+        }
 
-            function showSummary(netWorth, shares, firstPeriod, lastPeriod, source) {
-                sumNet.textContent = '$' + Math.round(netWorth).toLocaleString();
-                sumShares.textContent = (shares || '—') + (shares ? ' TSLA' : '');
-                sumSpan.textContent = (firstPeriod || '?') + ' → ' + (lastPeriod || '?');
-                sumSource.textContent = source;
-                summaryEl.classList.remove('hidden');
-                summaryEl.classList.add('grid');
-            }
+        function setActiveView(view) {
+            currentView = view;
+            viewButtons.forEach((button) => {
+                const active = button.dataset.view === view;
+                button.setAttribute("aria-pressed", String(active));
+            });
+            renderChart(view);
+        }
 
-            function hideSummary() {
-                summaryEl.classList.add('hidden');
-                summaryEl.classList.remove('grid');
-            }
-
-            // Excel serial date → JS Date (robust)
-            function excelSerialToDate(serial) {
-                if (serial == null) return null;
-                // Handle both numbers and already-parsed Date objects from SheetJS
-                if (serial instanceof Date) return serial;
-                const s = Number(serial);
-                if (isNaN(s)) return null;
-                // SheetJS sometimes already converts; the 25569 offset is classic Excel epoch
-                const utc_days = Math.floor(s - 25569);
-                const utc_value = utc_days * 86400;
-                const date_info = new Date(utc_value * 1000);
-                return new Date(date_info.getTime() + (date_info.getTimezoneOffset() * 60000));
-            }
-
-            function formatPeriod(d) {
-                if (!d) return '?';
-                return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-            }
-
-            // Core parser — mirrors the philosophy (and many heuristics) of the Python extractor
-            function parseNetworthTracker(wb) {
-                const result = {
-                    labels: [],
-                    values: [],
-                    latestNetWorth: null,
-                    highConvictionShares: null,
-                    firstPeriod: null,
-                    lastPeriod: null,
-                    source: wb.SheetNames.join(', ')
-                };
-
-                // 1. Try to locate the "Data" sheet (exact name or best match)
-                let dataSheetName = wb.SheetNames.find(n => /data/i.test(n)) || wb.SheetNames[0];
-                // Prefer the one with "Networth" or "Net Worth" in header if multiple candidates
-                for (const name of wb.SheetNames) {
-                    const ws = wb.Sheets[name];
-                    const ref = ws['!ref'];
-                    if (!ref) continue;
-                    const firstRow = XLSX.utils.sheet_to_json(ws, { header: 1, range: 0 })[0] || [];
-                    const hasNet = firstRow.some(c => /networth|net worth/i.test(String(c || '')));
-                    const hasDate = firstRow.some(c => /date/i.test(String(c || '')));
-                    if (hasNet && hasDate) {
-                        dataSheetName = name;
-                        break;
-                    }
+        async function loadSeries() {
+            try {
+                const response = await fetch("data/tsla-accumulation.json", { cache: "no-store" });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
                 }
 
-                const dataWS = wb.Sheets[dataSheetName];
-                if (dataWS) {
-                    // Convert to array of arrays for easy column access
-                    const aoa = XLSX.utils.sheet_to_json(dataWS, { header: 1, defval: null });
-                    if (aoa.length > 1) {
-                        // Find header row (usually row 0)
-                        const header = aoa[0].map(h => String(h || '').trim());
-                        const dateIdx = header.findIndex(h => /date/i.test(h));
-                        const nwIdx = header.findIndex(h => /networth|net worth/i.test(h));
-
-                        if (dateIdx !== -1 && nwIdx !== -1) {
-                            const series = [];
-                            for (let i = 1; i < aoa.length; i++) {
-                                const row = aoa[i];
-                                const dRaw = row[dateIdx];
-                                const nwRaw = row[nwIdx];
-                                const dt = excelSerialToDate(dRaw);
-                                const nw = parseFloat(nwRaw);
-                                if (dt && !isNaN(nw) && nw > 0) {
-                                    series.push({ dt, nw: Math.round(nw) });
-                                }
-                            }
-                            // De-dupe by month, keep latest
-                            const byMonth = {};
-                            series.forEach(item => {
-                                const key = formatPeriod(item.dt);
-                                byMonth[key] = item; // last wins
-                            });
-                            const sortedKeys = Object.keys(byMonth).sort();
-                            result.labels = sortedKeys;
-                            result.values = sortedKeys.map(k => byMonth[k].nw);
-                            if (result.values.length) {
-                                result.latestNetWorth = result.values[result.values.length - 1];
-                                result.firstPeriod = sortedKeys[0];
-                                result.lastPeriod = sortedKeys[sortedKeys.length - 1];
-                            }
-                        }
-                    }
-                }
-
-                // 2. High-conviction share count (best-effort from any transaction sheet)
-                // Look for a sheet that has "Symbol", "Qty", "Transaction Type"
-                let txnSheet = wb.SheetNames.find(n => /transac|theoretical|minus/i.test(n));
-                if (!txnSheet) {
-                    txnSheet = wb.SheetNames.find(n => {
-                        const ws = wb.Sheets[n];
-                        const h = (XLSX.utils.sheet_to_json(ws, { header: 1 })[0] || []).join(' ');
-                        return /symbol/i.test(h) && /qty/i.test(h);
-                    });
-                }
-                if (txnSheet) {
-                    const txnWS = wb.Sheets[txnSheet];
-                    const aoa = XLSX.utils.sheet_to_json(txnWS, { header: 1, defval: null });
-                    if (aoa.length > 1) {
-                        const header = aoa[0].map(h => String(h || '').trim());
-                        const symIdx = header.findIndex(h => /symbol/i.test(h));
-                        const typeIdx = header.findIndex(h => /transaction type|type/i.test(h));
-                        const qtyIdx = header.findIndex(h => /qty adjusted|qty/i.test(h));
-
-                        if (symIdx !== -1 && typeIdx !== -1 && qtyIdx !== -1) {
-                            const positions = {};
-                            for (let i = 1; i < aoa.length; i++) {
-                                const row = aoa[i];
-                                const sym = String(row[symIdx] || '').trim();
-                                const typ = String(row[typeIdx] || '').trim().toLowerCase();
-                                if (!sym || (typ !== 'buy' && typ !== 'sell')) continue;
-                                let q = parseFloat(row[qtyIdx] || 0);
-                                if (isNaN(q)) q = 0;
-                                if (typ === 'sell' && q > 0) q = -q;
-                                positions[sym] = (positions[sym] || 0) + q;
-                            }
-                            // Dominant = highest absolute position (or most txns, but this is simple)
-                            let bestSym = null, bestVal = -Infinity;
-                            Object.entries(positions).forEach(([s, v]) => {
-                                if (Math.abs(v) > bestVal) { bestVal = Math.abs(v); bestSym = s; }
-                            });
-                            if (bestSym) {
-                                result.highConvictionShares = Math.round(bestVal * 100) / 100;
-                                result.highConvictionSymbol = bestSym;
-                            }
-                        }
-                    }
-                }
-
-                // Fallbacks if we only got partial data
-                if (!result.labels.length) {
-                    // Last resort: try any sheet that looks like it has two numeric-ish columns
-                    console.warn('[Conviction Loader] Falling back to generic sheet scan');
-                }
-
-                return result;
+                seriesPayload = await response.json();
+                updateMetrics(seriesPayload.meta);
+                setActiveView("shares");
+                const referencePriceText = seriesPayload.meta.reference_price_usd == null
+                    ? "Reference price was not present in the source export."
+                    : `Reference price captured in the source export: ${currencyFormatter.format(seriesPayload.meta.reference_price_usd)}.`;
+                statusNode.textContent =
+                    `Series spans ${monthFormatter.format(parseIsoDate(seriesPayload.meta.baseline_start_month))} through ${monthFormatter.format(parseIsoDate(seriesPayload.meta.last_recorded_trade_date))}. ${referencePriceText}`;
+            } catch (error) {
+                console.error(error);
+                statusNode.textContent = "The chart data did not load. Check the JSON file path and try again.";
+                statusNode.className = "mt-4 text-sm text-[#FCA5A5]";
+                metrics.firstBuy.textContent = "Unavailable";
+                metrics.purchases.textContent = "Unavailable";
+                metrics.shares.textContent = "Unavailable";
+                metrics.capital.textContent = "Unavailable";
             }
+        }
 
-            function handleFile(file) {
-                if (!file) return;
-                setStatus('Reading ' + file.name + ' …');
-                hideSummary();
-
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const wb = XLSX.read(data, { type: 'array', cellDates: true });
-
-                        const parsed = parseNetworthTracker(wb);
-
-                        if (parsed.labels.length === 0) {
-                            throw new Error('Could not locate a "Data" sheet with Date + Networth columns (or equivalent structure).');
-                        }
-
-                        // Update the live chart
-                        updateNetworthChart(parsed.labels, parsed.values, file.name);
-
-                        // Populate the nice summary box
-                        const shares = parsed.highConvictionShares != null
-                            ? parsed.highConvictionShares + (parsed.highConvictionSymbol ? ' ' + parsed.highConvictionSymbol : '')
-                            : null;
-
-                        showSummary(
-                            parsed.latestNetWorth || parsed.values[parsed.values.length - 1],
-                            shares,
-                            parsed.firstPeriod,
-                            parsed.lastPeriod,
-                            file.name
-                        );
-
-                        setStatus('Loaded successfully — chart updated with ' + parsed.labels.length + ' periods from ' + file.name);
-                    } catch (err) {
-                        console.error(err);
-                        setStatus('Error: ' + (err.message || 'Failed to parse file. Make sure it is a valid .xlsx.'), true);
-                        hideSummary();
-                    }
-                };
-                reader.onerror = () => setStatus('Failed to read file.', true);
-                reader.readAsArrayBuffer(file);
-            }
-
-            // Wire up interactions
-            dropzone.addEventListener('click', () => fileInput.click());
-            dropzone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropzone.style.borderColor = '#C9A227';
-            });
-            dropzone.addEventListener('dragleave', () => {
-                dropzone.style.borderColor = '';
-            });
-            dropzone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropzone.style.borderColor = '';
-                const file = e.dataTransfer.files[0];
-                if (file) handleFile(file);
-            });
-            fileInput.addEventListener('change', () => {
-                const file = fileInput.files[0];
-                if (file) handleFile(file);
-                fileInput.value = ''; // allow re-selecting same file
-            });
-
-            resetBtn.addEventListener('click', () => {
-                updateNetworthChart(DEFAULT_NETWORTH.labels, DEFAULT_NETWORTH.values, 'default');
-                hideSummary();
-                setStatus('Reset to illustrative data.');
-            });
-
-            // Keyboard accessibility hint
-            dropzone.setAttribute('tabindex', '0');
-            dropzone.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    fileInput.click();
+        viewButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                if (!seriesPayload) {
+                    return;
                 }
+                setActiveView(button.dataset.view);
             });
+        });
 
-            setStatus('Ready — drop your Networth Tracker.xlsx or click the zone.');
-            console.log('%c[Conviction] XLSX drag-and-drop loader initialized (SheetJS ' + (XLSX.version || 'unknown') + ')', 'color:#475569;font-size:10px');
-        })();
-
-        console.log('%c[Conviction] Page loaded. Use drag-and-drop loader above or run the Python extractor for fresh data.', 'color:#475569;font-size:10px');
+        loadSeries();
     </script>
 </body>
 </html>
