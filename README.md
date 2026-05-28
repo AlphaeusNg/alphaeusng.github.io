@@ -17,17 +17,17 @@ The design should remain restrained, professional, and easy to share. It should 
 
 - `index.html`: main portfolio page served from the GitHub Pages root.
 - `pages/`: secondary public pages.
-  - `pages/conviction.html`: concentration thesis page with a static TSLA accumulation case study backed by generated JSON.
+  - `pages/conviction.html`: TSLA-versus-SPY benchmark comparison page backed by generated static JSON.
   - `pages/kobo-forge.html`: KoboForge project page.
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.
 - `pages/data/`: static JSON payloads for public pages.
-  - `pages/data/tsla-accumulation.json`: owner-anonymized monthly TSLA accumulation series used by `pages/conviction.html`.
+  - `pages/data/tsla-vs-spy.json`: owner-anonymized monthly TSLA-versus-SPY benchmark series used by `pages/conviction.html`.
 - `css/`: site CSS used by the portfolio.
 - `js/`: site JavaScript used by the portfolio and modals.
 - `assets/`: images and share assets referenced by public pages.
 - `tools/`: scripts grouped by domain.
   - `tools/koboforge/`: KoboForge companion tooling.
-  - `tools/finance/`: local-only financial data helpers, including the TSLA accumulation extractor.
+  - `tools/finance/`: local-only financial data helpers, including the TSLA-versus-SPY benchmark generator and anonymized trade ledger.
 - `conviction.html`, `kobo-forge.html`, `seeking-biblical-truth/index.html`: compatibility redirects for older links.
 - `.nojekyll`: required so GitHub Pages serves this as static files.
 
@@ -45,11 +45,13 @@ Open:
 - http://127.0.0.1:8000/pages/conviction.html
 - http://127.0.0.1:8000/pages/seeking-biblical-truth/
 
-To regenerate the conviction-page data from a local workbook export:
+To regenerate the conviction-page data:
 
 ```bash
-python3 tools/finance/extract_tsla_accumulation.py /path/to/Networth\\ Tracker.xlsx --output pages/data/tsla-accumulation.json
+python3 tools/finance/generate_tsla_vs_spy.py
 ```
+
+The generator reads `tools/finance/tsla_trades_anonymized.csv` and fetches monthly TSLA/SPY history from the public endpoints recorded in `pages/data/tsla-vs-spy.json`.
 
 ## Seeking Biblical Truth Viewer
 
@@ -97,5 +99,6 @@ curl -I http://127.0.0.1:8000/pages/seeking-biblical-truth/vault-data.json
 - Do not add a build system unless there is a clear reason. This repo is intentionally zero-build static HTML/CSS/JS.
 - Do not commit private financial spreadsheets, raw private notes, generated caches, or editor state.
 - The conviction page intentionally uses a public JSON export instead of loading private spreadsheets client-side.
+- The benchmark page is monthly-close and uses an owner-anonymized TSLA trade ledger plus a public SPY proxy series.
 - Keep old public URLs working with redirect stubs if moving pages.
 - Before deleting files, prove they are not referenced by served pages using `rg` and local route checks.
