@@ -41,35 +41,9 @@ The public viewer lives in `seeking-biblical-truth/` and links to the canonical 
 
 - **Key notes:**
   - GitHub Pages paths are case-sensitive; use `/seeking-biblical-truth/`, not `/Seeking-Biblical-Truth/`.
-  - The full editable vault remains in the separate GitHub repository. This repo ships only the static public viewer.
-
-**One-time clone (run from the site root):**
-
-```bash
-git clone --depth 1 https://github.com/AlphaeusNg/Seeking-Biblical-Truth seeking-biblical-truth
-```
-
-**Keeping the local pull in sync (choose one):**
-
-**Simple & recommended (plain git):**
-
-```bash
-cd seeking-biblical-truth
-git fetch --depth 1 && git reset --hard origin/main   # or just: git pull --depth 1
-cd ..
-```
-
-**Advanced (git subtree — allows future unified updates if desired):**
-
-```bash
-# One-time alternative to plain clone:
-git subtree add --prefix seeking-biblical-truth https://github.com/AlphaeusNg/Seeking-Biblical-Truth main --depth=1
-
-# Subsequent updates:
-git subtree pull --prefix seeking-biblical-truth https://github.com/AlphaeusNg/Seeking-Biblical-Truth main --depth=1
-```
-
-Obsidian cache exclusions (`.obsidian/workspace*`, `cache/`, `trash/`, etc.) are already present in `.gitignore` to prevent bloating.
+  - The viewer is committed as static HTML plus `vault-data.json`; do not clone the full vault into this path.
+  - Regenerate `vault-data.json` from `/home/alph/codex/Seeking-Biblical-Truth` when the source notes change.
+  - The viewer includes `obsidian://open?vault=Seeking-Biblical-Truth` links for users who have cloned the vault and opened it in Obsidian.
 
 ---
 
@@ -85,7 +59,7 @@ This site is designed for GitHub Pages.
 
 GitHub Pages will serve the new `index.html` immediately.
 
-**Full site files for deployment**: `index.html`, `conviction.html`, `css/`, `js/`, `assets/`, and supporting files (`.gitignore`, this README). 
+**Full site files for deployment**: `index.html`, `conviction.html`, `kobo-forge.html`, `seeking-biblical-truth/`, `css/`, `js/`, `assets/`, `tools/`, and supporting files (`.gitignore`, this README).
 
 KoboForge's static overview page is `kobo-forge.html`; the active companion script lives at `tools/koboforge-companion.py`.
 

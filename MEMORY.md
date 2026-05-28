@@ -12,9 +12,9 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `js/modals.js`: rich project case-study modal data and rendering.
 - `conviction.html`: standalone investment philosophy page, intentionally lower-profile.
 - `kobo-forge.html`: standalone KoboForge project page.
-- `seeking-biblical-truth/index.html`: static interactive viewer for the Biblical Truth knowledge-base project.
+- `seeking-biblical-truth/index.html`: data-driven interactive viewer for the Biblical Truth knowledge-base project.
+- `seeking-biblical-truth/vault-data.json`: generated from `/home/alph/codex/Seeking-Biblical-Truth` Markdown notes and `Big Picture.canvas`.
 - `assets/`: portrait and resume artifacts. Current user-facing resume links should use the Google Drive document link, not local files.
-- `_includes`, `_layouts`, `_sass`, `_data`, `assets/js`: legacy/vendored Minimal Mistakes/Jekyll files. They are not required by the current static homepage, but do not delete without a verified reference/deployment plan.
 - `tools/`: KoboForge companion tooling and data extraction utilities.
 
 ## Deployment
@@ -28,6 +28,7 @@ GitHub Pages serves the repository root from `main`. The current site is zero-bu
 - `kobo-forge.html` was previously a placeholder string. It should remain a real HTML page if linked from the homepage.
 - The site depends on third-party CDNs. Local rendering requires network access for full styling/scripts.
 - Local resume PDFs/DOCX may become stale. The canonical resume share target is the provided Google Drive link.
+- Legacy Jekyll/Minimal Mistakes files were removed after reference checks confirmed the current static entry pages do not use them.
 
 ## Validation Steps
 
