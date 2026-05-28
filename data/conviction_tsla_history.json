@@ -1,0 +1,984 @@
+{
+  "symbol": "TSLA",
+  "sourceFile": "data/tsla_transactions.csv",
+  "sourceSheet": "IBKR transaction export",
+  "generatedAt": "2026-05-28T16:16:19Z",
+  "summary": {
+    "firstTransactionDate": "2021-03-26",
+    "latestTransactionDate": "2026-05-07",
+    "buyTransactions": 51,
+    "sellTransactions": 10,
+    "totalTransactions": 61,
+    "currentShares": 87.4192,
+    "grossBoughtShares": 168.4192,
+    "grossSoldShares": 81.0,
+    "capitalDeployedUsd": 63557.22,
+    "saleProceedsUsd": 22690.48,
+    "accounts": [
+      "U***7895"
+    ]
+  },
+  "monthlySeries": [
+    {
+      "period": "2021-03",
+      "buyShares": 4.6437,
+      "sellShares": 0.0,
+      "netShares": 4.6437,
+      "cumulativeShares": 4.6437,
+      "transactions": 2,
+      "capitalDeployedUsd": 1323.91,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2021-05",
+      "buyShares": 0.7158,
+      "sellShares": 0.0,
+      "netShares": 0.7158,
+      "cumulativeShares": 5.3595,
+      "transactions": 1,
+      "capitalDeployedUsd": 187.93,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2021-11",
+      "buyShares": 3.0,
+      "sellShares": 0.0,
+      "netShares": 3.0,
+      "cumulativeShares": 8.3595,
+      "transactions": 1,
+      "capitalDeployedUsd": 1368.12,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2021-12",
+      "buyShares": 6.6519,
+      "sellShares": 0.0,
+      "netShares": 6.6519,
+      "cumulativeShares": 15.0114,
+      "transactions": 2,
+      "capitalDeployedUsd": 2729.78,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2022-01",
+      "buyShares": 20.9886,
+      "sellShares": 0.0,
+      "netShares": 20.9886,
+      "cumulativeShares": 36.0,
+      "transactions": 4,
+      "capitalDeployedUsd": 8798.78,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2022-02",
+      "buyShares": 6.0,
+      "sellShares": 0.0,
+      "netShares": 6.0,
+      "cumulativeShares": 42.0,
+      "transactions": 1,
+      "capitalDeployedUsd": 2491.48,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2022-03",
+      "buyShares": 0.0,
+      "sellShares": 9.0,
+      "netShares": -9.0,
+      "cumulativeShares": 33.0,
+      "transactions": 1,
+      "capitalDeployedUsd": 0.0,
+      "saleProceedsUsd": 3216.78
+    },
+    {
+      "period": "2022-05",
+      "buyShares": 27.0,
+      "sellShares": 9.0,
+      "netShares": 18.0,
+      "cumulativeShares": 51.0,
+      "transactions": 4,
+      "capitalDeployedUsd": 9074.23,
+      "saleProceedsUsd": 3145.74
+    },
+    {
+      "period": "2022-06",
+      "buyShares": 0.0,
+      "sellShares": 9.0,
+      "netShares": -9.0,
+      "cumulativeShares": 42.0,
+      "transactions": 1,
+      "capitalDeployedUsd": 0.0,
+      "saleProceedsUsd": 2994.81
+    },
+    {
+      "period": "2022-07",
+      "buyShares": 0.0,
+      "sellShares": 9.0,
+      "netShares": -9.0,
+      "cumulativeShares": 33.0,
+      "transactions": 1,
+      "capitalDeployedUsd": 0.0,
+      "saleProceedsUsd": 3164.94
+    },
+    {
+      "period": "2022-09",
+      "buyShares": 10.0,
+      "sellShares": 0.0,
+      "netShares": 10.0,
+      "cumulativeShares": 43.0,
+      "transactions": 2,
+      "capitalDeployedUsd": 3986.85,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2022-10",
+      "buyShares": 12.0,
+      "sellShares": 3.0,
+      "netShares": 9.0,
+      "cumulativeShares": 52.0,
+      "transactions": 5,
+      "capitalDeployedUsd": 3817.89,
+      "saleProceedsUsd": 950.62
+    },
+    {
+      "period": "2022-11",
+      "buyShares": 8.0,
+      "sellShares": 6.0,
+      "netShares": 2.0,
+      "cumulativeShares": 54.0,
+      "transactions": 3,
+      "capitalDeployedUsd": 2103.87,
+      "saleProceedsUsd": 1937.32
+    },
+    {
+      "period": "2022-12",
+      "buyShares": 0.0,
+      "sellShares": 20.0,
+      "netShares": -20.0,
+      "cumulativeShares": 34.0,
+      "transactions": 2,
+      "capitalDeployedUsd": 0.0,
+      "saleProceedsUsd": 3111.34
+    },
+    {
+      "period": "2023-02",
+      "buyShares": 0.0,
+      "sellShares": 16.0,
+      "netShares": -16.0,
+      "cumulativeShares": 18.0,
+      "transactions": 2,
+      "capitalDeployedUsd": 0.0,
+      "saleProceedsUsd": 4168.92
+    },
+    {
+      "period": "2023-03",
+      "buyShares": 4.0,
+      "sellShares": 0.0,
+      "netShares": 4.0,
+      "cumulativeShares": 22.0,
+      "transactions": 1,
+      "capitalDeployedUsd": 989.15,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2023-04",
+      "buyShares": 10.0,
+      "sellShares": 0.0,
+      "netShares": 10.0,
+      "cumulativeShares": 32.0,
+      "transactions": 1,
+      "capitalDeployedUsd": 2196.0,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2023-11",
+      "buyShares": 3.0,
+      "sellShares": 0.0,
+      "netShares": 3.0,
+      "cumulativeShares": 35.0,
+      "transactions": 1,
+      "capitalDeployedUsd": 837.92,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2024-01",
+      "buyShares": 1.0,
+      "sellShares": 0.0,
+      "netShares": 1.0,
+      "cumulativeShares": 36.0,
+      "transactions": 1,
+      "capitalDeployedUsd": 252.25,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2024-02",
+      "buyShares": 1.0,
+      "sellShares": 0.0,
+      "netShares": 1.0,
+      "cumulativeShares": 37.0,
+      "transactions": 1,
+      "capitalDeployedUsd": 243.01,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2024-09",
+      "buyShares": 2.0954,
+      "sellShares": 0.0,
+      "netShares": 2.0954,
+      "cumulativeShares": 39.0954,
+      "transactions": 1,
+      "capitalDeployedUsd": 594.63,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2024-10",
+      "buyShares": 1.8598,
+      "sellShares": 0.0,
+      "netShares": 1.8598,
+      "cumulativeShares": 40.9552,
+      "transactions": 1,
+      "capitalDeployedUsd": 595.32,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2024-11",
+      "buyShares": 1.4657,
+      "sellShares": 0.0,
+      "netShares": 1.4657,
+      "cumulativeShares": 42.4209,
+      "transactions": 1,
+      "capitalDeployedUsd": 603.97,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2024-12",
+      "buyShares": 1.1356,
+      "sellShares": 0.0,
+      "netShares": 1.1356,
+      "cumulativeShares": 43.5565,
+      "transactions": 1,
+      "capitalDeployedUsd": 611.06,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-01",
+      "buyShares": 3.1166,
+      "sellShares": 0.0,
+      "netShares": 3.1166,
+      "cumulativeShares": 46.6731,
+      "transactions": 2,
+      "capitalDeployedUsd": 1668.5,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-02",
+      "buyShares": 1.2374,
+      "sellShares": 0.0,
+      "netShares": 1.2374,
+      "cumulativeShares": 47.9105,
+      "transactions": 1,
+      "capitalDeployedUsd": 599.53,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-03",
+      "buyShares": 1.851,
+      "sellShares": 0.0,
+      "netShares": 1.851,
+      "cumulativeShares": 49.7615,
+      "transactions": 1,
+      "capitalDeployedUsd": 590.22,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-04",
+      "buyShares": 1.8392,
+      "sellShares": 0.0,
+      "netShares": 1.8392,
+      "cumulativeShares": 51.6007,
+      "transactions": 1,
+      "capitalDeployedUsd": 598.78,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-05",
+      "buyShares": 1.5765,
+      "sellShares": 0.0,
+      "netShares": 1.5765,
+      "cumulativeShares": 53.1772,
+      "transactions": 1,
+      "capitalDeployedUsd": 585.88,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-06",
+      "buyShares": 2.0215,
+      "sellShares": 0.0,
+      "netShares": 2.0215,
+      "cumulativeShares": 55.1987,
+      "transactions": 1,
+      "capitalDeployedUsd": 772.19,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-07",
+      "buyShares": 3.5,
+      "sellShares": 0.0,
+      "netShares": 3.5,
+      "cumulativeShares": 58.6987,
+      "transactions": 3,
+      "capitalDeployedUsd": 1367.75,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-08",
+      "buyShares": 3.3348,
+      "sellShares": 0.0,
+      "netShares": 3.3348,
+      "cumulativeShares": 62.0335,
+      "transactions": 1,
+      "capitalDeployedUsd": 1414.42,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-09",
+      "buyShares": 3.1449,
+      "sellShares": 0.0,
+      "netShares": 3.1449,
+      "cumulativeShares": 65.1784,
+      "transactions": 1,
+      "capitalDeployedUsd": 1412.09,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-10",
+      "buyShares": 2.5256,
+      "sellShares": 0.0,
+      "netShares": 2.5256,
+      "cumulativeShares": 67.704,
+      "transactions": 1,
+      "capitalDeployedUsd": 1425.43,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-11",
+      "buyShares": 2.1426,
+      "sellShares": 0.0,
+      "netShares": 2.1426,
+      "cumulativeShares": 69.8466,
+      "transactions": 1,
+      "capitalDeployedUsd": 1238.11,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2025-12",
+      "buyShares": 2.268,
+      "sellShares": 0.0,
+      "netShares": 2.268,
+      "cumulativeShares": 72.1146,
+      "transactions": 1,
+      "capitalDeployedUsd": 1297.98,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2026-01",
+      "buyShares": 3.4426,
+      "sellShares": 0.0,
+      "netShares": 3.4426,
+      "cumulativeShares": 75.5572,
+      "transactions": 1,
+      "capitalDeployedUsd": 1924.05,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2026-02",
+      "buyShares": 2.4012,
+      "sellShares": 0.0,
+      "netShares": 2.4012,
+      "cumulativeShares": 77.9584,
+      "transactions": 1,
+      "capitalDeployedUsd": 1265.74,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2026-03",
+      "buyShares": 2.8337,
+      "sellShares": 0.0,
+      "netShares": 2.8337,
+      "cumulativeShares": 80.7921,
+      "transactions": 1,
+      "capitalDeployedUsd": 1402.54,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2026-04",
+      "buyShares": 3.2078,
+      "sellShares": 0.0,
+      "netShares": 3.2078,
+      "cumulativeShares": 83.9999,
+      "transactions": 1,
+      "capitalDeployedUsd": 1410.78,
+      "saleProceedsUsd": 0.0
+    },
+    {
+      "period": "2026-05",
+      "buyShares": 3.4193,
+      "sellShares": 0.0,
+      "netShares": 3.4193,
+      "cumulativeShares": 87.4192,
+      "transactions": 1,
+      "capitalDeployedUsd": 1777.08,
+      "saleProceedsUsd": 0.0
+    }
+  ],
+  "transactions": [
+    {
+      "date": "2021-03-26",
+      "period": "2021-03",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.0,
+      "priceUsd": 211.666667,
+      "cashFlowUsd": -854.328953
+    },
+    {
+      "date": "2021-03-26",
+      "period": "2021-03",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.6437,
+      "priceUsd": 211.69,
+      "cashFlowUsd": -469.578012
+    },
+    {
+      "date": "2021-05-14",
+      "period": "2021-05",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 0.7158,
+      "priceUsd": 195.55,
+      "cashFlowUsd": -187.927934
+    },
+    {
+      "date": "2021-11-10",
+      "period": "2021-11",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.0,
+      "priceUsd": 336.676667,
+      "cashFlowUsd": -1368.119363
+    },
+    {
+      "date": "2021-12-21",
+      "period": "2021-12",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 0.6519,
+      "priceUsd": 300.663333,
+      "cashFlowUsd": -267.386501
+    },
+    {
+      "date": "2021-12-21",
+      "period": "2021-12",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 6.0,
+      "priceUsd": 300.656667,
+      "cashFlowUsd": -2462.394547
+    },
+    {
+      "date": "2022-01-21",
+      "period": "2022-01",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 9.0,
+      "priceUsd": 320.796667,
+      "cashFlowUsd": -3882.666075
+    },
+    {
+      "date": "2022-01-21",
+      "period": "2022-01",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.9886,
+      "priceUsd": 320.886667,
+      "cashFlowUsd": -1291.104633
+    },
+    {
+      "date": "2022-01-24",
+      "period": "2022-01",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.0,
+      "priceUsd": 293.876667,
+      "cashFlowUsd": -1187.849343
+    },
+    {
+      "date": "2022-01-24",
+      "period": "2022-01",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 6.0,
+      "priceUsd": 301.666667,
+      "cashFlowUsd": -2437.156805
+    },
+    {
+      "date": "2022-02-01",
+      "period": "2022-02",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 6.0,
+      "priceUsd": 307.8,
+      "cashFlowUsd": -2491.483027
+    },
+    {
+      "date": "2022-03-14",
+      "period": "2022-03",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 9.0,
+      "priceUsd": 261.583333,
+      "cashFlowUsd": 3216.780257
+    },
+    {
+      "date": "2022-05-16",
+      "period": "2022-05",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 9.0,
+      "priceUsd": 242.63,
+      "cashFlowUsd": -3040.284038
+    },
+    {
+      "date": "2022-05-17",
+      "period": "2022-05",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 9.0,
+      "priceUsd": 248.956667,
+      "cashFlowUsd": -3103.157479
+    },
+    {
+      "date": "2022-05-19",
+      "period": "2022-05",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 9.0,
+      "priceUsd": 235.666667,
+      "cashFlowUsd": -2930.790732
+    },
+    {
+      "date": "2022-05-31",
+      "period": "2022-05",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 9.0,
+      "priceUsd": 255.216667,
+      "cashFlowUsd": 3145.742313
+    },
+    {
+      "date": "2022-06-21",
+      "period": "2022-06",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 9.0,
+      "priceUsd": 240.243333,
+      "cashFlowUsd": 2994.811084
+    },
+    {
+      "date": "2022-07-08",
+      "period": "2022-07",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 9.0,
+      "priceUsd": 251.76,
+      "cashFlowUsd": 3164.943164
+    },
+    {
+      "date": "2022-09-28",
+      "period": "2022-09",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 5.0,
+      "priceUsd": 287.91,
+      "cashFlowUsd": -2066.569139
+    },
+    {
+      "date": "2022-09-29",
+      "period": "2022-09",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 5.0,
+      "priceUsd": 267.85,
+      "cashFlowUsd": -1920.276213
+    },
+    {
+      "date": "2022-10-03",
+      "period": "2022-10",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.0,
+      "priceUsd": 246.72,
+      "cashFlowUsd": -1060.69998
+    },
+    {
+      "date": "2022-10-17",
+      "period": "2022-10",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.0,
+      "priceUsd": 218.25,
+      "cashFlowUsd": -932.051235
+    },
+    {
+      "date": "2022-10-19",
+      "period": "2022-10",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.0,
+      "priceUsd": 221.3,
+      "cashFlowUsd": -947.715094
+    },
+    {
+      "date": "2022-10-21",
+      "period": "2022-10",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.0,
+      "priceUsd": 206.31,
+      "cashFlowUsd": -877.423851
+    },
+    {
+      "date": "2022-10-28",
+      "period": "2022-10",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 3.0,
+      "priceUsd": 225.0,
+      "cashFlowUsd": 950.623452
+    },
+    {
+      "date": "2022-11-01",
+      "period": "2022-11",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 6.0,
+      "priceUsd": 228.34,
+      "cashFlowUsd": 1937.321137
+    },
+    {
+      "date": "2022-11-09",
+      "period": "2022-11",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.0,
+      "priceUsd": 187.5,
+      "cashFlowUsd": -790.575849
+    },
+    {
+      "date": "2022-11-10",
+      "period": "2022-11",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 5.0,
+      "priceUsd": 189.83,
+      "cashFlowUsd": -1313.29882
+    },
+    {
+      "date": "2022-12-28",
+      "period": "2022-12",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 10.0,
+      "priceUsd": 111.71,
+      "cashFlowUsd": 1506.381482
+    },
+    {
+      "date": "2022-12-29",
+      "period": "2022-12",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 10.0,
+      "priceUsd": 119.58,
+      "cashFlowUsd": 1604.962218
+    },
+    {
+      "date": "2023-02-06",
+      "period": "2023-02",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 8.0,
+      "priceUsd": 193.0,
+      "cashFlowUsd": 2048.641113
+    },
+    {
+      "date": "2023-02-08",
+      "period": "2023-02",
+      "account": "U***7895",
+      "type": "Sell",
+      "shares": 8.0,
+      "priceUsd": 200.0,
+      "cashFlowUsd": 2120.27811
+    },
+    {
+      "date": "2023-03-20",
+      "period": "2023-03",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 4.0,
+      "priceUsd": 184.89,
+      "cashFlowUsd": -989.150318
+    },
+    {
+      "date": "2023-04-24",
+      "period": "2023-04",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 10.0,
+      "priceUsd": 164.64,
+      "cashFlowUsd": -2196.000942
+    },
+    {
+      "date": "2023-11-01",
+      "period": "2023-11",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.0,
+      "priceUsd": 204.03,
+      "cashFlowUsd": -837.924636
+    },
+    {
+      "date": "2024-01-29",
+      "period": "2024-01",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.0,
+      "priceUsd": 187.8775,
+      "cashFlowUsd": -252.248902
+    },
+    {
+      "date": "2024-02-05",
+      "period": "2024-02",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.0,
+      "priceUsd": 180.0,
+      "cashFlowUsd": -243.007545
+    },
+    {
+      "date": "2024-09-09",
+      "period": "2024-09",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.0954,
+      "priceUsd": 217.14081,
+      "cashFlowUsd": -594.634171
+    },
+    {
+      "date": "2024-10-09",
+      "period": "2024-10",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.8598,
+      "priceUsd": 244.65,
+      "cashFlowUsd": -595.321414
+    },
+    {
+      "date": "2024-11-08",
+      "period": "2024-11",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.4657,
+      "priceUsd": 310.431562,
+      "cashFlowUsd": -603.972822
+    },
+    {
+      "date": "2024-12-10",
+      "period": "2024-12",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.1356,
+      "priceUsd": 400.655349,
+      "cashFlowUsd": -611.05608
+    },
+    {
+      "date": "2025-01-10",
+      "period": "2025-01",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.0,
+      "priceUsd": 388.86,
+      "cashFlowUsd": -1067.238825
+    },
+    {
+      "date": "2025-01-10",
+      "period": "2025-01",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.1166,
+      "priceUsd": 392.247287,
+      "cashFlowUsd": -601.261983
+    },
+    {
+      "date": "2025-02-10",
+      "period": "2025-02",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.2374,
+      "priceUsd": 357.182564,
+      "cashFlowUsd": -599.53026
+    },
+    {
+      "date": "2025-03-10",
+      "period": "2025-03",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.851,
+      "priceUsd": 238.786752,
+      "cashFlowUsd": -590.218799
+    },
+    {
+      "date": "2025-04-08",
+      "period": "2025-04",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.8392,
+      "priceUsd": 240.309812,
+      "cashFlowUsd": -598.778604
+    },
+    {
+      "date": "2025-05-08",
+      "period": "2025-05",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.5765,
+      "priceUsd": 285.43373,
+      "cashFlowUsd": -585.884354
+    },
+    {
+      "date": "2025-06-09",
+      "period": "2025-06",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.0215,
+      "priceUsd": 296.8,
+      "cashFlowUsd": -772.187563
+    },
+    {
+      "date": "2025-07-02",
+      "period": "2025-07",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.0,
+      "priceUsd": 312.4,
+      "cashFlowUsd": -795.798667
+    },
+    {
+      "date": "2025-07-09",
+      "period": "2025-07",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 1.0,
+      "priceUsd": 297.57,
+      "cashFlowUsd": -381.470068
+    },
+    {
+      "date": "2025-07-09",
+      "period": "2025-07",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 0.5,
+      "priceUsd": 297.56,
+      "cashFlowUsd": -190.483192
+    },
+    {
+      "date": "2025-08-08",
+      "period": "2025-08",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.3348,
+      "priceUsd": 329.852233,
+      "cashFlowUsd": -1414.420524
+    },
+    {
+      "date": "2025-09-08",
+      "period": "2025-09",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.1449,
+      "priceUsd": 349.764009,
+      "cashFlowUsd": -1412.086073
+    },
+    {
+      "date": "2025-10-08",
+      "period": "2025-10",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.5256,
+      "priceUsd": 435.538589,
+      "cashFlowUsd": -1425.430506
+    },
+    {
+      "date": "2025-11-10",
+      "period": "2025-11",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.1426,
+      "priceUsd": 443.367576,
+      "cashFlowUsd": -1238.105124
+    },
+    {
+      "date": "2025-12-08",
+      "period": "2025-12",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.268,
+      "priceUsd": 440.911974,
+      "cashFlowUsd": -1297.980895
+    },
+    {
+      "date": "2026-01-07",
+      "period": "2026-01",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.4426,
+      "priceUsd": 435.707544,
+      "cashFlowUsd": -1924.04797
+    },
+    {
+      "date": "2026-02-09",
+      "period": "2026-02",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.4012,
+      "priceUsd": 416.44389,
+      "cashFlowUsd": -1265.73953
+    },
+    {
+      "date": "2026-03-09",
+      "period": "2026-03",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 2.8337,
+      "priceUsd": 388.181786,
+      "cashFlowUsd": -1402.535585
+    },
+    {
+      "date": "2026-04-07",
+      "period": "2026-04",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.2078,
+      "priceUsd": 342.91,
+      "cashFlowUsd": -1410.783323
+    },
+    {
+      "date": "2026-05-07",
+      "period": "2026-05",
+      "account": "U***7895",
+      "type": "Buy",
+      "shares": 3.4193,
+      "priceUsd": 409.439878,
+      "cashFlowUsd": -1777.082616
+    }
+  ]
+}

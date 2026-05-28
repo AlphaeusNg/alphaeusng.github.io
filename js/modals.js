@@ -19,9 +19,6 @@ const PROJECT_MODAL_DATA = {
         techNote: 'Tech: Obsidian + Dataview, custom Python parsers, experimental Flask/React surfaces, plain-text-first philosophy.'
       }
     ],
-    intersection: {
-      content: 'At the heart of this work lies the conviction that the God who spoke order into chaos is not threatened by careful systems thinking. Engineering virtues — decomposition, falsifiability, transparent provenance — are servants of theology, not rivals to it. This is not an attempt to reduce mystery to code, but to serve the truth with the best tools we have been given.'
-    },
     challenges: {
       heading: 'Challenges & Humility',
       content: 'The greatest risk is over-systematizing what must remain living. Scripture resists our neat categories; the Spirit is not a dataset. Another challenge: the temptation toward intellectual pride when building tools for “truth.” Both dangers require constant repentance and the guardrails of real community.'
@@ -56,32 +53,29 @@ const PROJECT_MODAL_DATA = {
     title: 'Scene Text Translator',
     badges: ['COMPUTER VISION + NLP', 'FINAL YEAR PROJECT'],
     contextLine: 'Nanyang Technological University',
-    introParagraph: 'My NTU Final Year Project explored the practical intersection of computer vision and large language models: localising and translating text embedded in natural scenes or stylized manga pages.',
+    introParagraph: 'I built this NTU Final Year Project out of a simple frustration as someone who loves manga: translation delays are real, and I wanted to see whether the first wave of usable LLMs and image-model tooling could help shorten that gap for text embedded inside panels and natural images.',
     sections: [
       {
         heading: 'The Technical Challenge',
-        content: 'Real-world scene text is messy. Lighting varies, fonts are artistic, backgrounds compete, and the same character can appear in wildly different visual contexts. Off-the-shelf OCR fails quickly. The system needed to not only detect text but understand its visual role so that translations could be rendered back without destroying the original aesthetic.'
+        content: 'Scene text is messy in exactly the ways manga and real-world photography make obvious: lighting shifts, lettering is stylized, speech bubbles and signboards deform the layout, and the same phrase can need very different translations depending on visual context. Off-the-shelf OCR breaks quickly. The hard part was not just extracting words, but preserving the reading experience after translation.'
       },
       {
         heading: 'Architecture & Process',
-        content: 'EasyOCR for detection and recognition → GPT-4 class model for context-aware translation → dynamic overlay generation using PIL/OpenCV that respects original font size, orientation, and background. The entire pipeline runs as a Flask backend serving a clean React SPA. Users upload an image and receive a translated version with text seamlessly reintegrated.',
-        techNote: 'Tech: PyTorch (CUDA), EasyOCR, OpenAI API, Flask, React, PIL/OpenCV. Tested extensively on Manga109 and real-world photography.'
+        content: 'The pipeline was: EasyOCR for localisation and recognition, an early GPT-4-class workflow for context-aware translation, then an overlay-back rendering pass in PIL/OpenCV that removed the source text region, matched layout as closely as possible, and wrote the translated text back into the image before returning the final composite. The full system shipped as a Flask backend with a React SPA so users could upload an image and immediately inspect the translated output.',
+        techNote: 'Tech: PyTorch (CUDA), EasyOCR, OpenAI API, Flask, React, PIL/OpenCV. Evaluated on Manga109 and real-world photography during the early CV + LLM/image-model moment when capability was rising fast but reliability still needed explicit guardrails.'
       }
     ],
-    intersection: {
-      content: 'Localizing and faithfully re-rendering text across visual and linguistic boundaries is interpretive work under severe constraints. The technical demand for fidelity when meaning must cross cultures resonates with the conviction that the Logos is the coherence of all things. Engineering that reduces distortion in transmission participates, at the level of craft, in the larger preservation of truth.'
-    },
     challenges: {
       heading: 'Challenges & Humility',
-      content: 'The hardest problems were not model accuracy but edge cases: vertical text, stylized logos, text on curved surfaces, and the ethical question of what should even be translated. Failure modes taught me that “good enough” in perception systems is often culturally and aesthetically loaded.'
+      content: 'The hardest problems were edge cases: vertical text, stylized logos, curved surfaces, dense dialogue, and the question of what should or should not be translated at all. Working with early LLM-era tooling made the limits obvious very quickly; preserving intent and visual coherence mattered more than pretending the pipeline was fully automatic.'
     },
     currentState: {
       heading: 'Current State',
-      content: 'The project is open source and remains a useful reference for anyone working at the CV + LLM boundary. It taught me that the last mile of real-world computer vision is almost always about careful data curation and honest failure analysis rather than chasing the newest architecture.'
+      content: 'The project remains open source as a useful reference for anyone exploring the CV + LLM boundary. For me, it was proof that careful data curation, translation judgment, and the final overlay-back step mattered more than hype about whichever new model had just landed.'
     },
     quote: {
-      text: 'Every model necessarily discards information to predict. The gap between a deployed detector and the irreducible mess of a traveler’s bag is permanent.',
-      attribution: 'From HTX reflection, equally true here'
+      text: 'The point was never just extracting text, but preserving meaning without breaking the image.',
+      attribution: 'Design constraint that shaped the project'
     },
     visual: {
       type: 'pipeline-diagram',
@@ -101,28 +95,25 @@ const PROJECT_MODAL_DATA = {
     title: 'Threat Detection Systems',
     badges: ['APPLIED COMPUTER VISION', 'HTX CBRNE CENTRE'],
     contextLine: 'AI Developer Intern — Singapore Home Team Science & Technology Agency (2023)',
-    introParagraph: 'At HTX’s Chemical, Biological, Radiological, Nuclear and Explosives Centre of Expertise, I worked on production-grade computer vision systems for automated threat detection at Singapore’s borders.',
+    introParagraph: 'At HTX’s Chemical, Biological, Radiological, Nuclear and Explosives Centre of Expertise, I worked on production-grade computer vision systems for automated threat detection at Singapore’s borders. The work is also reflected in the HTX intern story, a LinkedIn video walkthrough, and the sample X-ray imagery shown on this site.',
     sections: [
       {
         heading: 'The Operational Reality',
-        content: 'This was not research theater. I spent time on the ground at Tuas Port, Woodlands Checkpoint, and Changi Airport collecting and staging real threat items in operational X-ray and imaging systems, then building the annotation, training, and automation pipelines that turned that raw signal into deployable models (primarily YOLO family and Detectron2).'
+        content: 'This was not research theater. I spent time on the ground at Tuas Port, Woodlands Checkpoint, and Changi Airport collecting and staging real threat items in operational X-ray and imaging systems, then building the annotation, training, and automation pipelines that turned that raw signal into deployable models. The sample X-ray image included with this project gives a glimpse of the actual visual conditions the models had to handle.'
       },
       {
         heading: 'Pipeline & Process',
-        content: 'Full end-to-end responsibility: on-ground data collection under real security constraints → large-scale annotation and quality control → model training and rigorous evaluation (including SSIM/FFT analysis) → Python automation for everything from data transforms to slide deck generation → documentation and handoff to operational teams.',
+        content: 'Full end-to-end responsibility: on-ground data collection under real security constraints, large-scale annotation and quality control, model training and rigorous evaluation, Python automation for everything from data transforms to slide deck generation, and documentation for operational handoff. The public HTX blog write-up and LinkedIn video are the outward-facing summary; the actual work was the slow systems labor behind them.',
         techNote: 'Tech: YOLOv7, Detectron2, Python automation, real operational data from ICA checkpoints. 8.5/10 intern experience rating.'
       }
     ],
-    intersection: {
-      content: 'The demand for extreme precision when labeling what endangers the public is not abstract. It forces a particular kind of attention: you cannot afford to project your own categories onto the data. This discipline is indistinguishable in spirit from the reverence owed to Scripture or to any serious intellectual tradition. Annotation, in this register, becomes an act of guardianship.'
-    },
     challenges: {
       heading: 'Challenges & Humility',
       content: 'Operational environments are hostile to clean datasets. Lighting, artifacts, and adversarial concealment are constant. The temptation to over-claim model performance is strong when real security is on the line. The mentors who drilled “Rank is given, respect is earned” into the culture modeled the epistemic humility the work actually requires.'
     },
     currentState: {
       heading: 'Current State & Impact',
-      content: 'Models developed during this period contributed to real deployed capability at Singapore’s borders. The experience permanently changed how I think about “applied AI” — it is logistics, anthropology, and moral seriousness as much as it is model architecture.'
+      content: 'Models developed during this period contributed to real deployed capability at Singapore’s borders. On the site, this project now sits alongside the HTX blog feature, the LinkedIn video, and sample X-ray imagery so the work is legible both as deployed engineering and as a concrete visual system.'
     },
     quote: {
       text: 'Rank is given, respect is earned.',
@@ -137,6 +128,10 @@ const PROJECT_MODAL_DATA = {
         label: 'Read the HTX intern story',
         url: 'https://www.htx.gov.sg/join-us/our-stories/2023/htx-intern-stories--an-intern-s-gambit-into-the-world-of-ai',
         icon: 'external-link'
+      },
+      secondary: {
+        label: 'Watch the LinkedIn video',
+        url: 'https://www.linkedin.com/posts/alphaeus-ng_i-am-delighted-and-immensely-grateful-to-ugcPost-7087471136929705984-Di9x/'
       }
     }
   },
@@ -146,28 +141,25 @@ const PROJECT_MODAL_DATA = {
     title: 'VotaFun',
     badges: ['MULTIPLAYER + AI', 'REAL-TIME COLLABORATION'],
     contextLine: 'NTU 3002-TEL1 Module Project',
-    introParagraph: 'VotaFun is a real-time, gamified group decision-making platform that uses large language models to help people surface preferences, shortlist options, and reach decisions together without the AI making the final call.',
+    introParagraph: 'VotaFun is best understood as something you launch and try: a live, real-time group decision-making demo where the LLM helps surface preferences and shortlist options, but the final decision still belongs to the people in the room.',
     sections: [
       {
-        heading: 'The Design Philosophy',
-        content: 'Most “AI group decision” tools either poll people and then let the model decide, or they hide the model entirely. VotaFun does the opposite: the LLM ingests free-text preferences, proposes ranked options with transparent natural-language explanations, and then steps back. The final act of judgment and the relational joy of choosing together remain human.'
+        heading: 'What The Demo Does',
+        content: 'Users join a room, type what they want, watch the system cluster preferences into concrete options, and then vote together in real time. Most “AI group decision” tools either hide the model or let it decide. VotaFun keeps the model visible enough to be useful, then gets out of the way.'
       },
       {
         heading: 'Architecture',
-        content: 'Next.js + TypeScript + Tailwind frontend, Flask/Python backend, Redis + Socket.IO for real-time synchronization across rooms. Users join with a username, submit preferences, see live proposals and voting, and can iterate. The entire system is designed so the AI augments collective intelligence rather than replacing it.',
+        content: 'Next.js + TypeScript + Tailwind on the frontend, Flask/Python on the backend, and Redis + Socket.IO for room state and live synchronization. The stack exists to support a direct demo flow: enter a room, submit preferences, get ranked suggestions with explanations, and keep iterating without breaking the group experience.',
         techNote: 'Tech: Next.js, Flask, Socket.IO, Redis, OpenAI/ChatGPT, Docker Compose. ~158 commits. Live demo available.'
       }
     ],
-    intersection: {
-      content: 'Tools that would serve the church’s (or any community’s) discernment must be constructed with the same asymmetry VotaFun attempts: they illuminate options and surface hidden preferences, but they do not decide. The final movement of conscience and relationship belongs to the people in the room. When AI is built this way, it can genuinely serve rather than subtly colonize human judgment.'
-    },
     challenges: {
       heading: 'Challenges & Humility',
       content: 'Getting the LLM to give good, non-manipulative explanations is harder than getting it to rank things. Users can game the system. The temptation to add “smart defaults” that quietly steer the group is constant. The architecture exists to make that steering visible and optional.'
     },
     currentState: {
       heading: 'Current State',
-      content: 'The project is open source under the VetoFun organization. It remains one of the cleanest demonstrations I have built of human-AI collaboration that respects human agency at the architectural level.'
+      content: 'The important thing is that it runs. The project is open source under the VetoFun organization, and the live deployment lets people test the full interaction instead of reading a description of it.'
     },
     quote: {
       text: 'They illuminate; they do not decide.',
@@ -179,13 +171,13 @@ const PROJECT_MODAL_DATA = {
     },
     actions: {
       primary: {
-        label: 'View on GitHub',
-        url: 'https://github.com/VetoFun/3002-TEL1-VotaFun',
+        label: 'Launch live demo',
+        url: 'https://votafun.onrender.com/',
         icon: 'external-link'
       },
       secondary: {
-        label: 'Try the live demo',
-        url: 'https://votafun.onrender.com/'
+        label: 'View on GitHub',
+        url: 'https://github.com/VetoFun/3002-TEL1-VotaFun'
       }
     }
   }
@@ -254,11 +246,11 @@ function openRichProjectModal(slug) {
       });
     }
 
-    // Intersection
+    // Context block
     if (data.intersection) {
       const div = document.createElement('div');
       div.className = 'intersection mt-6 p-4 rounded-xl bg-[#111827]';
-      div.innerHTML = `<strong>The Intersection</strong><br>${data.intersection.content}`;
+      div.innerHTML = `<strong>Why It Matters</strong><br>${data.intersection.content}`;
       body.appendChild(div);
     }
 

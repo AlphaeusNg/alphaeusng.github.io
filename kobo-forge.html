@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KoboForge • Client-side EPUB Builder</title>
+    <meta name="description" content="Client-side DOCX, PDF, TXT, and Markdown to EPUB conversion with better paragraph and indentation preservation for Kobo readers.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+        :root {
+            --gold: #C9A227;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background:
+                radial-gradient(circle at top, rgba(201, 162, 39, 0.16), transparent 34%),
+                linear-gradient(180deg, #080d17 0%, #0c1322 55%, #080d17 100%);
+        }
+
+        .heading-serif {
+            font-family: 'Playfair Display', Georgia, serif;
+            letter-spacing: -0.03em;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.76);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 24px 80px rgba(2, 6, 23, 0.28);
+            backdrop-filter: blur(16px);
+        }
+
+        .dropzone-active {
+            border-color: rgba(201, 162, 39, 0.72);
+            background: rgba(201, 162, 39, 0.08);
+        }
+
+        #preview p {
+            margin: 0 0 1.15rem 0;
+            color: #cbd5e1;
+            line-height: 1.75;
+        }
+
+        #preview p.preserve-structure {
+            white-space: pre-wrap;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.94rem;
+            line-height: 1.65;
+        }
+
+        #preview h1,
+        #preview h2,
+        #preview h3,
+        #preview h4 {
+            font-family: 'Playfair Display', Georgia, serif;
+            color: #f8fafc;
+            letter-spacing: -0.02em;
+            margin: 1.4rem 0 0.65rem;
+        }
+
+        #preview ul,
+        #preview ol {
+            color: #cbd5e1;
+            margin: 0 0 1.15rem 1.2rem;
+        }
+
+        #preview blockquote {
+            border-left: 3px solid rgba(201, 162, 39, 0.75);
+            padding-left: 1rem;
+            color: #cbd5e1;
+            margin: 0 0 1.15rem;
+        }
+    </style>
+</head>
+<body class="text-slate-50 antialiased">
+    <nav class="border-b border-white/10">
+        <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+            <div class="flex items-center gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#C9A227] to-[#8F7417] text-sm font-semibold text-slate-950">A</div>
+                <a href="index.html" class="font-semibold tracking-tight transition hover:text-[#C9A227]">Alphaeus Ng</a>
+                <span class="hidden text-sm text-slate-500 sm:inline">/ KoboForge</span>
+            </div>
+            <a href="index.html#craft" class="text-sm text-slate-400 transition hover:text-white">← Back to The Craft</a>
+        </div>
+    </nav>
+
+    <header class="mx-auto max-w-6xl px-6 pb-14 pt-16">
+        <div class="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#C9A227]">Client-side Processing</div>
+        <h1 class="heading-serif max-w-4xl text-6xl leading-none text-slate-50 md:text-7xl">KoboForge</h1>
+        <p class="mt-6 max-w-3xl text-2xl leading-tight text-slate-200">
+            A private EPUB builder for Kobo readers that preserves paragraph boundaries and indentation instead of clumping everything into one block of text.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3 text-sm text-slate-300">
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Runs fully in your browser</div>
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">DOCX + PDF + TXT + Markdown</div>
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Structure-preserving PDF heuristics</div>
+        </div>
+    </header>
+
+    <section class="mx-auto grid max-w-6xl gap-8 px-6 pb-16 lg:grid-cols-[0.95fr_1.05fr]">
+        <div class="space-y-6">
+            <div class="glass-card rounded-[2rem] p-7">
+                <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">1. Import</div>
+                <div id="dropzone" class="mt-5 rounded-[1.75rem] border-2 border-dashed border-white/15 bg-slate-950/30 px-6 py-10 text-center transition">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-[#C9A227]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903 5 5 0 019.393-2.14 4.5 4.5 0 01.879 7.903M12 12v9m0 0l-3-3m3 3l3-3" />
+                        </svg>
+                    </div>
+                    <h2 class="mt-4 text-xl font-semibold tracking-tight">Drop a file here</h2>
+                    <p class="mt-2 text-sm leading-7 text-slate-400">
+                        Best results come from DOCX. PDFs are supported with client-side structure reconstruction that tries to preserve line grouping, paragraph breaks, and indentation.
+                    </p>
+                    <button id="pickFileBtn" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-[#C9A227] px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844]">Choose file</button>
+                    <input id="fileInput" type="file" accept=".docx,.pdf,.txt,.md,.markdown" class="hidden">
+                </div>
+
+                <div class="mt-6 grid gap-4 md:grid-cols-2">
+                    <label class="block">
+                        <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Book title</span>
+                        <input id="bookTitle" type="text" class="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-[#C9A227]" placeholder="Defaults to filename">
+                    </label>
+                    <label class="block">
+                        <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Author</span>
+                        <input id="bookAuthor" type="text" class="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-[#C9A227]" placeholder="Optional">
+                    </label>
+                </div>
+
+                <div class="mt-6 rounded-3xl border border-white/10 bg-slate-950/35 p-5">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-[#C9A227]">Why this works better</div>
+                    <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-300">
+                        <li>DOCX keeps native paragraph structure, so conversion stays close to the source.</li>
+                        <li>PDF extraction groups text by line height and x-position to reconstruct spaces and paragraph blocks.</li>
+                        <li>Indented lines stay indented in both the preview and the exported EPUB.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-[2rem] p-7">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">2. Status</div>
+                        <h2 class="mt-2 text-2xl font-semibold tracking-tight">Client-side output</h2>
+                    </div>
+                    <button id="downloadBtn" class="rounded-2xl bg-[#C9A227] px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-50" disabled>Download EPUB</button>
+                </div>
+                <div id="status" class="mt-5 text-sm leading-7 text-slate-400">Waiting for a document.</div>
+                <div id="stats" class="mt-5 grid hidden gap-4 sm:grid-cols-3">
+                    <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Format</div>
+                        <div id="statFormat" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Paragraphs</div>
+                        <div id="statParagraphs" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Structure</div>
+                        <div id="statStructure" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card rounded-[2rem] p-7">
+            <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                    <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">3. Preview</div>
+                    <h2 class="mt-2 text-2xl font-semibold tracking-tight">Extracted content</h2>
+                </div>
+                <div class="text-xs text-slate-500">The preview is the exact content that goes into the EPUB chapter.</div>
+            </div>
+            <div id="preview" class="mt-6 min-h-[540px] rounded-[1.75rem] border border-white/10 bg-slate-950/35 px-6 py-6">
+                <p class="text-slate-500">Load a document to inspect the reconstructed structure before exporting.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-white/10 py-8 text-center text-xs text-slate-500">
+        All processing stays local in your browser. <span class="mx-2">·</span>
+        <a href="index.html#craft" class="transition hover:text-slate-300">Back to The Craft</a>
+    </footer>
+
+    <script type="module">
+        import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('fileInput');
+        const pickFileBtn = document.getElementById('pickFileBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusEl = document.getElementById('status');
+        const previewEl = document.getElementById('preview');
+        const statsEl = document.getElementById('stats');
+        const statFormat = document.getElementById('statFormat');
+        const statParagraphs = document.getElementById('statParagraphs');
+        const statStructure = document.getElementById('statStructure');
+        const bookTitleInput = document.getElementById('bookTitle');
+        const bookAuthorInput = document.getElementById('bookAuthor');
+
+        let currentOutput = null;
+        let currentFile = null;
+
+        pickFileBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files?.[0];
+            if (file) {
+                processFile(file);
+            }
+        });
+
+        ['dragenter', 'dragover'].forEach((eventName) => {
+            dropzone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropzone.classList.add('dropzone-active');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach((eventName) => {
+            dropzone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropzone.classList.remove('dropzone-active');
+            });
+        });
+
+        dropzone.addEventListener('drop', (event) => {
+            const file = event.dataTransfer?.files?.[0];
+            if (file) {
+                processFile(file);
+            }
+        });
+
+        downloadBtn.addEventListener('click', async () => {
+            if (!currentOutput || !currentFile) return;
+            const title = bookTitleInput.value.trim() || currentOutput.title;
+            const author = bookAuthorInput.value.trim() || currentOutput.author || 'Alphaeus Ng';
+            statusEl.textContent = 'Building EPUB locally…';
+            const blob = await buildEpubBlob({
+                title,
+                author,
+                bodyHtml: currentOutput.bodyHtml
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${slugify(title || currentFile.name.replace(/\.[^.]+$/, '')) || 'koboforge-output'}.epub`;
+            link.click();
+            URL.revokeObjectURL(url);
+            statusEl.textContent = 'EPUB ready. Nothing left your browser.';
+        });
+
+        async function processFile(file) {
+            currentFile = file;
+            currentOutput = null;
+            downloadBtn.disabled = true;
+            statsEl.classList.add('hidden');
+            previewEl.innerHTML = '<p class="text-slate-500">Processing…</p>';
+            statusEl.textContent = `Reading ${file.name} locally…`;
+            bookTitleInput.value = file.name.replace(/\.[^.]+$/, '');
+
+            try {
+                const ext = file.name.split('.').pop().toLowerCase();
+                let output;
+                if (ext === 'docx') {
+                    output = await parseDocx(file);
+                } else if (ext === 'pdf') {
+                    output = await parsePdf(file);
+                } else if (ext === 'txt' || ext === 'md' || ext === 'markdown') {
+                    output = await parsePlainText(file, ext);
+                } else {
+                    throw new Error('Unsupported file type. Use DOCX, PDF, TXT, or Markdown.');
+                }
+
+                currentOutput = output;
+                previewEl.innerHTML = output.bodyHtml;
+                statusEl.textContent = output.status;
+                statFormat.textContent = output.formatLabel;
+                statParagraphs.textContent = String(output.paragraphCount);
+                statStructure.textContent = output.structureNote;
+                statsEl.classList.remove('hidden');
+                downloadBtn.disabled = false;
+            } catch (error) {
+                console.error('[KoboForge]', error);
+                statusEl.textContent = error.message || 'Failed to process file.';
+                previewEl.innerHTML = '<p class="text-rose-300">Processing failed. Try DOCX for the cleanest result, or a simpler PDF.</p>';
+            }
+        }
+
+        async function parseDocx(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await window.mammoth.convertToHtml({ arrayBuffer });
+            const doc = new DOMParser().parseFromString(result.value, 'text/html');
+            const paragraphCount = doc.body.querySelectorAll('p, li, blockquote').length || 1;
+            return {
+                title: file.name.replace(/\.[^.]+$/, ''),
+                author: '',
+                bodyHtml: sanitizeBody(doc.body.innerHTML),
+                paragraphCount,
+                formatLabel: 'DOCX',
+                structureNote: 'Native paragraphs preserved',
+                status: 'DOCX parsed locally. Paragraph and heading structure preserved from the source document.'
+            };
+        }
+
+        async function parsePlainText(file, ext) {
+            const text = await file.text();
+            const html = ext === 'txt'
+                ? plainTextToStructuredHtml(text)
+                : markdownLikeToHtml(text);
+            const paragraphCount = (html.match(/<p/g) || []).length || 1;
+            return {
+                title: file.name.replace(/\.[^.]+$/, ''),
+                author: '',
+                bodyHtml: html,
+                paragraphCount,
+                formatLabel: ext === 'txt' ? 'TXT' : 'Markdown',
+                structureNote: 'Blank lines and indentation preserved',
+                status: `${ext.toUpperCase()} parsed locally with paragraph breaks and indentation preserved.`
+            };
+        }
+
+        async function parsePdf(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const paragraphs = [];
+
+            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+                const page = await pdf.getPage(pageNumber);
+                const textContent = await page.getTextContent();
+                const pageParagraphs = extractPdfParagraphs(textContent.items);
+                paragraphs.push(...pageParagraphs);
+            }
+
+            const html = paragraphs.length
+                ? paragraphs.map((paragraph) => `<p class="preserve-structure">${escapeHtml(paragraph)}</p>`).join('')
+                : '<p class="preserve-structure">No extractable text found.</p>';
+
+            return {
+                title: file.name.replace(/\.[^.]+$/, ''),
+                author: '',
+                bodyHtml: html,
+                paragraphCount: paragraphs.length || 1,
+                formatLabel: 'PDF',
+                structureNote: 'Heuristic line + indent reconstruction',
+                status: 'PDF parsed locally. KoboForge reconstructed spaces, paragraph boundaries, and indentation heuristically from page coordinates.'
+            };
+        }
+
+        function extractPdfParagraphs(items) {
+            const normalized = items
+                .filter((item) => item.str && item.str.trim() !== '')
+                .map((item) => {
+                    const chars = Math.max(item.str.length, 1);
+                    const avgCharWidth = Math.max(item.width / chars, 2);
+                    return {
+                        text: item.str,
+                        x: item.transform[4],
+                        y: item.transform[5],
+                        width: item.width,
+                        height: item.height || 10,
+                        avgCharWidth
+                    };
+                })
+                .sort((a, b) => {
+                    if (Math.abs(a.y - b.y) > 2) return b.y - a.y;
+                    return a.x - b.x;
+                });
+
+            const lines = [];
+            for (const item of normalized) {
+                const currentLine = lines[lines.length - 1];
+                if (!currentLine || Math.abs(currentLine.y - item.y) > Math.max(2.5, item.height * 0.45)) {
+                    lines.push({
+                        y: item.y,
+                        xStart: item.x,
+                        avgCharWidth: item.avgCharWidth,
+                        items: [item]
+                    });
+                } else {
+                    currentLine.items.push(item);
+                    currentLine.xStart = Math.min(currentLine.xStart, item.x);
+                    currentLine.avgCharWidth = Math.min(currentLine.avgCharWidth, item.avgCharWidth);
+                }
+            }
+
+            const minX = lines.reduce((value, line) => Math.min(value, line.xStart), Number.POSITIVE_INFINITY);
+            const builtLines = lines.map((line) => {
+                const sorted = line.items.sort((a, b) => a.x - b.x);
+                let text = '';
+                let previousEnd = null;
+                let avgSpace = line.avgCharWidth || 4;
+                for (const part of sorted) {
+                    if (previousEnd !== null) {
+                        const gap = part.x - previousEnd;
+                        if (gap > avgSpace * 0.55) {
+                            text += ' '.repeat(Math.max(1, Math.min(8, Math.round(gap / avgSpace))));
+                        }
+                    }
+                    text += part.text;
+                    previousEnd = part.x + part.width;
+                    avgSpace = (avgSpace + part.avgCharWidth) / 2;
+                }
+                const indentSpaces = Math.max(0, Math.round((line.xStart - minX) / Math.max(avgSpace, 4)));
+                return {
+                    y: line.y,
+                    rawText: `${' '.repeat(Math.min(indentSpaces, 12))}${text.trimEnd()}`,
+                    indentSpaces,
+                    lineHeight: Math.max(...sorted.map((part) => part.height || 10), 10)
+                };
+            });
+
+            const paragraphs = [];
+            let current = [];
+            let previousLine = null;
+            for (const line of builtLines) {
+                if (!previousLine) {
+                    current.push(line.rawText);
+                    previousLine = line;
+                    continue;
+                }
+
+                const verticalGap = previousLine.y - line.y;
+                const paragraphBreak =
+                    verticalGap > previousLine.lineHeight * 1.45 ||
+                    Math.abs(line.indentSpaces - previousLine.indentSpaces) >= 6;
+
+                if (paragraphBreak) {
+                    paragraphs.push(current.join('\n'));
+                    current = [line.rawText];
+                } else {
+                    current.push(line.rawText);
+                }
+                previousLine = line;
+            }
+
+            if (current.length) {
+                paragraphs.push(current.join('\n'));
+            }
+
+            return paragraphs.filter(Boolean);
+        }
+
+        function plainTextToStructuredHtml(text) {
+            return text
+                .replace(/\r\n/g, '\n')
+                .split(/\n{2,}/)
+                .map((paragraph) => paragraph.trimEnd())
+                .filter(Boolean)
+                .map((paragraph) => `<p class="preserve-structure">${escapeHtml(paragraph)}</p>`)
+                .join('');
+        }
+
+        function markdownLikeToHtml(text) {
+            const blocks = text.replace(/\r\n/g, '\n').split(/\n{2,}/).filter(Boolean);
+            return blocks.map((block) => {
+                const trimmed = block.trimEnd();
+                if (trimmed.startsWith('### ')) return `<h3>${escapeHtml(trimmed.slice(4))}</h3>`;
+                if (trimmed.startsWith('## ')) return `<h2>${escapeHtml(trimmed.slice(3))}</h2>`;
+                if (trimmed.startsWith('# ')) return `<h1>${escapeHtml(trimmed.slice(2))}</h1>`;
+                return `<p class="preserve-structure">${escapeHtml(trimmed)}</p>`;
+            }).join('');
+        }
+
+        function sanitizeBody(html) {
+            return html
+                .replace(/<table/gi, '<table class="w-full border-collapse text-sm text-slate-200"')
+                .replace(/<th/gi, '<th class="border border-white/10 px-2 py-1 text-left"')
+                .replace(/<td/gi, '<td class="border border-white/10 px-2 py-1 align-top"');
+        }
+
+        async function buildEpubBlob({ title, author, bodyHtml }) {
+            const zip = new JSZip();
+            zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+            zip.folder('META-INF').file('container.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>`);
+
+            const oebps = zip.folder('OEBPS');
+            oebps.file('styles.css', `body{font-family:serif;line-height:1.55;margin:5%;}h1,h2,h3{margin-top:1.2em;}p{margin:0 0 1em;}p.preserve-structure{white-space:pre-wrap;font-family:monospace;line-height:1.45;}blockquote{border-left:.2em solid #999;padding-left:1em;margin-left:0;}table{border-collapse:collapse;width:100%;margin-bottom:1.2em;}td,th{border:1px solid #999;padding:.35em;vertical-align:top;}`);
+            oebps.file('nav.xhtml', `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head><title>Navigation</title></head>
+<body>
+  <nav epub:type="toc" id="toc">
+    <h1>Contents</h1>
+    <ol><li><a href="chapter.xhtml">${escapeXml(title)}</a></li></ol>
+  </nav>
+</body>
+</html>`);
+            oebps.file('chapter.xhtml', `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <title>${escapeXml(title)}</title>
+  <link rel="stylesheet" type="text/css" href="styles.css"/>
+</head>
+<body>
+  <h1>${escapeXml(title)}</h1>
+  ${bodyHtml}
+</body>
+</html>`);
+            oebps.file('content.opf', `<?xml version="1.0" encoding="UTF-8"?>
+<package version="3.0" unique-identifier="bookid" xmlns="http://www.idpf.org/2007/opf">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="bookid">urn:uuid:${crypto.randomUUID()}</dc:identifier>
+    <dc:title>${escapeXml(title)}</dc:title>
+    <dc:language>en</dc:language>
+    <dc:creator>${escapeXml(author)}</dc:creator>
+  </metadata>
+  <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="chapter" href="chapter.xhtml" media-type="application/xhtml+xml"/>
+    <item id="css" href="styles.css" media-type="text/css"/>
+  </manifest>
+  <spine>
+    <itemref idref="chapter"/>
+  </spine>
+</package>`);
+
+            return zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' });
+        }
+
+        function slugify(input) {
+            return input.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function escapeXml(text) {
+            return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+        }
+    </script>
+</body>
+</html>
