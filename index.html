@@ -441,12 +441,17 @@
                                 <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">Short-form technical notes &amp; reflections on craft and faith</div>
                             </a>
 
-                            <a href="kobo-forge.html" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
+                            <a href="pages/seeking-biblical-truth/" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
+                                <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">Seeking Biblical Truth</div>
+                                <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">Interactive Obsidian vault with rendered Markdown previews, raw note source, and graph navigation</div>
+                            </a>
+
+                            <a href="pages/kobo-forge.html" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
                                 <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">KoboForge</div>
                                 <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">Client-side EPUB &amp; KEPUB tooling for Kobo readers — precision, private, production-ready</div>
                             </a>
 
-                            <a href="conviction.html" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
+                            <a href="pages/conviction.html" role="menuitem" class="explore-link group block px-4 py-2.5 rounded-xl mx-1 hover:bg-white/5 transition-colors">
                                 <div class="font-medium text-[#C9A227] group-hover:text-white transition-colors">Financial Conviction</div>
                                 <div class="text-[11.5px] text-[#94A3B8] leading-snug mt-0.5">High-conviction, multi-decade capital allocation philosophy (not financial advice)</div>
                             </a>
@@ -511,8 +516,9 @@
                     </button>
                     <div id="mobile-explore-panel" class="hidden pl-3 mt-1 flex flex-col gap-y-[3px] text-[13px] border-l border-white/10 ml-1">
                         <a href="#thoughts" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">Thoughts — notes &amp; writing</a>
-                        <a href="kobo-forge.html" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">KoboForge</a>
-                        <a href="conviction.html" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">Financial Conviction</a>
+                        <a href="pages/seeking-biblical-truth/" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">Seeking Biblical Truth</a>
+                        <a href="pages/kobo-forge.html" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">KoboForge</a>
+                        <a href="pages/conviction.html" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white">Financial Conviction</a>
                         <a href="#cv-downloads" class="mobile-link py-0.5 text-[#CBD5E1] hover:text-white flex items-center gap-x-1.5">
                             <span>Download CV</span>
                             <span class="text-[10px] text-[#C9A227]/80">(PDF/DOCX)</span>
@@ -750,7 +756,7 @@
                         <div>WEB + PYTHON • 8-PHASE BUILD</div>
                         <div class="flex items-center gap-x-3">
                             <button onclick="openRichProjectModal('koboforge')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
-                            <a href="kobo-forge.html" class="text-[#C9A227] hover:text-white font-medium">Launch →</a>
+                            <a href="pages/kobo-forge.html" class="text-[#C9A227] hover:text-white font-medium">Launch →</a>
                         </div>
                     </div>
                 </div>
@@ -781,14 +787,14 @@
                             View case study
                             <span class="text-lg leading-none">→</span>
                         </button>
-                        <a href="seeking-biblical-truth/" target="_blank" rel="noopener noreferrer"
+                        <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer"
                            class="text-xs px-3 py-1 rounded-full border border-white/10 hover:border-[#C9A227]/50 text-[#C9A227] transition">
                             Full vault + interactive graph →
                         </a>
                     </div>
                     
                     <div class="pt-3">
-                        <a href="seeking-biblical-truth/" 
+                        <a href="pages/seeking-biblical-truth/" 
                            class="inline-flex items-center gap-x-1.5 text-sm font-medium text-[#C9A227] hover:text-white transition-all group-hover:gap-x-2">
                             Open the public viewer →
                         </a>
@@ -959,11 +965,18 @@
                 <div class="mt-6 text-sm text-[#64748B]">
                     My personal knowledge base and experiments live here:
                 </div>
-                <a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth" target="_blank" rel="noopener noreferrer"
-                   class="mt-3 inline-flex items-center gap-x-2 text-[#C9A227] hover:text-white font-medium group">
-                    Seeking Biblical Truth (GitHub)
-                    <span class="group-hover:translate-x-0.5 transition">→</span>
-                </a>
+                <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <a href="pages/seeking-biblical-truth/"
+                       class="inline-flex items-center gap-x-2 text-[#C9A227] hover:text-white font-medium group">
+                        Open public viewer
+                        <span class="group-hover:translate-x-0.5 transition">→</span>
+                    </a>
+                    <a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-x-2 text-[#94A3B8] hover:text-white font-medium group">
+                        GitHub source
+                        <span class="group-hover:translate-x-0.5 transition">→</span>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -1146,7 +1159,7 @@
         © Alphaeus Ng. All rights reserved. <span class="mx-2">—</span> 
         <a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer" class="hover:text-[#64748B]">Source on GitHub</a>
         <span class="mx-3 opacity-30">·</span>
-        <a href="conviction.html" class="hover:text-[#94A3B8] transition">Investment Conviction</a>
+        <a href="pages/conviction.html" class="hover:text-[#94A3B8] transition">Investment Conviction</a>
     </footer>
 
     <!-- Rich Project Case Study Modal (hardened minimal shell) -->
@@ -1205,7 +1218,7 @@
         <!-- Obsidian workflow + tight integration link (prominent full viewer CTA) -->
         <div class="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
           <span class="text-[#64748B]">Obsidian export workflow:</span>
-          <a href="seeking-biblical-truth/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-x-1 text-[#C9A227] hover:underline font-medium">Open full interactive viewer →</a>
+          <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-x-1 text-[#C9A227] hover:underline font-medium">Open full interactive viewer →</a>
           <span class="text-[#64748B]">· Clone repo &amp; open in Obsidian (Big Picture.canvas, Word of God/, Journal/, Heritage Christian University/ for native graph + canvases)</span>
         </div>
         
@@ -1222,7 +1235,7 @@
             <div class="flex items-center gap-x-3">
               <input id="kg-modal-search" type="text" placeholder="Search nodes..." aria-label="Search the knowledge graph"
                      style="background:#111827; border:1px solid rgba(255,255,255,0.1); color:#CBD5E1; font-size:11px; padding:2.5px 10px; border-radius:999px; width:148px; outline:none;">
-              <a href="seeking-biblical-truth/" target="_blank" rel="noopener noreferrer"
+              <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer"
                  style="font-size:9.5px; color:#C9A227; text-decoration:none; padding:1px 7px; border:1px solid rgba(201,162,39,0.4); border-radius:999px; white-space:nowrap;"
                  title="Open the full dedicated interactive viewer">Full viewer ↗</a>
             </div>

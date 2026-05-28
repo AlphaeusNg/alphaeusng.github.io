@@ -46,7 +46,7 @@ const PROJECT_MODAL_DATA = {
       },
       secondary: {
         label: 'Full vault + interactive graph →',
-        url: 'seeking-biblical-truth/'
+        url: 'pages/seeking-biblical-truth/'
       }
     }
   },
@@ -82,12 +82,12 @@ const PROJECT_MODAL_DATA = {
     actions: {
       primary: {
         label: 'Open KoboForge page',
-        url: 'kobo-forge.html',
+        url: 'pages/kobo-forge.html',
         icon: 'external-link'
       },
       secondary: {
         label: 'Read companion notes',
-        url: 'tools/README.md'
+        url: 'tools/koboforge/README.md'
       }
     }
   },

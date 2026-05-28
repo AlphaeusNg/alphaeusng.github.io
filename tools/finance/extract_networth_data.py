@@ -2,7 +2,7 @@
 """Extract simple net-worth chart data from an XLSX workbook.
 
 The script looks for a worksheet with Date and Networth/Net Worth columns and
-writes JSON compatible with conviction.html's chart loader.
+writes JSON compatible with pages/conviction.html's chart loader.
 """
 
 from __future__ import annotations
@@ -61,12 +61,7 @@ def extract_rows(workbook_path: Path) -> list[dict[str, object]]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("workbook", type=Path, help="Path to Networth Tracker.xlsx")
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("data/networth_data.json"),
-        help="Output JSON path, default: data/networth_data.json",
-    )
+    parser.add_argument("--output", type=Path, required=True, help="Output JSON path.")
     args = parser.parse_args()
 
     data = extract_rows(args.workbook)

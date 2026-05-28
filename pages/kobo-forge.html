@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KoboForge - Private EPUB Tooling</title>
+  <meta name="description" content="KoboForge is privacy-first PDF and DOCX to EPUB tooling for Kobo readers, with a local Python companion for hard documents.">
+  <link rel="canonical" href="https://alphaeusng.github.io/pages/kobo-forge.html">
+  <link rel="icon" href="../assets/alphaeus-portrait.jpg" type="image/jpeg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap">
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    .serif { font-family: "Playfair Display", Georgia, serif; }
+  </style>
+</head>
+<body class="bg-[#0A0F1C] text-[#F3F4F6]">
+  <header class="border-b border-white/10">
+    <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+      <a href="../index.html" class="text-sm font-semibold tracking-tight hover:text-[#C9A227]">Alphaeus Ng</a>
+      <a href="../index.html#craft" class="text-sm text-[#94A3B8] hover:text-white">Back to portfolio</a>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-6 py-16 md:py-24">
+    <section class="max-w-3xl">
+      <div class="mb-4 text-xs font-semibold uppercase tracking-[3px] text-[#C9A227]">KoboForge</div>
+      <h1 class="serif text-5xl tracking-tight md:text-7xl">Private EPUB tooling for Kobo readers.</h1>
+      <p class="mt-6 text-lg leading-8 text-[#CBD5E1]">
+        KoboForge is a practical conversion workflow for readers who want better EPUB output from PDFs and DOCX files without uploading private documents. The current public surface is this project page plus a local Python companion.
+      </p>
+    </section>
+
+    <section class="mt-14 grid gap-5 md:grid-cols-3">
+      <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <h2 class="font-semibold text-white">Local-first</h2>
+        <p class="mt-3 text-sm leading-6 text-[#94A3B8]">Run conversion on your own machine for private documents and drafts.</p>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <h2 class="font-semibold text-white">Built for hard cases</h2>
+        <p class="mt-3 text-sm leading-6 text-[#94A3B8]">Designed around tables, scanned pages, wide layouts, and messy source files that simple converters often mishandle.</p>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <h2 class="font-semibold text-white">Kobo-aware</h2>
+        <p class="mt-3 text-sm leading-6 text-[#94A3B8]">Aims for readable EPUB output with metadata and layout choices suitable for Kobo devices.</p>
+      </div>
+    </section>
+
+    <section class="mt-14 rounded-2xl border border-white/10 bg-[#111827] p-6 md:p-8">
+      <h2 class="serif text-3xl tracking-tight">Use the companion tool</h2>
+      <p class="mt-3 max-w-2xl text-sm leading-7 text-[#94A3B8]">
+        The repository includes the active companion script under `tools/koboforge/`. Run it locally from the site root.
+      </p>
+      <pre class="mt-5 overflow-x-auto rounded-xl border border-white/10 bg-black/40 p-4 text-sm text-[#CBD5E1]"><code>python3 tools/koboforge/koboforge-companion.py input.pdf --output output.epub</code></pre>
+      <div class="mt-6 flex flex-wrap gap-3 text-sm">
+        <a href="../tools/koboforge/README.md" class="rounded-full border border-[#C9A227]/50 px-5 py-2 text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">Read tool notes</a>
+        <a href="../index.html#connect" class="rounded-full border border-white/10 px-5 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white">Contact me</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -16,8 +16,9 @@ Thumbs.db
 .idea/
 
 # Seeking Biblical Truth integration
-# The committed public viewer lives in `seeking-biblical-truth/` and is generated
-# from the separate source vault repo. Do not clone the full vault into this path.
+# The committed public viewer lives in `pages/seeking-biblical-truth/` and is
+# generated from the separate source vault repo. Do not clone the full vault into
+# this repository.
 
 # Obsidian vault caches & volatile files (large or session-specific; exclude even if folder present)
 **/.obsidian/workspace.json

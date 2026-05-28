@@ -10,9 +10,10 @@ This repo is a static GitHub Pages portfolio for Alphaeus Ng. Future agents shou
 4. Serve locally with `python3 -m http.server 8000`.
 5. Validate key routes:
    - `/`
-   - `/conviction.html`
-   - `/kobo-forge.html`
-   - `/seeking-biblical-truth/`
+   - `/pages/conviction.html`
+   - `/pages/kobo-forge.html`
+   - `/pages/seeking-biblical-truth/`
+   - compatibility redirects: `/conviction.html`, `/kobo-forge.html`, `/seeking-biblical-truth/`
 6. Check browser console and responsive layout at mobile and desktop widths when possible.
 
 ## Link And Asset Checks
@@ -21,15 +22,17 @@ This repo is a static GitHub Pages portfolio for Alphaeus Ng. Future agents shou
   `https://docs.google.com/document/d/13kFCvREXmmXATNZhuG3DNd3wkhK-uHIq/edit?usp=drive_link&ouid=117813149167461262984&rtpof=true&sd=true`
 - The Biblical Truth repository is:
   `https://github.com/AlphaeusNg/Seeking-Biblical-Truth`
-- The local/deployed viewer path in this repo is lowercase:
-  `/seeking-biblical-truth/`
+- The canonical viewer path in this repo is:
+  `/pages/seeking-biblical-truth/`
+- `/seeking-biblical-truth/` is a compatibility redirect.
+- The viewer defaults to rendered Markdown and exposes a raw-source toggle in the selected-note panel.
 - GitHub Pages is case-sensitive. Avoid `/Seeking-Biblical-Truth/` unless that exact folder exists.
 - Before deleting files, prove they are not referenced by served pages with `rg`.
 
 ## Deployment Notes
 
 - GitHub Pages serves from the root of `main`.
-- `.nojekyll` is present, so vendored Jekyll theme folders are served as static files but not required for the current homepage.
+- `.nojekyll` is present so GitHub Pages serves this as static files.
 - There is no build/lint/test script in the current repo.
 - External CDNs used by the pages include Tailwind, D3, html2canvas, Google Fonts, Chart.js, and SheetJS.
 
