@@ -188,19 +188,27 @@ function initFadeIns() {
 
 // Active nav link highlighting
 function initActiveNav() {
-    const sections = ['story', 'journey', 'craft', 'thoughts', 'reflections'];
-    const navLinks = document.querySelectorAll('#nav .nav-link[href^="#"]');
+    const sectionGroups = {
+        story: 'portfolio',
+        journey: 'portfolio',
+        craft: 'portfolio',
+        thoughts: 'portfolio',
+        connect: 'portfolio',
+        reflections: 'faith'
+    };
+    const navLinks = document.querySelectorAll('#nav [data-nav-group]');
     
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                const id = entry.target.id;
+                const activeGroup = sectionGroups[entry.target.id];
+                if (!activeGroup) return;
                 
                 navLinks.forEach(link => {
                     link.classList.remove('active', 'text-white');
                     link.classList.add('text-[#CBD5E1]');
                     
-                    if (link.getAttribute('href') === `#${id}`) {
+                    if (link.dataset.navGroup === activeGroup) {
                         link.classList.add('active', 'text-white');
                         link.classList.remove('text-[#CBD5E1]');
                     }
@@ -212,9 +220,80 @@ function initActiveNav() {
         rootMargin: "-80px 0px -40% 0px"
     });
 
-    sections.forEach(id => {
+    Object.keys(sectionGroups).forEach(id => {
         const section = document.getElementById(id);
         if (section) observer.observe(section);
+    });
+}
+
+// Swipeable portrait compare
+function initPortraitComparison() {
+    document.querySelectorAll('[data-portrait-compare]').forEach(compare => {
+        const toggles = compare.parentElement?.querySelectorAll('[data-portrait-snap]') ?? [];
+        let pointerId = null;
+
+        function clamp(value) {
+            return Math.min(94, Math.max(6, value));
+        }
+
+        function setReveal(value) {
+            const reveal = clamp(value);
+            compare.style.setProperty('--portrait-reveal', `${reveal}%`);
+
+            toggles.forEach(toggle => {
+                const target = Number(toggle.dataset.portraitSnap);
+                const isActive = Math.abs(target - reveal) <= 18;
+                toggle.classList.toggle('is-active', isActive);
+                toggle.setAttribute('aria-pressed', String(isActive));
+            });
+        }
+
+        function setRevealFromClientX(clientX) {
+            const rect = compare.getBoundingClientRect();
+            if (!rect.width) return;
+            const reveal = ((clientX - rect.left) / rect.width) * 100;
+            setReveal(reveal);
+        }
+
+        compare.addEventListener('pointerdown', event => {
+            pointerId = event.pointerId;
+            compare.setPointerCapture(pointerId);
+            setRevealFromClientX(event.clientX);
+        });
+
+        compare.addEventListener('pointermove', event => {
+            if (pointerId !== event.pointerId) return;
+            setRevealFromClientX(event.clientX);
+        });
+
+        compare.addEventListener('pointerup', event => {
+            if (pointerId === event.pointerId) {
+                pointerId = null;
+            }
+        });
+
+        compare.addEventListener('pointercancel', () => {
+            pointerId = null;
+        });
+
+        compare.addEventListener('keydown', event => {
+            const current = Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 74;
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                setReveal(current - 6);
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                setReveal(current + 6);
+            }
+        });
+
+        toggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                setReveal(Number(toggle.dataset.portraitSnap));
+            });
+        });
+
+        setReveal(Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 74);
     });
 }
 
@@ -290,6 +369,7 @@ function init() {
     initSmoothScroll();
     initFadeIns();
     initActiveNav();
+    initPortraitComparison();
     initAccessibility();
     
     console.log('%c[Alphaeus Ng Portfolio] Main JS initialized. Structured & cleaned.', 'color:#475569;font-size:9px');

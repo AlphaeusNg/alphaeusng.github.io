@@ -7,25 +7,25 @@ const PROJECT_MODAL_DATA = {
     title: 'Seeking Biblical Truth',
     badges: ['FAITH × CODE', 'LIVING • OPEN'],
     contextLine: '',
-    introParagraph: 'This project began from a simple conviction: the same habits of mind that produce trustworthy engineering — exacting definitions, documented assumptions, reproducible reasoning, and humility before evidence — are desperately needed in how Christians pursue doctrine and Scripture together.',
+    introParagraph: 'This project started from a pretty simple conviction: the habits that make engineering trustworthy also matter when Christians talk about doctrine. Define your terms. Show your reasoning. Stay humble when the evidence punches your favorite idea in the face.',
     sections: [
       {
         heading: 'The Question',
-        content: 'How might we lower the barrier to rigorous, communal study of the Bible while raising the standard of clarity and charity? In an age of rapid theological hot-takes, can we build tools that reward slow, careful attention?'
+        content: 'How do you make serious Bible study easier to enter without dumbing it down? And how do you do that in a world full of instant theological takes from people who read one verse and declare victory?'
       },
       {
         heading: 'The Architecture',
-        content: 'A structured Obsidian vault serves as the living core — version-controlled, richly linked, and organized around books of Scripture, systematic categories, and historical voices. Accompanying Python tooling parses, cross-references, and surfaces connections that would otherwise remain invisible. Early web prototypes explore interfaces for community annotation and “truth-weight” scoring.',
-        techNote: 'Tech: Obsidian + Dataview, custom Python parsers, experimental Flask/React surfaces, plain-text-first philosophy.'
+        content: 'The core is a structured Obsidian vault: version-controlled, heavily linked, and organized around books of Scripture, doctrine, and older voices worth listening to. Around that, I built Python tooling to parse notes, surface cross-links, and make the hidden connections less hidden. The web layer is where I test ways people might actually move through all of this without getting lost or bored.',
+        techNote: 'Tech: Obsidian + Dataview, custom Python parsers, experimental Flask/React surfaces, plain-text-first on purpose.'
       }
     ],
     challenges: {
       heading: 'Challenges & Humility',
-      content: 'The greatest risk is over-systematizing what must remain living. Scripture resists our neat categories; the Spirit is not a dataset. Another challenge: the temptation toward intellectual pride when building tools for “truth.” Both dangers require constant repentance and the guardrails of real community.'
+      content: 'The biggest risk is turning living truth into a tidy little system that flatters the builder. Scripture does not exist to make my diagrams feel smart. The other danger is obvious too: building tools about truth can make a person unbearably pleased with himself. Both problems need real community and regular repentance.'
     },
     currentState: {
       heading: 'Current State & Invitation',
-      content: 'The vault grows weekly. The tooling is functional but young. The web experiments are early sketches. The project is deliberately public so that others may critique, contribute, or simply be encouraged to pursue truth with greater rigor and gentleness in their own contexts.'
+      content: 'The vault keeps growing. The tooling works, but it is still young. The web layer is still very much in the \"this is promising, keep going\" phase. I keep it public on purpose so people can critique it, use it, or steal the good ideas and do better.'
     },
     quote: {
       text: 'The one who states his case first seems right, until the other comes and examines him.',
@@ -53,28 +53,28 @@ const PROJECT_MODAL_DATA = {
     title: 'KoboForge',
     badges: ['AI TOOLING', 'LOCAL-FIRST'],
     contextLine: 'Private EPUB workflow for Kobo readers',
-    introParagraph: 'KoboForge is a browser-based EPUB builder for Kobo readers that keeps private files local while doing a better job of preserving paragraph boundaries and indentation.',
+    introParagraph: 'KoboForge is a browser-based EPUB builder for Kobo readers. It keeps private files local and tries not to butcher paragraph structure, which already puts it ahead of a depressing number of document converters.',
     sections: [
       {
         heading: 'The Problem',
-        content: 'Many document converters handle simple prose but fail on the files readers actually keep: reports with complex tables, scanned material, wide layouts, and formula-heavy pages. KoboForge treats those cases as first-class conversion problems rather than edge cases.'
+        content: 'A lot of converters are fine if the document is plain vanilla prose and nothing weird happens. Real documents are rarely that polite. Tables, scans, ugly layouts, weird spacing, formula-heavy pages: that is where most tools quietly fall apart.'
       },
       {
         heading: 'The Approach',
-        content: 'The restored public page runs fully client-side. DOCX, PDF, TXT, and Markdown inputs are parsed in the browser, previewed before export, and then packaged into an EPUB without any upload step. PDF handling now uses line-height and x-position heuristics to reconstruct spaces, paragraph breaks, and indentation more faithfully than the older version.',
+        content: 'The public page runs fully client-side. DOCX, PDF, TXT, and Markdown go through the browser, get previewed before export, and end up packaged as EPUB without being uploaded anywhere. PDF handling leans on line-height and x-position heuristics to rebuild spaces, paragraph breaks, and indentation more faithfully than the older version did.',
         techNote: 'Tech: static HTML, JSZip, Mammoth, PDF.js, client-side EPUB packaging, plus optional Python companion tooling under tools/.'
       }
     ],
     intersection: {
-      content: 'This project reflects the same engineering instinct as the rest of the site: preserve meaning across format boundaries, be honest about failure modes, and keep private material private by default.'
+      content: 'Same instinct as the rest of the site: preserve meaning across format boundaries, be honest when a tool can fail, and keep private material private by default.'
     },
     challenges: {
       heading: 'Current Limitations',
-      content: 'PDF extraction is still heuristic rather than semantically perfect. DOCX remains the cleanest path because it carries native paragraph structure; PDFs require inference from coordinates, spacing, and indentation.'
+      content: 'PDF extraction is still heuristic. There is no magical \"understand this cursed layout perfectly\" button. DOCX remains the cleanest path because it carries real structure; PDFs make you infer intent from coordinates and spacing like some kind of document archaeologist.'
     },
     currentState: {
       heading: 'Current State',
-      content: 'The deployed site now includes the client-side converter again, with local preview and EPUB export. The Python companion remains useful for tougher offline experiments and future fidelity work.'
+      content: 'The deployed site has the client-side converter back, with local preview and EPUB export. The Python companion is still useful for rougher offline cases and the fidelity work that never fully goes away.'
     },
     actions: {
       primary: {
@@ -94,25 +94,25 @@ const PROJECT_MODAL_DATA = {
     title: 'Scene Text Translator',
     badges: ['COMPUTER VISION + NLP', 'FINAL YEAR PROJECT'],
     contextLine: 'Nanyang Technological University',
-    introParagraph: 'I built this NTU Final Year Project out of a simple frustration as someone who loves manga: translation delays are real, and I wanted to see whether the first wave of usable LLMs and image-model tooling could help shorten that gap for text embedded inside panels and natural images.',
+    introParagraph: 'I built this NTU Final Year Project because I like manga and got impatient. Translation delays are real, and I wanted to see whether early useful LLM tooling could help with text buried inside panels and natural images.',
     sections: [
       {
         heading: 'The Technical Challenge',
-        content: 'Scene text is messy in exactly the ways manga and real-world photography make obvious: lighting shifts, lettering is stylized, speech bubbles and signboards deform the layout, and the same phrase can need very different translations depending on visual context. Off-the-shelf OCR breaks quickly. The hard part was not just extracting words, but preserving the reading experience after translation.'
+        content: 'Scene text is messy in all the obvious ways: bad lighting, stylized lettering, warped layouts, speech bubbles, signboards, and phrases that mean different things once context changes. Off-the-shelf OCR falls over quickly. The hard part was not just getting words out, but putting meaning back in without trashing the reading experience.'
       },
       {
         heading: 'Architecture & Process',
-        content: 'The pipeline was: EasyOCR for localisation and recognition, an early GPT-4-class workflow for context-aware translation, then an overlay-back rendering pass in PIL/OpenCV that removed the source text region, matched layout as closely as possible, and wrote the translated text back into the image before returning the final composite. The full system shipped as a Flask backend with a React SPA so users could upload an image and immediately inspect the translated output.',
-        techNote: 'Tech: PyTorch (CUDA), EasyOCR, OpenAI API, Flask, React, PIL/OpenCV. Evaluated on Manga109 and real-world photography during the early CV + LLM/image-model moment when capability was rising fast but reliability still needed explicit guardrails.'
+        content: 'The pipeline used EasyOCR for localisation and recognition, an early GPT-4-class workflow for context-aware translation, then a rendering pass in PIL/OpenCV that removed the original text region, matched layout as closely as possible, and wrote the translated text back into the image. The full thing shipped as a Flask backend with a React SPA so users could upload an image and inspect the output right away.',
+        techNote: 'Tech: PyTorch (CUDA), EasyOCR, OpenAI API, Flask, React, PIL/OpenCV. Evaluated on Manga109 and real-world photography back when CV + LLM capability was rising fast and reliability still needed hard guardrails.'
       }
     ],
     challenges: {
       heading: 'Challenges & Humility',
-      content: 'The hardest problems were edge cases: vertical text, stylized logos, curved surfaces, dense dialogue, and the question of what should or should not be translated at all. Working with early LLM-era tooling made the limits obvious very quickly; preserving intent and visual coherence mattered more than pretending the pipeline was fully automatic.'
+      content: 'The worst problems were all edge cases: vertical text, logos pretending not to be text, curved surfaces, dense dialogue, and the surprisingly non-trivial question of what should not be translated. Early LLM-era tooling made the limits obvious fast. Preserving intent and visual coherence mattered way more than pretending the pipeline was magic.'
     },
     currentState: {
       heading: 'Current State',
-      content: 'The project remains open source as a useful reference for anyone exploring the CV + LLM boundary. For me, it was proof that careful data curation, translation judgment, and the final overlay-back step mattered more than hype about whichever new model had just landed.'
+      content: 'The project is still open source and still useful if you are exploring the CV + LLM boundary. For me it was proof that careful data curation, translation judgment, and the final overlay step mattered more than whatever shiny new model people were yelling about that week.'
     },
     quote: {
       text: 'The point was never just extracting text, but preserving meaning without breaking the image.',
@@ -136,25 +136,25 @@ const PROJECT_MODAL_DATA = {
     title: 'Threat Detection Systems',
     badges: ['APPLIED COMPUTER VISION', 'HTX CBRNE CENTRE'],
     contextLine: 'AI Developer Intern — Singapore Home Team Science & Technology Agency (2023)',
-    introParagraph: 'At HTX’s Chemical, Biological, Radiological, Nuclear and Explosives Centre of Expertise, I worked on production-grade computer vision systems for automated threat detection at Singapore’s borders. The work is also reflected in the HTX intern story, a LinkedIn video walkthrough, and the sample X-ray imagery shown on this site.',
+    introParagraph: "At HTX's CBRNE Centre of Expertise, I worked on production-grade computer vision systems for automated threat detection at Singapore's borders. Real environment, real constraints, real consequences if you get sloppy.",
     sections: [
       {
         heading: 'The Operational Reality',
-        content: 'This was not research theater. I spent time on the ground at Tuas Port, Woodlands Checkpoint, and Changi Airport collecting and staging real threat items in operational X-ray and imaging systems, then building the annotation, training, and automation pipelines that turned that raw signal into deployable models. The sample X-ray image included with this project gives a glimpse of the actual visual conditions the models had to handle.'
+        content: 'This was not research theater. I spent time on the ground at Tuas Port, Woodlands Checkpoint, and Changi Airport collecting and staging real threat items in operational X-ray and imaging systems, then building the annotation, training, and automation pipelines that turned that mess into deployable models. The sample X-ray image on the site gives a glimpse of what the models actually had to deal with.'
       },
       {
         heading: 'Pipeline & Process',
-        content: 'Full end-to-end responsibility: on-ground data collection under real security constraints, large-scale annotation and quality control, model training and rigorous evaluation, Python automation for everything from data transforms to slide deck generation, and documentation for operational handoff. The public HTX blog write-up and LinkedIn video are the outward-facing summary; the actual work was the slow systems labor behind them.',
+        content: 'The job was end to end: on-ground data collection under security constraints, large-scale annotation and quality control, model training and evaluation, Python automation for everything from transforms to slide-deck generation, and documentation for handoff. The public HTX write-up and LinkedIn video are the tidy summary. The actual work was the slow, careful systems labor underneath.',
         techNote: 'Tech: YOLOv7, Detectron2, Python automation, real operational data from ICA checkpoints. 8.5/10 intern experience rating.'
       }
     ],
     challenges: {
       heading: 'Challenges & Humility',
-      content: 'Operational environments are hostile to clean datasets. Lighting, artifacts, and adversarial concealment are constant. The temptation to over-claim model performance is strong when real security is on the line. The mentors who drilled “Rank is given, respect is earned” into the culture modeled the epistemic humility the work actually requires.'
+      content: 'Operational environments are brutal on clean-dataset fantasies. Lighting, artifacts, clutter, and adversarial concealment never stop. When real security is involved, the temptation to oversell model performance is always there. The right response is less ego, more rigor.'
     },
     currentState: {
       heading: 'Current State & Impact',
-      content: 'Models developed during this period contributed to real deployed capability at Singapore’s borders. On the site, this project now sits alongside the HTX blog feature, the LinkedIn video, and sample X-ray imagery so the work is legible both as deployed engineering and as a concrete visual system.'
+      content: "The models built during this period contributed to real deployed capability at Singapore's borders. On the site, the project sits next to the HTX write-up, the LinkedIn video, and sample X-ray imagery so people can see both the public-facing summary and the visual system behind it."
     },
     quote: {
       text: 'Rank is given, respect is earned.',
@@ -182,25 +182,25 @@ const PROJECT_MODAL_DATA = {
     title: 'VotaFun',
     badges: ['MULTIPLAYER + AI', 'REAL-TIME COLLABORATION'],
     contextLine: 'NTU 3002-TEL1 Module Project',
-    introParagraph: 'VotaFun is best understood as something you launch and try: a live, real-time group decision-making demo where the LLM helps surface preferences and shortlist options, but the final decision still belongs to the people in the room.',
+    introParagraph: "VotaFun makes the most sense when you just launch it and try it. It's a live group decision-making demo where the model helps surface preferences and shortlist options, but the final call still belongs to the humans. As it should.",
     sections: [
       {
         heading: 'What The Demo Does',
-        content: 'Users join a room, type what they want, watch the system cluster preferences into concrete options, and then vote together in real time. Most “AI group decision” tools either hide the model or let it decide. VotaFun keeps the model visible enough to be useful, then gets out of the way.'
+        content: 'Users join a room, say what they want, watch the system cluster preferences into actual options, and then vote together in real time. Most AI group-decision tools either hide the model or let it run the whole show. VotaFun keeps it useful, then tells it to sit down.'
       },
       {
         heading: 'Architecture',
-        content: 'Next.js + TypeScript + Tailwind on the frontend, Flask/Python on the backend, and Redis + Socket.IO for room state and live synchronization. The stack exists to support a direct demo flow: enter a room, submit preferences, get ranked suggestions with explanations, and keep iterating without breaking the group experience.',
+        content: 'Next.js, TypeScript, and Tailwind on the frontend; Flask and Python on the backend; Redis and Socket.IO for room state and live sync. The stack exists to keep the demo flow smooth: join a room, submit preferences, get ranked suggestions with explanations, and keep iterating without breaking the group dynamic.',
         techNote: 'Tech: Next.js, Flask, Socket.IO, Redis, OpenAI/ChatGPT, Docker Compose. ~158 commits. Live demo available.'
       }
     ],
     challenges: {
       heading: 'Challenges & Humility',
-      content: 'Getting the LLM to give good, non-manipulative explanations is harder than getting it to rank things. Users can game the system. The temptation to add “smart defaults” that quietly steer the group is constant. The architecture exists to make that steering visible and optional.'
+      content: 'Getting the LLM to give useful, non-manipulative explanations is harder than getting it to rank things. Users can game the system. And there is always the temptation to sneak in \"smart defaults\" that quietly steer the room. The architecture exists to keep that steering visible and optional.'
     },
     currentState: {
       heading: 'Current State',
-      content: 'The important thing is that it runs. The project is open source under the VetoFun organization, and the live deployment lets people test the full interaction instead of reading a description of it.'
+      content: 'The important thing is that it runs. The project is open source under the VetoFun organization, and the live deployment lets people test the actual interaction instead of reading another paragraph about it.'
     },
     quote: {
       text: 'They illuminate; they do not decide.',
