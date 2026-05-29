@@ -49,6 +49,12 @@
         .summary-table tr + tr {
             border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
+
+        .benchmark-view-toggle[aria-pressed="true"] {
+            background: #C9A227;
+            border-color: #C9A227;
+            color: #0B1220;
+        }
     </style>
 </head>
 <body class="text-slate-50 antialiased">
@@ -87,6 +93,9 @@
             </p>
             <p>
                 Diversification is useful when ignorance is the honest state of affairs. It stops being a virtue when it becomes a socially acceptable way to avoid making a hard judgment. I would rather keep buying the rare company I believe is genuinely good than own a little of many average ones because that looks safer from the outside.
+            </p>
+            <p>
+                The painful part of this ledger is that I also learned what happens when conviction meets leverage. I sold because I was on margin, I sold near the bottom, and the lesson was expensive: being right about the business is not enough if you do not have the holding power to survive the drawdown.
             </p>
         </div>
 
@@ -175,6 +184,68 @@
                     </div>
                 </div>
             </div>
+
+            <div class="mt-10 soft-divider"></div>
+
+            <div class="mt-10">
+                <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">Benchmark Reality Check</div>
+                        <h2 class="heading-serif mt-3 text-4xl text-slate-50">TSLA vs buying SPY with the same cash flows</h2>
+                        <p class="mt-3 max-w-3xl text-slate-300">
+                            This restores the question every concentrated investor has to face honestly: what if the same dated dollars had simply gone into the S&amp;P 500 through SPY instead? The chart compares ending value paths, the value gap, and the monthly cash schedule.
+                        </p>
+                    </div>
+                    <div id="benchmarkSource" class="text-xs text-slate-500">Loading benchmark comparison…</div>
+                </div>
+
+                <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="metric-card rounded-2xl px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Latest TSLA Value</div>
+                        <div id="benchmarkTslaValue" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                    <div class="metric-card rounded-2xl px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Latest SPY Value</div>
+                        <div id="benchmarkSpyValue" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                    <div class="metric-card rounded-2xl px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Value Differential</div>
+                        <div id="benchmarkDifference" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                    <div class="metric-card rounded-2xl px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Net Invested Capital</div>
+                        <div id="benchmarkNetCapital" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                </div>
+
+                <div class="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr]">
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">Coverage</div>
+                        <p id="benchmarkCoverageText" class="mt-4 text-sm leading-7 text-slate-300">—</p>
+                    </div>
+                    <div class="glass-card rounded-3xl p-6">
+                        <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">Holding Power Lesson</div>
+                        <p id="benchmarkDifferentialText" class="mt-4 text-sm leading-7 text-slate-300">—</p>
+                    </div>
+                </div>
+
+                <div class="glass-card mt-8 rounded-[2rem] p-6">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <p class="max-w-2xl text-sm leading-7 text-slate-300">
+                            The value view compares the two end portfolios. Delta isolates the profit or value gap. Cash flows shows how the same monthly contributions and withdrawals would have funded the SPY path.
+                        </p>
+                        <div class="inline-flex rounded-xl border border-white/10 bg-slate-950/70 p-1" role="group" aria-label="Benchmark chart view toggle">
+                            <button type="button" class="benchmark-view-toggle min-w-[104px] rounded-lg border border-transparent px-4 py-2 text-sm text-slate-300 transition" data-view="value" aria-pressed="true">Value</button>
+                            <button type="button" class="benchmark-view-toggle min-w-[104px] rounded-lg border border-transparent px-4 py-2 text-sm text-slate-300 transition" data-view="delta" aria-pressed="false">Delta</button>
+                            <button type="button" class="benchmark-view-toggle min-w-[104px] rounded-lg border border-transparent px-4 py-2 text-sm text-slate-300 transition" data-view="flows" aria-pressed="false">Cash Flows</button>
+                        </div>
+                    </div>
+                    <div class="chart-shell mt-6">
+                        <canvas id="benchmarkChart"></canvas>
+                    </div>
+                    <p id="benchmarkChartStatus" class="mt-4 text-sm text-slate-400">—</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -210,7 +281,7 @@
                     Blind diversification can feel responsible because it spreads discomfort around. It also spreads attention, conviction, and upside around. If the work keeps pointing back to one company that is building faster, executing harder, and aiming further than peers, pretending every other idea deserves equal weight is not prudence. It is indecision dressed up as risk management.
                 </p>
                 <p>
-                    The better standard is harsher: buy the company only if it is genuinely good, keep buying while the thesis remains intact, and stop treating emotional comfort as the same thing as rational safety.
+                    The better standard is harsher: buy the company only if it is genuinely good, keep buying while the thesis remains intact, and structure the position so volatility cannot evict you at the worst possible moment. My own record made that painfully clear. Margin destroyed holding power, forced sales near the bottom, and turned a good thesis into a worse outcome than a simpler benchmark path.
                 </p>
             </div>
 

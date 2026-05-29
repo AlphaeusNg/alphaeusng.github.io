@@ -32,7 +32,7 @@
   </style>
 </head>
 <body class="bg-[#0A0F1C] text-[#F3F4F6]">
-  <main class="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
+  <main class="mx-auto max-w-[96rem] px-4 py-4 md:px-6 md:py-8 xl:px-8">
     <header class="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
         <div class="mb-2 text-xs font-semibold uppercase tracking-[3px] text-[#C9A227]">Actual Obsidian Vault</div>
@@ -46,8 +46,8 @@
       </div>
     </header>
 
-    <section class="grid gap-4 lg:grid-cols-[270px_minmax(0,1fr)_360px]">
-      <aside class="rounded-2xl border border-white/10 bg-[#111827] p-4">
+    <section class="grid gap-4 xl:grid-cols-[280px_minmax(0,1.3fr)_minmax(360px,0.95fr)]">
+      <aside class="self-start rounded-2xl border border-white/10 bg-[#111827] p-4 xl:sticky xl:top-4">
         <label class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]" for="search">Search notes</label>
         <input id="search" class="mt-2 w-full rounded-xl border border-white/10 bg-[#0A0F1C] px-3 py-2 text-sm text-white outline-none focus:border-[#C9A227]" placeholder="Baptism, Romans, Gospel...">
         <div class="mt-4 flex gap-2">
@@ -69,14 +69,14 @@
           <div class="text-sm font-medium text-[#CBD5E1]">Interactive graph</div>
           <div id="graph-count" class="text-xs text-[#64748B]"></div>
         </div>
-        <div id="graph" class="h-[68vh] min-h-[520px] bg-[#0A0F1C]" style="height:68vh;min-height:520px;"></div>
+        <div id="graph" class="h-[72vh] min-h-[540px] bg-[#0A0F1C] xl:h-[78vh] xl:min-h-[680px]" style="height:72vh;min-height:540px;"></div>
       </section>
 
-      <aside class="rounded-2xl border border-white/10 bg-[#111827] p-5">
+      <aside class="self-start rounded-2xl border border-white/10 bg-[#111827] p-5 xl:sticky xl:top-4">
         <div id="note-panel">
           <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">Selected note</div>
           <h2 class="mt-2 text-2xl font-semibold tracking-tight">Choose a node</h2>
-          <p class="mt-3 text-sm leading-6 text-[#94A3B8]">The note body, backlinks, outgoing links, and Obsidian deep link will appear here.</p>
+          <p class="mt-3 text-sm leading-6 text-[#94A3B8]">The note body, backlinks, outgoing links, and Obsidian deep link will appear here while the graph stays in view.</p>
         </div>
       </aside>
     </section>
@@ -309,7 +309,7 @@
             <button type="button" data-note-view="source" class="px-3 py-1.5 ${state.noteView === 'source' ? 'bg-[#C9A227] text-[#0A0F1C]' : 'text-[#CBD5E1] hover:bg-white/5'}">Raw</button>
           </div>
         </div>
-        <div class="note-body mt-5 max-h-[44vh] overflow-auto rounded-xl border border-white/10 bg-[#0A0F1C] p-4 text-sm leading-6 text-[#CBD5E1]">${renderNoteContent(d)}</div>
+        <div class="note-body mt-5 max-h-[56vh] overflow-auto rounded-xl border border-white/10 bg-[#0A0F1C] p-4 text-sm leading-6 text-[#CBD5E1] xl:max-h-[62vh]">${renderNoteContent(d)}</div>
         <div class="mt-5 grid grid-cols-2 gap-4 text-sm">
           <div><div class="mb-2 text-[10px] uppercase tracking-[2px] text-[#64748B]">Outgoing</div>${relatedList(outgoing)}</div>
           <div><div class="mb-2 text-[10px] uppercase tracking-[2px] text-[#64748B]">Backlinks</div>${relatedList(incoming)}</div>

@@ -42,7 +42,7 @@ const PROJECT_MODAL_DATA = {
         icon: 'external-link'
       },
       secondary: {
-        label: 'Full vault + interactive graph →',
+        label: 'Open full-page vault browser →',
         url: 'pages/seeking-biblical-truth/'
       }
     }

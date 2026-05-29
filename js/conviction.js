@@ -1,11 +1,24 @@
 const CONVICTION_DATA_PATH = 'data/conviction_tsla_history.json';
 
+let convictionChart;
+let benchmarkChart;
+let benchmarkPayload;
+
+const benchmarkViewButtons = Array.from(document.querySelectorAll('.benchmark-view-toggle'));
+
 function formatCurrency(value) {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
         maximumFractionDigits: 0
     }).format(value);
+}
+
+function formatSignedCurrency(value) {
+    if (value === 0) {
+        return formatCurrency(0);
+    }
+    return `${value > 0 ? '+' : '-'}${formatCurrency(Math.abs(value))}`;
 }
 
 function formatShares(value) {
@@ -71,7 +84,7 @@ function trailingBuyStreak(series) {
 
 function populateMetrics(data) {
     const summary = data.summary;
-    const windowText = `${formatDate(summary.firstTransactionDate)} → ${formatDate(summary.latestTransactionDate)}`;
+    const windowText = `${formatDate(summary.firstTransactionDate)} -> ${formatDate(summary.latestTransactionDate)}`;
 
     document.getElementById('transactionWindow').textContent = windowText;
     document.getElementById('transactionCount').textContent = `${summary.totalTransactions} total`;
@@ -92,23 +105,17 @@ function populateNarrative(data) {
     const sellEntries = transactions.filter((entry) => entry.type === 'Sell');
     const firstSell = sellEntries[0];
     const lastSell = sellEntries[sellEntries.length - 1];
-    const postSellEntries = transactions.filter((entry) => entry.date > lastSell.date);
-    const allLaterEntriesAreBuys = postSellEntries.every((entry) => entry.type === 'Buy');
     const streak = trailingBuyStreak(data.monthlySeries);
 
     document.getElementById('buildPatternText').textContent =
         `${buys} buys across ${total} TSLA entries. The position was built in increments, not in one dramatic all-in purchase.`;
 
     document.getElementById('sellWindowText').textContent =
-        `${sells} sells were clustered between ${formatDate(firstSell.date)} and ${formatDate(lastSell.date)}. ` +
-        (allLaterEntriesAreBuys
-            ? 'Every later TSLA entry in this record is a buy.'
-            : 'Later entries include both buying and selling.');
+        `${sells} sells were clustered between ${formatDate(firstSell.date)} and ${formatDate(lastSell.date)}. Those sales happened while I was on margin, near the bottom of the drawdown, and they are the clearest evidence in this record that conviction without holding power can still get forced out.`;
 
     if (streak) {
         document.getElementById('cadenceText').textContent =
-            `From ${formatMonth(streak.startPeriod)} through ${formatMonth(streak.endPeriod)}, there is at least one buy in every month represented, moving the position from ` +
-            `${formatShares(streak.sharesBeforeStart)} to ${formatShares(streak.sharesAtEnd)} shares.`;
+            `From ${formatMonth(streak.startPeriod)} through ${formatMonth(streak.endPeriod)}, there is at least one buy in every month represented, moving the position from ${formatShares(streak.sharesBeforeStart)} to ${formatShares(streak.sharesAtEnd)} shares.`;
     } else {
         document.getElementById('cadenceText').textContent =
             'The later entries remain buy-heavy, but the most recent months do not form a continuous monthly streak.';
@@ -135,7 +142,7 @@ function populateRecentTransactions(data) {
         });
 }
 
-function renderChart(data) {
+function renderConvictionChart(data) {
     const series = data.monthlySeries;
     const labels = series.map((entry) => formatMonth(entry.period));
     const netShares = series.map((entry) => entry.netShares);
@@ -146,7 +153,11 @@ function renderChart(data) {
     const ctx = document.getElementById('convictionChart');
     if (!ctx) return;
 
-    new Chart(ctx, {
+    if (convictionChart) {
+        convictionChart.destroy();
+    }
+
+    convictionChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels,
@@ -170,7 +181,8 @@ function renderChart(data) {
                     borderWidth: 3,
                     pointRadius: 2,
                     pointHoverRadius: 4,
-                    tension: 0.28,
+                    tension: 0,
+                    cubicInterpolationMode: 'monotone',
                     yAxisID: 'y1'
                 }
             ]
@@ -237,6 +249,7 @@ function renderChart(data) {
                 },
                 y1: {
                     position: 'right',
+                    beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Cumulative shares',
@@ -246,7 +259,10 @@ function renderChart(data) {
                         drawOnChartArea: false
                     },
                     ticks: {
-                        color: '#94A3B8'
+                        color: '#94A3B8',
+                        callback(value) {
+                            return formatShares(value);
+                        }
                     }
                 }
             }
@@ -254,9 +270,242 @@ function renderChart(data) {
     });
 }
 
+function updateBenchmarkMetrics(data) {
+    const summary = data.summary;
+    const diffNode = document.getElementById('benchmarkDifference');
+    const latestMonth = formatMonth(summary.valuationMonth.slice(0, 7));
+    const outperformed = summary.finalDifferenceUsd >= 0;
+
+    document.getElementById('benchmarkTslaValue').textContent = formatCurrency(summary.finalTslaValueUsd);
+    document.getElementById('benchmarkSpyValue').textContent = formatCurrency(summary.finalSpyValueUsd);
+    document.getElementById('benchmarkNetCapital').textContent = formatCurrency(summary.netInvestedCapitalUsd);
+    diffNode.textContent = formatSignedCurrency(summary.finalDifferenceUsd);
+    diffNode.className = `mt-2 text-lg font-semibold ${outperformed ? 'text-[#F4D26A]' : 'text-rose-300'}`;
+    document.getElementById('benchmarkCoverageText').textContent =
+        `The comparison starts with the first recorded TSLA buy on ${formatDate(data.meta.firstTransactionDate)} and values both paths through ${latestMonth}. Positive monthly cash flow buys SPY units at that month's close; negative flow redeems them.`;
+    document.getElementById('benchmarkDifferentialText').textContent =
+        outperformed
+            ? `Measured against the same net invested capital, the actual TSLA path currently sits ${formatSignedCurrency(summary.finalDifferenceUsd)} ahead of SPY. That is the payoff concentration aims for when the thesis survives and the holder survives with it.`
+            : `Measured against the same net invested capital, the actual TSLA path currently sits ${formatSignedCurrency(summary.finalDifferenceUsd)} behind SPY. That gap is the cost of selling on margin near the bottom. The hard lesson is that a good thesis still fails financially if the structure cannot hold through volatility.`;
+    document.getElementById('benchmarkSource').textContent =
+        `${data.meta.tslaSymbol} vs ${data.meta.benchmarkSymbol} • same signed monthly cash flows`;
+    document.getElementById('benchmarkChartStatus').textContent =
+        `Latest valuation month: ${latestMonth}. Current value differential: ${formatSignedCurrency(summary.finalDifferenceUsd)}.`;
+}
+
+function buildBenchmarkValueView(points) {
+    return {
+        datasets: [
+            {
+                type: 'line',
+                label: 'TSLA position value',
+                data: points.map((point) => point.tslaValueUsd),
+                borderColor: '#C9A227',
+                backgroundColor: 'rgba(201, 162, 39, 0.12)',
+                borderWidth: 2.5,
+                tension: 0.25,
+                pointRadius: 0,
+                yAxisID: 'y'
+            },
+            {
+                type: 'line',
+                label: 'SPY benchmark value',
+                data: points.map((point) => point.spyValueUsd),
+                borderColor: '#60A5FA',
+                backgroundColor: 'rgba(96, 165, 250, 0.12)',
+                borderWidth: 2.5,
+                tension: 0.25,
+                pointRadius: 0,
+                yAxisID: 'y'
+            },
+            {
+                type: 'line',
+                label: 'Net invested capital',
+                data: points.map((point) => point.netInvestedCapitalUsd),
+                borderColor: '#94A3B8',
+                borderDash: [6, 6],
+                borderWidth: 1.75,
+                tension: 0.2,
+                pointRadius: 0,
+                yAxisID: 'y'
+            }
+        ]
+    };
+}
+
+function buildBenchmarkDeltaView(points) {
+    const latestDifference = points[points.length - 1].differenceUsd;
+    const lineColor = latestDifference >= 0 ? '#C9A227' : '#FCA5A5';
+    return {
+        datasets: [
+            {
+                type: 'line',
+                label: 'TSLA minus SPY',
+                data: points.map((point) => point.differenceUsd),
+                borderColor: lineColor,
+                backgroundColor: 'rgba(248, 250, 252, 0.06)',
+                borderWidth: 2.5,
+                tension: 0.25,
+                pointRadius: 0,
+                yAxisID: 'y'
+            }
+        ]
+    };
+}
+
+function buildBenchmarkFlowView(points) {
+    return {
+        datasets: [
+            {
+                type: 'bar',
+                label: 'Monthly capital flow',
+                data: points.map((point) => point.monthlyCapitalFlowUsd),
+                backgroundColor: points.map((point) =>
+                    point.monthlyCapitalFlowUsd >= 0 ? 'rgba(201, 162, 39, 0.78)' : 'rgba(248, 113, 113, 0.78)'
+                ),
+                borderRadius: 4,
+                yAxisID: 'y'
+            },
+            {
+                type: 'line',
+                label: 'Net invested capital',
+                data: points.map((point) => point.netInvestedCapitalUsd),
+                borderColor: '#E2E8F0',
+                borderWidth: 2,
+                tension: 0.25,
+                pointRadius: 0,
+                yAxisID: 'y1'
+            }
+        ]
+    };
+}
+
+function buildBenchmarkOptions(view) {
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        },
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#CBD5E1'
+                }
+            },
+            tooltip: {
+                backgroundColor: '#0F172A',
+                borderColor: 'rgba(201, 162, 39, 0.45)',
+                borderWidth: 1,
+                titleColor: '#F8FAFC',
+                bodyColor: '#CBD5E1',
+                callbacks: {
+                    label(context) {
+                        return `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: '#94A3B8',
+                    maxRotation: 0,
+                    autoSkip: true
+                },
+                grid: {
+                    color: 'rgba(148, 163, 184, 0.08)'
+                }
+            },
+            y: {
+                ticks: {
+                    color: '#CBD5E1',
+                    callback(value) {
+                        return formatCurrency(value);
+                    }
+                },
+                grid: {
+                    color: 'rgba(148, 163, 184, 0.08)'
+                }
+            },
+            y1: {
+                position: 'right',
+                ticks: {
+                    color: '#94A3B8',
+                    callback(value) {
+                        return formatCurrency(value);
+                    }
+                },
+                grid: {
+                    display: false
+                }
+            }
+        }
+    };
+
+    if (view === 'delta') {
+        delete options.scales.y1;
+    }
+
+    return options;
+}
+
+function renderBenchmarkChart(view = 'value') {
+    if (!benchmarkPayload) return;
+
+    const points = benchmarkPayload.points;
+    const labels = points.map((point) => formatMonth(point.month.slice(0, 7)));
+    const canvas = document.getElementById('benchmarkChart');
+    if (!canvas) return;
+
+    let config;
+    if (view === 'delta') {
+        config = buildBenchmarkDeltaView(points);
+    } else if (view === 'flows') {
+        config = buildBenchmarkFlowView(points);
+    } else {
+        config = buildBenchmarkValueView(points);
+    }
+
+    if (!benchmarkChart) {
+        benchmarkChart = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: config.datasets
+            },
+            options: buildBenchmarkOptions(view)
+        });
+        return;
+    }
+
+    benchmarkChart.data.labels = labels;
+    benchmarkChart.data.datasets = config.datasets;
+    benchmarkChart.options = buildBenchmarkOptions(view);
+    benchmarkChart.update();
+}
+
+function setBenchmarkView(view) {
+    benchmarkViewButtons.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.view === view));
+    });
+    renderBenchmarkChart(view);
+}
+
+function populateBenchmark(data) {
+    if (!data.benchmarkComparison) {
+        return;
+    }
+
+    benchmarkPayload = data.benchmarkComparison;
+    updateBenchmarkMetrics(benchmarkPayload);
+    setBenchmarkView('value');
+}
+
 async function initConvictionPage() {
     try {
-        const response = await fetch(CONVICTION_DATA_PATH);
+        const response = await fetch(CONVICTION_DATA_PATH, { cache: 'no-store' });
         if (!response.ok) {
             throw new Error(`Failed to load conviction data (${response.status})`);
         }
@@ -265,15 +514,27 @@ async function initConvictionPage() {
         populateMetrics(data);
         populateNarrative(data);
         populateRecentTransactions(data);
-        renderChart(data);
+        renderConvictionChart(data);
+        populateBenchmark(data);
     } catch (error) {
         console.error('[Conviction]', error);
         const source = document.getElementById('chartSource');
         if (source) {
             source.textContent = 'Unable to load transaction history.';
         }
+        const benchmarkSource = document.getElementById('benchmarkSource');
+        if (benchmarkSource) {
+            benchmarkSource.textContent = 'Unable to load benchmark comparison.';
+        }
     }
 }
+
+benchmarkViewButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        if (!benchmarkPayload) return;
+        setBenchmarkView(button.dataset.view);
+    });
+});
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initConvictionPage);

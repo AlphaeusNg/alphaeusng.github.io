@@ -2,7 +2,9 @@
 
 This folder contains secondary deployable pages for the portfolio.
 
+- `conviction.html`: compatibility redirect to the root conviction page.
+- `kobo-forge.html`: KoboForge project overview.
 - `seeking-biblical-truth/`: public graph viewer generated from the separate `Seeking-Biblical-Truth` vault repository.
-- `data/tsla-vs-spy.json`: upstream benchmark dataset retained for reference.
+- `data/tsla-vs-spy.json`: legacy monthly benchmark data retained for reference.
 
-`conviction.html` and `kobo-forge.html` are served from the repository root. `seeking-biblical-truth/index.html` remains the compatibility redirect into this folder.
+Root-level `conviction.html` is the canonical conviction page. Compatibility redirects such as `pages/conviction.html`, `kobo-forge.html`, and `seeking-biblical-truth/index.html` keep older links working.

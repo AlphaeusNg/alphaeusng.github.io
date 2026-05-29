@@ -16,35 +16,48 @@ The design should remain restrained, professional, and easy to share. It should 
 ## Repository Structure
 
 - `index.html`: main portfolio page served from the GitHub Pages root.
-- `conviction.html`: root-served TSLA conviction page built from the imported IBKR transaction CSV.
-- `kobo-forge.html`: root-served client-side EPUB builder.
 - `pages/`: secondary public pages.
+  - `pages/conviction.html`: compatibility redirect to the root conviction page.
+  - `pages/kobo-forge.html`: KoboForge project page.
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.
-- `data/`: static data payloads for public pages.
-  - `data/tsla_transactions.csv`: imported IBKR TSLA trade history.
-  - `data/conviction_tsla_history.json`: split-adjusted monthly ledger used by `conviction.html`.
+- `data/`: root-level public data payloads.
+  - `data/conviction_tsla_history.json`: TSLA transaction history plus the benchmark comparison used by `conviction.html`.
+- `pages/data/`: legacy static JSON payloads retained for reference.
+  - `pages/data/tsla-vs-spy.json`: earlier owner-anonymized monthly TSLA-versus-SPY benchmark series.
 - `css/`: site CSS used by the portfolio.
 - `js/`: site JavaScript used by the portfolio and modals.
 - `assets/`: images and share assets referenced by public pages.
 - `tools/`: scripts grouped by domain.
   - `tools/koboforge/`: KoboForge companion tooling.
-  - `tools/finance/`: local-only financial helpers retained from the upstream reorganization.
-- `seeking-biblical-truth/index.html`: compatibility redirect into `pages/seeking-biblical-truth/`.
+  - `tools/finance/`: local-only financial data helpers, including the TSLA-versus-SPY benchmark generator and anonymized trade ledger.
+- `conviction.html`: canonical conviction page served from the GitHub Pages root.
+- `kobo-forge.html`, `seeking-biblical-truth/index.html`, `pages/conviction.html`: compatibility redirects for older links.
 - `.nojekyll`: required so GitHub Pages serves this as static files.
 
 ## Local Development
 
 ```bash
-cd /home/alph/alphaeusng.github.io
+cd /home/alph/codex/alphaeusng.github.io
 python3 -m http.server 8000
 ```
 
 Open:
 
 - http://127.0.0.1:8000/
-- http://127.0.0.1:8000/kobo-forge.html
 - http://127.0.0.1:8000/conviction.html
+- http://127.0.0.1:8000/pages/kobo-forge.html
+- http://127.0.0.1:8000/pages/conviction.html
 - http://127.0.0.1:8000/pages/seeking-biblical-truth/
+
+The root conviction page reads from `data/conviction_tsla_history.json`, which is committed directly in this repo.
+
+To regenerate the older benchmark-only dataset:
+
+```bash
+python3 tools/finance/generate_tsla_vs_spy.py
+```
+
+The generator reads `tools/finance/tsla_trades_anonymized.csv` and fetches monthly TSLA/SPY history from the public endpoints recorded in `pages/data/tsla-vs-spy.json`.
 
 ## Seeking Biblical Truth Viewer
 
@@ -57,7 +70,7 @@ When the vault changes:
 ```bash
 cd /home/alph/codex/Seeking-Biblical-Truth
 python3 tools/generate_vault_data.py
-cp pages/vault-data.json /home/alph/alphaeusng.github.io/pages/seeking-biblical-truth/vault-data.json
+cp pages/vault-data.json /home/alph/codex/alphaeusng.github.io/pages/seeking-biblical-truth/vault-data.json
 ```
 
 The viewer includes `obsidian://open?vault=Seeking-Biblical-Truth` links for users who cloned and opened the vault in Obsidian.
@@ -85,13 +98,13 @@ curl -I http://127.0.0.1:8000/pages/seeking-biblical-truth/vault-data.json
 ## For Future Agents
 
 - Preserve `index.html` at the repo root; GitHub Pages expects it.
-- Keep `conviction.html` and `kobo-forge.html` as real root-served pages, not redirect stubs.
-- Put secondary user-facing pages under `pages/` when they do not need top-level routes.
-- Put static page data under `data/` instead of embedding private workbook logic in the browser.
+- Put secondary user-facing pages under `pages/`.
+- Put public page data in the location actually used by the served page; do not leave duplicate active datasets with divergent outcomes.
 - Put scripts under `tools/<domain>/`; do not leave one-off scripts in the root.
 - Keep `pages/seeking-biblical-truth/` reachable from the portfolio Explore menu and project card.
 - Do not add a build system unless there is a clear reason. This repo is intentionally zero-build static HTML/CSS/JS.
 - Do not commit private financial spreadsheets, raw private notes, generated caches, or editor state.
-- The conviction page intentionally uses the imported `data/tsla_transactions.csv` plus generated `data/conviction_tsla_history.json`, not private spreadsheets or workbook logic.
-- Keep old public URLs working when moving pages, but do not regress live root routes into redirects without checking navigation first.
+- The conviction page intentionally uses a public JSON export instead of loading private spreadsheets client-side.
+- The embedded benchmark comparison on `conviction.html` is monthly-close and uses the same dated trade path against a public SPY proxy series.
+- Keep old public URLs working with redirect stubs if moving pages.
 - Before deleting files, prove they are not referenced by served pages using `rg` and local route checks.
