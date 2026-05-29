@@ -170,6 +170,10 @@ body {
 }
 
 /* Header nav */
+.nav-menu {
+    position: relative;
+}
+
 .nav-pill {
     display: flex;
     flex-direction: column;
@@ -211,6 +215,50 @@ body {
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: #64748B;
+}
+
+.nav-submenu {
+    position: absolute;
+    top: calc(100% + 0.85rem);
+    left: 0;
+    min-width: 14rem;
+    padding: 0.55rem;
+    border-radius: 1.15rem;
+    border: 1px solid rgba(201, 162, 39, 0.18);
+    background: rgba(10, 15, 28, 0.98);
+    box-shadow: 0 24px 54px rgba(2, 6, 23, 0.38);
+    z-index: 65;
+}
+
+.nav-submenu-link {
+    display: block;
+    padding: 0.72rem 0.82rem;
+    border-radius: 0.85rem;
+    color: #CBD5E1;
+    font-size: 0.83rem;
+    line-height: 1.2;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nav-submenu-link:hover,
+.nav-submenu-link:focus-visible {
+    background: rgba(201, 162, 39, 0.1);
+    color: #F8FAFC;
+    outline: none;
+}
+
+.mobile-nav-panel {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.mobile-submenu-link {
+    display: block;
+    padding: 0.68rem 0.8rem;
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.03);
+    color: #CBD5E1;
+    font-size: 0.82rem;
 }
 
 /* Hero portrait compare */
@@ -317,6 +365,10 @@ body {
     box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.75), 0 0 0 4px rgba(201, 162, 39, 0.16);
 }
 
+.portrait-compare.is-dragging {
+    cursor: grabbing;
+}
+
 .portrait-image,
 .portrait-overlay {
     position: absolute;
@@ -327,6 +379,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    pointer-events: none;
 }
 
 .portrait-image-original {
@@ -391,6 +444,7 @@ body {
 .portrait-note {
     position: absolute;
     z-index: 2;
+    pointer-events: none;
 }
 
 .portrait-label {

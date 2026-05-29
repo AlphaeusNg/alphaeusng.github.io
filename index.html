@@ -412,18 +412,43 @@
 
                 <!-- Desktop Nav -->
                 <div class="hidden md:flex items-center gap-x-3 text-sm font-medium">
-                    <a href="#story" data-nav-group="portfolio" class="nav-link nav-pill">
-                        <span class="nav-pill-label">Portfolio</span>
-                        <span class="nav-pill-meta">Resume + work</span>
-                    </a>
-                    <a href="#reflections" data-nav-group="faith" class="nav-link nav-pill">
-                        <span class="nav-pill-label">Faith</span>
-                        <span class="nav-pill-meta">Scripture + conviction</span>
-                    </a>
-                    <a href="mailto:alphaolivegreen@gmail.com" class="nav-pill">
-                        <span class="nav-pill-label">Email</span>
-                        <span class="nav-pill-meta">Say hello directly</span>
-                    </a>
+                    <div class="nav-menu" data-nav-menu>
+                        <a href="#story" data-nav-group="portfolio" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-portfolio">
+                            <span class="nav-pill-label">Portfolio</span>
+                            <span class="nav-pill-meta">Resume + work</span>
+                        </a>
+                        <div id="nav-submenu-portfolio" class="nav-submenu hidden" role="menu">
+                            <a href="#story" class="nav-submenu-link" role="menuitem">The Story</a>
+                            <a href="#journey" class="nav-submenu-link" role="menuitem">Journey</a>
+                            <a href="#craft" class="nav-submenu-link" role="menuitem">Projects</a>
+                            <a href="#thoughts" class="nav-submenu-link" role="menuitem">Thoughts</a>
+                            <a href="#cv-downloads" class="nav-submenu-link" role="menuitem">Resume / CV</a>
+                        </div>
+                    </div>
+                    <div class="nav-menu" data-nav-menu>
+                        <a href="#reflections" data-nav-group="faith" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-faith">
+                            <span class="nav-pill-label">Faith</span>
+                            <span class="nav-pill-meta">Scripture + conviction</span>
+                        </a>
+                        <div id="nav-submenu-faith" class="nav-submenu hidden" role="menu">
+                            <a href="#reflections" class="nav-submenu-link" role="menuitem">Faith overview</a>
+                            <a href="#church-home" class="nav-submenu-link" role="menuitem">Church</a>
+                            <a href="#journey-documents" class="nav-submenu-link" role="menuitem">Journey documents</a>
+                            <a href="pages/seeking-biblical-truth/" class="nav-submenu-link" role="menuitem">Vault browser</a>
+                        </div>
+                    </div>
+                    <div class="nav-menu" data-nav-menu>
+                        <a href="#connect" data-nav-group="connect" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-connect">
+                            <span class="nav-pill-label">Connect</span>
+                            <span class="nav-pill-meta">Email + links</span>
+                        </a>
+                        <div id="nav-submenu-connect" class="nav-submenu hidden" role="menu">
+                            <a href="#connect" class="nav-submenu-link" role="menuitem">Contact section</a>
+                            <a href="mailto:alphaolivegreen@gmail.com" class="nav-submenu-link" role="menuitem">Email me</a>
+                            <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">GitHub</a>
+                            <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">LinkedIn</a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -440,18 +465,43 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden border-t border-white/10 bg-[#0A0F1C]">
             <div class="px-6 py-6 flex flex-col gap-y-4 text-sm font-medium">
-                <a href="#story" data-nav-group="portfolio" class="mobile-link rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
-                    <span class="block text-[15px] font-semibold text-white">Portfolio</span>
-                    <span class="block text-[11px] uppercase tracking-[1.8px] text-[#64748B] mt-1">Resume, projects, writing</span>
-                </a>
-                <a href="#reflections" data-nav-group="faith" class="mobile-link rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
-                    <span class="block text-[15px] font-semibold text-white">Faith</span>
-                    <span class="block text-[11px] uppercase tracking-[1.8px] text-[#64748B] mt-1">Scripture, church, conviction</span>
-                </a>
-                <a href="mailto:alphaolivegreen@gmail.com" class="mobile-link rounded-2xl border border-[#C9A227]/40 bg-[#C9A227]/8 px-4 py-3 text-[#E2E8F0]">
-                    <span class="block text-[15px] font-semibold text-white">Email</span>
-                    <span class="block text-[11px] uppercase tracking-[1.8px] text-[#C9A227] mt-1">alphaolivegreen@gmail.com</span>
-                </a>
+                <div class="mobile-nav-group rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                    <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="false" aria-controls="mobile-portfolio-links">
+                        <span class="block text-[15px] font-semibold text-white">Portfolio</span>
+                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#64748B] mt-1">Resume, projects, writing</span>
+                    </button>
+                    <div id="mobile-portfolio-links" class="mobile-nav-panel hidden mt-3">
+                        <a href="#story" class="mobile-link mobile-submenu-link">The Story</a>
+                        <a href="#journey" class="mobile-link mobile-submenu-link">Journey</a>
+                        <a href="#craft" class="mobile-link mobile-submenu-link">Projects</a>
+                        <a href="#thoughts" class="mobile-link mobile-submenu-link">Thoughts</a>
+                        <a href="#cv-downloads" class="mobile-link mobile-submenu-link">Resume / CV</a>
+                    </div>
+                </div>
+                <div class="mobile-nav-group rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                    <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="false" aria-controls="mobile-faith-links">
+                        <span class="block text-[15px] font-semibold text-white">Faith</span>
+                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#64748B] mt-1">Scripture, church, conviction</span>
+                    </button>
+                    <div id="mobile-faith-links" class="mobile-nav-panel hidden mt-3">
+                        <a href="#reflections" class="mobile-link mobile-submenu-link">Faith overview</a>
+                        <a href="#church-home" class="mobile-link mobile-submenu-link">Church</a>
+                        <a href="#journey-documents" class="mobile-link mobile-submenu-link">Journey documents</a>
+                        <a href="pages/seeking-biblical-truth/" class="mobile-link mobile-submenu-link">Vault browser</a>
+                    </div>
+                </div>
+                <div class="mobile-nav-group rounded-2xl border border-[#C9A227]/40 bg-[#C9A227]/8 px-4 py-3">
+                    <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="false" aria-controls="mobile-connect-links">
+                        <span class="block text-[15px] font-semibold text-white">Connect</span>
+                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#C9A227] mt-1">Email + links</span>
+                    </button>
+                    <div id="mobile-connect-links" class="mobile-nav-panel hidden mt-3">
+                        <a href="#connect" class="mobile-link mobile-submenu-link">Contact section</a>
+                        <a href="mailto:alphaolivegreen@gmail.com" class="mobile-link mobile-submenu-link">Email me</a>
+                        <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">GitHub</a>
+                        <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">LinkedIn</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -519,12 +569,14 @@
                                     src="assets/alphaeus-portrait-original.jpg"
                                     alt="Original portrait photo of Alphaeus Ng"
                                     class="portrait-image portrait-image-original"
+                                    draggable="false"
                                     loading="eager">
                                 <div class="portrait-overlay">
                                     <img
                                         src="assets/alphaeus-portrait.jpg"
                                         alt="AI-generated suited portrait of Alphaeus Ng"
                                         class="portrait-image portrait-image-generated"
+                                        draggable="false"
                                         loading="eager">
                                 </div>
 
@@ -995,7 +1047,7 @@
                     <p class="text-right mt-5 text-sm text-[#64748B]">— John 1:1</p>
                 </div>
 
-                <div class="bg-[#111827] border border-white/10 rounded-3xl p-7">
+                <div id="church-home" class="scroll-mt-24 bg-[#111827] border border-white/10 rounded-3xl p-7">
                     <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#C9A227] mb-3">CHURCH</div>
                     <h3 class="text-2xl tracking-tight font-semibold">Bethesda Church Bukit Arang</h3>
                     <p class="mt-3 text-[#94A3B8] leading-relaxed">I attend Bethesda Church Bukit Arang. It's been one of the places where the gospel stopped being a neat framework in my head and became painfully, personally real.</p>
@@ -1010,7 +1062,7 @@
                     </div>
                 </div>
 
-                <div class="bg-[#111827] border border-white/10 rounded-3xl p-7">
+                <div id="journey-documents" class="scroll-mt-24 bg-[#111827] border border-white/10 rounded-3xl p-7">
                     <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#C9A227] mb-3">SUMMARY</div>
                     <div class="space-y-4 text-[#94A3B8] leading-relaxed">
                         <p>I started with inherited belief and a lot of apologetics. Over time that turned into a much more personal search for truth, with Scripture first, Christ at the center, and enough honesty to admit some of my favorite frameworks were too small.</p>
