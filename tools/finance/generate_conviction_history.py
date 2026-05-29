@@ -9,6 +9,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 IMPORT_PATH = REPO_ROOT / "data" / "tsla_transactions.csv"
+LEGACY_PATH = REPO_ROOT / "tools" / "finance" / "tsla_trades_anonymized.csv"
 PRICE_PATH = REPO_ROOT / "pages" / "data" / "tsla-vs-spy.json"
 OUTPUT_PATH = REPO_ROOT / "data" / "conviction_tsla_history.json"
 POST_SPLIT_BASIS_DATE = date(2022, 8, 25)
@@ -46,7 +47,7 @@ def load_imported_transactions():
         rows = list(csv.reader(handle))
 
     period_row = next(row for row in rows if row[:3] == ["Statement", "Data", "Period"])
-    _report_start, _report_end = parse_period_window(period_row[3])
+    report_start, report_end = parse_period_window(period_row[3])
 
     imported = []
     for row in rows:
@@ -79,7 +80,42 @@ def load_imported_transactions():
         )
 
     imported.sort(key=lambda entry: (entry["date"], entry["type"] != "Buy", entry["shares"]))
-    return imported
+    return report_start, report_end, imported
+
+
+def load_legacy_supplement(report_start: date, first_import_date: date, default_account: str):
+    supplement = []
+    if not LEGACY_PATH.exists():
+        return supplement
+
+    with LEGACY_PATH.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        for row in reader:
+            trade_date = datetime.strptime(row["trade_date"], "%Y-%m-%d").date()
+            if not (report_start <= trade_date < first_import_date):
+                continue
+
+            shares = round(abs(float(row["qty_adjusted"])), 4)
+            price = round(float(row["price_adjusted_usd"]), 6)
+            trade_type = "Buy" if row["side"].upper() == "BUY" else "Sell"
+            gross_notional = round(shares * price, 6)
+            cash_flow = -gross_notional if trade_type == "Buy" else gross_notional
+
+            supplement.append(
+                {
+                    "date": trade_date,
+                    "period": month_key(trade_date),
+                    "account": default_account,
+                    "type": trade_type,
+                    "shares": shares,
+                    "priceUsd": price,
+                    "cashFlowUsd": cash_flow,
+                    "source": "legacy_supplement",
+                }
+            )
+
+    supplement.sort(key=lambda entry: (entry["date"], entry["type"] != "Buy", entry["shares"]))
+    return supplement
 
 
 def build_monthly_series(transactions):
@@ -224,7 +260,15 @@ def build_benchmark(transactions, summary):
 
 
 def main():
-    transactions = load_imported_transactions()
+    report_start, _report_end, imported = load_imported_transactions()
+    first_import_date = min(entry["date"] for entry in imported)
+    default_account = imported[0]["account"]
+    supplement = load_legacy_supplement(report_start, first_import_date, default_account)
+
+    transactions = sorted(
+        supplement + imported,
+        key=lambda entry: (entry["date"], entry["type"] != "Buy", entry["shares"], entry.get("source", "imported")),
+    )
 
     monthly_series = build_monthly_series(transactions)
     buys = [entry for entry in transactions if entry["type"] == "Buy"]
@@ -246,8 +290,8 @@ def main():
 
     payload = {
         "symbol": "TSLA",
-        "sourceFile": "data/tsla_transactions.csv",
-        "sourceSheet": "IBKR transaction export in data/tsla_transactions.csv",
+        "sourceFile": "data/tsla_transactions.csv + tools/finance/tsla_trades_anonymized.csv",
+        "sourceSheet": "IBKR transaction export reconciled with recovered in-period Nov 2020 to Feb 2021 TSLA buys",
         "generatedAt": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "summary": summary,
         "monthlySeries": monthly_series,
