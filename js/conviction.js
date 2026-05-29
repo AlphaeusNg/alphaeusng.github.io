@@ -144,9 +144,12 @@ function populateRecentTransactions(data) {
 
 function renderConvictionChart(data) {
     const series = data.monthlySeries;
-    const labels = series.map((entry) => formatMonth(entry.period));
-    const netShares = series.map((entry) => entry.netShares);
-    const cumulativeShares = series.map((entry) => entry.cumulativeShares);
+    const chartSeries = series.length
+        ? [{ period: monthBefore(series[0].period), netShares: 0, cumulativeShares: 0 }, ...series]
+        : [];
+    const labels = chartSeries.map((entry) => formatMonth(entry.period));
+    const netShares = chartSeries.map((entry) => entry.netShares);
+    const cumulativeShares = chartSeries.map((entry) => entry.cumulativeShares);
     const barColors = netShares.map((value) => value >= 0 ? 'rgba(201, 162, 39, 0.55)' : 'rgba(248, 113, 113, 0.58)');
     const borderColors = netShares.map((value) => value >= 0 ? '#C9A227' : '#F87171');
 
