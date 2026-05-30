@@ -271,9 +271,14 @@ body {
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
+.chapter-disclosure > summary {
+    list-style: none;
+}
+
 .chapter-disclosure:hover {
-    border-color: rgba(201, 162, 39, 0.32);
-    background: rgba(17, 24, 39, 0.94);
+    border-color: rgba(201, 162, 39, 0.5);
+    background: rgba(201, 162, 39, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.12);
 }
 
 .chapter-disclosure[open] {
@@ -282,8 +287,13 @@ body {
 }
 
 .chapter-disclosure-summary {
+    display: block;
     list-style: none;
     cursor: pointer;
+}
+
+.chapter-disclosure-summary::marker {
+    content: "";
 }
 
 .chapter-disclosure-summary::-webkit-details-marker {
