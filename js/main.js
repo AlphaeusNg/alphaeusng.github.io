@@ -219,37 +219,90 @@ function initActiveNav() {
         journey: 'portfolio',
         craft: 'portfolio',
         thoughts: 'portfolio',
+        'cv-downloads': 'portfolio',
         connect: 'connect',
-        reflections: 'faith'
+        reflections: 'faith',
+        'church-home': 'faith',
+        'journey-documents': 'faith'
     };
-    const navLinks = document.querySelectorAll('#nav [data-nav-group]');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const activeGroup = sectionGroups[entry.target.id];
-                if (!activeGroup) return;
-                
-                navLinks.forEach(link => {
-                    link.classList.remove('active', 'text-white');
-                    link.classList.add('text-[#CBD5E1]');
-                    
-                    if (link.dataset.navGroup === activeGroup) {
-                        link.classList.add('active', 'text-white');
-                        link.classList.remove('text-[#CBD5E1]');
-                    }
-                });
+    const navLinks = Array.from(document.querySelectorAll('#nav [data-nav-group]'));
+    const sectionLinks = Array.from(document.querySelectorAll('#nav .nav-submenu-link[href^="#"], #mobile-menu a[href^="#"]'));
+    const clickableLinks = Array.from(document.querySelectorAll('#nav a[href^="#"], #mobile-menu a[href^="#"]'));
+    const seenIds = new Set();
+    const sections = sectionLinks
+        .map(link => link.getAttribute('href')?.slice(1))
+        .filter(id => id && sectionGroups[id] && !seenIds.has(id) && seenIds.add(id))
+        .map(id => document.getElementById(id))
+        .filter(Boolean);
+    let activeSectionId = null;
+    let ticking = false;
+
+    function setActiveSection(sectionId) {
+        if (!sectionId || activeSectionId === sectionId) return;
+        activeSectionId = sectionId;
+        const activeGroup = sectionGroups[sectionId];
+
+        navLinks.forEach(link => {
+            const isActive = link.dataset.navGroup === activeGroup;
+            link.classList.toggle('active', isActive);
+            link.classList.toggle('text-white', isActive);
+            link.classList.toggle('text-[#CBD5E1]', !isActive);
+            if (isActive) {
+                link.setAttribute('aria-current', 'true');
+            } else {
+                link.removeAttribute('aria-current');
             }
         });
-    }, { 
-        threshold: 0.4,
-        rootMargin: "-80px 0px -40% 0px"
+
+        sectionLinks.forEach(link => {
+            const linkTarget = link.getAttribute('href');
+            const isActive = linkTarget === `#${sectionId}`;
+            link.classList.toggle('active', isActive);
+            if (isActive) {
+                link.setAttribute('aria-current', 'location');
+            } else {
+                link.removeAttribute('aria-current');
+            }
+        });
+    }
+
+    function updateActiveSection() {
+        ticking = false;
+
+        if (!sections.length) return;
+
+        const navHeight = document.getElementById('nav')?.offsetHeight ?? 80;
+        const marker = window.scrollY + navHeight + 32;
+        let currentSection = sections[0];
+
+        sections.forEach(section => {
+            if (section.offsetTop <= marker) {
+                currentSection = section;
+            }
+        });
+
+        setActiveSection(currentSection.id);
+    }
+
+    function queueUpdate() {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(updateActiveSection);
+    }
+
+    clickableLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        const targetId = href?.slice(1);
+        if (!targetId || !sectionGroups[targetId]) return;
+        link.addEventListener('click', () => {
+            setActiveSection(targetId);
+            window.setTimeout(queueUpdate, 360);
+        });
     });
 
-    Object.keys(sectionGroups).forEach(id => {
-        const section = document.getElementById(id);
-        if (section) observer.observe(section);
-    });
+    window.addEventListener('scroll', queueUpdate, { passive: true });
+    window.addEventListener('resize', queueUpdate);
+    updateActiveSection();
 }
 
 // Swipeable portrait compare
@@ -260,7 +313,7 @@ function initPortraitComparison() {
         let isDragging = false;
 
         function clamp(value) {
-            return Math.min(94, Math.max(6, value));
+            return Math.min(100, Math.max(0, value));
         }
 
         function setReveal(value) {
@@ -321,7 +374,7 @@ function initPortraitComparison() {
         });
 
         compare.addEventListener('keydown', event => {
-            const current = Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 74;
+            const current = Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 100;
             if (event.key === 'ArrowLeft') {
                 event.preventDefault();
                 setReveal(current - 6);
@@ -337,7 +390,7 @@ function initPortraitComparison() {
             });
         });
 
-        setReveal(Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 74);
+        setReveal(Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 100);
     });
 }
 

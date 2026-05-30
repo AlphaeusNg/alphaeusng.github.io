@@ -247,6 +247,12 @@ body {
     outline: none;
 }
 
+.nav-submenu-link.active,
+.mobile-submenu-link.active {
+    background: rgba(201, 162, 39, 0.12);
+    color: #F8FAFC;
+}
+
 .mobile-nav-panel {
     display: grid;
     gap: 0.35rem;
@@ -346,7 +352,7 @@ body {
 }
 
 .portrait-compare {
-    --portrait-reveal: 74%;
+    --portrait-reveal: 100%;
     position: relative;
     aspect-ratio: 9 / 14;
     overflow: hidden;
