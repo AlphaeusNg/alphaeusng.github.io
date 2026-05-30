@@ -233,7 +233,8 @@ function initActiveNav() {
         .map(link => link.getAttribute('href')?.slice(1))
         .filter(id => id && sectionGroups[id] && !seenIds.has(id) && seenIds.add(id))
         .map(id => document.getElementById(id))
-        .filter(Boolean);
+        .filter(Boolean)
+        .sort((a, b) => a.offsetTop - b.offsetTop);
     let activeSectionId = null;
     let ticking = false;
 
