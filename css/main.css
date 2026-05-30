@@ -271,6 +271,11 @@ body {
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
+.chapter-disclosure:hover {
+    border-color: rgba(201, 162, 39, 0.32);
+    background: rgba(17, 24, 39, 0.94);
+}
+
 .chapter-disclosure[open] {
     border-color: rgba(201, 162, 39, 0.35);
     background: rgba(17, 24, 39, 0.98);
@@ -287,26 +292,6 @@ body {
 
 .chapter-disclosure-summary:focus-visible {
     outline: none;
-}
-
-.chapter-disclosure-icon {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.9rem;
-    height: 1.9rem;
-    border-radius: 9999px;
-    border: 1px solid rgba(201, 162, 39, 0.22);
-    color: #C9A227;
-    font-size: 1.15rem;
-    line-height: 1;
-    transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.chapter-disclosure[open] .chapter-disclosure-icon {
-    transform: rotate(45deg);
-    background: rgba(201, 162, 39, 0.08);
 }
 
 /* Hero portrait compare */
