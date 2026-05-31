@@ -301,6 +301,14 @@ body {
     display: block;
     list-style: none;
     cursor: pointer;
+    margin: -1.25rem;
+    padding: 1.25rem;
+    border-radius: inherit;
+}
+
+.chapter-disclosure[open] .chapter-disclosure-summary {
+    margin: -1.25rem -1.25rem 0;
+    padding: 1.25rem 1.25rem 0;
 }
 
 .chapter-disclosure-summary::marker {
