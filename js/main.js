@@ -213,6 +213,24 @@ function initFadeIns() {
     });
 }
 
+// Allow OTHER CHAPTERS cards to close from anywhere inside the open card
+function initChapterDisclosures() {
+    document.querySelectorAll('.chapter-disclosure').forEach(disclosure => {
+        disclosure.addEventListener('click', event => {
+            if (!disclosure.open || !(event.target instanceof Element)) return;
+            if (event.target.closest('summary')) return;
+            if (event.target.closest('a, button, input, textarea, select, label')) return;
+            disclosure.removeAttribute('open');
+        });
+
+        disclosure.addEventListener('keydown', event => {
+            if (event.key !== 'Escape' || !disclosure.open) return;
+            disclosure.removeAttribute('open');
+            disclosure.querySelector('summary')?.focus();
+        });
+    });
+}
+
 // Active nav link highlighting
 function initActiveNav() {
     const sectionGroups = {
@@ -614,6 +632,7 @@ function init() {
     initExploreNavigation();
     initSmoothScroll();
     initFadeIns();
+    initChapterDisclosures();
     initActiveNav();
     initPortraitComparison();
     initAccessibility();
