@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a static TSLA-versus-SPY benchmark dataset for conviction.html.
+"""Generate a static TSLA-versus-SPY benchmark dataset for pages/conviction.html.
 
 The trade ledger is anonymized and normalized in CSV form. Market history is
 fetched from Pocket Portfolio's public JSON endpoint, which returns split-

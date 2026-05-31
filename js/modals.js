@@ -79,7 +79,7 @@ const PROJECT_MODAL_DATA = {
     actions: {
       primary: {
         label: 'Open KoboForge page',
-        url: 'kobo-forge.html',
+        url: 'pages/kobo-forge.html',
         icon: 'external-link'
       },
       secondary: {

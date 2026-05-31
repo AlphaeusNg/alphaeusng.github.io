@@ -1,4 +1,4 @@
-const CONVICTION_DATA_PATH = 'data/conviction_tsla_history.json';
+const CONVICTION_DATA_PATH = '../data/conviction_tsla_history.json';
 
 let convictionChart;
 let benchmarkChart;

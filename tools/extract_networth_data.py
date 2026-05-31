@@ -29,13 +29,13 @@ WHAT IT EXTRACTS (auto-detected):
 
 OUTPUTS:
   - networth_data.json (in same dir as input xlsx) — full structured export
-  - Console blocks ready to paste directly into conviction.html:
+  - Console blocks ready to paste directly into pages/conviction.html:
       * networthData.labels / .values
       * positionData (for future second chart or tooltip enrichment)
       * ibkrSummary (for display / logging)
 
 The data model matches what the browser-based SheetJS loader in
-conviction.html also understands, so drag-and-drop produces identical
+pages/conviction.html also understands, so drag-and-drop produces identical
 Chart.js updates.
 
 This script is intentionally verbose in comments so future maintainers
@@ -459,14 +459,14 @@ def extract_networth_data(excel_path: str) -> None:
     print(f"\n✓ Full structured data written to: {out_json}")
 
     # ============================================================
-    # READY-TO-PASTE CHART.JS BLOCKS (exactly what conviction.html expects)
+    # READY-TO-PASTE CHART.JS BLOCKS (exactly what pages/conviction.html expects)
     # ============================================================
 
     labels = [row["period"] for row in networth_series]
     values = [row["netWorth"] for row in networth_series]
 
     print("\n" + "=" * 64)
-    print("PASTE THE FOLLOWING INTO conviction.html (replace the networthData const)")
+    print("PASTE THE FOLLOWING INTO pages/conviction.html (replace the networthData const)")
     print("=" * 64)
     print("""
 const networthData = {
@@ -489,7 +489,7 @@ const networthData = {
     print("=" * 64)
     print(json.dumps(ibkr, indent=2))
 
-    print("\n✓ Extraction complete. Update conviction.html with the blocks above,")
+    print("\n✓ Extraction complete. Update pages/conviction.html with the blocks above,")
     print("  or load networth_data.json from the browser drag-and-drop loader.")
 
 
