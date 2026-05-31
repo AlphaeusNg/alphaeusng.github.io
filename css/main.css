@@ -309,6 +309,16 @@ body {
     position: relative;
 }
 
+.portrait-showcase:not(.is-revealed) .portrait-sticker,
+.portrait-showcase:not(.is-revealed) .portrait-phone-header,
+.portrait-showcase:not(.is-revealed) .portrait-phone-footer,
+.portrait-showcase:not(.is-revealed) .portrait-label,
+.portrait-showcase:not(.is-revealed) .portrait-note,
+.portrait-showcase:not(.is-revealed) .portrait-divider,
+.portrait-showcase:not(.is-revealed) .portrait-caption {
+    display: none;
+}
+
 .portrait-sticker {
     position: absolute;
     top: -0.8rem;
@@ -335,6 +345,10 @@ body {
         radial-gradient(circle at top, rgba(201, 162, 39, 0.12), transparent 34%),
         linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(10, 15, 28, 0.98));
     box-shadow: 0 34px 60px rgba(2, 6, 23, 0.45);
+}
+
+.portrait-showcase:not(.is-revealed) .portrait-phone {
+    padding: 0.75rem;
 }
 
 .portrait-phone::before {
@@ -400,8 +414,18 @@ body {
         #111827;
     touch-action: none;
     user-select: none;
-    cursor: ew-resize;
+    cursor: default;
     outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.portrait-showcase:not(.is-revealed) .portrait-compare:hover {
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 20px 45px rgba(2, 6, 23, 0.22);
+}
+
+.portrait-showcase.is-revealed .portrait-compare {
+    cursor: ew-resize;
 }
 
 .portrait-compare:focus-visible {
@@ -487,6 +511,9 @@ body {
 .portrait-note {
     position: absolute;
     z-index: 2;
+}
+
+.portrait-label {
     pointer-events: none;
 }
 
@@ -523,6 +550,18 @@ body {
     font-size: 0.8rem;
     line-height: 1.45;
     color: #E2E8F0;
+    pointer-events: auto;
+}
+
+.portrait-note a {
+    color: #F8FAFC;
+    text-decoration: underline;
+    text-decoration-color: rgba(248, 250, 252, 0.48);
+    text-underline-offset: 0.14em;
+}
+
+.portrait-note a:hover {
+    text-decoration-color: rgba(248, 250, 252, 0.9);
 }
 
 .portrait-phone-footer {

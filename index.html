@@ -553,7 +553,7 @@
 
                 <!-- Hero visual / Swipeable portrait treatment -->
                 <div class="md:col-span-5 lg:col-span-5 mt-12 md:mt-0">
-                    <div class="portrait-showcase mx-auto max-w-[360px] md:max-w-none">
+                    <div class="portrait-showcase mx-auto max-w-[360px] md:max-w-none" data-portrait-easter-egg>
                         <div class="portrait-sticker">Swipe me</div>
                         <div class="portrait-phone">
                             <div class="portrait-phone-header">
@@ -564,17 +564,17 @@
                                 <div class="portrait-phone-status">Drag it around</div>
                             </div>
 
-                            <div id="hero-portrait-compare" class="portrait-compare" data-portrait-compare tabindex="0" aria-label="Swipeable portrait comparison between the original photo and the AI-generated suit portrait" style="--portrait-reveal: 100%;">
+                            <div id="hero-portrait-compare" class="portrait-compare" data-portrait-compare tabindex="0" role="button" aria-label="Portrait of Alphaeus Ng" aria-expanded="false" style="--portrait-reveal: 100%;">
                                 <img
                                     src="assets/alphaeus-portrait-original.jpg"
-                                    alt="Original portrait photo of Alphaeus Ng"
+                                    alt="Portrait of Alphaeus Ng"
                                     class="portrait-image portrait-image-original"
                                     draggable="false"
                                     loading="eager">
                                 <div class="portrait-overlay">
                                     <img
                                         src="assets/alphaeus-portrait.jpg"
-                                        alt="AI-generated suited portrait of Alphaeus Ng"
+                                        alt="Polished portrait of Alphaeus Ng"
                                         class="portrait-image portrait-image-generated"
                                         draggable="false"
                                         loading="eager">
@@ -582,7 +582,7 @@
 
                                 <div class="portrait-label portrait-label-left">AI suit version</div>
                                 <div class="portrait-label portrait-label-right">Original photo</div>
-                                <div class="portrait-note">Yep, the sharp suit version is generated. Grok Imagine took the original and gave me the corporate upgrade.</div>
+                                <div class="portrait-note">haha hey there detective! You caught me. I generated this polished version using <a href="https://grok.com/imagine" target="_blank" rel="noreferrer noopener">Grok Imagine</a></div>
 
                                 <div class="portrait-divider" aria-hidden="true">
                                     <div class="portrait-handle">
@@ -598,7 +598,7 @@
                             </div>
                         </div>
 
-                        <p class="text-[11px] text-center text-[#64748B] mt-4 leading-relaxed">The card opens on the polished AI headshot first. Swipe across to get back to the real photo underneath.</p>
+                        <p class="portrait-caption text-[11px] text-center text-[#64748B] mt-4 leading-relaxed">The card opens on the polished portrait first. Swipe across to get back to the real photo underneath.</p>
                     </div>
                 </div>
             </div>

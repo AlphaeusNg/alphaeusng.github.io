@@ -310,9 +310,20 @@ function initActiveNav() {
 // Swipeable portrait compare
 function initPortraitComparison() {
     document.querySelectorAll('[data-portrait-compare]').forEach(compare => {
+        const showcase = compare.closest('[data-portrait-easter-egg]');
         const toggles = compare.parentElement?.querySelectorAll('[data-portrait-snap]') ?? [];
         let pointerId = null;
         let isDragging = false;
+        let isRevealed = showcase ? showcase.classList.contains('is-revealed') : true;
+
+        function revealEasterEgg() {
+            if (isRevealed) return;
+            isRevealed = true;
+            showcase?.classList.add('is-revealed');
+            compare.removeAttribute('role');
+            compare.setAttribute('aria-label', 'Swipeable portrait comparison between the polished portrait and the original photo');
+            compare.setAttribute('aria-expanded', 'true');
+        }
 
         function clamp(value) {
             return Math.min(100, Math.max(0, value));
@@ -350,6 +361,7 @@ function initPortraitComparison() {
         }
 
         compare.addEventListener('pointerdown', event => {
+            if (!isRevealed) return;
             event.preventDefault();
             pointerId = event.pointerId;
             isDragging = true;
@@ -375,7 +387,19 @@ function initPortraitComparison() {
             event.preventDefault();
         });
 
+        compare.addEventListener('click', () => {
+            revealEasterEgg();
+        });
+
         compare.addEventListener('keydown', event => {
+            if (!isRevealed && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault();
+                revealEasterEgg();
+                return;
+            }
+
+            if (!isRevealed) return;
+
             const current = Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 100;
             if (event.key === 'ArrowLeft') {
                 event.preventDefault();
@@ -391,6 +415,10 @@ function initPortraitComparison() {
                 setReveal(Number(toggle.dataset.portraitSnap));
             });
         });
+
+        if (isRevealed) {
+            compare.setAttribute('aria-expanded', 'true');
+        }
 
         setReveal(Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 100);
     });
