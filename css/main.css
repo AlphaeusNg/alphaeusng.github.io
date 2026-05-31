@@ -564,8 +564,8 @@ body {
 
 .portrait-crack {
     position: absolute;
-    left: 50%;
-    top: 31%;
+    left: var(--portrait-crack-x, 50%);
+    top: var(--portrait-crack-y, 31%);
     height: 2px;
     border-radius: 9999px;
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.94), rgba(201, 162, 39, 0.95));
@@ -702,6 +702,10 @@ body {
 .portrait-showcase.is-revealed .portrait-note,
 .portrait-showcase.is-revealed .portrait-divider {
     opacity: 1;
+}
+
+.portrait-showcase.is-revealed .portrait-crack {
+    opacity: 0 !important;
 }
 
 .portrait-showcase.is-revealing .portrait-cracks {

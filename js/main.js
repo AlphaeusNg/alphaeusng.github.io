@@ -330,13 +330,17 @@ function initPortraitComparison() {
             revealTimerId = window.setTimeout(() => {
                 isRevealing = false;
                 isRevealed = true;
+                clickStage = 0;
                 showcase?.classList.remove('is-revealing');
                 showcase?.classList.add('is-revealed');
+                showcase?.removeAttribute('data-portrait-click-stage');
                 showcase?.removeAttribute('data-portrait-rock');
                 compare.removeAttribute('role');
                 compare.removeAttribute('aria-busy');
                 compare.setAttribute('aria-label', 'Swipeable portrait comparison between the polished portrait and the original photo');
                 compare.setAttribute('aria-expanded', 'true');
+                compare.style.removeProperty('--portrait-crack-x');
+                compare.style.removeProperty('--portrait-crack-y');
                 revealTimerId = null;
             }, 2000);
         }
@@ -362,6 +366,10 @@ function initPortraitComparison() {
 
         function syncClickStage() {
             if (!showcase) return;
+            if (clickStage <= 0 || isRevealed) {
+                showcase.removeAttribute('data-portrait-click-stage');
+                return;
+            }
             showcase.dataset.portraitClickStage = String(Math.min(clickStage, 2));
         }
 
@@ -385,9 +393,27 @@ function initPortraitComparison() {
             }, level === 'hard' ? 760 : 560);
         }
 
-        function handleHiddenClick() {
+        function setCrackOrigin(clientX, clientY) {
+            const rect = compare.getBoundingClientRect();
+            if (!rect.width || !rect.height || typeof clientX !== 'number' || typeof clientY !== 'number') {
+                compare.style.setProperty('--portrait-crack-x', '50%');
+                compare.style.setProperty('--portrait-crack-y', '31%');
+                return;
+            }
+
+            const xPercent = clamp(((clientX - rect.left) / rect.width) * 100);
+            const yPercent = clamp(((clientY - rect.top) / rect.height) * 100);
+            const clampedX = Math.min(86, Math.max(14, xPercent));
+            const clampedY = Math.min(78, Math.max(14, yPercent));
+
+            compare.style.setProperty('--portrait-crack-x', `${clampedX}%`);
+            compare.style.setProperty('--portrait-crack-y', `${clampedY}%`);
+        }
+
+        function handleHiddenClick(event) {
             if (isRevealed || isRevealing) return;
 
+            setCrackOrigin(event?.clientX, event?.clientY);
             clickStage = Math.min(clickStage + 1, 3);
             syncClickStage();
 
@@ -466,7 +492,7 @@ function initPortraitComparison() {
         compare.addEventListener('click', event => {
             if (isInteractiveTarget(event.target)) return;
             if (!isRevealed) {
-                handleHiddenClick();
+                handleHiddenClick(event);
                 return;
             }
         });
