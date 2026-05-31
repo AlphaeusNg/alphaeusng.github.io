@@ -268,6 +268,9 @@ body {
 }
 
 .chapter-disclosure {
+    padding: 0 !important;
+    overflow: hidden;
+    cursor: pointer;
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
@@ -301,14 +304,22 @@ body {
     display: block;
     list-style: none;
     cursor: pointer;
-    margin: -1.25rem;
+    margin: 0;
     padding: 1.25rem;
     border-radius: inherit;
 }
 
 .chapter-disclosure[open] .chapter-disclosure-summary {
-    margin: -1.25rem -1.25rem 0;
+    margin: 0;
     padding: 1.25rem 1.25rem 0;
+}
+
+.chapter-disclosure > :not(summary) {
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+.chapter-disclosure > p.mt-4 {
+    margin-top: 0;
 }
 
 .chapter-disclosure-summary::marker {
