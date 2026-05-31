@@ -7,25 +7,25 @@ const PROJECT_MODAL_DATA = {
     title: 'Seeking Biblical Truth',
     badges: ['FAITH × CODE', 'LIVING • OPEN'],
     contextLine: '',
-    introParagraph: 'This project started from a pretty simple conviction: the habits that make engineering trustworthy also matter when Christians talk about doctrine. Define your terms. Show your reasoning. Stay humble when the evidence punches your favorite idea in the face.',
+    introParagraph: 'This project started from a simple conviction: the habits that make engineering trustworthy also matter when Christians talk about doctrine. Define your terms, show your reasoning, and stay humble when you may be wrong.',
     sections: [
       {
         heading: 'The Question',
-        content: 'How do you make serious Bible study easier to enter without dumbing it down? And how do you do that in a world full of instant theological takes from people who read one verse and declare victory?'
+        content: 'How do you make serious Bible study easier to enter without oversimplifying it? And how do you do that in a world where quick opinions often crowd out careful reading?'
       },
       {
         heading: 'The Architecture',
-        content: 'The core is a structured Obsidian vault: version-controlled, heavily linked, and organized around books of Scripture, doctrine, and older voices worth listening to. Around that, I built Python tooling to parse notes, surface cross-links, and make the hidden connections less hidden. The web layer is where I test ways people might actually move through all of this without getting lost or bored.',
+        content: 'The core is a structured Obsidian vault: version-controlled, heavily linked, and organized around books of Scripture, doctrine, and historical Christian sources worth revisiting. Around that, I built Python tooling to parse notes, surface cross-links, and make those connections easier to explore. The web layer is where I test ways people can move through the material without getting lost.',
         techNote: 'Tech: Obsidian + Dataview, custom Python parsers, experimental Flask/React surfaces, plain-text-first on purpose.'
       }
     ],
     challenges: {
       heading: 'Challenges & Humility',
-      content: 'The biggest risk is turning living truth into a tidy little system that flatters the builder. Scripture does not exist to make my diagrams feel smart. The other danger is obvious too: building tools about truth can make a person unbearably pleased with himself. Both problems need real community and regular repentance.'
+      content: 'The biggest risk is turning living truth into a tidy system that flatters its builder. Scripture does not exist to make my diagrams feel intelligent. The other danger is subtler but real: building tools about truth can easily feed pride. Both problems require real community and regular repentance.'
     },
     currentState: {
       heading: 'Current State & Invitation',
-      content: 'The vault keeps growing. The tooling works, but it is still young. The web layer is still very much in the \"this is promising, keep going\" phase. I keep it public on purpose so people can critique it, use it, or steal the good ideas and do better.'
+      content: 'The vault keeps growing. The tooling works, but it is still early. I keep it public on purpose so people can explore it, critique it, or build on the parts that are useful.'
     },
     quote: {
       text: 'The one who states his case first seems right, until the other comes and examines him.',
@@ -53,11 +53,11 @@ const PROJECT_MODAL_DATA = {
     title: 'KoboForge',
     badges: ['AI TOOLING', 'LOCAL-FIRST'],
     contextLine: 'Private EPUB workflow for Kobo readers',
-    introParagraph: 'KoboForge is a browser-based EPUB builder for Kobo readers. It keeps private files local and tries not to butcher paragraph structure, which already puts it ahead of a depressing number of document converters.',
+    introParagraph: 'KoboForge is a browser-based EPUB builder for Kobo readers. It keeps private files local and aims to preserve paragraph structure and readability more faithfully than many document converters.',
     sections: [
       {
         heading: 'The Problem',
-        content: 'A lot of converters are fine if the document is plain vanilla prose and nothing weird happens. Real documents are rarely that polite. Tables, scans, ugly layouts, weird spacing, formula-heavy pages: that is where most tools quietly fall apart.'
+        content: 'Many converters work reasonably well on clean, simple documents. Real files are usually less cooperative. Tables, scans, irregular layouts, inconsistent spacing, and formula-heavy pages are where many tools start to break down.'
       },
       {
         heading: 'The Approach',
@@ -70,7 +70,7 @@ const PROJECT_MODAL_DATA = {
     },
     challenges: {
       heading: 'Current Limitations',
-      content: 'PDF extraction is still heuristic. There is no magical \"understand this cursed layout perfectly\" button. DOCX remains the cleanest path because it carries real structure; PDFs make you infer intent from coordinates and spacing like some kind of document archaeologist.'
+      content: 'PDF extraction is still heuristic. DOCX remains the cleanest path because it carries real structure; PDFs often force you to infer intent from coordinates and spacing. That tradeoff does not go away just because the interface looks simpler.'
     },
     currentState: {
       heading: 'Current State',
@@ -94,11 +94,11 @@ const PROJECT_MODAL_DATA = {
     title: 'Scene Text Translator',
     badges: ['COMPUTER VISION + NLP', 'FINAL YEAR PROJECT'],
     contextLine: 'Nanyang Technological University',
-    introParagraph: 'I built this NTU Final Year Project because I like manga and got impatient. Translation delays are real, and I wanted to see whether early useful LLM tooling could help with text buried inside panels and natural images.',
+    introParagraph: 'This NTU Final Year Project grew out of a simple frustration: good translations often arrive late, and I wanted to see whether early LLM tooling could help with text embedded in panels and natural images.',
     sections: [
       {
         heading: 'The Technical Challenge',
-        content: 'Scene text is messy in all the obvious ways: bad lighting, stylized lettering, warped layouts, speech bubbles, signboards, and phrases that mean different things once context changes. Off-the-shelf OCR falls over quickly. The hard part was not just getting words out, but putting meaning back in without trashing the reading experience.'
+        content: 'Scene text is difficult in all the usual ways: bad lighting, stylized lettering, warped layouts, speech bubbles, signboards, and phrases that shift meaning with context. Off-the-shelf OCR reaches its limits quickly. The challenge was not just extracting words, but putting meaning back into the image while preserving readability.'
       },
       {
         heading: 'Architecture & Process',
@@ -108,11 +108,11 @@ const PROJECT_MODAL_DATA = {
     ],
     challenges: {
       heading: 'Challenges & Humility',
-      content: 'The worst problems were all edge cases: vertical text, logos pretending not to be text, curved surfaces, dense dialogue, and the surprisingly non-trivial question of what should not be translated. Early LLM-era tooling made the limits obvious fast. Preserving intent and visual coherence mattered way more than pretending the pipeline was magic.'
+      content: 'The hardest problems were edge cases: vertical text, logos that looked like language, curved surfaces, dense dialogue, and the surprisingly difficult question of what should not be translated. Early LLM tooling made those limits obvious quickly. Preserving intent and visual coherence mattered much more than pretending the pipeline was effortless.'
     },
     currentState: {
       heading: 'Current State',
-      content: 'The project is still open source and still useful if you are exploring the CV + LLM boundary. For me it was proof that careful data curation, translation judgment, and the final overlay step mattered more than whatever shiny new model people were yelling about that week.'
+      content: 'The project is still open source and still useful as an exploration of the CV + LLM boundary. For me, it reinforced that careful data curation, translation judgment, and the final overlay step mattered more than model novelty alone.'
     },
     quote: {
       text: 'The point was never just extracting text, but preserving meaning without breaking the image.',
@@ -136,25 +136,25 @@ const PROJECT_MODAL_DATA = {
     title: 'Threat Detection Systems',
     badges: ['APPLIED COMPUTER VISION', 'HTX CBRNE CENTRE'],
     contextLine: 'AI Developer Intern — Singapore Home Team Science & Technology Agency (2023)',
-    introParagraph: "At HTX's CBRNE Centre of Expertise, I worked on production-grade computer vision systems for automated threat detection at Singapore's borders. Real environment, real constraints, real consequences if you get sloppy.",
+    introParagraph: "At HTX's CBRNE Centre of Expertise, I worked on production-grade computer vision systems for automated threat detection at Singapore's borders. It was real operational work, with real constraints and very little room for careless assumptions.",
     sections: [
       {
         heading: 'The Operational Reality',
-        content: 'This was not research theater. I spent time on the ground at Tuas Port, Woodlands Checkpoint, and Changi Airport collecting and staging real threat items in operational X-ray and imaging systems, then building the annotation, training, and automation pipelines that turned that mess into deployable models. The sample X-ray image on the site gives a glimpse of what the models actually had to deal with.'
+        content: 'I spent time on the ground at Tuas Port, Woodlands Checkpoint, and Changi Airport collecting and staging real threat items in operational X-ray and imaging systems, then building the annotation, training, and automation pipelines that turned that data into deployable models. The sample X-ray image on the site gives a glimpse of the kind of imagery the models had to handle.'
       },
       {
         heading: 'Pipeline & Process',
-        content: 'The job was end to end: on-ground data collection under security constraints, large-scale annotation and quality control, model training and evaluation, Python automation for everything from transforms to slide-deck generation, and documentation for handoff. The public HTX write-up and LinkedIn video are the tidy summary. The actual work was the slow, careful systems labor underneath.',
+        content: 'The work was end to end: on-ground data collection under security constraints, large-scale annotation and quality control, model training and evaluation, Python automation for repetitive workflows, and documentation for handoff. The public HTX write-up and LinkedIn video are the visible summary; the real work was the slower systems effort underneath.',
         techNote: 'Tech: YOLOv7, Detectron2, Python automation, real operational data from ICA checkpoints. 8.5/10 intern experience rating.'
       }
     ],
     challenges: {
       heading: 'Challenges & Humility',
-      content: 'Operational environments are brutal on clean-dataset fantasies. Lighting, artifacts, clutter, and adversarial concealment never stop. When real security is involved, the temptation to oversell model performance is always there. The right response is less ego, more rigor.'
+      content: 'Operational environments expose the limits of clean-dataset assumptions quickly. Lighting, artifacts, clutter, and adversarial concealment do not go away. When real security is involved, the right response is less ego and more rigor.'
     },
     currentState: {
       heading: 'Current State & Impact',
-      content: "The models built during this period contributed to real deployed capability at Singapore's borders. On the site, the project sits next to the HTX write-up, the LinkedIn video, and sample X-ray imagery so people can see both the public-facing summary and the visual system behind it."
+      content: "The models built during this period contributed to real deployed capability at Singapore's borders. On the site, the project sits alongside the HTX write-up, the LinkedIn video, and sample X-ray imagery so readers can see both the public-facing summary and the visual system behind it."
     },
     quote: {
       text: 'Rank is given, respect is earned.',
@@ -182,11 +182,11 @@ const PROJECT_MODAL_DATA = {
     title: 'VotaFun',
     badges: ['MULTIPLAYER + AI', 'REAL-TIME COLLABORATION'],
     contextLine: 'NTU 3002-TEL1 Module Project',
-    introParagraph: "VotaFun makes the most sense when you just launch it and try it. It's a live group decision-making demo where the model helps surface preferences and shortlist options, but the final call still belongs to the humans. As it should.",
+    introParagraph: "VotaFun works best as a live demo. It is a real-time group decision-making app where the model helps surface preferences and shortlist options, while the final decision stays with the people in the room.",
     sections: [
       {
         heading: 'What The Demo Does',
-        content: 'Users join a room, say what they want, watch the system cluster preferences into actual options, and then vote together in real time. Most AI group-decision tools either hide the model or let it run the whole show. VotaFun keeps it useful, then tells it to sit down.'
+        content: 'Users join a room, share what they want, watch the system cluster preferences into concrete options, and then vote together in real time. Many AI decision tools either hide the model entirely or let it dominate the process. VotaFun keeps the model visible and useful without giving it final authority.'
       },
       {
         heading: 'Architecture',
@@ -196,11 +196,11 @@ const PROJECT_MODAL_DATA = {
     ],
     challenges: {
       heading: 'Challenges & Humility',
-      content: 'Getting the LLM to give useful, non-manipulative explanations is harder than getting it to rank things. Users can game the system. And there is always the temptation to sneak in \"smart defaults\" that quietly steer the room. The architecture exists to keep that steering visible and optional.'
+      content: 'Getting the LLM to give useful, non-manipulative explanations is harder than getting it to rank options. Users can game the system, and there is always a temptation to introduce \"smart defaults\" that quietly steer the room. The architecture exists to keep that steering visible and optional.'
     },
     currentState: {
       heading: 'Current State',
-      content: 'The important thing is that it runs. The project is open source under the VetoFun organization, and the live deployment lets people test the actual interaction instead of reading another paragraph about it.'
+      content: 'The important thing is that it runs. The project is open source under the VetoFun organization, and the live deployment lets people test the interaction directly instead of reading about it in the abstract.'
     },
     quote: {
       text: 'They illuminate; they do not decide.',
