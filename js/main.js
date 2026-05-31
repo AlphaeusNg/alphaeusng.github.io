@@ -355,6 +355,12 @@ function initPortraitComparison() {
             return Math.min(100, Math.max(0, value));
         }
 
+        function isInteractiveTarget(target) {
+            return target instanceof Element && Boolean(
+                target.closest('a, button, input, textarea, select, summary, [role="button"]')
+            );
+        }
+
         function setReveal(value) {
             const reveal = clamp(value);
             compare.style.setProperty('--portrait-reveal', `${reveal}%`);
@@ -388,6 +394,7 @@ function initPortraitComparison() {
 
         compare.addEventListener('pointerdown', event => {
             if (!isRevealed || isRevealing) return;
+            if (isInteractiveTarget(event.target)) return;
             event.preventDefault();
             pointerId = event.pointerId;
             isDragging = true;
@@ -413,7 +420,8 @@ function initPortraitComparison() {
             event.preventDefault();
         });
 
-        compare.addEventListener('click', () => {
+        compare.addEventListener('click', event => {
+            if (isInteractiveTarget(event.target)) return;
             revealEasterEgg();
         });
 
