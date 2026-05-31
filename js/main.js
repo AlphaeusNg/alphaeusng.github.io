@@ -317,6 +317,8 @@ function initPortraitComparison() {
         let isRevealing = false;
         let isRevealed = showcase ? showcase.classList.contains('is-revealed') : true;
         let revealTimerId = null;
+        let rockTimerId = null;
+        let clickStage = Number(showcase?.dataset.portraitClickStage ?? 0) || 0;
 
         function revealEasterEgg() {
             if (isRevealed || isRevealing) return;
@@ -330,6 +332,7 @@ function initPortraitComparison() {
                 isRevealed = true;
                 showcase?.classList.remove('is-revealing');
                 showcase?.classList.add('is-revealed');
+                showcase?.removeAttribute('data-portrait-rock');
                 compare.removeAttribute('role');
                 compare.removeAttribute('aria-busy');
                 compare.setAttribute('aria-label', 'Swipeable portrait comparison between the polished portrait and the original photo');
@@ -344,11 +347,22 @@ function initPortraitComparison() {
             revealTimerId = null;
         }
 
+        function clearRockTimer() {
+            if (rockTimerId === null) return;
+            window.clearTimeout(rockTimerId);
+            rockTimerId = null;
+        }
+
         function syncRevealState() {
             if (!isRevealed) return;
             compare.removeAttribute('role');
             compare.setAttribute('aria-label', 'Swipeable portrait comparison between the polished portrait and the original photo');
             compare.setAttribute('aria-expanded', 'true');
+        }
+
+        function syncClickStage() {
+            if (!showcase) return;
+            showcase.dataset.portraitClickStage = String(Math.min(clickStage, 2));
         }
 
         function clamp(value) {
@@ -357,8 +371,37 @@ function initPortraitComparison() {
 
         function isInteractiveTarget(target) {
             return target instanceof Element && Boolean(
-                target.closest('a, button, input, textarea, select, summary, [role="button"]')
+                target !== compare && target.closest('a, button, input, textarea, select, summary, [role="button"]')
             );
+        }
+
+        function triggerRock(level) {
+            if (!showcase) return;
+            clearRockTimer();
+            showcase.dataset.portraitRock = level;
+            rockTimerId = window.setTimeout(() => {
+                showcase.removeAttribute('data-portrait-rock');
+                rockTimerId = null;
+            }, level === 'hard' ? 760 : 560);
+        }
+
+        function handleHiddenClick() {
+            if (isRevealed || isRevealing) return;
+
+            clickStage = Math.min(clickStage + 1, 3);
+            syncClickStage();
+
+            if (clickStage === 1) {
+                triggerRock('soft');
+                return;
+            }
+
+            if (clickStage === 2) {
+                triggerRock('hard');
+                return;
+            }
+
+            revealEasterEgg();
         }
 
         function setReveal(value) {
@@ -422,13 +465,16 @@ function initPortraitComparison() {
 
         compare.addEventListener('click', event => {
             if (isInteractiveTarget(event.target)) return;
-            revealEasterEgg();
+            if (!isRevealed) {
+                handleHiddenClick();
+                return;
+            }
         });
 
         compare.addEventListener('keydown', event => {
             if (!isRevealed && (event.key === 'Enter' || event.key === ' ')) {
                 event.preventDefault();
-                revealEasterEgg();
+                handleHiddenClick();
                 return;
             }
 
@@ -451,10 +497,12 @@ function initPortraitComparison() {
         });
 
         syncRevealState();
+        syncClickStage();
 
         setReveal(Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 100);
 
         window.addEventListener('beforeunload', clearRevealTimer, { once: true });
+        window.addEventListener('beforeunload', clearRockTimer, { once: true });
     });
 }
 

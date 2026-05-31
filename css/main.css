@@ -314,8 +314,7 @@ body {
 .portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-phone-footer,
 .portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-label,
 .portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-note,
-.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-divider,
-.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-caption {
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-divider {
     display: none;
 }
 
@@ -404,6 +403,7 @@ body {
 
 .portrait-compare {
     --portrait-reveal: 100%;
+    --portrait-rock-angle: 0deg;
     position: relative;
     aspect-ratio: 9 / 14;
     overflow: hidden;
@@ -422,6 +422,19 @@ body {
 .portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-compare:hover {
     border-color: rgba(255, 255, 255, 0.14);
     box-shadow: 0 20px 45px rgba(2, 6, 23, 0.22);
+}
+
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-compare,
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-compare {
+    border-color: rgba(201, 162, 39, 0.22);
+}
+
+.portrait-showcase[data-portrait-rock="soft"] .portrait-compare {
+    animation: portraitRockSoft 0.52s ease;
+}
+
+.portrait-showcase[data-portrait-rock="hard"] .portrait-compare {
+    animation: portraitRockHard 0.72s ease;
 }
 
 .portrait-showcase.is-revealing .portrait-compare {
@@ -542,6 +555,102 @@ body {
     --portrait-poof-rotation: 90deg;
 }
 
+.portrait-cracks {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.portrait-crack {
+    position: absolute;
+    left: 50%;
+    top: 31%;
+    height: 2px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.94), rgba(201, 162, 39, 0.95));
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.22);
+    opacity: 0;
+    transform-origin: left center;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.portrait-crack-main {
+    width: 60px;
+    transform: translate(-6px, 0) rotate(18deg) scaleX(0.2);
+}
+
+.portrait-crack-branch-a {
+    width: 24px;
+    transform: translate(26px, 9px) rotate(56deg) scaleX(0.2);
+}
+
+.portrait-crack-branch-b {
+    width: 20px;
+    transform: translate(10px, 14px) rotate(96deg) scaleX(0.2);
+}
+
+.portrait-crack-branch-c {
+    width: 28px;
+    transform: translate(-5px, -5px) rotate(-22deg) scaleX(0.2);
+}
+
+.portrait-crack-branch-d {
+    width: 32px;
+    transform: translate(40px, 20px) rotate(8deg) scaleX(0.2);
+}
+
+.portrait-crack-branch-e {
+    width: 22px;
+    transform: translate(48px, -3px) rotate(-52deg) scaleX(0.2);
+}
+
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-main,
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-branch-a,
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-branch-c {
+    opacity: 0.85;
+}
+
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-main {
+    transform: translate(-6px, 0) rotate(18deg) scaleX(1);
+}
+
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-branch-a {
+    transform: translate(26px, 9px) rotate(56deg) scaleX(0.72);
+}
+
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-branch-c {
+    transform: translate(-5px, -5px) rotate(-22deg) scaleX(0.58);
+}
+
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack {
+    opacity: 0.94;
+}
+
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-main {
+    transform: translate(-8px, 0) rotate(18deg) scaleX(1.22);
+}
+
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-a {
+    transform: translate(28px, 9px) rotate(56deg) scaleX(1);
+}
+
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-b {
+    transform: translate(12px, 14px) rotate(96deg) scaleX(0.9);
+}
+
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-c {
+    transform: translate(-6px, -6px) rotate(-22deg) scaleX(0.92);
+}
+
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-d {
+    transform: translate(42px, 20px) rotate(8deg) scaleX(0.92);
+}
+
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-e {
+    transform: translate(50px, -4px) rotate(-52deg) scaleX(0.88);
+}
+
 .portrait-showcase.is-revealing .portrait-poof {
     animation: portraitPoofFade 2s ease forwards;
 }
@@ -573,8 +682,7 @@ body {
 .portrait-showcase.is-revealing .portrait-phone-footer,
 .portrait-showcase.is-revealing .portrait-label,
 .portrait-showcase.is-revealing .portrait-note,
-.portrait-showcase.is-revealing .portrait-divider,
-.portrait-showcase.is-revealing .portrait-caption {
+.portrait-showcase.is-revealing .portrait-divider {
     opacity: 0;
     animation: portraitUiReveal 1.1s ease 0.95s forwards;
 }
@@ -583,7 +691,6 @@ body {
     animation-delay: 1.05s;
 }
 
-.portrait-showcase.is-revealing .portrait-caption,
 .portrait-showcase.is-revealing .portrait-phone-footer {
     animation-delay: 1.15s;
 }
@@ -593,9 +700,12 @@ body {
 .portrait-showcase.is-revealed .portrait-phone-footer,
 .portrait-showcase.is-revealed .portrait-label,
 .portrait-showcase.is-revealed .portrait-note,
-.portrait-showcase.is-revealed .portrait-divider,
-.portrait-showcase.is-revealed .portrait-caption {
+.portrait-showcase.is-revealed .portrait-divider {
     opacity: 1;
+}
+
+.portrait-showcase.is-revealing .portrait-cracks {
+    animation: portraitCrackFadeOut 0.55s ease 0.15s forwards;
 }
 
 @keyframes portraitPoofFade {
@@ -661,6 +771,56 @@ body {
         opacity: 1;
         transform: translateY(0);
         filter: blur(0);
+    }
+}
+
+@keyframes portraitRockSoft {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    30% {
+        transform: rotate(-1.2deg) scale(0.996);
+    }
+
+    58% {
+        transform: rotate(0.95deg) scale(1);
+    }
+
+    100% {
+        transform: rotate(0deg) scale(1);
+    }
+}
+
+@keyframes portraitRockHard {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    18% {
+        transform: rotate(-2deg) scale(0.992);
+    }
+
+    42% {
+        transform: rotate(1.55deg) scale(1.002);
+    }
+
+    70% {
+        transform: rotate(-0.82deg) scale(0.998);
+    }
+
+    100% {
+        transform: rotate(0deg) scale(1);
+    }
+}
+
+@keyframes portraitCrackFadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
     }
 }
 
