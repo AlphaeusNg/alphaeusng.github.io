@@ -460,6 +460,10 @@ body {
     clip-path: inset(0 calc(100% - var(--portrait-reveal)) 0 0);
 }
 
+.portrait-compare.is-settling .portrait-overlay {
+    transition: clip-path 0.34s cubic-bezier(0.22, 0.8, 0.24, 1);
+}
+
 .portrait-poof {
     position: absolute;
     inset: 0;
@@ -831,6 +835,10 @@ body {
     left: var(--portrait-reveal);
     width: 0;
     pointer-events: none;
+}
+
+.portrait-compare.is-settling .portrait-divider {
+    transition: left 0.34s cubic-bezier(0.22, 0.8, 0.24, 1);
 }
 
 .portrait-divider::before {

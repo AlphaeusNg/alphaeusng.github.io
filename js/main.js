@@ -318,6 +318,7 @@ function initPortraitComparison() {
         let isRevealed = showcase ? showcase.classList.contains('is-revealed') : true;
         let revealTimerId = null;
         let rockTimerId = null;
+        let settleTimerId = null;
         let clickStage = Number(showcase?.dataset.portraitClickStage ?? 0) || 0;
 
         function revealEasterEgg() {
@@ -343,7 +344,14 @@ function initPortraitComparison() {
                 compare.style.removeProperty('--portrait-crack-one-y');
                 compare.style.removeProperty('--portrait-crack-two-x');
                 compare.style.removeProperty('--portrait-crack-two-y');
-                setReveal(50);
+                compare.classList.add('is-settling');
+                window.requestAnimationFrame(() => {
+                    setReveal(50);
+                });
+                settleTimerId = window.setTimeout(() => {
+                    compare.classList.remove('is-settling');
+                    settleTimerId = null;
+                }, 380);
                 revealTimerId = null;
             }, 2000);
         }
@@ -358,6 +366,12 @@ function initPortraitComparison() {
             if (rockTimerId === null) return;
             window.clearTimeout(rockTimerId);
             rockTimerId = null;
+        }
+
+        function clearSettleTimer() {
+            if (settleTimerId === null) return;
+            window.clearTimeout(settleTimerId);
+            settleTimerId = null;
         }
 
         function syncRevealState() {
@@ -533,6 +547,7 @@ function initPortraitComparison() {
 
         window.addEventListener('beforeunload', clearRevealTimer, { once: true });
         window.addEventListener('beforeunload', clearRockTimer, { once: true });
+        window.addEventListener('beforeunload', clearSettleTimer, { once: true });
     });
 }
 
