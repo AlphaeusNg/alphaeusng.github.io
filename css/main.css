@@ -309,13 +309,13 @@ body {
     position: relative;
 }
 
-.portrait-showcase:not(.is-revealed) .portrait-sticker,
-.portrait-showcase:not(.is-revealed) .portrait-phone-header,
-.portrait-showcase:not(.is-revealed) .portrait-phone-footer,
-.portrait-showcase:not(.is-revealed) .portrait-label,
-.portrait-showcase:not(.is-revealed) .portrait-note,
-.portrait-showcase:not(.is-revealed) .portrait-divider,
-.portrait-showcase:not(.is-revealed) .portrait-caption {
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-sticker,
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-phone-header,
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-phone-footer,
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-label,
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-note,
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-divider,
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-caption {
     display: none;
 }
 
@@ -347,7 +347,7 @@ body {
     box-shadow: 0 34px 60px rgba(2, 6, 23, 0.45);
 }
 
-.portrait-showcase:not(.is-revealed) .portrait-phone {
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-phone {
     padding: 0.75rem;
 }
 
@@ -419,9 +419,13 @@ body {
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.portrait-showcase:not(.is-revealed) .portrait-compare:hover {
+.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-compare:hover {
     border-color: rgba(255, 255, 255, 0.14);
     box-shadow: 0 20px 45px rgba(2, 6, 23, 0.22);
+}
+
+.portrait-showcase.is-revealing .portrait-compare {
+    cursor: progress;
 }
 
 .portrait-showcase.is-revealed .portrait-compare {
@@ -460,6 +464,204 @@ body {
 
 .portrait-overlay {
     clip-path: inset(0 calc(100% - var(--portrait-reveal)) 0 0);
+}
+
+.portrait-poof {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.portrait-poof-cloud,
+.portrait-poof-spark {
+    position: absolute;
+    opacity: 0;
+}
+
+.portrait-poof-cloud {
+    border-radius: 9999px;
+    background:
+        radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.18) 52%, rgba(255, 255, 255, 0) 74%),
+        radial-gradient(circle at 60% 60%, rgba(201, 162, 39, 0.42), rgba(201, 162, 39, 0) 68%);
+    filter: blur(8px);
+    mix-blend-mode: screen;
+}
+
+.portrait-poof-cloud-main {
+    left: 16%;
+    right: 16%;
+    top: 22%;
+    bottom: 20%;
+}
+
+.portrait-poof-cloud-top {
+    width: 42%;
+    height: 24%;
+    top: 9%;
+    left: 28%;
+}
+
+.portrait-poof-cloud-left {
+    width: 34%;
+    height: 26%;
+    left: 6%;
+    bottom: 20%;
+}
+
+.portrait-poof-cloud-right {
+    width: 34%;
+    height: 26%;
+    right: 6%;
+    bottom: 18%;
+}
+
+.portrait-poof-spark {
+    --portrait-poof-rotation: 0deg;
+    width: 2px;
+    height: 88px;
+    top: 50%;
+    left: 50%;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(201, 162, 39, 0.96), rgba(255, 255, 255, 0));
+    transform-origin: center;
+    filter: drop-shadow(0 0 8px rgba(201, 162, 39, 0.48));
+}
+
+.portrait-poof-spark-left {
+    --portrait-poof-rotation: -34deg;
+}
+
+.portrait-poof-spark-right {
+    --portrait-poof-rotation: 34deg;
+}
+
+.portrait-poof-spark-bottom {
+    height: 110px;
+    --portrait-poof-rotation: 90deg;
+}
+
+.portrait-showcase.is-revealing .portrait-poof {
+    animation: portraitPoofFade 2s ease forwards;
+}
+
+.portrait-showcase.is-revealing .portrait-poof-cloud-main {
+    animation: portraitPoofCloud 2s cubic-bezier(0.18, 0.8, 0.22, 1) forwards;
+}
+
+.portrait-showcase.is-revealing .portrait-poof-cloud-top {
+    animation: portraitPoofCloud 2s cubic-bezier(0.18, 0.8, 0.22, 1) 0.08s forwards;
+}
+
+.portrait-showcase.is-revealing .portrait-poof-cloud-left {
+    animation: portraitPoofCloud 2s cubic-bezier(0.18, 0.8, 0.22, 1) 0.14s forwards;
+}
+
+.portrait-showcase.is-revealing .portrait-poof-cloud-right {
+    animation: portraitPoofCloud 2s cubic-bezier(0.18, 0.8, 0.22, 1) 0.18s forwards;
+}
+
+.portrait-showcase.is-revealing .portrait-poof-spark-left,
+.portrait-showcase.is-revealing .portrait-poof-spark-right,
+.portrait-showcase.is-revealing .portrait-poof-spark-bottom {
+    animation: portraitPoofSpark 1.3s ease-out forwards;
+}
+
+.portrait-showcase.is-revealing .portrait-sticker,
+.portrait-showcase.is-revealing .portrait-phone-header,
+.portrait-showcase.is-revealing .portrait-phone-footer,
+.portrait-showcase.is-revealing .portrait-label,
+.portrait-showcase.is-revealing .portrait-note,
+.portrait-showcase.is-revealing .portrait-divider,
+.portrait-showcase.is-revealing .portrait-caption {
+    opacity: 0;
+    animation: portraitUiReveal 1.1s ease 0.95s forwards;
+}
+
+.portrait-showcase.is-revealing .portrait-note {
+    animation-delay: 1.05s;
+}
+
+.portrait-showcase.is-revealing .portrait-caption,
+.portrait-showcase.is-revealing .portrait-phone-footer {
+    animation-delay: 1.15s;
+}
+
+.portrait-showcase.is-revealed .portrait-sticker,
+.portrait-showcase.is-revealed .portrait-phone-header,
+.portrait-showcase.is-revealed .portrait-phone-footer,
+.portrait-showcase.is-revealed .portrait-label,
+.portrait-showcase.is-revealed .portrait-note,
+.portrait-showcase.is-revealed .portrait-divider,
+.portrait-showcase.is-revealed .portrait-caption {
+    opacity: 1;
+}
+
+@keyframes portraitPoofFade {
+    0%,
+    8% {
+        opacity: 0;
+    }
+
+    14%,
+    56% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes portraitPoofCloud {
+    0% {
+        opacity: 0;
+        transform: scale(0.34);
+    }
+
+    18% {
+        opacity: 0.96;
+    }
+
+    55% {
+        opacity: 0.82;
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1.3);
+    }
+}
+
+@keyframes portraitPoofSpark {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--portrait-poof-rotation)) scale(0.4);
+    }
+
+    18% {
+        opacity: 0.96;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(var(--portrait-poof-rotation)) scale(1.2);
+    }
+}
+
+@keyframes portraitUiReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(6px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
 }
 
 .portrait-divider {

@@ -16,9 +16,9 @@ The design should remain restrained, professional, and easy to share. It should 
 ## Repository Structure
 
 - `index.html`: main portfolio page served from the GitHub Pages root.
+- `conviction.html`: conviction page served from the GitHub Pages root.
+- `kobo-forge.html`: KoboForge page served from the GitHub Pages root.
 - `pages/`: secondary public pages.
-  - `pages/conviction.html`: compatibility redirect to the root conviction page.
-  - `pages/kobo-forge.html`: KoboForge project page.
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.
 - `data/`: root-level public data payloads.
   - `data/conviction_tsla_history.json`: TSLA transaction history plus the benchmark comparison used by `conviction.html`.
@@ -30,8 +30,6 @@ The design should remain restrained, professional, and easy to share. It should 
 - `tools/`: scripts grouped by domain.
   - `tools/koboforge/`: KoboForge companion tooling.
   - `tools/finance/`: local-only financial data helpers, including the TSLA-versus-SPY benchmark generator and anonymized trade ledger.
-- `conviction.html`: canonical conviction page served from the GitHub Pages root.
-- `kobo-forge.html`, `seeking-biblical-truth/index.html`, `pages/conviction.html`: compatibility redirects for older links.
 - `.nojekyll`: required so GitHub Pages serves this as static files.
 
 ## Local Development
@@ -45,8 +43,7 @@ Open:
 
 - http://127.0.0.1:8000/
 - http://127.0.0.1:8000/conviction.html
-- http://127.0.0.1:8000/pages/kobo-forge.html
-- http://127.0.0.1:8000/pages/conviction.html
+- http://127.0.0.1:8000/kobo-forge.html
 - http://127.0.0.1:8000/pages/seeking-biblical-truth/
 
 The root conviction page reads from `data/conviction_tsla_history.json`, which is committed directly in this repo.
@@ -98,7 +95,7 @@ curl -I http://127.0.0.1:8000/pages/seeking-biblical-truth/vault-data.json
 ## For Future Agents
 
 - Preserve `index.html` at the repo root; GitHub Pages expects it.
-- Put secondary user-facing pages under `pages/`.
+- Keep canonical public pages at the paths actually linked from the site.
 - Put public page data in the location actually used by the served page; do not leave duplicate active datasets with divergent outcomes.
 - Put scripts under `tools/<domain>/`; do not leave one-off scripts in the root.
 - Keep `pages/seeking-biblical-truth/` reachable from the portfolio Explore menu and project card.
@@ -106,5 +103,5 @@ curl -I http://127.0.0.1:8000/pages/seeking-biblical-truth/vault-data.json
 - Do not commit private financial spreadsheets, raw private notes, generated caches, or editor state.
 - The conviction page intentionally uses a public JSON export instead of loading private spreadsheets client-side.
 - The embedded benchmark comparison on `conviction.html` is monthly-close and uses the same dated trade path against a public SPY proxy series.
-- Keep old public URLs working with redirect stubs if moving pages.
 - Before deleting files, prove they are not referenced by served pages using `rg` and local route checks.
+- Do not keep duplicate root-level and `pages/` copies of the same public page once one canonical route has been chosen.

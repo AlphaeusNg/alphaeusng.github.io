@@ -1,6 +1,6 @@
 # KoboForge Companion Tools
 
-High-fidelity helpers that complement the KoboForge overview page at https://alphaeusng.github.io/pages/kobo-forge.html
+High-fidelity helpers that complement the KoboForge page at https://alphaeusng.github.io/kobo-forge.html
 
 ## Python Companion
 

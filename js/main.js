@@ -314,12 +314,38 @@ function initPortraitComparison() {
         const toggles = compare.parentElement?.querySelectorAll('[data-portrait-snap]') ?? [];
         let pointerId = null;
         let isDragging = false;
+        let isRevealing = false;
         let isRevealed = showcase ? showcase.classList.contains('is-revealed') : true;
+        let revealTimerId = null;
 
         function revealEasterEgg() {
-            if (isRevealed) return;
-            isRevealed = true;
-            showcase?.classList.add('is-revealed');
+            if (isRevealed || isRevealing) return;
+            isRevealing = true;
+            showcase?.classList.add('is-revealing');
+            compare.setAttribute('aria-busy', 'true');
+            compare.setAttribute('aria-expanded', 'false');
+
+            revealTimerId = window.setTimeout(() => {
+                isRevealing = false;
+                isRevealed = true;
+                showcase?.classList.remove('is-revealing');
+                showcase?.classList.add('is-revealed');
+                compare.removeAttribute('role');
+                compare.removeAttribute('aria-busy');
+                compare.setAttribute('aria-label', 'Swipeable portrait comparison between the polished portrait and the original photo');
+                compare.setAttribute('aria-expanded', 'true');
+                revealTimerId = null;
+            }, 2000);
+        }
+
+        function clearRevealTimer() {
+            if (revealTimerId === null) return;
+            window.clearTimeout(revealTimerId);
+            revealTimerId = null;
+        }
+
+        function syncRevealState() {
+            if (!isRevealed) return;
             compare.removeAttribute('role');
             compare.setAttribute('aria-label', 'Swipeable portrait comparison between the polished portrait and the original photo');
             compare.setAttribute('aria-expanded', 'true');
@@ -361,7 +387,7 @@ function initPortraitComparison() {
         }
 
         compare.addEventListener('pointerdown', event => {
-            if (!isRevealed) return;
+            if (!isRevealed || isRevealing) return;
             event.preventDefault();
             pointerId = event.pointerId;
             isDragging = true;
@@ -398,7 +424,7 @@ function initPortraitComparison() {
                 return;
             }
 
-            if (!isRevealed) return;
+            if (!isRevealed || isRevealing) return;
 
             const current = Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 100;
             if (event.key === 'ArrowLeft') {
@@ -416,11 +442,11 @@ function initPortraitComparison() {
             });
         });
 
-        if (isRevealed) {
-            compare.setAttribute('aria-expanded', 'true');
-        }
+        syncRevealState();
 
         setReveal(Number.parseFloat(compare.style.getPropertyValue('--portrait-reveal')) || 100);
+
+        window.addEventListener('beforeunload', clearRevealTimer, { once: true });
     });
 }
 
