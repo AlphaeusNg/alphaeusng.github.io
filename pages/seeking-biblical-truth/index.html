@@ -69,7 +69,7 @@
           <div class="text-sm font-medium text-[#CBD5E1]">Interactive graph</div>
           <div id="graph-count" class="text-xs text-[#64748B]"></div>
         </div>
-        <div id="graph" class="h-[62vh] min-h-[460px] bg-[#0A0F1C] xl:h-[68vh] xl:min-h-[580px]" style="height:62vh;min-height:460px;"></div>
+        <div id="graph" class="bg-[#0A0F1C]" style="min-height:420px;"></div>
       </section>
 
       <aside class="self-start rounded-2xl border border-white/10 bg-[#111827] p-6 xl:sticky xl:top-4">
@@ -247,8 +247,26 @@
       });
     }
 
+    function syncGraphHeight() {
+      const container = document.getElementById('graph');
+      if (!container) return;
+
+      const width = container.clientWidth || container.parentElement?.clientWidth || 0;
+      const desktop = window.innerWidth >= 1280;
+      const minHeight = desktop ? 500 : 420;
+      const maxHeight = desktop ? 620 : 560;
+      const viewportCap = Math.round(window.innerHeight * (desktop ? 0.66 : 0.58));
+      const aspectHeight = Math.round(width * (desktop ? 0.74 : 0.88));
+      const cappedMax = Math.max(minHeight, Math.min(maxHeight, viewportCap));
+      const targetHeight = Math.max(minHeight, Math.min(cappedMax, aspectHeight));
+
+      container.style.height = `${targetHeight}px`;
+      container.style.minHeight = `${minHeight}px`;
+    }
+
     function renderGraph() {
       const container = document.getElementById('graph');
+      syncGraphHeight();
       const width = container.clientWidth;
       const height = container.clientHeight;
       container.innerHTML = '';
@@ -337,7 +355,12 @@
     document.getElementById('export-png').addEventListener('click', () => html2canvas(document.getElementById('graph'), { backgroundColor: '#0A0F1C', scale: 2 }).then(canvas => {
       const a = document.createElement('a'); a.download = 'seeking-biblical-truth-graph.png'; a.href = canvas.toDataURL('image/png'); a.click();
     }));
-    window.addEventListener('resize', () => { clearTimeout(window.__graphResize); window.__graphResize = setTimeout(renderGraph, 180); });
+    function scheduleGraphRender() {
+      clearTimeout(window.__graphResize);
+      window.__graphResize = setTimeout(renderGraph, 180);
+    }
+
+    window.addEventListener('resize', scheduleGraphRender);
 
     fetch('vault-data.json').then(r => r.json()).then(data => {
       state.data = data;
@@ -345,6 +368,13 @@
       document.getElementById('vault-summary').textContent = `${data.counts.notes} Markdown notes, ${data.counts.canvas} canvas, and ${data.counts.links} links generated from the live repository structure.`;
       renderFolders();
       renderGraph();
+      if ('ResizeObserver' in window) {
+        const graphPanel = document.getElementById('graph')?.parentElement;
+        if (graphPanel) {
+          const graphResizeObserver = new ResizeObserver(scheduleGraphRender);
+          graphResizeObserver.observe(graphPanel);
+        }
+      }
       const first = data.nodes.find(n => n.path === 'My Search for Truth.md') || data.nodes.find(n => n.type === 'note');
       if (first) selectNode(first);
     }).catch(err => {
