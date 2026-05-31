@@ -46,7 +46,7 @@
       </div>
     </header>
 
-    <section class="grid gap-4 xl:grid-cols-[280px_minmax(0,1.3fr)_minmax(360px,0.95fr)]">
+    <section class="grid gap-4 xl:grid-cols-[280px_minmax(0,1.12fr)_minmax(420px,1.08fr)]">
       <aside class="self-start rounded-2xl border border-white/10 bg-[#111827] p-4 xl:sticky xl:top-4">
         <label class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]" for="search">Search notes</label>
         <input id="search" class="mt-2 w-full rounded-xl border border-white/10 bg-[#0A0F1C] px-3 py-2 text-sm text-white outline-none focus:border-[#C9A227]" placeholder="Baptism, Romans, Gospel...">
@@ -69,10 +69,10 @@
           <div class="text-sm font-medium text-[#CBD5E1]">Interactive graph</div>
           <div id="graph-count" class="text-xs text-[#64748B]"></div>
         </div>
-        <div id="graph" class="h-[72vh] min-h-[540px] bg-[#0A0F1C] xl:h-[78vh] xl:min-h-[680px]" style="height:72vh;min-height:540px;"></div>
+        <div id="graph" class="h-[62vh] min-h-[460px] bg-[#0A0F1C] xl:h-[68vh] xl:min-h-[580px]" style="height:62vh;min-height:460px;"></div>
       </section>
 
-      <aside class="self-start rounded-2xl border border-white/10 bg-[#111827] p-5 xl:sticky xl:top-4">
+      <aside class="self-start rounded-2xl border border-white/10 bg-[#111827] p-6 xl:sticky xl:top-4">
         <div id="note-panel">
           <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">Selected note</div>
           <h2 class="mt-2 text-2xl font-semibold tracking-tight">Choose a node</h2>
@@ -309,7 +309,7 @@
             <button type="button" data-note-view="source" class="px-3 py-1.5 ${state.noteView === 'source' ? 'bg-[#C9A227] text-[#0A0F1C]' : 'text-[#CBD5E1] hover:bg-white/5'}">Raw</button>
           </div>
         </div>
-        <div class="note-body mt-5 max-h-[56vh] overflow-auto rounded-xl border border-white/10 bg-[#0A0F1C] p-4 text-sm leading-6 text-[#CBD5E1] xl:max-h-[62vh]">${renderNoteContent(d)}</div>
+        <div class="note-body mt-5 max-h-[64vh] overflow-auto rounded-xl border border-white/10 bg-[#0A0F1C] p-4 text-sm leading-6 text-[#CBD5E1] xl:max-h-[70vh]">${renderNoteContent(d)}</div>
         <div class="mt-5 grid grid-cols-2 gap-4 text-sm">
           <div><div class="mb-2 text-[10px] uppercase tracking-[2px] text-[#64748B]">Outgoing</div>${relatedList(outgoing)}</div>
           <div><div class="mb-2 text-[10px] uppercase tracking-[2px] text-[#64748B]">Backlinks</div>${relatedList(incoming)}</div>
