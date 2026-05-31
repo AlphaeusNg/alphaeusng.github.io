@@ -339,8 +339,10 @@ function initPortraitComparison() {
                 compare.removeAttribute('aria-busy');
                 compare.setAttribute('aria-label', 'Swipeable portrait comparison between the polished portrait and the original photo');
                 compare.setAttribute('aria-expanded', 'true');
-                compare.style.removeProperty('--portrait-crack-x');
-                compare.style.removeProperty('--portrait-crack-y');
+                compare.style.removeProperty('--portrait-crack-one-x');
+                compare.style.removeProperty('--portrait-crack-one-y');
+                compare.style.removeProperty('--portrait-crack-two-x');
+                compare.style.removeProperty('--portrait-crack-two-y');
                 revealTimerId = null;
             }, 2000);
         }
@@ -393,11 +395,12 @@ function initPortraitComparison() {
             }, level === 'hard' ? 760 : 560);
         }
 
-        function setCrackOrigin(clientX, clientY) {
+        function setCrackOrigin(slot, clientX, clientY) {
             const rect = compare.getBoundingClientRect();
+            const prefix = slot === 2 ? '--portrait-crack-two' : '--portrait-crack-one';
             if (!rect.width || !rect.height || typeof clientX !== 'number' || typeof clientY !== 'number') {
-                compare.style.setProperty('--portrait-crack-x', '50%');
-                compare.style.setProperty('--portrait-crack-y', '31%');
+                compare.style.setProperty(`${prefix}-x`, '50%');
+                compare.style.setProperty(`${prefix}-y`, '31%');
                 return;
             }
 
@@ -406,14 +409,14 @@ function initPortraitComparison() {
             const clampedX = Math.min(86, Math.max(14, xPercent));
             const clampedY = Math.min(78, Math.max(14, yPercent));
 
-            compare.style.setProperty('--portrait-crack-x', `${clampedX}%`);
-            compare.style.setProperty('--portrait-crack-y', `${clampedY}%`);
+            compare.style.setProperty(`${prefix}-x`, `${clampedX}%`);
+            compare.style.setProperty(`${prefix}-y`, `${clampedY}%`);
         }
 
         function handleHiddenClick(event) {
             if (isRevealed || isRevealing) return;
 
-            setCrackOrigin(event?.clientX, event?.clientY);
+            setCrackOrigin(Math.min(clickStage + 1, 2), event?.clientX, event?.clientY);
             clickStage = Math.min(clickStage + 1, 3);
             syncClickStage();
 

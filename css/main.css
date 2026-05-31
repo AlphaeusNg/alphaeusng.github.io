@@ -562,10 +562,13 @@ body {
     pointer-events: none;
 }
 
+.portrait-crack-set {
+    position: absolute;
+    inset: 0;
+}
+
 .portrait-crack {
     position: absolute;
-    left: var(--portrait-crack-x, 50%);
-    top: var(--portrait-crack-y, 31%);
     height: 2px;
     border-radius: 9999px;
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.94), rgba(201, 162, 39, 0.95));
@@ -573,6 +576,16 @@ body {
     opacity: 0;
     transform-origin: left center;
     transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.portrait-crack-set-one .portrait-crack {
+    left: var(--portrait-crack-one-x, 50%);
+    top: var(--portrait-crack-one-y, 31%);
+}
+
+.portrait-crack-set-two .portrait-crack {
+    left: var(--portrait-crack-two-x, 50%);
+    top: var(--portrait-crack-two-y, 31%);
 }
 
 .portrait-crack-main {
@@ -605,49 +618,55 @@ body {
     transform: translate(48px, -3px) rotate(-52deg) scaleX(0.2);
 }
 
-.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-main,
-.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-branch-a,
-.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-branch-c {
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-set-one .portrait-crack-main,
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-set-one .portrait-crack-branch-a,
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-set-one .portrait-crack-branch-c,
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-one .portrait-crack-main,
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-one .portrait-crack-branch-a,
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-one .portrait-crack-branch-c {
     opacity: 0.85;
 }
 
-.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-main {
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-set-one .portrait-crack-main,
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-one .portrait-crack-main {
     transform: translate(-6px, 0) rotate(18deg) scaleX(1);
 }
 
-.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-branch-a {
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-set-one .portrait-crack-branch-a,
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-one .portrait-crack-branch-a {
     transform: translate(26px, 9px) rotate(56deg) scaleX(0.72);
 }
 
-.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-branch-c {
+.portrait-showcase[data-portrait-click-stage="1"] .portrait-crack-set-one .portrait-crack-branch-c,
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-one .portrait-crack-branch-c {
     transform: translate(-5px, -5px) rotate(-22deg) scaleX(0.58);
 }
 
-.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack {
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-two .portrait-crack {
     opacity: 0.94;
 }
 
-.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-main {
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-two .portrait-crack-main {
     transform: translate(-8px, 0) rotate(18deg) scaleX(1.22);
 }
 
-.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-a {
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-two .portrait-crack-branch-a {
     transform: translate(28px, 9px) rotate(56deg) scaleX(1);
 }
 
-.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-b {
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-two .portrait-crack-branch-b {
     transform: translate(12px, 14px) rotate(96deg) scaleX(0.9);
 }
 
-.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-c {
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-two .portrait-crack-branch-c {
     transform: translate(-6px, -6px) rotate(-22deg) scaleX(0.92);
 }
 
-.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-d {
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-two .portrait-crack-branch-d {
     transform: translate(42px, 20px) rotate(8deg) scaleX(0.92);
 }
 
-.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-branch-e {
+.portrait-showcase[data-portrait-click-stage="2"] .portrait-crack-set-two .portrait-crack-branch-e {
     transform: translate(50px, -4px) rotate(-52deg) scaleX(0.88);
 }
 
@@ -704,8 +723,8 @@ body {
     opacity: 1;
 }
 
-.portrait-showcase.is-revealed .portrait-crack {
-    opacity: 0 !important;
+.portrait-showcase.is-revealed .portrait-cracks {
+    display: none;
 }
 
 .portrait-showcase.is-revealing .portrait-cracks {
