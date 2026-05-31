@@ -238,7 +238,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("pages/data/tsla-vs-spy.json"),
+        default=Path("tools/finance/tsla-vs-spy.json"),
         help="Output JSON path.",
     )
     return parser.parse_args()

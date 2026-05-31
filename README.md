@@ -22,14 +22,12 @@ The design should remain restrained, professional, and easy to share. It should 
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.
 - `data/`: root-level public data payloads.
   - `data/conviction_tsla_history.json`: TSLA transaction history plus the benchmark comparison used by `pages/conviction.html`.
-- `pages/data/`: legacy static JSON payloads retained for reference.
-  - `pages/data/tsla-vs-spy.json`: earlier owner-anonymized monthly TSLA-versus-SPY benchmark series.
 - `css/`: site CSS used by the portfolio.
 - `js/`: site JavaScript used by the portfolio and modals.
 - `assets/`: images and share assets referenced by public pages.
 - `tools/`: scripts grouped by domain.
   - `tools/koboforge/`: KoboForge companion tooling.
-  - `tools/finance/`: local-only financial data helpers, including the TSLA-versus-SPY benchmark generator and anonymized trade ledger.
+  - `tools/finance/`: local-only financial data helpers, including the TSLA-versus-SPY benchmark generator, the legacy benchmark snapshot, and the anonymized trade ledger.
 - `.nojekyll`: required so GitHub Pages serves this as static files.
 
 ## Local Development
@@ -54,7 +52,7 @@ To regenerate the older benchmark-only dataset:
 python3 tools/finance/generate_tsla_vs_spy.py
 ```
 
-The generator reads `tools/finance/tsla_trades_anonymized.csv` and fetches monthly TSLA/SPY history from the public endpoints recorded in `pages/data/tsla-vs-spy.json`.
+The generator reads `tools/finance/tsla_trades_anonymized.csv` and writes the legacy monthly TSLA/SPY snapshot to `tools/finance/tsla-vs-spy.json`.
 
 ## Seeking Biblical Truth Viewer
 

@@ -10,7 +10,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 IMPORT_PATH = REPO_ROOT / "data" / "tsla_transactions.csv"
 LEGACY_PATH = REPO_ROOT / "tools" / "finance" / "tsla_trades_anonymized.csv"
-PRICE_PATH = REPO_ROOT / "pages" / "data" / "tsla-vs-spy.json"
+PRICE_PATH = REPO_ROOT / "tools" / "finance" / "tsla-vs-spy.json"
 OUTPUT_PATH = REPO_ROOT / "data" / "conviction_tsla_history.json"
 POST_SPLIT_BASIS_DATE = date(2022, 8, 25)
 
