@@ -370,9 +370,9 @@ function initPortraitComparison() {
         }
 
         function isInteractiveTarget(target) {
-            return target instanceof Element && Boolean(
-                target !== compare && target.closest('a, button, input, textarea, select, summary, [role="button"]')
-            );
+            if (!(target instanceof Element)) return false;
+            const interactiveAncestor = target.closest('a, button, input, textarea, select, summary, [role="button"]');
+            return interactiveAncestor !== null && interactiveAncestor !== compare;
         }
 
         function triggerRock(level) {
