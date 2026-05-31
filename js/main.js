@@ -343,6 +343,7 @@ function initPortraitComparison() {
                 compare.style.removeProperty('--portrait-crack-one-y');
                 compare.style.removeProperty('--portrait-crack-two-x');
                 compare.style.removeProperty('--portrait-crack-two-y');
+                setReveal(50);
                 revealTimerId = null;
             }, 2000);
         }
