@@ -213,13 +213,19 @@ function initFadeIns() {
     });
 }
 
-// Allow OTHER CHAPTERS cards to close from anywhere inside the open card
+// Allow OTHER CHAPTERS cards to open/close from the full card surface
 function initChapterDisclosures() {
     document.querySelectorAll('.chapter-disclosure').forEach(disclosure => {
         disclosure.addEventListener('click', event => {
-            if (!disclosure.open || !(event.target instanceof Element)) return;
-            if (event.target.closest('summary')) return;
+            if (!(event.target instanceof Element)) return;
             if (event.target.closest('a, button, input, textarea, select, label')) return;
+            if (event.target.closest('summary')) return;
+
+            if (!disclosure.open) {
+                disclosure.setAttribute('open', '');
+                return;
+            }
+
             disclosure.removeAttribute('open');
         });
 
