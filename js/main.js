@@ -250,6 +250,11 @@ function initActiveNav() {
         'church-home': 'faith',
         'journey-documents': 'faith'
     };
+    const groupStartIds = {
+        portfolio: 'story',
+        connect: 'connect',
+        faith: 'reflections'
+    };
     const navLinks = Array.from(document.querySelectorAll('#nav [data-nav-group]'));
     const sectionLinks = Array.from(document.querySelectorAll('#nav .nav-submenu-link[href^="#"], #mobile-menu a[href^="#"]'));
     const clickableLinks = Array.from(document.querySelectorAll('#nav a[href^="#"], #mobile-menu a[href^="#"]'));
@@ -260,16 +265,29 @@ function initActiveNav() {
         .map(id => document.getElementById(id))
         .filter(Boolean)
         .sort((a, b) => a.offsetTop - b.offsetTop);
+    const sectionsByGroup = Object.fromEntries(
+        Object.keys(groupStartIds).map(group => [
+            group,
+            sections.filter(section => sectionGroups[section.id] === group)
+        ])
+    );
+    const groupSections = Object.entries(groupStartIds)
+        .map(([group, id]) => ({ group, element: document.getElementById(id) }))
+        .filter(entry => entry.element)
+        .sort((a, b) => a.element.offsetTop - b.element.offsetTop);
     let activeSectionId = null;
+    let activeGroupId = null;
     let ticking = false;
 
-    function setActiveSection(sectionId) {
-        if (!sectionId || activeSectionId === sectionId) return;
+    function setActiveSection(sectionId, groupId = sectionGroups[sectionId]) {
+        if (!sectionId || !groupId) return;
+        if (activeSectionId === sectionId && activeGroupId === groupId) return;
+
         activeSectionId = sectionId;
-        const activeGroup = sectionGroups[sectionId];
+        activeGroupId = groupId;
 
         navLinks.forEach(link => {
-            const isActive = link.dataset.navGroup === activeGroup;
+            const isActive = link.dataset.navGroup === groupId;
             link.classList.toggle('active', isActive);
             link.classList.toggle('text-white', isActive);
             link.classList.toggle('text-[#CBD5E1]', !isActive);
@@ -295,19 +313,30 @@ function initActiveNav() {
     function updateActiveSection() {
         ticking = false;
 
-        if (!sections.length) return;
+        if (!sections.length || !groupSections.length) return;
 
         const navHeight = document.getElementById('nav')?.offsetHeight ?? 80;
         const marker = window.scrollY + navHeight + 32;
-        let currentSection = sections[0];
+        let currentGroup = groupSections[0].group;
 
-        sections.forEach(section => {
+        groupSections.forEach(sectionEntry => {
+            if (sectionEntry.element.offsetTop <= marker) {
+                currentGroup = sectionEntry.group;
+            }
+        });
+
+        const currentGroupSections = sectionsByGroup[currentGroup] ?? [];
+        let currentSection = currentGroupSections[0] ?? document.getElementById(groupStartIds[currentGroup]);
+
+        currentGroupSections.forEach(section => {
             if (section.offsetTop <= marker) {
                 currentSection = section;
             }
         });
 
-        setActiveSection(currentSection.id);
+        if (currentSection) {
+            setActiveSection(currentSection.id, currentGroup);
+        }
     }
 
     function queueUpdate() {
