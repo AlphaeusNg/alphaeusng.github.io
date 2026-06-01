@@ -181,7 +181,7 @@ function initSmoothScroll() {
                 const navHeight = 80;
                 const targetScrollMargin = Number.parseFloat(window.getComputedStyle(target).scrollMarginTop) || 0;
                 const elementPosition = target.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - navHeight - targetScrollMargin;
+                const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - navHeight - targetScrollMargin);
 
                 window.scrollTo({
                     top: offsetPosition,
