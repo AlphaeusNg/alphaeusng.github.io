@@ -174,6 +174,25 @@ body {
     position: relative;
 }
 
+.nav-home-link {
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-home-title {
+    color: #F8FAFC;
+    transition: color 0.2s ease;
+}
+
+.nav-home-link:hover .nav-home-title,
+.nav-home-link:focus-visible .nav-home-title {
+    color: #E2E8F0;
+}
+
+.nav-home-link:hover {
+    transform: translateY(-1px);
+}
+
 .nav-pill {
     display: flex;
     flex-direction: column;
