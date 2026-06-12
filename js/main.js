@@ -84,15 +84,25 @@ function initExploreNavigation() {
         return menu.querySelector('.nav-submenu');
     }
 
-    function closeDesktopMenu(menu) {
+    function setDesktopMenuState(menu, isOpen) {
         if (!menu) return;
         const trigger = getDesktopTrigger(menu);
         const panel = getDesktopPanel(menu);
-        panel?.classList.add('hidden');
-        trigger?.setAttribute('aria-expanded', 'false');
-        if (openMenu === menu) {
+        if (!trigger || !panel) return;
+
+        panel.classList.toggle('is-open', isOpen);
+        panel.setAttribute('aria-hidden', String(!isOpen));
+        trigger.setAttribute('aria-expanded', String(isOpen));
+
+        if (isOpen) {
+            openMenu = menu;
+        } else if (openMenu === menu) {
             openMenu = null;
         }
+    }
+
+    function closeDesktopMenu(menu) {
+        setDesktopMenuState(menu, false);
     }
 
     function openDesktopMenu(menu) {
@@ -100,16 +110,13 @@ function initExploreNavigation() {
         if (openMenu && openMenu !== menu) {
             closeDesktopMenu(openMenu);
         }
-        const trigger = getDesktopTrigger(menu);
-        const panel = getDesktopPanel(menu);
-        panel?.classList.remove('hidden');
-        trigger?.setAttribute('aria-expanded', 'true');
-        openMenu = menu;
+        setDesktopMenuState(menu, true);
     }
 
     desktopMenus.forEach(menu => {
         let closeTimer = null;
-        const trigger = getDesktopTrigger(menu);
+
+        setDesktopMenuState(menu, false);
 
         function clearCloseTimer() {
             if (closeTimer) {
@@ -636,7 +643,9 @@ function initAccessibility() {
                     }
                 }
                 document.querySelectorAll('[data-nav-menu]').forEach(menuGroup => {
-                    menuGroup.querySelector('.nav-submenu')?.classList.add('hidden');
+                    const panel = menuGroup.querySelector('.nav-submenu');
+                    panel?.classList.remove('is-open');
+                    panel?.setAttribute('aria-hidden', 'true');
                     menuGroup.querySelector('.nav-pill')?.setAttribute('aria-expanded', 'false');
                 });
             }

@@ -78,17 +78,6 @@
             width: 100%;
         }
 
-        /* Explore dropdown (Task 1) — restrained gold accents, reuses existing tokens & Tailwind.
-           No impact on .nav-link behavior, active states, or scroll logic. */
-        #explore-dropdown {
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.25), 0 4px 6px -4px rgb(0 0 0 / 0.2);
-        }
-        .explore-link:focus-visible {
-            outline: 1px solid rgba(201, 162, 39, 0.45);
-            outline-offset: -1px;
-            background-color: rgba(255,255,255,0.06);
-        }
-
         .gold-accent {
             color: #C9A227;
         }
@@ -417,7 +406,7 @@
                             <span class="nav-pill-label">Portfolio</span>
                             <span class="nav-pill-meta">Resume + work</span>
                         </a>
-                        <div id="nav-submenu-portfolio" class="nav-submenu hidden" role="menu">
+                        <div id="nav-submenu-portfolio" class="nav-submenu" role="menu" aria-hidden="true">
                             <a href="#story" class="nav-submenu-link" role="menuitem">The Story</a>
                             <a href="#journey" class="nav-submenu-link" role="menuitem">Journey</a>
                             <a href="#craft" class="nav-submenu-link" role="menuitem">Projects</a>
@@ -430,7 +419,7 @@
                             <span class="nav-pill-label">Connect</span>
                             <span class="nav-pill-meta">Email + links</span>
                         </a>
-                        <div id="nav-submenu-connect" class="nav-submenu hidden" role="menu">
+                        <div id="nav-submenu-connect" class="nav-submenu" role="menu" aria-hidden="true">
                             <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">GitHub</a>
                             <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">LinkedIn</a>
                         </div>
@@ -440,7 +429,7 @@
                             <span class="nav-pill-label">Faith</span>
                             <span class="nav-pill-meta">Scripture + conviction</span>
                         </a>
-                        <div id="nav-submenu-faith" class="nav-submenu hidden" role="menu">
+                        <div id="nav-submenu-faith" class="nav-submenu" role="menu" aria-hidden="true">
                             <a href="#church-home" class="nav-submenu-link" role="menuitem">Church</a>
                             <a href="#journey-documents" class="nav-submenu-link" role="menuitem">Journey documents</a>
                             <a href="pages/seeking-biblical-truth/" class="nav-submenu-link" role="menuitem">Vault browser</a>
