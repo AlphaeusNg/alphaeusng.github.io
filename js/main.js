@@ -401,13 +401,16 @@ function initPortraitComparison() {
     document.querySelectorAll('[data-portrait-compare]').forEach(compare => {
         const showcase = compare.closest('[data-portrait-easter-egg]');
         const toggles = compare.parentElement?.querySelectorAll('[data-portrait-snap]') ?? [];
+        const resetButton = showcase?.querySelector('[data-portrait-reset]') ?? null;
         let pointerId = null;
         let isDragging = false;
         let isRevealing = false;
         let isRevealed = showcase ? showcase.classList.contains('is-revealed') : true;
+        let audioContext = null;
         let revealTimerId = null;
         let rockTimerId = null;
         let settleTimerId = null;
+        let tapTimerId = null;
         let clickStage = Number(showcase?.dataset.portraitClickStage ?? 0) || 0;
 
         function revealEasterEgg() {
@@ -425,14 +428,19 @@ function initPortraitComparison() {
                 showcase?.classList.add('is-revealed');
                 showcase?.removeAttribute('data-portrait-click-stage');
                 showcase?.removeAttribute('data-portrait-rock');
+                showcase?.removeAttribute('data-portrait-tap');
                 compare.removeAttribute('role');
                 compare.removeAttribute('aria-busy');
                 compare.setAttribute('aria-label', 'Swipeable portrait comparison between the polished portrait and the original photo');
                 compare.setAttribute('aria-expanded', 'true');
                 compare.style.removeProperty('--portrait-crack-one-x');
                 compare.style.removeProperty('--portrait-crack-one-y');
+                compare.style.removeProperty('--portrait-crack-one-scale-x');
+                compare.style.removeProperty('--portrait-crack-one-scale-y');
                 compare.style.removeProperty('--portrait-crack-two-x');
                 compare.style.removeProperty('--portrait-crack-two-y');
+                compare.style.removeProperty('--portrait-crack-two-scale-x');
+                compare.style.removeProperty('--portrait-crack-two-scale-y');
                 compare.classList.add('is-settling');
                 window.requestAnimationFrame(() => {
                     setReveal(50);
@@ -442,7 +450,7 @@ function initPortraitComparison() {
                     settleTimerId = null;
                 }, 380);
                 revealTimerId = null;
-            }, 2000);
+            }, 1480);
         }
 
         function clearRevealTimer() {
@@ -463,6 +471,164 @@ function initPortraitComparison() {
             settleTimerId = null;
         }
 
+        function clearTapTimer() {
+            if (tapTimerId === null) return;
+            window.clearTimeout(tapTimerId);
+            tapTimerId = null;
+        }
+
+        function playCrackTap(level) {
+            if (typeof window === 'undefined') return;
+            const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextCtor) return;
+
+            if (!audioContext) {
+                audioContext = new AudioContextCtor();
+            }
+
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().catch(() => {});
+            }
+
+            const now = audioContext.currentTime;
+            const levelScale = level === 'hard' ? 1 : 0.74;
+            const duration = level === 'hard' ? 0.34 : 0.26;
+            const master = audioContext.createGain();
+            const stressGain = audioContext.createGain();
+            const noiseGain = audioContext.createGain();
+            const lowPass = audioContext.createBiquadFilter();
+            const highPass = audioContext.createBiquadFilter();
+            const stressOsc = audioContext.createOscillator();
+            const stressOscUpper = audioContext.createOscillator();
+            const sampleRate = audioContext.sampleRate;
+            const buffer = audioContext.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
+            const channel = buffer.getChannelData(0);
+            let previousSample = 0;
+
+            for (let index = 0; index < channel.length; index += 1) {
+                const progress = index / channel.length;
+                const roughNoise = (Math.random() * 2 - 1) * (1 - progress);
+                previousSample = (previousSample * 0.74) + (roughNoise * 0.26);
+                channel[index] = previousSample * (0.85 - (progress * 0.3));
+            }
+
+            const noiseSource = audioContext.createBufferSource();
+            noiseSource.buffer = buffer;
+
+            lowPass.type = 'lowpass';
+            lowPass.frequency.setValueAtTime(level === 'hard' ? 1380 : 1120, now);
+            lowPass.Q.setValueAtTime(0.8, now);
+
+            highPass.type = 'highpass';
+            highPass.frequency.setValueAtTime(level === 'hard' ? 210 : 170, now);
+            highPass.Q.setValueAtTime(0.7, now);
+
+            master.gain.setValueAtTime(0.0001, now);
+            master.gain.exponentialRampToValueAtTime(0.11 * levelScale, now + 0.016);
+            master.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            noiseGain.gain.setValueAtTime(0.0001, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.095 * levelScale, now + 0.02);
+            noiseGain.gain.exponentialRampToValueAtTime(0.012 * levelScale, now + (duration * 0.52));
+            noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            stressGain.gain.setValueAtTime(0.0001, now);
+            stressGain.gain.exponentialRampToValueAtTime(0.032 * levelScale, now + 0.02);
+            stressGain.gain.exponentialRampToValueAtTime(0.0032 * levelScale, now + (duration * 0.72));
+            stressGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            stressOsc.type = 'triangle';
+            stressOsc.frequency.setValueAtTime(level === 'hard' ? 182 : 148, now);
+            stressOsc.frequency.exponentialRampToValueAtTime(level === 'hard' ? 76 : 62, now + duration);
+
+            stressOscUpper.type = 'sine';
+            stressOscUpper.frequency.setValueAtTime(level === 'hard' ? 328 : 272, now);
+            stressOscUpper.frequency.exponentialRampToValueAtTime(level === 'hard' ? 118 : 102, now + (duration * 0.84));
+
+            noiseSource.connect(lowPass);
+            lowPass.connect(highPass);
+            highPass.connect(noiseGain);
+            noiseGain.connect(master);
+
+            stressOsc.connect(stressGain);
+            stressOscUpper.connect(stressGain);
+            stressGain.connect(master);
+
+            master.connect(audioContext.destination);
+
+            noiseSource.start(now);
+            noiseSource.stop(now + duration);
+            stressOsc.start(now);
+            stressOscUpper.start(now + 0.01);
+            stressOsc.stop(now + duration);
+            stressOscUpper.stop(now + (duration * 0.86));
+        }
+
+        function triggerTapFeedback(level) {
+            if (!showcase) return;
+            clearTapTimer();
+            showcase.dataset.portraitTap = level;
+            tapTimerId = window.setTimeout(() => {
+                showcase.removeAttribute('data-portrait-tap');
+                tapTimerId = null;
+            }, level === 'hard' ? 220 : 180);
+
+            if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+                navigator.vibrate(level === 'hard' ? [10, 18, 12] : 10);
+            }
+
+            try {
+                playCrackTap(level);
+            } catch {
+                // Ignore audio failures; visual feedback still runs.
+            }
+        }
+
+        function animateRevealTo(target, duration = 240) {
+            clearSettleTimer();
+            compare.classList.add('is-settling');
+            setReveal(target);
+            settleTimerId = window.setTimeout(() => {
+                compare.classList.remove('is-settling');
+                settleTimerId = null;
+            }, duration);
+        }
+
+        function resetPortraitExperience() {
+            clearRevealTimer();
+            clearRockTimer();
+            clearSettleTimer();
+            clearTapTimer();
+            stopDragging();
+
+            isRevealing = false;
+            isRevealed = false;
+            clickStage = 0;
+
+            showcase?.classList.remove('is-revealing', 'is-revealed');
+            showcase?.removeAttribute('data-portrait-click-stage');
+            showcase?.removeAttribute('data-portrait-rock');
+            showcase?.removeAttribute('data-portrait-tap');
+
+            compare.classList.remove('is-settling');
+            compare.setAttribute('role', 'button');
+            compare.removeAttribute('aria-busy');
+            compare.setAttribute('aria-label', 'Portrait of Alphaeus Ng');
+            compare.setAttribute('aria-expanded', 'false');
+            if (resetButton) {
+                resetButton.textContent = 'Again?';
+            }
+            compare.style.removeProperty('--portrait-crack-one-x');
+            compare.style.removeProperty('--portrait-crack-one-y');
+            compare.style.removeProperty('--portrait-crack-one-scale-x');
+            compare.style.removeProperty('--portrait-crack-one-scale-y');
+            compare.style.removeProperty('--portrait-crack-two-x');
+            compare.style.removeProperty('--portrait-crack-two-y');
+            compare.style.removeProperty('--portrait-crack-two-scale-x');
+            compare.style.removeProperty('--portrait-crack-two-scale-y');
+            setReveal(100);
+        }
+
         function syncRevealState() {
             if (!isRevealed) return;
             compare.removeAttribute('role');
@@ -476,7 +642,7 @@ function initPortraitComparison() {
                 showcase.removeAttribute('data-portrait-click-stage');
                 return;
             }
-            showcase.dataset.portraitClickStage = String(Math.min(clickStage, 2));
+            showcase.dataset.portraitClickStage = String(Math.min(clickStage, 3));
         }
 
         function clamp(value) {
@@ -505,16 +671,20 @@ function initPortraitComparison() {
             if (!rect.width || !rect.height || typeof clientX !== 'number' || typeof clientY !== 'number') {
                 compare.style.setProperty(`${prefix}-x`, '50%');
                 compare.style.setProperty(`${prefix}-y`, '31%');
+                compare.style.setProperty(`${prefix}-scale-x`, '1');
+                compare.style.setProperty(`${prefix}-scale-y`, '1');
                 return;
             }
 
             const xPercent = clamp(((clientX - rect.left) / rect.width) * 100);
             const yPercent = clamp(((clientY - rect.top) / rect.height) * 100);
-            const clampedX = Math.min(86, Math.max(14, xPercent));
-            const clampedY = Math.min(78, Math.max(14, yPercent));
+            const inwardScaleX = xPercent >= 50 ? -1 : 1;
+            const inwardScaleY = yPercent >= 56 ? -1 : 1;
 
-            compare.style.setProperty(`${prefix}-x`, `${clampedX}%`);
-            compare.style.setProperty(`${prefix}-y`, `${clampedY}%`);
+            compare.style.setProperty(`${prefix}-x`, `${xPercent}%`);
+            compare.style.setProperty(`${prefix}-y`, `${yPercent}%`);
+            compare.style.setProperty(`${prefix}-scale-x`, String(inwardScaleX));
+            compare.style.setProperty(`${prefix}-scale-y`, String(inwardScaleY));
         }
 
         function handleHiddenClick(event) {
@@ -525,13 +695,20 @@ function initPortraitComparison() {
             syncClickStage();
 
             if (clickStage === 1) {
+                triggerTapFeedback('soft');
                 triggerRock('soft');
                 return;
             }
 
             if (clickStage === 2) {
+                triggerTapFeedback('hard');
                 triggerRock('hard');
                 return;
+            }
+
+            if (clickStage === 3) {
+                triggerTapFeedback('hard');
+                triggerRock('hard');
             }
 
             revealEasterEgg();
@@ -625,8 +802,12 @@ function initPortraitComparison() {
 
         toggles.forEach(toggle => {
             toggle.addEventListener('click', () => {
-                setReveal(Number(toggle.dataset.portraitSnap));
+                animateRevealTo(Number(toggle.dataset.portraitSnap), 230);
             });
+        });
+
+        resetButton?.addEventListener('click', () => {
+            resetPortraitExperience();
         });
 
         syncRevealState();
@@ -637,6 +818,7 @@ function initPortraitComparison() {
         window.addEventListener('beforeunload', clearRevealTimer, { once: true });
         window.addEventListener('beforeunload', clearRockTimer, { once: true });
         window.addEventListener('beforeunload', clearSettleTimer, { once: true });
+        window.addEventListener('beforeunload', clearTapTimer, { once: true });
     });
 }
 
