@@ -302,28 +302,31 @@ body {
         linear-gradient(180deg, rgba(10, 15, 28, 0.975), rgba(13, 19, 33, 0.965));
     backdrop-filter: blur(16px);
     box-shadow: 0 26px 60px rgba(2, 6, 23, 0.42);
-    opacity: 0;
+    opacity: 0.72;
     visibility: hidden;
     pointer-events: none;
-    transform: translateY(4px);
+    clip-path: inset(0 0 100% 0 round 0 0 1.55rem 1.55rem);
+    transform: scaleY(0.94);
     transform-origin: top left;
-    transition: opacity 180ms ease, transform 180ms ease, visibility 0s linear 180ms;
+    transition: opacity 180ms ease, clip-path 220ms ease, transform 220ms ease, visibility 0s linear 220ms;
 }
 
 .nav-submenu.is-open {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateY(0);
+    clip-path: inset(0 0 0 0 round 0 0 1.55rem 1.55rem);
+    transform: scaleY(1);
     transition-delay: 0s;
 }
 
-.nav-menu:hover .nav-submenu,
-.nav-menu:focus-within .nav-submenu {
+.nav-menu:not(.nav-menu--suppress-hover):hover .nav-submenu,
+.nav-menu:not(.nav-menu--suppress-hover):focus-within .nav-submenu {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateY(0);
+    clip-path: inset(0 0 0 0 round 0 0 1.55rem 1.55rem);
+    transform: scaleY(1);
     transition-delay: 0s;
 }
 
@@ -331,8 +334,8 @@ body {
     z-index: 2;
 }
 
-.nav-menu:hover .nav-pill,
-.nav-menu:focus-within .nav-pill,
+.nav-menu:not(.nav-menu--suppress-hover):hover .nav-pill,
+.nav-menu:not(.nav-menu--suppress-hover):focus-within .nav-pill,
 .nav-menu .nav-pill[aria-expanded="true"] {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;

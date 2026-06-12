@@ -132,18 +132,34 @@ function initExploreNavigation() {
 
         menu.addEventListener('mouseenter', () => {
             clearCloseTimer();
+            menu.classList.remove('nav-menu--suppress-hover');
             openDesktopMenu(menu);
         });
 
-        menu.addEventListener('mouseleave', queueClose);
+        menu.addEventListener('mouseleave', () => {
+            menu.classList.remove('nav-menu--suppress-hover');
+            queueClose();
+        });
         menu.addEventListener('focusin', () => {
             clearCloseTimer();
+            menu.classList.remove('nav-menu--suppress-hover');
             openDesktopMenu(menu);
         });
         menu.addEventListener('focusout', event => {
             if (!menu.contains(event.relatedTarget)) {
                 queueClose();
             }
+        });
+
+        menu.querySelectorAll('.nav-submenu-link[href^="#"]').forEach(link => {
+            link.addEventListener('click', () => {
+                clearCloseTimer();
+                menu.classList.add('nav-menu--suppress-hover');
+                closeDesktopMenu(menu);
+                if (document.activeElement instanceof HTMLElement) {
+                    document.activeElement.blur();
+                }
+            });
         });
 
     });
@@ -185,10 +201,11 @@ function initSmoothScroll() {
             const target = document.querySelector(href);
             if (target) {
                 e.preventDefault();
-                const navHeight = 80;
+                const navHeight = document.getElementById('nav')?.offsetHeight ?? 80;
                 const targetScrollMargin = Number.parseFloat(window.getComputedStyle(target).scrollMarginTop) || 0;
+                const targetOffset = Math.max(navHeight, targetScrollMargin);
                 const elementPosition = target.getBoundingClientRect().top;
-                const offsetPosition = Math.max(0, elementPosition + window.pageYOffset - navHeight - targetScrollMargin);
+                const offsetPosition = elementPosition + window.pageYOffset - targetOffset;
 
                 window.scrollTo({
                     top: offsetPosition,
@@ -285,6 +302,17 @@ function initActiveNav() {
     let activeSectionId = null;
     let activeGroupId = null;
     let ticking = false;
+    const activationSlack = 24;
+
+    function getNavHeight() {
+        return document.getElementById('nav')?.offsetHeight ?? 80;
+    }
+
+    function getSectionActivationTop(section) {
+        if (!section) return Number.NEGATIVE_INFINITY;
+        const scrollMarginTop = Number.parseFloat(window.getComputedStyle(section).scrollMarginTop) || 0;
+        return Math.max(0, section.offsetTop - getNavHeight() - scrollMarginTop);
+    }
 
     function setActiveSection(sectionId, groupId = sectionGroups[sectionId]) {
         if (!sectionId || !groupId) return;
@@ -322,12 +350,11 @@ function initActiveNav() {
 
         if (!sections.length || !groupSections.length) return;
 
-        const navHeight = document.getElementById('nav')?.offsetHeight ?? 80;
-        const marker = window.scrollY + navHeight + 32;
+        const scrollPosition = window.scrollY;
         let currentGroup = groupSections[0].group;
 
         groupSections.forEach(sectionEntry => {
-            if (sectionEntry.element.offsetTop <= marker) {
+            if (getSectionActivationTop(sectionEntry.element) <= scrollPosition + activationSlack) {
                 currentGroup = sectionEntry.group;
             }
         });
@@ -336,7 +363,7 @@ function initActiveNav() {
         let currentSection = currentGroupSections[0] ?? document.getElementById(groupStartIds[currentGroup]);
 
         currentGroupSections.forEach(section => {
-            if (section.offsetTop <= marker) {
+            if (getSectionActivationTop(section) <= scrollPosition + activationSlack) {
                 currentSection = section;
             }
         });
@@ -358,6 +385,8 @@ function initActiveNav() {
         if (!targetId || !sectionGroups[targetId]) return;
         link.addEventListener('click', () => {
             setActiveSection(targetId);
+            window.requestAnimationFrame(queueUpdate);
+            window.setTimeout(queueUpdate, 180);
             window.setTimeout(queueUpdate, 360);
         });
     });
