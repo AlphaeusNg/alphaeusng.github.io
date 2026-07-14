@@ -43,54 +43,19 @@ body {
    ============================================================ */
 body a {
     color: var(--gold) !important;
-    text-decoration: none;
-    text-underline-offset: 0.16em;
-    transition: color 0.15s ease, text-decoration-color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+    text-decoration: none !important;
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
 }
 
 body a:hover,
 body a:focus-visible {
     color: var(--gold-hover) !important;
+    text-decoration: none !important;
 }
 
 body a:focus-visible {
     outline: 1px solid rgba(201, 162, 39, 0.45);
     outline-offset: 2px;
-}
-
-/* Soft underline on in-paragraph links only (not card/button shells) */
-body .prose-elegant a,
-body .case-study a,
-body #story .prose-elegant a,
-body #journey p a,
-body #craft .card p a,
-body #thoughts p a,
-body #reflections p a,
-body #reflections .space-y-5 a,
-body footer a {
-    text-decoration: underline;
-    text-decoration-color: rgba(201, 162, 39, 0.32);
-    text-decoration-thickness: 1px;
-}
-
-body .prose-elegant a:hover,
-body .case-study a:hover,
-body #story .prose-elegant a:hover,
-body #journey p a:hover,
-body #craft .card p a:hover,
-body #thoughts p a:hover,
-body #reflections p a:hover,
-body #reflections .space-y-5 a:hover,
-body footer a:hover {
-    text-decoration-color: rgba(232, 197, 71, 0.8);
-}
-
-/* Card / tile anchors stay gold without underline clutter */
-body #craft .card a.linkish,
-body #craft a[href^="pages/"],
-body #craft a[href^="http"],
-body #connect a {
-    text-decoration: none;
 }
 
 /* Filled white CTA (e.g. Download CV) */
@@ -1217,14 +1182,12 @@ button.portrait-phone-status:focus-visible {
 
 .portrait-note a {
     color: var(--gold);
-    text-decoration: underline;
-    text-decoration-color: rgba(201, 162, 39, 0.4);
-    text-underline-offset: 0.14em;
+    text-decoration: none;
 }
 
 .portrait-note a:hover {
     color: var(--gold-hover);
-    text-decoration-color: rgba(232, 197, 71, 0.8);
+    text-decoration: none;
 }
 
 .portrait-phone-footer {

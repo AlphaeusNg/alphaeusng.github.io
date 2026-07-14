@@ -18,7 +18,7 @@
     .note-body h1, .note-body h2, .note-body h3, .note-body h4 { color: #F8FAFC; font-weight: 650; margin: 1rem 0 .45rem; line-height: 1.2; }
     .note-body p { margin: .65rem 0; }
     .note-body a { color: #C9A227; text-decoration: none; }
-    .note-body a:hover { color: #F8FAFC; text-decoration: underline; }
+    .note-body a:hover { color: #E8C547; text-decoration: none; }
     .note-body ul, .note-body ol { margin: .8rem 0 .8rem 1.25rem; padding-left: 1rem; }
     .note-body li { margin: .35rem 0; }
     .note-body blockquote { margin: 1rem 0; padding: .1rem 0 .1rem 1rem; border-left: 2px solid rgba(201,162,39,.55); color: #CBD5E1; }
@@ -314,7 +314,7 @@
       state.selected = d;
       const outgoing = state.data.links.filter(l => l.source === d.id || (l.source.id === d.id)).map(l => l.target.id || l.target);
       const incoming = state.data.links.filter(l => l.target === d.id || (l.target.id === d.id)).map(l => l.source.id || l.source);
-      const relatedList = ids => ids.filter(id => state.byId[id] && state.byId[id].type !== 'folder').slice(0, 12).map(id => `<button class="block text-left text-[#C9A227] hover:underline" data-node="${esc(id)}">${esc(state.byId[id].title)}</button>`).join('') || '<span class="text-[#64748B]">None</span>';
+      const relatedList = ids => ids.filter(id => state.byId[id] && state.byId[id].type !== 'folder').slice(0, 12).map(id => `<button class="block text-left text-[#C9A227] hover:text-[#E8C547]" data-node="${esc(id)}">${esc(state.byId[id].title)}</button>`).join('') || '<span class="text-[#64748B]">None</span>';
       document.getElementById('note-panel').innerHTML = `
         <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">${esc(d.group)} / ${esc(d.type)}</div>
         <h2 class="mt-2 text-2xl font-semibold tracking-tight">${esc(d.title)}</h2>
