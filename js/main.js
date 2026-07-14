@@ -1534,7 +1534,6 @@ function init() {
     initPortraitComparison();
     initAccessibility();
     
-    console.log('%c[Alphaeus Ng Portfolio] Main JS initialized. Structured & cleaned.', 'color:#475569;font-size:9px');
 }
 
 if (document.readyState === 'loading') {
