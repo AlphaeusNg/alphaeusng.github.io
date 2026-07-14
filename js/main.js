@@ -1521,6 +1521,26 @@ function initAccessibility() {
     });
 }
 
+function initArcadePrefetch() {
+    // Warm the arcade shell when a user shows intent — project page is separate.
+    const links = document.querySelectorAll('a[href*="AlpArcade"]');
+    if (!links.length) return;
+    let done = false;
+    const warm = () => {
+        if (done) return;
+        done = true;
+        const tip = document.createElement('link');
+        tip.rel = 'prefetch';
+        tip.href = 'https://alphaeusng.github.io/AlpArcade/';
+        tip.as = 'document';
+        document.head.appendChild(tip);
+    };
+    links.forEach((a) => {
+        a.addEventListener('pointerenter', warm, { once: true });
+        a.addEventListener('focus', warm, { once: true });
+    });
+}
+
 // Boot everything
 function init() {
     initTailwind();
@@ -1533,7 +1553,7 @@ function init() {
     initActiveNav();
     initPortraitComparison();
     initAccessibility();
-    
+    initArcadePrefetch();
 }
 
 if (document.readyState === 'loading') {
