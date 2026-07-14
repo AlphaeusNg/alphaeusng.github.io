@@ -17,23 +17,24 @@
     <meta name="twitter:image" content="https://alphaeusng.github.io/assets/alphaeus-portrait.jpg">
     <link rel="canonical" href="https://alphaeusng.github.io/">
     <link rel="icon" href="assets/alphaeus-portrait.jpg" type="image/jpeg">
+
+    <!-- Resource hints: critical third parties only -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.google.com">
     
-    <!-- Tailwind CSS (CDN - zero build) -->
+    <!-- Tailwind CSS (CDN - zero build). D3 / html2canvas intentionally omitted here:
+         the knowledge-graph case study embeds pages/seeking-biblical-truth/ via iframe. -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- D3.js v7 -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <!-- html2canvas for PNG export in the knowledge graph -->
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
-    <!-- Elegant Fonts -->
+    <!-- Elegant Fonts (single load; avoid duplicate @import in <style>) -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap">
     
     <!-- Custom CSS (extracted from monolithic HTML) -->
     <link rel="stylesheet" href="css/main.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap');
-        
         :root {
             --gold: #C9A227;
             /* Responsive Knowledge Graph heights (used by #kg-modal-root + sub-layouts).
@@ -570,15 +571,22 @@
                                     src="assets/alphaeus-portrait-original.jpg"
                                     alt="Portrait of Alphaeus Ng"
                                     class="portrait-image portrait-image-original"
+                                    width="400"
+                                    height="508"
                                     draggable="false"
-                                    loading="eager">
+                                    loading="eager"
+                                    decoding="async"
+                                    fetchpriority="high">
                                 <div class="portrait-overlay">
                                     <img
                                         src="assets/alphaeus-portrait.jpg"
                                         alt="Polished portrait of Alphaeus Ng"
                                         class="portrait-image portrait-image-generated"
+                                        width="896"
+                                        height="1152"
                                         draggable="false"
-                                        loading="eager">
+                                        loading="eager"
+                                        decoding="async">
                                 </div>
                                 <!-- Procedural shatter FX layers (populated by js/main.js on click) -->
                                 <div class="portrait-fx-flash" aria-hidden="true"></div>
@@ -1223,8 +1231,8 @@
       </div>
     </template>
 
-    <!-- External modular JavaScript -->
-    <script src="js/main.js"></script>
-    <script src="js/modals.js"></script>
+    <!-- External modular JavaScript (defer so HTML paints first) -->
+    <script src="js/main.js" defer></script>
+    <script src="js/modals.js" defer></script>
 </body>
 </html>

@@ -26,13 +26,15 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 
 ## Deployment
 
-GitHub Pages serves the repository root from `main`. The current site is zero-build static HTML/CSS/JS. `.nojekyll` is present, so GitHub Pages will not run Jekyll processing.
+GitHub Pages serves the repository root from `main`. The current site is zero-build static HTML/CSS/JS. `.nojekyll` must be present so GitHub Pages will not run Jekyll processing (restored if missing).
 
 ## Known Issues And Risks
 
 - Some prior commits attempted to deploy binary assets but the cloned repo contained text placeholders. Verify with `file assets/alphaeus-portrait.jpg`.
 - GitHub Pages paths are case-sensitive. Use `pages/seeking-biblical-truth/` for the canonical viewer path.
 - The site depends on third-party CDNs. Local rendering requires network access for full styling/scripts.
+- Main `index.html` does **not** need D3 or html2canvas — the knowledge-graph case study uses an iframe to `pages/seeking-biblical-truth/`. Keep those heavy libs off the home page.
+- Fonts should be loaded once via `<link>` in each HTML entry; avoid duplicate `@import` in CSS/inline styles.
 - The Biblical Truth viewer now defaults to rendered Markdown previews and offers a raw-source toggle. Verify both modes after viewer edits.
 - Local resume PDFs/DOCX may become stale. The canonical resume share target is the provided Google Drive link.
 - The conviction page is intentionally static and should not load private spreadsheets in the browser. Regenerate `data/conviction_tsla_history.json` from `data/tsla_transactions.csv` when the source ledger changes.

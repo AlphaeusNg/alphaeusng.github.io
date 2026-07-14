@@ -33,7 +33,7 @@ The design should remain restrained, professional, and easy to share. It should 
 ## Local Development
 
 ```bash
-cd /home/alph/codex/alphaeusng.github.io
+cd alphaeusng.github.io   # or your local clone path
 python3 -m http.server 8000
 ```
 

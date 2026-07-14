@@ -1,7 +1,5 @@
-/* Custom styles for Alphaeus Ng portfolio - extracted from monolithic HTML for maintainability */
-
-/* Base typography & variables (kept for compatibility with existing inline styles) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap');
+/* Custom styles for Alphaeus Ng portfolio - extracted from monolithic HTML for maintainability.
+   Fonts are loaded once from index.html / page <link> tags — do not re-@import here. */
 
 :root {
     --gold: #C9A227;

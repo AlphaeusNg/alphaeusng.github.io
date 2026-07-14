@@ -839,91 +839,387 @@ function initPortraitComparison() {
             tapTimerId = null;
         }
 
-        function playCrackTap(level) {
-            if (typeof window === 'undefined') return;
+        function ensureAudioContext() {
+            if (typeof window === 'undefined') return null;
+            if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return null;
+
             const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContextCtor) return;
+            if (!AudioContextCtor) return null;
 
             if (!audioContext) {
                 audioContext = new AudioContextCtor();
             }
-
             if (audioContext.state === 'suspended') {
                 audioContext.resume().catch(() => {});
             }
+            return audioContext;
+        }
 
-            const now = audioContext.currentTime;
-            const levelScale = level === 'hard' ? 1 : 0.74;
-            const duration = level === 'hard' ? 0.34 : 0.26;
-            const master = audioContext.createGain();
-            const stressGain = audioContext.createGain();
-            const noiseGain = audioContext.createGain();
-            const lowPass = audioContext.createBiquadFilter();
-            const highPass = audioContext.createBiquadFilter();
-            const stressOsc = audioContext.createOscillator();
-            const stressOscUpper = audioContext.createOscillator();
-            const sampleRate = audioContext.sampleRate;
-            const buffer = audioContext.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
-            const channel = buffer.getChannelData(0);
-            let previousSample = 0;
+        function createNoiseBuffer(ctx, durationSec, color = 'white') {
+            const length = Math.max(1, Math.ceil(ctx.sampleRate * durationSec));
+            const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            let brown = 0;
+            let pink0 = 0;
+            let pink1 = 0;
+            let pink2 = 0;
 
-            for (let index = 0; index < channel.length; index += 1) {
-                const progress = index / channel.length;
-                const roughNoise = (Math.random() * 2 - 1) * (1 - progress);
-                previousSample = (previousSample * 0.74) + (roughNoise * 0.26);
-                channel[index] = previousSample * (0.85 - (progress * 0.3));
+            for (let i = 0; i < length; i += 1) {
+                const white = Math.random() * 2 - 1;
+                if (color === 'brown') {
+                    brown = (brown + (0.02 * white)) / 1.02;
+                    data[i] = brown * 3.5;
+                } else if (color === 'pink') {
+                    pink0 = (0.99886 * pink0) + (white * 0.0555179);
+                    pink1 = (0.99332 * pink1) + (white * 0.0750759);
+                    pink2 = (0.96900 * pink2) + (white * 0.1538520);
+                    data[i] = (pink0 + pink1 + pink2 + (white * 0.1848)) * 0.33;
+                } else {
+                    data[i] = white;
+                }
+            }
+            return buffer;
+        }
+
+        function playTone(ctx, destination, {
+            type = 'sine',
+            frequency,
+            endFrequency,
+            when,
+            duration,
+            peak = 0.04,
+            attack = 0.004,
+            detune = 0
+        }) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(frequency, when);
+            if (typeof endFrequency === 'number') {
+                osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFrequency), when + duration);
+            }
+            if (detune) osc.detune.setValueAtTime(detune, when);
+            gain.gain.setValueAtTime(0.0001, when);
+            gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), when + attack);
+            gain.gain.exponentialRampToValueAtTime(0.0001, when + duration);
+            osc.connect(gain);
+            gain.connect(destination);
+            osc.start(when);
+            osc.stop(when + duration + 0.02);
+        }
+
+        function createMasterBus(ctx) {
+            const master = ctx.createGain();
+            const compressor = ctx.createDynamicsCompressor();
+            compressor.threshold.setValueAtTime(-18, ctx.currentTime);
+            compressor.knee.setValueAtTime(18, ctx.currentTime);
+            compressor.ratio.setValueAtTime(3.2, ctx.currentTime);
+            compressor.attack.setValueAtTime(0.003, ctx.currentTime);
+            compressor.release.setValueAtTime(0.14, ctx.currentTime);
+            master.gain.value = 0.9;
+            master.connect(compressor);
+            compressor.connect(ctx.destination);
+            return master;
+        }
+
+        // Layered procedural glass: soft tick → hard crack → full shatter cascade.
+        function playGlassSound(kind = 'soft') {
+            const ctx = ensureAudioContext();
+            if (!ctx) return;
+
+            const now = ctx.currentTime + 0.01;
+            const master = createMasterBus(ctx);
+
+            if (kind === 'soft') {
+                // Thin glass tick — high, short, almost delicate.
+                const transient = createNoiseBuffer(ctx, 0.045, 'white');
+                const crackle = createNoiseBuffer(ctx, 0.12, 'pink');
+
+                const hp = ctx.createBiquadFilter();
+                hp.type = 'highpass';
+                hp.frequency.value = 1800;
+                hp.Q.value = 0.7;
+
+                const bp = ctx.createBiquadFilter();
+                bp.type = 'bandpass';
+                bp.frequency.value = 4200;
+                bp.Q.value = 1.1;
+
+                const tGain = ctx.createGain();
+                tGain.gain.setValueAtTime(0.0001, now);
+                tGain.gain.exponentialRampToValueAtTime(0.16, now + 0.003);
+                tGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+
+                const tSrc = ctx.createBufferSource();
+                tSrc.buffer = transient;
+                tSrc.connect(hp);
+                hp.connect(bp);
+                bp.connect(tGain);
+                tGain.connect(master);
+                tSrc.start(now);
+                tSrc.stop(now + 0.06);
+
+                const cHp = ctx.createBiquadFilter();
+                cHp.type = 'highpass';
+                cHp.frequency.value = 1200;
+                const cGain = ctx.createGain();
+                cGain.gain.setValueAtTime(0.0001, now);
+                cGain.gain.exponentialRampToValueAtTime(0.04, now + 0.008);
+                cGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.11);
+                const cSrc = ctx.createBufferSource();
+                cSrc.buffer = crackle;
+                cSrc.playbackRate.value = 1.15;
+                cSrc.connect(cHp);
+                cHp.connect(cGain);
+                cGain.connect(master);
+                cSrc.start(now);
+                cSrc.stop(now + 0.12);
+
+                // Quiet crystalline ring.
+                playTone(ctx, master, {
+                    type: 'sine',
+                    frequency: 2650 + rand(-80, 120),
+                    endFrequency: 1480,
+                    when: now,
+                    duration: 0.22,
+                    peak: 0.018,
+                    attack: 0.002
+                });
+                playTone(ctx, master, {
+                    type: 'triangle',
+                    frequency: 980 + rand(-40, 40),
+                    endFrequency: 520,
+                    when: now + 0.004,
+                    duration: 0.16,
+                    peak: 0.01,
+                    attack: 0.003
+                });
+                return;
             }
 
-            const noiseSource = audioContext.createBufferSource();
-            noiseSource.buffer = buffer;
+            if (kind === 'hard') {
+                // Deeper impact + spidering glass.
+                const impact = createNoiseBuffer(ctx, 0.08, 'brown');
+                const shard = createNoiseBuffer(ctx, 0.28, 'pink');
+                const dust = createNoiseBuffer(ctx, 0.18, 'white');
 
-            lowPass.type = 'lowpass';
-            lowPass.frequency.setValueAtTime(level === 'hard' ? 1380 : 1120, now);
-            lowPass.Q.setValueAtTime(0.8, now);
+                const impactLp = ctx.createBiquadFilter();
+                impactLp.type = 'lowpass';
+                impactLp.frequency.value = 900;
+                impactLp.Q.value = 0.8;
+                const impactGain = ctx.createGain();
+                impactGain.gain.setValueAtTime(0.0001, now);
+                impactGain.gain.exponentialRampToValueAtTime(0.22, now + 0.004);
+                impactGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+                const impactSrc = ctx.createBufferSource();
+                impactSrc.buffer = impact;
+                impactSrc.connect(impactLp);
+                impactLp.connect(impactGain);
+                impactGain.connect(master);
+                impactSrc.start(now);
+                impactSrc.stop(now + 0.14);
 
-            highPass.type = 'highpass';
-            highPass.frequency.setValueAtTime(level === 'hard' ? 210 : 170, now);
-            highPass.Q.setValueAtTime(0.7, now);
+                const shardBp = ctx.createBiquadFilter();
+                shardBp.type = 'bandpass';
+                shardBp.frequency.setValueAtTime(2400, now);
+                shardBp.frequency.exponentialRampToValueAtTime(1100, now + 0.22);
+                shardBp.Q.value = 0.9;
+                const shardHp = ctx.createBiquadFilter();
+                shardHp.type = 'highpass';
+                shardHp.frequency.value = 450;
+                const shardGain = ctx.createGain();
+                shardGain.gain.setValueAtTime(0.0001, now);
+                shardGain.gain.exponentialRampToValueAtTime(0.13, now + 0.01);
+                shardGain.gain.exponentialRampToValueAtTime(0.02, now + 0.12);
+                shardGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+                const shardSrc = ctx.createBufferSource();
+                shardSrc.buffer = shard;
+                shardSrc.playbackRate.value = 0.92 + rand(0, 0.12);
+                shardSrc.connect(shardHp);
+                shardHp.connect(shardBp);
+                shardBp.connect(shardGain);
+                shardGain.connect(master);
+                shardSrc.start(now);
+                shardSrc.stop(now + 0.3);
 
-            master.gain.setValueAtTime(0.0001, now);
-            master.gain.exponentialRampToValueAtTime(0.11 * levelScale, now + 0.016);
-            master.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+                // Secondary micro-crack a few ms later.
+                const dustHp = ctx.createBiquadFilter();
+                dustHp.type = 'highpass';
+                dustHp.frequency.value = 2200;
+                const dustGain = ctx.createGain();
+                dustGain.gain.setValueAtTime(0.0001, now + 0.028);
+                dustGain.gain.exponentialRampToValueAtTime(0.07, now + 0.034);
+                dustGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+                const dustSrc = ctx.createBufferSource();
+                dustSrc.buffer = dust;
+                dustSrc.playbackRate.value = 1.35;
+                dustSrc.connect(dustHp);
+                dustHp.connect(dustGain);
+                dustGain.connect(master);
+                dustSrc.start(now + 0.028);
+                dustSrc.stop(now + 0.18);
 
-            noiseGain.gain.setValueAtTime(0.0001, now);
-            noiseGain.gain.exponentialRampToValueAtTime(0.095 * levelScale, now + 0.02);
-            noiseGain.gain.exponentialRampToValueAtTime(0.012 * levelScale, now + (duration * 0.52));
-            noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+                playTone(ctx, master, {
+                    type: 'triangle',
+                    frequency: 210 + rand(-20, 20),
+                    endFrequency: 78,
+                    when: now,
+                    duration: 0.28,
+                    peak: 0.045,
+                    attack: 0.003
+                });
+                playTone(ctx, master, {
+                    type: 'sine',
+                    frequency: 1680 + rand(-100, 100),
+                    endFrequency: 640,
+                    when: now + 0.006,
+                    duration: 0.24,
+                    peak: 0.028,
+                    attack: 0.002
+                });
+                playTone(ctx, master, {
+                    type: 'sine',
+                    frequency: 3200 + rand(-150, 150),
+                    endFrequency: 1400,
+                    when: now + 0.01,
+                    duration: 0.18,
+                    peak: 0.014,
+                    attack: 0.002
+                });
+                return;
+            }
 
-            stressGain.gain.setValueAtTime(0.0001, now);
-            stressGain.gain.exponentialRampToValueAtTime(0.032 * levelScale, now + 0.02);
-            stressGain.gain.exponentialRampToValueAtTime(0.0032 * levelScale, now + (duration * 0.72));
-            stressGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+            // Full shatter — impact, cascading shards, falling debris.
+            const body = createNoiseBuffer(ctx, 0.55, 'pink');
+            const thrash = createNoiseBuffer(ctx, 0.4, 'white');
+            const boom = createNoiseBuffer(ctx, 0.35, 'brown');
 
-            stressOsc.type = 'triangle';
-            stressOsc.frequency.setValueAtTime(level === 'hard' ? 182 : 148, now);
-            stressOsc.frequency.exponentialRampToValueAtTime(level === 'hard' ? 76 : 62, now + duration);
+            const boomLp = ctx.createBiquadFilter();
+            boomLp.type = 'lowpass';
+            boomLp.frequency.value = 280;
+            const boomGain = ctx.createGain();
+            boomGain.gain.setValueAtTime(0.0001, now);
+            boomGain.gain.exponentialRampToValueAtTime(0.28, now + 0.008);
+            boomGain.gain.exponentialRampToValueAtTime(0.04, now + 0.16);
+            boomGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+            const boomSrc = ctx.createBufferSource();
+            boomSrc.buffer = boom;
+            boomSrc.connect(boomLp);
+            boomLp.connect(boomGain);
+            boomGain.connect(master);
+            boomSrc.start(now);
+            boomSrc.stop(now + 0.45);
 
-            stressOscUpper.type = 'sine';
-            stressOscUpper.frequency.setValueAtTime(level === 'hard' ? 328 : 272, now);
-            stressOscUpper.frequency.exponentialRampToValueAtTime(level === 'hard' ? 118 : 102, now + (duration * 0.84));
+            const bodyBp = ctx.createBiquadFilter();
+            bodyBp.type = 'bandpass';
+            bodyBp.frequency.setValueAtTime(1800, now);
+            bodyBp.frequency.exponentialRampToValueAtTime(520, now + 0.45);
+            bodyBp.Q.value = 0.65;
+            const bodyGain = ctx.createGain();
+            bodyGain.gain.setValueAtTime(0.0001, now);
+            bodyGain.gain.exponentialRampToValueAtTime(0.2, now + 0.012);
+            bodyGain.gain.exponentialRampToValueAtTime(0.05, now + 0.22);
+            bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+            const bodySrc = ctx.createBufferSource();
+            bodySrc.buffer = body;
+            bodySrc.playbackRate.value = 0.88;
+            bodySrc.connect(bodyBp);
+            bodyBp.connect(bodyGain);
+            bodyGain.connect(master);
+            bodySrc.start(now);
+            bodySrc.stop(now + 0.58);
 
-            noiseSource.connect(lowPass);
-            lowPass.connect(highPass);
-            highPass.connect(noiseGain);
-            noiseGain.connect(master);
+            // Cascading glass bursts.
+            for (let i = 0; i < 5; i += 1) {
+                const t = now + 0.02 + (i * 0.038) + rand(0, 0.012);
+                const rate = 1.05 + (i * 0.12) + rand(0, 0.08);
+                const peak = 0.09 - (i * 0.012);
+                const burstHp = ctx.createBiquadFilter();
+                burstHp.type = 'highpass';
+                burstHp.frequency.value = 1400 + (i * 380);
+                const burstBp = ctx.createBiquadFilter();
+                burstBp.type = 'bandpass';
+                burstBp.frequency.value = 2800 + (i * 420);
+                burstBp.Q.value = 1.2;
+                const burstGain = ctx.createGain();
+                burstGain.gain.setValueAtTime(0.0001, t);
+                burstGain.gain.exponentialRampToValueAtTime(Math.max(0.012, peak), t + 0.004);
+                burstGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.11 + rand(0, 0.04));
+                const burstSrc = ctx.createBufferSource();
+                burstSrc.buffer = thrash;
+                burstSrc.playbackRate.value = rate;
+                burstSrc.connect(burstHp);
+                burstHp.connect(burstBp);
+                burstBp.connect(burstGain);
+                burstGain.connect(master);
+                burstSrc.start(t);
+                burstSrc.stop(t + 0.2);
+            }
 
-            stressOsc.connect(stressGain);
-            stressOscUpper.connect(stressGain);
-            stressGain.connect(master);
+            // Falling debris tail.
+            const tailHp = ctx.createBiquadFilter();
+            tailHp.type = 'highpass';
+            tailHp.frequency.value = 900;
+            const tailGain = ctx.createGain();
+            tailGain.gain.setValueAtTime(0.0001, now + 0.12);
+            tailGain.gain.exponentialRampToValueAtTime(0.045, now + 0.18);
+            tailGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.7);
+            const tailSrc = ctx.createBufferSource();
+            tailSrc.buffer = thrash;
+            tailSrc.playbackRate.value = 0.72;
+            tailSrc.connect(tailHp);
+            tailHp.connect(tailGain);
+            tailGain.connect(master);
+            tailSrc.start(now + 0.12);
+            tailSrc.stop(now + 0.75);
 
-            master.connect(audioContext.destination);
+            playTone(ctx, master, {
+                type: 'sine',
+                frequency: 92,
+                endFrequency: 48,
+                when: now,
+                duration: 0.4,
+                peak: 0.06,
+                attack: 0.004
+            });
+            playTone(ctx, master, {
+                type: 'triangle',
+                frequency: 340,
+                endFrequency: 110,
+                when: now + 0.01,
+                duration: 0.35,
+                peak: 0.035,
+                attack: 0.003
+            });
+            playTone(ctx, master, {
+                type: 'sine',
+                frequency: 2400 + rand(-200, 200),
+                endFrequency: 900,
+                when: now + 0.015,
+                duration: 0.32,
+                peak: 0.03,
+                attack: 0.002
+            });
+            playTone(ctx, master, {
+                type: 'sine',
+                frequency: 4100 + rand(-250, 250),
+                endFrequency: 1600,
+                when: now + 0.04,
+                duration: 0.28,
+                peak: 0.016,
+                attack: 0.002
+            });
+        }
 
-            noiseSource.start(now);
-            noiseSource.stop(now + duration);
-            stressOsc.start(now);
-            stressOscUpper.start(now + 0.01);
-            stressOsc.stop(now + duration);
-            stressOscUpper.stop(now + (duration * 0.86));
+        function triggerHaptics(kind) {
+            if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
+            if (kind === 'soft') {
+                navigator.vibrate(12);
+            } else if (kind === 'hard') {
+                navigator.vibrate([14, 24, 18]);
+            } else {
+                navigator.vibrate([18, 30, 16, 28, 40]);
+            }
         }
 
         function triggerTapFeedback(level) {
@@ -933,14 +1229,16 @@ function initPortraitComparison() {
             tapTimerId = window.setTimeout(() => {
                 showcase.removeAttribute('data-portrait-tap');
                 tapTimerId = null;
-            }, level === 'hard' ? 220 : 180);
+            }, level === 'shatter' ? 280 : level === 'hard' ? 220 : 180);
 
-            if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
-                navigator.vibrate(level === 'hard' ? [10, 18, 12] : 10);
+            try {
+                triggerHaptics(level);
+            } catch {
+                // Ignore haptic failures.
             }
 
             try {
-                playCrackTap(level);
+                playGlassSound(level === 'shatter' ? 'shatter' : level === 'hard' ? 'hard' : 'soft');
             } catch {
                 // Ignore audio failures; visual feedback still runs.
             }
@@ -1048,7 +1346,7 @@ function initPortraitComparison() {
             }
 
             // Final impact: denser local debris, then full shatter reveal.
-            triggerTapFeedback('hard');
+            triggerTapFeedback('shatter');
             triggerRock('hard');
             triggerImpactFlash(impact, 1.25);
             spawnCrackNetwork(impact, 2.4);

@@ -6,9 +6,13 @@
   <title>Seeking Biblical Truth - Vault Graph</title>
   <meta name="description" content="Interactive public graph and note browser generated from the Seeking Biblical Truth Obsidian vault.">
   <link rel="icon" href="../../assets/alphaeus-portrait.jpg" type="image/jpeg">
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+  <link rel="preconnect" href="https://d3js.org" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://html2canvas.hertzen.com">
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Graph + note render libs (needed on first paint of this page). html2canvas is lazy-loaded on PNG export. -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <style>
@@ -352,9 +356,40 @@
     document.getElementById('search').addEventListener('input', applyVisibility);
     document.getElementById('fit').addEventListener('click', fitGraph);
     document.getElementById('reset').addEventListener('click', resetGraph);
-    document.getElementById('export-png').addEventListener('click', () => html2canvas(document.getElementById('graph'), { backgroundColor: '#0A0F1C', scale: 2 }).then(canvas => {
-      const a = document.createElement('a'); a.download = 'seeking-biblical-truth-graph.png'; a.href = canvas.toDataURL('image/png'); a.click();
-    }));
+    function loadHtml2Canvas() {
+      if (window.html2canvas) return Promise.resolve(window.html2canvas);
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+        s.async = true;
+        s.onload = () => (window.html2canvas ? resolve(window.html2canvas) : reject(new Error('html2canvas missing')));
+        s.onerror = () => reject(new Error('Failed to load html2canvas'));
+        document.head.appendChild(s);
+      });
+    }
+
+    document.getElementById('export-png').addEventListener('click', async () => {
+      const btn = document.getElementById('export-png');
+      const prev = btn.textContent;
+      try {
+        btn.disabled = true;
+        btn.textContent = '…';
+        const html2canvas = await loadHtml2Canvas();
+        const canvas = await html2canvas(document.getElementById('graph'), { backgroundColor: '#0A0F1C', scale: 2 });
+        const a = document.createElement('a');
+        a.download = 'seeking-biblical-truth-graph.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      } catch (err) {
+        console.error(err);
+        btn.textContent = 'PNG failed';
+        setTimeout(() => { btn.textContent = prev; }, 1600);
+        return;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = prev;
+      }
+    });
     function scheduleGraphRender() {
       clearTimeout(window.__graphResize);
       window.__graphResize = setTimeout(renderGraph, 180);
