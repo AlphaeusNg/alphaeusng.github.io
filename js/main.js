@@ -9,6 +9,7 @@ function initTailwind() {
 // Navbar scroll effect
 function initNavbar() {
     const nav = document.getElementById('nav');
+    if (!nav) return;
     
     function handleScroll() {
         if (window.scrollY > 20) {
@@ -72,8 +73,10 @@ function initMobileMenu() {
 }
 
 // Desktop nav dropdowns + mobile nav accordions
+// Desktop uses a floating flyout (pill + panel are separate cards).
 function initExploreNavigation() {
     const desktopMenus = Array.from(document.querySelectorAll('[data-nav-menu]'));
+    const CLOSE_GRACE_MS = 80;
     let openMenu = null;
 
     function getDesktopTrigger(menu) {
@@ -90,6 +93,7 @@ function initExploreNavigation() {
         const panel = getDesktopPanel(menu);
         if (!trigger || !panel) return;
 
+        menu.classList.toggle('is-open', isOpen);
         panel.classList.toggle('is-open', isOpen);
         panel.setAttribute('aria-hidden', String(!isOpen));
         trigger.setAttribute('aria-expanded', String(isOpen));
@@ -127,7 +131,7 @@ function initExploreNavigation() {
 
         function queueClose() {
             clearCloseTimer();
-            closeTimer = window.setTimeout(() => closeDesktopMenu(menu), 100);
+            closeTimer = window.setTimeout(() => closeDesktopMenu(menu), CLOSE_GRACE_MS);
         }
 
         menu.addEventListener('mouseenter', () => {
@@ -137,7 +141,7 @@ function initExploreNavigation() {
         });
 
         menu.addEventListener('mouseleave', () => {
-            menu.classList.remove('nav-menu--suppress-hover');
+            if (menu.classList.contains('nav-menu--suppress-hover')) return;
             queueClose();
         });
         menu.addEventListener('focusin', () => {
@@ -161,7 +165,6 @@ function initExploreNavigation() {
                 }
             });
         });
-
     });
 
     document.addEventListener('click', event => {
@@ -396,12 +399,20 @@ function initActiveNav() {
     updateActiveSection();
 }
 
-// Swipeable portrait compare
+// Swipeable portrait compare + procedural shatter easter egg
 function initPortraitComparison() {
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
     document.querySelectorAll('[data-portrait-compare]').forEach(compare => {
         const showcase = compare.closest('[data-portrait-easter-egg]');
         const toggles = compare.parentElement?.querySelectorAll('[data-portrait-snap]') ?? [];
         const resetButton = showcase?.querySelector('[data-portrait-reset]') ?? null;
+        const cracksLayer = compare.querySelector('[data-portrait-cracks]');
+        const chipLayer = compare.querySelector('[data-portrait-chips]');
+        const dustLayer = compare.querySelector('[data-portrait-dust]');
+        const shatterLayer = compare.querySelector('[data-portrait-shatter]');
+        const flashEl = compare.querySelector('.portrait-fx-flash');
+
         let pointerId = null;
         let isDragging = false;
         let isRevealing = false;
@@ -412,13 +423,368 @@ function initPortraitComparison() {
         let settleTimerId = null;
         let tapTimerId = null;
         let clickStage = Number(showcase?.dataset.portraitClickStage ?? 0) || 0;
+        let lastImpact = { xPct: 50, yPct: 38, xPx: 0, yPx: 0, w: 0, h: 0 };
+        const impactHistory = [];
 
-        function revealEasterEgg() {
+        function rand(min, max) {
+            return min + Math.random() * (max - min);
+        }
+
+        function clamp(value, min = 0, max = 100) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        function clearFxLayers() {
+            if (cracksLayer) cracksLayer.innerHTML = '';
+            if (chipLayer) chipLayer.innerHTML = '';
+            if (dustLayer) dustLayer.innerHTML = '';
+            if (shatterLayer) shatterLayer.innerHTML = '';
+            flashEl?.classList.remove('is-active');
+            impactHistory.length = 0;
+        }
+
+        function getImpactFromEvent(event) {
+            const rect = compare.getBoundingClientRect();
+            const w = rect.width || 1;
+            const h = rect.height || 1;
+            let xPx;
+            let yPx;
+
+            if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
+                xPx = clamp(event.clientX - rect.left, 0, w);
+                yPx = clamp(event.clientY - rect.top, 0, h);
+            } else {
+                xPx = w * 0.5;
+                yPx = h * 0.38;
+            }
+
+            return {
+                xPx,
+                yPx,
+                w,
+                h,
+                xPct: (xPx / w) * 100,
+                yPct: (yPx / h) * 100
+            };
+        }
+
+        function triggerImpactFlash(impact, strength = 1) {
+            if (!flashEl || prefersReducedMotion) return;
+            flashEl.classList.remove('is-active');
+            flashEl.style.left = `${impact.xPct}%`;
+            flashEl.style.top = `${impact.yPct}%`;
+            flashEl.style.width = `${Math.round(88 * strength)}px`;
+            flashEl.style.height = `${Math.round(88 * strength)}px`;
+            // Force reflow so the animation restarts on rapid taps.
+            void flashEl.offsetWidth;
+            flashEl.classList.add('is-active');
+        }
+
+        function jaggedPolyline(x0, y0, angle, length, segments, jitter) {
+            const points = [[x0, y0]];
+            let x = x0;
+            let y = y0;
+            const step = length / segments;
+            let heading = angle;
+
+            for (let i = 0; i < segments; i += 1) {
+                heading += rand(-jitter, jitter);
+                x += Math.cos(heading) * step;
+                y += Math.sin(heading) * step;
+                // Softly keep cracks near the frame.
+                x = clamp(x, -8, 108);
+                y = clamp(y, -8, 108);
+                points.push([x, y]);
+            }
+
+            return points;
+        }
+
+        function pointsToPath(points) {
+            return points
+                .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point[0].toFixed(2)} ${point[1].toFixed(2)}`)
+                .join(' ');
+        }
+
+        function ensureCracksSvg() {
+            if (!cracksLayer) return null;
+            let svg = cracksLayer.querySelector('svg.portrait-cracks-svg');
+            if (svg) return svg;
+
+            svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('class', 'portrait-cracks-svg');
+            svg.setAttribute('viewBox', '0 0 100 100');
+            svg.setAttribute('preserveAspectRatio', 'none');
+            svg.setAttribute('aria-hidden', 'true');
+            cracksLayer.appendChild(svg);
+            return svg;
+        }
+
+        function spawnCrackNetwork(impact, intensity = 1) {
+            if (!cracksLayer || prefersReducedMotion) return;
+            const svg = ensureCracksSvg();
+            if (!svg) return;
+
+            // Sparse hairline fractures — real glass reads as thin transparent lines, not ink.
+            const branchCount = intensity >= 2 ? 6 : 4;
+            const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            const baseAngle = rand(0, Math.PI * 2);
+
+            function appendGlassStroke(d, lengthHint, delay, tones) {
+                tones.forEach((tone, toneIndex) => {
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', d);
+                    path.setAttribute('class', `portrait-crack-path ${tone}`);
+                    path.style.setProperty('--portrait-crack-length', String(lengthHint));
+                    path.style.strokeDasharray = `${lengthHint}`;
+                    path.style.strokeDashoffset = `${lengthHint}`;
+                    path.style.animationDelay = delay;
+                    if (toneIndex === 1) {
+                        // Tiny offset so highlight sits beside the edge, not on top of it.
+                        path.style.transform = 'translate(0.12px, -0.1px)';
+                    }
+                    group.appendChild(path);
+                });
+            }
+
+            for (let i = 0; i < branchCount; i += 1) {
+                const angle = baseAngle + (i * (Math.PI * 2 / branchCount)) + rand(-0.4, 0.4);
+                const length = rand(12, 22) * (0.7 + intensity * 0.22);
+                const segments = 3 + Math.floor(rand(0, 2));
+                const main = jaggedPolyline(impact.xPct, impact.yPct, angle, length, segments, 0.48);
+                const d = pointsToPath(main);
+                const delay = `${(i * 0.02).toFixed(3)}s`;
+                const lengthHint = Math.round(length * 1.55);
+
+                appendGlassStroke(d, lengthHint, delay, ['is-edge', 'is-highlight', 'is-sheen']);
+
+                // Occasional thin side forks — keep sparse so the pane stays readable.
+                if (Math.random() > 0.55) {
+                    const forkFrom = main[1 + Math.floor(Math.random() * Math.max(1, main.length - 2))];
+                    const forkAngle = angle + rand(-1.0, 1.0);
+                    const fork = jaggedPolyline(forkFrom[0], forkFrom[1], forkAngle, length * rand(0.22, 0.42), 2, 0.55);
+                    appendGlassStroke(
+                        pointsToPath(fork),
+                        40,
+                        `${(0.06 + i * 0.02).toFixed(3)}s`,
+                        ['is-edge', 'is-highlight']
+                    );
+                }
+            }
+
+            svg.appendChild(group);
+        }
+
+        function spawnImpactChips(impact, count) {
+            if (!chipLayer || prefersReducedMotion) return;
+            const { xPx, yPx, xPct, yPct } = impact;
+
+            for (let i = 0; i < count; i += 1) {
+                const size = rand(7, 16);
+                const offsetX = rand(-10, 12);
+                const offsetY = rand(-8, 10);
+                const chipX = xPx + offsetX;
+                const chipY = yPx + offsetY;
+                const angle = Math.atan2(offsetY + rand(-4, 8), offsetX + rand(-6, 6));
+                const distance = rand(18, 46);
+                const tx = Math.cos(angle) * distance + rand(-6, 6);
+                const ty = Math.sin(angle) * distance + rand(16, 42);
+                const rotStart = rand(-25, 25);
+                const rotEnd = rotStart + rand(40, 140) * (Math.random() > 0.5 ? 1 : -1);
+
+                // Irregular triangle / quad clip for chips.
+                const p1 = `${rand(0, 30)}% ${rand(0, 25)}%`;
+                const p2 = `${rand(70, 100)}% ${rand(0, 30)}%`;
+                const p3 = `${rand(60, 100)}% ${rand(70, 100)}%`;
+                const p4 = `${rand(0, 35)}% ${rand(65, 100)}%`;
+                const clip = Math.random() > 0.35
+                    ? `polygon(${p1}, ${p2}, ${p3}, ${p4})`
+                    : `polygon(${p1}, ${p2}, ${p3})`;
+
+                const chip = document.createElement('span');
+                chip.className = 'portrait-chip';
+                chip.style.width = `${size}px`;
+                chip.style.height = `${size * rand(0.75, 1.15)}px`;
+                chip.style.clipPath = clip;
+                // Cover + impact-local position so debris samples the tapped region.
+                chip.style.backgroundSize = 'cover';
+                chip.style.backgroundPosition = `${clamp(xPct + rand(-4, 4))}% ${clamp(yPct + rand(-4, 4))}%`;
+                chip.style.setProperty('--portrait-chip-x', `${chipX}px`);
+                chip.style.setProperty('--portrait-chip-y', `${chipY}px`);
+                chip.style.setProperty('--portrait-chip-tx', `${chipX + tx}px`);
+                chip.style.setProperty('--portrait-chip-ty', `${chipY + ty}px`);
+                chip.style.setProperty('--portrait-chip-rot-start', `${rotStart}deg`);
+                chip.style.setProperty('--portrait-chip-rot-end', `${rotEnd}deg`);
+                chip.style.setProperty('--portrait-chip-scale-end', String(rand(0.55, 0.9)));
+                chip.style.setProperty('--portrait-chip-delay', `${rand(0, 0.06).toFixed(3)}s`);
+                chip.style.setProperty('--portrait-chip-duration', `${rand(0.48, 0.72).toFixed(3)}s`);
+                chipLayer.appendChild(chip);
+
+                window.setTimeout(() => chip.remove(), 900);
+            }
+        }
+
+        function spawnDust(impact, count) {
+            if (!dustLayer || prefersReducedMotion) return;
+
+            for (let i = 0; i < count; i += 1) {
+                const angle = rand(0, Math.PI * 2);
+                const dist = rand(8, 42);
+                const dust = document.createElement('span');
+                dust.className = 'portrait-dust';
+                dust.style.setProperty('--portrait-dust-size', `${rand(1.5, 4.2).toFixed(1)}px`);
+                dust.style.setProperty('--portrait-dust-x', `${impact.xPx}px`);
+                dust.style.setProperty('--portrait-dust-y', `${impact.yPx}px`);
+                dust.style.setProperty('--portrait-dust-tx', `${impact.xPx + Math.cos(angle) * dist}px`);
+                dust.style.setProperty('--portrait-dust-ty', `${impact.yPx + Math.sin(angle) * dist + rand(8, 26)}px`);
+                dust.style.setProperty('--portrait-dust-delay', `${rand(0, 0.08).toFixed(3)}s`);
+                dust.style.setProperty('--portrait-dust-duration', `${rand(0.4, 0.7).toFixed(3)}s`);
+                dustLayer.appendChild(dust);
+                window.setTimeout(() => dust.remove(), 850);
+            }
+        }
+
+        function rayToBounds(cx, cy, angle) {
+            const dx = Math.cos(angle);
+            const dy = Math.sin(angle);
+            let t = Infinity;
+
+            if (dx > 0.00001) t = Math.min(t, (100 - cx) / dx);
+            if (dx < -0.00001) t = Math.min(t, (0 - cx) / dx);
+            if (dy > 0.00001) t = Math.min(t, (100 - cy) / dy);
+            if (dy < -0.00001) t = Math.min(t, (0 - cy) / dy);
+
+            if (!Number.isFinite(t) || t < 0) t = 150;
+            return {
+                x: clamp(cx + dx * t, 0, 100),
+                y: clamp(cy + dy * t, 0, 100)
+            };
+        }
+
+        function angleOf(x, y, cx, cy) {
+            return Math.atan2(y - cy, x - cx);
+        }
+
+        function normalizeAngle(angle) {
+            let a = angle;
+            while (a <= -Math.PI) a += Math.PI * 2;
+            while (a > Math.PI) a -= Math.PI * 2;
+            return a;
+        }
+
+        function angleInArc(angle, start, end) {
+            const a = normalizeAngle(angle - start);
+            const span = normalizeAngle(end - start);
+            const positiveSpan = span < 0 ? span + Math.PI * 2 : span;
+            const positiveA = a < 0 ? a + Math.PI * 2 : a;
+            return positiveA <= positiveSpan + 0.0001;
+        }
+
+        function buildRadialShatter(impact) {
+            if (!shatterLayer) return;
+            shatterLayer.innerHTML = '';
+
+            const cx = impact.xPct;
+            const cy = impact.yPct;
+            const shardCount = 14 + Math.floor(rand(0, 6));
+            const corners = [
+                { x: 0, y: 0 },
+                { x: 100, y: 0 },
+                { x: 100, y: 100 },
+                { x: 0, y: 100 }
+            ];
+
+            // Uneven angular slices that still sum to a full circle.
+            const weights = Array.from({ length: shardCount }, () => rand(0.45, 1.55));
+            const weightSum = weights.reduce((sum, value) => sum + value, 0);
+            const angles = [];
+            let cursor = rand(-Math.PI, Math.PI);
+            weights.forEach(weight => {
+                cursor += (weight / weightSum) * Math.PI * 2;
+                angles.push(cursor);
+            });
+
+            for (let i = 0; i < angles.length; i += 1) {
+                const a0 = angles[i];
+                const a1 = angles[(i + 1) % angles.length];
+                const edge0 = rayToBounds(cx, cy, a0);
+                const edge1 = rayToBounds(cx, cy, a1);
+
+                // Include frame corners that sit between the two rays.
+                const midCorners = corners
+                    .filter(corner => angleInArc(angleOf(corner.x, corner.y, cx, cy), a0, a1))
+                    .sort((left, right) => (
+                        normalizeAngle(angleOf(left.x, left.y, cx, cy) - a0)
+                        - normalizeAngle(angleOf(right.x, right.y, cx, cy) - a0)
+                    ));
+
+                // Slightly inset the apex so shards don't share one perfect point.
+                const apexJitter = 1.2;
+                const apexX = clamp(cx + rand(-apexJitter, apexJitter), 0, 100);
+                const apexY = clamp(cy + rand(-apexJitter, apexJitter), 0, 100);
+
+                const polyPoints = [
+                    [apexX, apexY],
+                    [edge0.x, edge0.y],
+                    ...midCorners.map(corner => [corner.x, corner.y]),
+                    [edge1.x, edge1.y]
+                ];
+
+                // Sample a rough centroid for flight direction.
+                let sumX = 0;
+                let sumY = 0;
+                polyPoints.forEach(point => {
+                    sumX += point[0];
+                    sumY += point[1];
+                });
+                const centroidX = sumX / polyPoints.length;
+                const centroidY = sumY / polyPoints.length;
+                const dirX = centroidX - cx;
+                const dirY = centroidY - cy;
+                const dirLen = Math.hypot(dirX, dirY) || 1;
+                const nx = dirX / dirLen;
+                const ny = dirY / dirLen;
+
+                // Explosive outward push + gravity bias.
+                const blast = rand(38, 96);
+                const gravity = rand(90, 210);
+                const spin = rand(-48, 48) + nx * 18;
+                const scaleEnd = rand(0.86, 1.04);
+                const delay = rand(0.02, 0.18);
+                const duration = rand(0.78, 1.12);
+
+                const clip = `polygon(${polyPoints.map(point => `${point[0].toFixed(2)}% ${point[1].toFixed(2)}%`).join(', ')})`;
+                const piece = document.createElement('span');
+                piece.className = 'portrait-shatter-piece is-flying';
+                piece.style.clipPath = clip;
+                piece.style.setProperty('--portrait-shard-origin-x', `${cx}%`);
+                piece.style.setProperty('--portrait-shard-origin-y', `${cy}%`);
+                piece.style.setProperty('--portrait-shard-delay', `${delay.toFixed(3)}s`);
+                piece.style.setProperty('--portrait-shard-duration', `${duration.toFixed(3)}s`);
+                piece.style.setProperty(
+                    '--portrait-shard-fall-transform',
+                    `translate3d(${(nx * blast + rand(-12, 12)).toFixed(1)}px, ${(ny * blast * 0.55 + gravity).toFixed(1)}px, 0) rotate(${spin.toFixed(1)}deg) scale(${scaleEnd.toFixed(3)})`
+                );
+                // Slight z-order chaos so overlapping shards feel dimensional.
+                piece.style.zIndex = String(1 + Math.floor(rand(0, 8)));
+                shatterLayer.appendChild(piece);
+            }
+        }
+
+        function revealEasterEgg(impact) {
             if (isRevealed || isRevealing) return;
             isRevealing = true;
             showcase?.classList.add('is-revealing');
             compare.setAttribute('aria-busy', 'true');
             compare.setAttribute('aria-expanded', 'false');
+
+            const shatterImpact = impact || lastImpact;
+            if (!prefersReducedMotion) {
+                buildRadialShatter(shatterImpact);
+                spawnDust(shatterImpact, 18);
+            }
+
+            const settleMs = prefersReducedMotion ? 120 : 1180;
 
             revealTimerId = window.setTimeout(() => {
                 isRevealing = false;
@@ -433,14 +799,10 @@ function initPortraitComparison() {
                 compare.removeAttribute('aria-busy');
                 compare.setAttribute('aria-label', 'Swipeable portrait comparison between the polished portrait and the original photo');
                 compare.setAttribute('aria-expanded', 'true');
-                compare.style.removeProperty('--portrait-crack-one-x');
-                compare.style.removeProperty('--portrait-crack-one-y');
-                compare.style.removeProperty('--portrait-crack-one-scale-x');
-                compare.style.removeProperty('--portrait-crack-one-scale-y');
-                compare.style.removeProperty('--portrait-crack-two-x');
-                compare.style.removeProperty('--portrait-crack-two-y');
-                compare.style.removeProperty('--portrait-crack-two-scale-x');
-                compare.style.removeProperty('--portrait-crack-two-scale-y');
+                if (shatterLayer) shatterLayer.innerHTML = '';
+                if (cracksLayer) cracksLayer.innerHTML = '';
+                if (chipLayer) chipLayer.innerHTML = '';
+                if (dustLayer) dustLayer.innerHTML = '';
                 compare.classList.add('is-settling');
                 window.requestAnimationFrame(() => {
                     setReveal(50);
@@ -450,7 +812,7 @@ function initPortraitComparison() {
                     settleTimerId = null;
                 }, 380);
                 revealTimerId = null;
-            }, 1480);
+            }, settleMs);
         }
 
         function clearRevealTimer() {
@@ -600,10 +962,12 @@ function initPortraitComparison() {
             clearSettleTimer();
             clearTapTimer();
             stopDragging();
+            clearFxLayers();
 
             isRevealing = false;
             isRevealed = false;
             clickStage = 0;
+            lastImpact = { xPct: 50, yPct: 38, xPx: 0, yPx: 0, w: 0, h: 0 };
 
             showcase?.classList.remove('is-revealing', 'is-revealed');
             showcase?.removeAttribute('data-portrait-click-stage');
@@ -618,14 +982,6 @@ function initPortraitComparison() {
             if (resetButton) {
                 resetButton.textContent = 'Again?';
             }
-            compare.style.removeProperty('--portrait-crack-one-x');
-            compare.style.removeProperty('--portrait-crack-one-y');
-            compare.style.removeProperty('--portrait-crack-one-scale-x');
-            compare.style.removeProperty('--portrait-crack-one-scale-y');
-            compare.style.removeProperty('--portrait-crack-two-x');
-            compare.style.removeProperty('--portrait-crack-two-y');
-            compare.style.removeProperty('--portrait-crack-two-scale-x');
-            compare.style.removeProperty('--portrait-crack-two-scale-y');
             setReveal(100);
         }
 
@@ -645,10 +1001,6 @@ function initPortraitComparison() {
             showcase.dataset.portraitClickStage = String(Math.min(clickStage, 3));
         }
 
-        function clamp(value) {
-            return Math.min(100, Math.max(0, value));
-        }
-
         function isInteractiveTarget(target) {
             if (!(target instanceof Element)) return false;
             const interactiveAncestor = target.closest('a, button, input, textarea, select, summary, [role="button"]');
@@ -665,53 +1017,44 @@ function initPortraitComparison() {
             }, level === 'hard' ? 760 : 560);
         }
 
-        function setCrackOrigin(slot, clientX, clientY) {
-            const rect = compare.getBoundingClientRect();
-            const prefix = slot === 2 ? '--portrait-crack-two' : '--portrait-crack-one';
-            if (!rect.width || !rect.height || typeof clientX !== 'number' || typeof clientY !== 'number') {
-                compare.style.setProperty(`${prefix}-x`, '50%');
-                compare.style.setProperty(`${prefix}-y`, '31%');
-                compare.style.setProperty(`${prefix}-scale-x`, '1');
-                compare.style.setProperty(`${prefix}-scale-y`, '1');
-                return;
-            }
-
-            const xPercent = clamp(((clientX - rect.left) / rect.width) * 100);
-            const yPercent = clamp(((clientY - rect.top) / rect.height) * 100);
-            const inwardScaleX = xPercent >= 50 ? -1 : 1;
-            const inwardScaleY = yPercent >= 56 ? -1 : 1;
-
-            compare.style.setProperty(`${prefix}-x`, `${xPercent}%`);
-            compare.style.setProperty(`${prefix}-y`, `${yPercent}%`);
-            compare.style.setProperty(`${prefix}-scale-x`, String(inwardScaleX));
-            compare.style.setProperty(`${prefix}-scale-y`, String(inwardScaleY));
-        }
-
         function handleHiddenClick(event) {
             if (isRevealed || isRevealing) return;
 
-            setCrackOrigin(Math.min(clickStage + 1, 2), event?.clientX, event?.clientY);
+            const impact = getImpactFromEvent(event);
+            lastImpact = impact;
+            impactHistory.push(impact);
+
             clickStage = Math.min(clickStage + 1, 3);
             syncClickStage();
 
             if (clickStage === 1) {
                 triggerTapFeedback('soft');
                 triggerRock('soft');
+                triggerImpactFlash(impact, 0.75);
+                spawnCrackNetwork(impact, 1);
+                spawnImpactChips(impact, 5);
+                spawnDust(impact, 7);
                 return;
             }
 
             if (clickStage === 2) {
                 triggerTapFeedback('hard');
                 triggerRock('hard');
+                triggerImpactFlash(impact, 1);
+                spawnCrackNetwork(impact, 2);
+                spawnImpactChips(impact, 9);
+                spawnDust(impact, 12);
                 return;
             }
 
-            if (clickStage === 3) {
-                triggerTapFeedback('hard');
-                triggerRock('hard');
-            }
-
-            revealEasterEgg();
+            // Final impact: denser local debris, then full shatter reveal.
+            triggerTapFeedback('hard');
+            triggerRock('hard');
+            triggerImpactFlash(impact, 1.25);
+            spawnCrackNetwork(impact, 2.4);
+            spawnImpactChips(impact, 12);
+            spawnDust(impact, 16);
+            revealEasterEgg(impact);
         }
 
         function setReveal(value) {
@@ -855,6 +1198,7 @@ function initAccessibility() {
                 }
                 document.querySelectorAll('[data-nav-menu]').forEach(menuGroup => {
                     const panel = menuGroup.querySelector('.nav-submenu');
+                    menuGroup.classList.remove('is-open');
                     panel?.classList.remove('is-open');
                     panel?.setAttribute('aria-hidden', 'true');
                     menuGroup.querySelector('.nav-pill')?.setAttribute('aria-expanded', 'false');

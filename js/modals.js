@@ -339,8 +339,8 @@ function openRichProjectModal(slug) {
       link.href = action.url;
       link.textContent = action.label;
       link.className = index === 0
-        ? 'inline-flex items-center justify-center rounded-full bg-[#C9A227] px-5 py-2.5 font-medium text-[#0A0F1C] hover:bg-[#EAB308] transition-colors'
-        : 'inline-flex items-center justify-center rounded-full border border-white/15 px-5 py-2.5 font-medium text-[#CBD5E1] hover:border-[#C9A227]/60 hover:text-white transition-colors';
+        ? 'btn-solid inline-flex items-center justify-center rounded-full bg-[#C9A227] px-5 py-2.5 font-medium transition-colors hover:bg-[#E8C547]'
+        : 'btn-outline inline-flex items-center justify-center rounded-full border border-[#C9A227]/45 px-5 py-2.5 font-medium transition-colors hover:border-[#C9A227]/8 hover:bg-[#C9A227]/10';
       if (/^https?:\/\//.test(action.url)) {
         link.target = '_blank';
         link.rel = 'noopener noreferrer';

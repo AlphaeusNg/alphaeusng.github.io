@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alphaeus Ng — AI Research Engineer | Code, Vision, Faith</title>
-    <meta name="description" content="AI Research Engineer at Panasonic. I build AI systems that have to work in the real world, then spend the rest of my time chasing what's actually true in tech and faith.">
+    <title>Alphaeus Ng — AI Research Engineer</title>
+    <meta name="description" content="AI Research Engineer at Panasonic (Singapore). Production ML, applied CV, Python/Streamlit automation, NTU B.Eng CS 2024. CV download and selected work.">
     <meta name="author" content="Alphaeus Ng">
     
     <!-- Open Graph / Social -->
     <meta property="og:title" content="Alphaeus Ng — AI Research Engineer">
-    <meta property="og:description" content="I build AI systems, write code that survives contact with reality, and care a lot about what's actually true.">
+    <meta property="og:description" content="AI systems for real operations, plus open work on Scripture study tools. Based in Singapore.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://alphaeusng.github.io">
-    <meta property="og:image" content="https://alphaeusng.github.io/og-image.jpg">
+    <meta property="og:image" content="https://alphaeusng.github.io/assets/alphaeus-portrait.jpg">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://alphaeusng.github.io/assets/alphaeus-portrait.jpg">
     <link rel="canonical" href="https://alphaeusng.github.io/">
     <link rel="icon" href="assets/alphaeus-portrait.jpg" type="image/jpeg">
     
@@ -127,10 +128,7 @@
             border-left: 3px solid #C9A227;
         }
 
-        .nav-scrolled {
-            background-color: rgba(10, 15, 28, 0.92);
-            backdrop-filter: blur(12px);
-        }
+        /* scrolled state owned by .site-nav.nav-scrolled in css/main.css */
 
         .fade-in {
             opacity: 0;
@@ -386,25 +384,26 @@
 </head>
 <body id="top" class="bg-[#0A0F1C] text-[#F8FAFC] antialiased">
     <!-- Navigation -->
-    <nav id="nav" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b border-white/10">
+    <nav id="nav" class="site-nav fixed top-0 left-0 right-0 z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex items-center justify-between h-20">
                 <!-- Logo -->
                 <a href="#top" class="nav-home-link flex items-center gap-x-3 rounded-xl focus:outline-none focus-visible:ring-1 focus-visible:ring-[#C9A227]/45">
-                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#C9A227] to-[#A68B1F] flex items-center justify-center">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#C9A227] to-[#A68B1F] flex items-center justify-center shadow-[0_0_0_1px_rgba(201,162,39,0.25)]">
                         <span class="text-[#0A0F1C] font-semibold text-xl tracking-tighter">A</span>
                     </div>
                     <div>
                         <div class="nav-home-title font-semibold tracking-tight text-xl">Alphaeus Ng</div>
+                        <div class="text-[10px] uppercase tracking-[0.14em] text-[#64748B] leading-none mt-1 hidden sm:block">AI · systems · Singapore</div>
                     </div>
                 </a>
 
-                <!-- Desktop Nav -->
+                <!-- Desktop Nav: Work → Faith → Connect (identity order, not resume-first only) -->
                 <div class="hidden md:flex items-center gap-x-3 text-sm font-medium">
                     <div class="nav-menu" data-nav-menu>
                         <a href="#story" data-nav-group="portfolio" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-portfolio">
-                            <span class="nav-pill-label">Portfolio</span>
-                            <span class="nav-pill-meta">Resume + work</span>
+                            <span class="nav-pill-label">Work</span>
+                            <span class="nav-pill-meta">Story · craft · CV</span>
                         </a>
                         <div id="nav-submenu-portfolio" class="nav-submenu" role="menu" aria-hidden="true">
                             <a href="#story" class="nav-submenu-link" role="menuitem">The Story</a>
@@ -415,24 +414,26 @@
                         </div>
                     </div>
                     <div class="nav-menu" data-nav-menu>
-                        <a href="#connect" data-nav-group="connect" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-connect">
-                            <span class="nav-pill-label">Connect</span>
-                            <span class="nav-pill-meta">Email + links</span>
-                        </a>
-                        <div id="nav-submenu-connect" class="nav-submenu" role="menu" aria-hidden="true">
-                            <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">GitHub</a>
-                            <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">LinkedIn</a>
-                        </div>
-                    </div>
-                    <div class="nav-menu" data-nav-menu>
                         <a href="#reflections" data-nav-group="faith" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-faith">
                             <span class="nav-pill-label">Faith</span>
-                            <span class="nav-pill-meta">Scripture + conviction</span>
+                            <span class="nav-pill-meta">Christ · Scripture</span>
                         </a>
                         <div id="nav-submenu-faith" class="nav-submenu" role="menu" aria-hidden="true">
+                            <a href="#reflections" class="nav-submenu-link" role="menuitem">North star</a>
                             <a href="#church-home" class="nav-submenu-link" role="menuitem">Church</a>
                             <a href="#journey-documents" class="nav-submenu-link" role="menuitem">Journey documents</a>
                             <a href="pages/seeking-biblical-truth/" class="nav-submenu-link" role="menuitem">Vault browser</a>
+                        </div>
+                    </div>
+                    <div class="nav-menu" data-nav-menu>
+                        <a href="#connect" data-nav-group="connect" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-connect">
+                            <span class="nav-pill-label">Connect</span>
+                            <span class="nav-pill-meta">Email · links</span>
+                        </a>
+                        <div id="nav-submenu-connect" class="nav-submenu" role="menu" aria-hidden="true">
+                            <a href="mailto:alphaolivegreen@gmail.com" class="nav-submenu-link" role="menuitem">Email</a>
+                            <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">GitHub</a>
+                            <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">LinkedIn</a>
                         </div>
                     </div>
                 </div>
@@ -449,12 +450,12 @@
         </div>
 
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden border-t border-white/10 bg-[#0A0F1C]">
+        <div id="mobile-menu" class="hidden md:hidden border-t border-[color:var(--nav-border)] bg-[#0A0F1C]/98">
             <div class="px-6 py-6 flex flex-col gap-y-4 text-sm font-medium">
-                <div class="mobile-nav-group rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <div class="mobile-nav-group rounded-2xl border border-[color:var(--nav-border)] bg-white/[0.03] px-4 py-3">
                     <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="false" aria-controls="mobile-portfolio-links">
-                        <span class="block text-[15px] font-semibold text-white">Portfolio</span>
-                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#64748B] mt-1">Resume, projects, writing</span>
+                        <span class="block text-[15px] font-semibold text-white">Work</span>
+                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#64748B] mt-1">Story, craft, writing, CV</span>
                     </button>
                     <div id="mobile-portfolio-links" class="mobile-nav-panel hidden mt-3">
                         <a href="#story" class="mobile-link mobile-submenu-link">The Story</a>
@@ -464,25 +465,27 @@
                         <a href="#cv-downloads" class="mobile-link mobile-submenu-link">Resume / CV</a>
                     </div>
                 </div>
-                <div class="mobile-nav-group rounded-2xl border border-[#C9A227]/40 bg-[#C9A227]/8 px-4 py-3">
-                    <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="false" aria-controls="mobile-connect-links">
-                        <span class="block text-[15px] font-semibold text-white">Connect</span>
-                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#C9A227] mt-1">Email + links</span>
-                    </button>
-                    <div id="mobile-connect-links" class="mobile-nav-panel hidden mt-3">
-                        <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">GitHub</a>
-                        <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">LinkedIn</a>
-                    </div>
-                </div>
-                <div class="mobile-nav-group rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                <div class="mobile-nav-group rounded-2xl border border-[color:var(--nav-border)] bg-white/[0.03] px-4 py-3">
                     <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="false" aria-controls="mobile-faith-links">
                         <span class="block text-[15px] font-semibold text-white">Faith</span>
-                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#64748B] mt-1">Scripture, church, conviction</span>
+                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#94A3B8] mt-1">Christ, Scripture, church</span>
                     </button>
                     <div id="mobile-faith-links" class="mobile-nav-panel hidden mt-3">
+                        <a href="#reflections" class="mobile-link mobile-submenu-link">North star</a>
                         <a href="#church-home" class="mobile-link mobile-submenu-link">Church</a>
                         <a href="#journey-documents" class="mobile-link mobile-submenu-link">Journey documents</a>
                         <a href="pages/seeking-biblical-truth/" class="mobile-link mobile-submenu-link">Vault browser</a>
+                    </div>
+                </div>
+                <div class="mobile-nav-group rounded-2xl border border-[color:var(--nav-border-hover)] bg-[#C9A227]/8 px-4 py-3">
+                    <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="false" aria-controls="mobile-connect-links">
+                        <span class="block text-[15px] font-semibold text-white">Connect</span>
+                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#94A3B8] mt-1">Email + links</span>
+                    </button>
+                    <div id="mobile-connect-links" class="mobile-nav-panel hidden mt-3">
+                        <a href="mailto:alphaolivegreen@gmail.com" class="mobile-link mobile-submenu-link">Email</a>
+                        <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">GitHub</a>
+                        <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">LinkedIn</a>
                     </div>
                 </div>
             </div>
@@ -491,6 +494,7 @@
 
     <!-- Hero -->
     <header class="pt-20 min-h-[100dvh] flex items-center relative overflow-hidden">
+        <div class="pointer-events-none absolute -top-24 right-0 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(201,162,39,0.12),transparent_68%)] blur-2xl"></div>
         <div class="max-w-7xl mx-auto px-6 pt-12 pb-16 md:pt-16 md:pb-20 relative z-10">
             <div class="grid md:grid-cols-12 gap-x-8 items-center">
                 <!-- Text content -->
@@ -498,42 +502,51 @@
                     <!-- Status badge -->
                     <div class="inline-flex items-center gap-x-2 rounded-full bg-white/5 px-4 py-1.5 text-xs tracking-[1.5px] font-medium text-[#94A3B8] border border-white/10 mb-8">
                         <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
-                        AI RESEARCH ENGINEER @ PANASONIC
+                        AI RESEARCH ENGINEER @ PANASONIC · SINGAPORE
                     </div>
 
-                    <h1 class="text-[68px] md:text-[80px] lg:text-[84px] leading-[0.9] font-semibold tracking-tighter section-header mb-6">
+                    <h1 class="text-[68px] md:text-[80px] lg:text-[84px] leading-[0.9] font-semibold tracking-tighter section-header mb-5">
                         Alphaeus Ng
                     </h1>
-                    
-                    <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-8">
-                        <p class="text-2xl md:text-3xl text-[#E2E8F0] tracking-tight">
-                            AI Research Engineer
-                        </p>
-                        <span class="text-[#C9A227] text-xl md:text-2xl">•</span>
-                        <p class="text-2xl md:text-3xl text-[#C9A227] tracking-tight font-medium leading-tight">
-                            Building real-world AI systems while pursuing the One who made it all.
-                        </p>
+
+                    <p class="text-2xl md:text-3xl text-[#E2E8F0] tracking-tight mb-3">
+                        AI Research Engineer
+                    </p>
+                    <p class="text-xl md:text-2xl text-[#E2E8F0] tracking-tight font-medium leading-snug max-w-[36ch] mb-8">
+                        Production ML and applied CV — systems that have to work outside a notebook.
+                    </p>
+
+                    <p class="max-w-[46ch] text-lg md:text-xl text-[#94A3B8] leading-relaxed">
+                        Currently at Panasonic (Singapore) building supply-chain automation end to end. Previously at HTX on checkpoint computer vision. B.Eng Computer Science, NTU (2024).
+                    </p>
+
+                    <p class="mt-5 max-w-[46ch] text-lg md:text-xl text-[#94A3B8] leading-relaxed mb-8">
+                        Outside work I study Scripture and theology with the same seriousness I bring to debugging models. That is not a slogan — it is how I try to live and work.
+                    </p>
+
+                    <div class="flex flex-wrap gap-2 mb-10">
+                        <span class="proof-chip">Python · Streamlit · PyTorch</span>
+                        <span class="proof-chip">YOLO / Detectron2</span>
+                        <span class="proof-chip">Flask · React · Next.js</span>
+                        <span class="proof-chip">Singapore · 2024 graduate</span>
                     </div>
 
-                    <p class="max-w-[42ch] text-lg md:text-xl text-[#94A3B8] leading-relaxed">
-                        I design and deploy AI that performs under pressure — from supply chain intelligence to operational threat detection.
-                    </p>
-
-                    <p class="mt-6 max-w-[42ch] text-lg md:text-xl text-[#94A3B8] leading-relaxed mb-10">
-                        At the same time, I'm drawn to the bigger questions: <span class="text-white">truth</span>, <span class="text-white">meaning</span>, and the <span class="text-white">Uncaused Cause</span> behind the universe.
-                    </p>
-
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                        <a href="#craft" 
-                           class="group inline-flex items-center justify-center gap-x-3 bg-white text-[#0A0F1C] font-semibold px-8 py-4 rounded-2xl hover:bg-[#C9A227] transition-all active:scale-[0.985]">
-                            See the work
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:translate-x-0.5 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.25" d="M14 5l7 7-7 7" />
+                    <div class="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3">
+                        <a href="assets/resume.pdf"
+                           download="Alphaeus-Ng-Resume.pdf"
+                           class="btn-solid group inline-flex items-center justify-center gap-x-3 bg-white font-semibold px-8 py-4 rounded-2xl hover:bg-[#C9A227] transition-all active:scale-[0.985]">
+                            Download CV (PDF)
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.25" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
                             </svg>
                         </a>
-                        <a href="#thoughts" 
-                           class="inline-flex items-center justify-center gap-x-3 px-8 py-4 rounded-2xl border border-white/15 hover:bg-white/5 text-[#CBD5E1] font-medium transition-all">
-                            Read the notes
+                        <a href="#craft" 
+                           class="btn-quiet inline-flex items-center justify-center gap-x-3 px-8 py-4 rounded-2xl border border-white/15 hover:bg-white/5 font-medium transition-all">
+                            Selected work
+                        </a>
+                        <a href="#connect" 
+                           class="btn-outline inline-flex items-center justify-center gap-x-3 px-8 py-4 rounded-2xl border border-[#C9A227]/35 hover:border-[#C9A227]/65 hover:bg-[#C9A227]/8 font-medium transition-all">
+                            Contact
                         </a>
                     </div>
                 </div>
@@ -544,8 +557,8 @@
                         <div class="portrait-phone">
                             <div class="portrait-phone-header">
                                 <div>
-                                    <div class="portrait-phone-kicker">Portrait chaos</div>
-                                    <div class="portrait-phone-title">AI Suit vs Actual Image</div>
+                                    <div class="portrait-phone-kicker">Interactive reveal</div>
+                                    <div class="portrait-phone-title">AI suit vs the real photo</div>
                                 </div>
                                 <button type="button" class="portrait-phone-status" data-portrait-reset>Again?</button>
                             </div>
@@ -565,50 +578,12 @@
                                         draggable="false"
                                         loading="eager">
                                 </div>
-                                <div class="portrait-shatter-layer" aria-hidden="true">
-                                    <span class="portrait-shatter-piece portrait-shatter-piece-1"></span>
-                                    <span class="portrait-shatter-piece portrait-shatter-piece-2"></span>
-                                    <span class="portrait-shatter-piece portrait-shatter-piece-3"></span>
-                                    <span class="portrait-shatter-piece portrait-shatter-piece-4"></span>
-                                    <span class="portrait-shatter-piece portrait-shatter-piece-5"></span>
-                                    <span class="portrait-shatter-piece portrait-shatter-piece-6"></span>
-                                    <span class="portrait-shatter-piece portrait-shatter-piece-7"></span>
-                                    <span class="portrait-shatter-piece portrait-shatter-piece-8"></span>
-                                    <span class="portrait-shatter-piece portrait-shatter-piece-9"></span>
-                                </div>
-                                <div class="portrait-chip-layer" aria-hidden="true">
-                                    <div class="portrait-chip-group portrait-chip-group-one">
-                                        <span class="portrait-chip-shard portrait-chip-shard-a"></span>
-                                        <span class="portrait-chip-shard portrait-chip-shard-b"></span>
-                                        <span class="portrait-chip-shard portrait-chip-shard-c"></span>
-                                    </div>
-                                    <div class="portrait-chip-group portrait-chip-group-two">
-                                        <span class="portrait-chip-shard portrait-chip-shard-a"></span>
-                                        <span class="portrait-chip-shard portrait-chip-shard-b"></span>
-                                        <span class="portrait-chip-shard portrait-chip-shard-c"></span>
-                                    </div>
-                                </div>
-                                <div class="portrait-cracks" aria-hidden="true">
-                                    <div class="portrait-crack-set portrait-crack-set-one">
-                                        <span class="portrait-crack portrait-crack-main"></span>
-                                        <span class="portrait-crack portrait-crack-branch-a"></span>
-                                        <span class="portrait-crack portrait-crack-branch-b"></span>
-                                        <span class="portrait-crack portrait-crack-branch-c"></span>
-                                        <span class="portrait-crack portrait-crack-branch-d"></span>
-                                        <span class="portrait-crack portrait-crack-branch-e"></span>
-                                        <span class="portrait-crack portrait-crack-shard-a"></span>
-                                        <span class="portrait-crack portrait-crack-shard-b"></span>
-                                        <span class="portrait-crack portrait-crack-shard-c"></span>
-                                    </div>
-                                    <div class="portrait-crack-set portrait-crack-set-two">
-                                        <span class="portrait-crack portrait-crack-main"></span>
-                                        <span class="portrait-crack portrait-crack-branch-a"></span>
-                                        <span class="portrait-crack portrait-crack-branch-b"></span>
-                                        <span class="portrait-crack portrait-crack-branch-c"></span>
-                                        <span class="portrait-crack portrait-crack-branch-d"></span>
-                                        <span class="portrait-crack portrait-crack-branch-e"></span>
-                                    </div>
-                                </div>
+                                <!-- Procedural shatter FX layers (populated by js/main.js on click) -->
+                                <div class="portrait-fx-flash" aria-hidden="true"></div>
+                                <div class="portrait-shatter-layer" data-portrait-shatter aria-hidden="true"></div>
+                                <div class="portrait-chip-layer" data-portrait-chips aria-hidden="true"></div>
+                                <div class="portrait-dust-layer" data-portrait-dust aria-hidden="true"></div>
+                                <div class="portrait-cracks" data-portrait-cracks aria-hidden="true"></div>
 
                                 <div class="portrait-note">Hey, someone's a detective! The polished version was generated using <a href="https://grok.com/imagine/post/6d615f1f-3cba-4374-9be6-61b2b0319c55" target="_blank" rel="noreferrer noopener">Grok Imagine</a>.</div>
 
@@ -645,24 +620,25 @@
         <div class="grid md:grid-cols-12 gap-x-16 gap-y-10">
             <div class="md:col-span-5">
                 <div class="sticky top-24">
-                    <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">WHO I AM</div>
+                    <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">WHO I AM</div>
                     <h2 class="section-header text-6xl leading-none tracking-tighter">The Story</h2>
+                    <p class="mt-5 text-sm leading-relaxed text-[#64748B] max-w-[28ch]">How I got here — in engineering and in faith.</p>
                 </div>
             </div>
             <div class="md:col-span-7">
                 <div class="prose-elegant space-y-6 max-w-2xl">
-                    <p>I first got drawn into AI watching systems like <a href="https://deepmind.google/research/alphago/" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white transition">AlphaGo</a> and <a href="https://deepmind.google/blog/alphastar-mastering-the-real-time-strategy-game-starcraft-ii/" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white transition">AlphaStar</a> outperform humans at complex games. That curiosity led me into computer science and eventually into building practical AI systems.</p>
+                    <p>I first got drawn into AI watching systems like <a href="https://deepmind.google/research/alphago/" target="_blank" rel="noopener noreferrer" class="transition">AlphaGo</a> and <a href="https://deepmind.google/blog/alphastar-mastering-the-real-time-strategy-game-starcraft-ii/" target="_blank" rel="noopener noreferrer" class="transition">AlphaStar</a>. That curiosity led into computer science, then into production systems that have to hold up outside a clean notebook.</p>
                     
-                    <p>Today, I work as an AI Research Engineer at <a href="https://www.panasonic.com/sg/home.html" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white transition">Panasonic</a>, developing internal supply chain automation tools from end to end. Before that, I worked on computer vision systems for threat detection at <a href="https://www.htx.gov.sg/" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white transition">HTX</a>. Those experiences taught me to value systems that remain useful beyond a prototype or benchmark.</p>
+                    <p>I am an AI Research Engineer at <a href="https://www.panasonic.com/sg/home.html" target="_blank" rel="noopener noreferrer" class="transition">Panasonic</a> (Singapore), owning internal supply-chain automation tools end to end. Before that I interned at <a href="https://www.htx.gov.sg/" target="_blank" rel="noopener noreferrer" class="transition">HTX</a> on checkpoint computer vision. Both roles rewarded the same habit: finish the last 20% that makes something actually usable.</p>
                     
-                    <p>Outside of work, I spend a lot of time reading Scripture, studying theology, and thinking about truth. The same habits that help me debug models also push me to examine ideas and beliefs more carefully.</p>
+                    <p>Outside work I read Scripture and study theology. I do not treat faith as branding. I treat it as the claim that Jesus is Lord — which means my work, speech, and study should be answerable to something truer than my preferences.</p>
                 </div>
 
                 <div class="mt-10 border-l-4 border-[#C9A227] pl-7 py-1">
                     <p class="text-2xl leading-tight text-[#E2E8F0] tracking-[-0.01em] section-header">
                         “The created creating,<br>pursuing the Uncaused Cause.”
                     </p>
-                    <p class="mt-3 text-sm tracking-wide text-[#64748B]">— My north star</p>
+                    <p class="mt-3 text-sm tracking-wide text-[#64748B]">— A line I still use as a check on myself</p>
                 </div>
             </div>
         </div>
@@ -674,7 +650,7 @@
     <section id="journey" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20">
         <div class="flex justify-between items-end mb-12">
             <div>
-                <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">PATH</div>
+                <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">PATH</div>
                 <h2 class="section-header text-6xl tracking-tighter">Journey</h2>
             </div>
             <div class="hidden md:block text-right text-sm text-[#64748B]">
@@ -692,13 +668,14 @@
                     <div class="flex flex-wrap items-baseline justify-between gap-x-4">
                         <div>
                             <h3 class="font-semibold text-2xl tracking-tight">AI Research Engineer</h3>
-                            <p class="text-[#C9A227]"><a href="https://www.panasonic.com/sg/home.html" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Panasonic</a> • Singapore</p>
+                            <p class="text-[#94A3B8]"><a href="https://www.panasonic.com/sg/home.html" target="_blank" rel="noopener noreferrer" class="transition">Panasonic</a> • Singapore</p>
                         </div>
                         <div class="text-sm font-medium text-[#64748B] tabular-nums">2024 — Present</div>
                     </div>
                     <p class="mt-3 text-[#94A3B8]">
-                        Built end-to-end supply chain automation tools with Python and Streamlit, replacing legacy Excel workflows and making planning roughly 5x faster. The experience reinforced my belief that good engineering is ultimately about creating useful leverage for people.
+                        Own internal supply-chain automation tools end to end (Python, Streamlit): replaced brittle Excel workflows for planning teams and cut planning cycle time by roughly 5×. Scope covers data ingestion, UI, and the last-mile reliability work that makes tools stick.
                     </p>
+                    <p class="mt-2 text-sm text-[#64748B]">Stack: Python · Streamlit · internal data pipelines</p>
                 </div>
             </div>
 
@@ -711,16 +688,17 @@
                     <div class="flex flex-wrap items-baseline justify-between gap-x-4">
                         <div>
                             <h3 class="font-semibold text-2xl tracking-tight">AI Developer Intern</h3>
-                            <p class="text-[#C9A227]"><a href="https://www.htx.gov.sg/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">HTX</a> (Home Team Science &amp; Technology Agency) — CBRNE Centre</p>
+                            <p class="text-[#94A3B8]"><a href="https://www.htx.gov.sg/" target="_blank" rel="noopener noreferrer" class="transition">HTX</a> (Home Team Science &amp; Technology Agency) — CBRNE Centre</p>
                         </div>
                         <div class="text-sm font-medium text-[#64748B] tabular-nums">2023</div>
                     </div>
                     <p class="mt-3 text-[#94A3B8]">
-                        Worked on computer vision systems for threat detection in checkpoint environments. It taught me how much careful engineering is needed to turn a promising model into something genuinely useful under real operational constraints.
+                        Built computer-vision pipelines for prohibited-item detection on operational X-ray imagery at Singapore checkpoints (data collection at sites including Tuas, Woodlands, and Changi; annotation; training; evaluation; handoff). Models contributed to deployed border capability.
                     </p>
-                    <div class="mt-4 text-sm italic text-[#64748B] border-l border-white/20 pl-4">
-                        “This internship met my expectations and exceeded it in other ways... the fun work culture, great colleagues, good work-life balance, and great office environment exceeded my expectations.”
-                    </div>
+                    <p class="mt-2 text-sm text-[#64748B]">
+                        Stack: YOLOv7 · Detectron2 · Python ·
+                        <a href="https://www.htx.gov.sg/join-us/our-stories/2023/htx-intern-stories--an-intern-s-gambit-into-the-world-of-ai" target="_blank" rel="noopener noreferrer">HTX public write-up →</a>
+                    </p>
                 </div>
             </div>
 
@@ -733,13 +711,39 @@
                     <div class="flex flex-wrap items-baseline justify-between gap-x-4">
                         <div>
                             <h3 class="font-semibold text-2xl tracking-tight">B.Eng Computer Science</h3>
-                            <p class="text-[#C9A227]"><a href="https://www.ntu.edu.sg/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Nanyang Technological University</a></p>
+                            <p class="text-[#94A3B8]"><a href="https://www.ntu.edu.sg/" target="_blank" rel="noopener noreferrer" class="transition">Nanyang Technological University</a></p>
                         </div>
                         <div class="text-sm font-medium text-[#64748B] tabular-nums">2020 — 2024</div>
                     </div>
                     <p class="mt-3 text-[#94A3B8]">
-                        Built a scene-text detection and translation system for natural images and manga panels using Flask, React, EasyOCR, and early LLM tooling. It showed me how satisfying it can be to turn an interesting technical idea into a tool that solves a tangible problem.
+                        Final Year Project: scene-text detection + translation pipeline (EasyOCR, PyTorch, Flask, React) for natural images and manga panels, with in-image re-rendering. Also completed URECA research under Prof Andrea Nanetti / Prof Erik Cambria on Engineering Historical Memory.
                     </p>
+                    <p class="mt-2 text-sm text-[#64748B]">Open source FYP:
+                        <a href="https://github.com/AlphaeusNg/FYP" target="_blank" rel="noopener noreferrer">github.com/AlphaeusNg/FYP →</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills for scanners / ATS-minded readers -->
+        <div class="mt-16 rounded-3xl border border-white/10 bg-[#111827] p-7 md:p-8">
+            <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#94A3B8] mb-4">SKILLS &amp; TOOLS</div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
+                <div>
+                    <div class="text-[#E2E8F0] font-semibold mb-2">ML / CV</div>
+                    <p class="text-[#94A3B8] leading-relaxed">PyTorch, YOLO, Detectron2, EasyOCR, model evaluation, data annotation pipelines</p>
+                </div>
+                <div>
+                    <div class="text-[#E2E8F0] font-semibold mb-2">Backend &amp; apps</div>
+                    <p class="text-[#94A3B8] leading-relaxed">Python, Flask, Streamlit, REST APIs, Socket.IO, Redis</p>
+                </div>
+                <div>
+                    <div class="text-[#E2E8F0] font-semibold mb-2">Frontend</div>
+                    <p class="text-[#94A3B8] leading-relaxed">React, Next.js, TypeScript, Tailwind, static web tooling</p>
+                </div>
+                <div>
+                    <div class="text-[#E2E8F0] font-semibold mb-2">Practices</div>
+                    <p class="text-[#94A3B8] leading-relaxed">End-to-end ownership, operational constraints, local-first privacy, clear handoff docs</p>
                 </div>
             </div>
         </div>
@@ -749,11 +753,11 @@
             <div class="grid items-start gap-4 md:grid-cols-3">
                 <details class="chapter-disclosure rounded-2xl border border-white/10 bg-[#111827] p-5">
                     <summary class="chapter-disclosure-summary">
-                        <div class="text-[11px] font-medium uppercase tracking-[1.8px] text-[#C9A227]">2015 — 2018</div>
+                        <div class="text-[11px] font-medium uppercase tracking-[1.8px] text-[#94A3B8]">2015 — 2018</div>
                         <div class="mt-2">
                             <div>
                                 <h3 class="text-xl font-semibold tracking-tight">Diploma in Biomedical Science</h3>
-                                <p class="mt-1 text-sm text-[#64748B]"><a href="https://www.sp.edu.sg/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Singapore Polytechnic</a></p>
+                                <p class="mt-1 text-sm text-[#64748B]"><a href="https://www.sp.edu.sg/" target="_blank" rel="noopener noreferrer" class="transition">Singapore Polytechnic</a></p>
                             </div>
                         </div>
                     </summary>
@@ -761,11 +765,11 @@
                 </details>
                 <details class="chapter-disclosure rounded-2xl border border-white/10 bg-[#111827] p-5">
                     <summary class="chapter-disclosure-summary">
-                        <div class="text-[11px] font-medium uppercase tracking-[1.8px] text-[#C9A227]">2018 — 2020</div>
+                        <div class="text-[11px] font-medium uppercase tracking-[1.8px] text-[#94A3B8]">2018 — 2020</div>
                         <div class="mt-2">
                             <div>
                                 <h3 class="text-xl font-semibold tracking-tight">Combat Medic Sergeant</h3>
-                                <p class="mt-1 text-sm text-[#64748B]">MMI • <a href="https://www.mindef.gov.sg/about-us/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Singapore Armed Forces</a></p>
+                                <p class="mt-1 text-sm text-[#64748B]">MMI • <a href="https://www.mindef.gov.sg/about-us/" target="_blank" rel="noopener noreferrer" class="transition">Singapore Armed Forces</a></p>
                             </div>
                         </div>
                     </summary>
@@ -773,15 +777,15 @@
                 </details>
                 <details class="chapter-disclosure rounded-2xl border border-white/10 bg-[#111827] p-5">
                     <summary class="chapter-disclosure-summary">
-                        <div class="text-[11px] font-medium uppercase tracking-[1.8px] text-[#C9A227]">2021 — 2022</div>
+                        <div class="text-[11px] font-medium uppercase tracking-[1.8px] text-[#94A3B8]">2021 — 2022</div>
                         <div class="mt-2">
                             <div>
-                                <h3 class="text-xl font-semibold tracking-tight"><a href="https://www.ntu.edu.sg/education/undergraduate-research-experience-on-campus-%28ureca%29" target="_blank" rel="noopener noreferrer" class="hover:text-[#C9A227] transition">URECA</a> Student Researcher</h3>
+                                <h3 class="text-xl font-semibold tracking-tight"><a href="https://www.ntu.edu.sg/education/undergraduate-research-experience-on-campus-%28ureca%29" target="_blank" rel="noopener noreferrer" class="transition">URECA</a> Student Researcher</h3>
                                 <p class="mt-1 text-sm text-[#64748B]">NTU SCSE • Prof Andrea Nanetti</p>
                             </div>
                         </div>
                     </summary>
-                    <p class="mt-4 text-sm leading-6 text-[#94A3B8]">Worked on the <a href="https://engineeringhistoricalmemory.com/Sentiment.php" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white">Engineering Historical Memory</a> website as part of my URECA project under <a href="https://www.linkedin.com/in/andreananetti/" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white">Prof Andrea Nanetti</a> and <a href="https://www.linkedin.com/in/erikcambria/" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white">Prof Erik Cambria</a>, with the work also referenced in <a href="https://www.taylorfrancis.com/books/oa-mono/10.4324/9781003310860/computational-engineering-historical-memories-andrea-nanetti" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white"><em>Computational Engineering of Historical Memories</em></a>.</p>
+                    <p class="mt-4 text-sm leading-6 text-[#94A3B8]">Worked on the <a href="https://engineeringhistoricalmemory.com/Sentiment.php" target="_blank" rel="noopener noreferrer">Engineering Historical Memory</a> website as part of my URECA project under <a href="https://www.linkedin.com/in/andreananetti/" target="_blank" rel="noopener noreferrer">Prof Andrea Nanetti</a> and <a href="https://www.linkedin.com/in/erikcambria/" target="_blank" rel="noopener noreferrer">Prof Erik Cambria</a>, with the work also referenced in <a href="https://www.taylorfrancis.com/books/oa-mono/10.4324/9781003310860/computational-engineering-historical-memories-andrea-nanetti" target="_blank" rel="noopener noreferrer"><em>Computational Engineering of Historical Memories</em></a>.</p>
                 </details>
             </div>
         </div>
@@ -791,9 +795,9 @@
     <section id="craft" class="bg-[#111827] py-20 md:py-24 scroll-mt-20">
         <div class="max-w-5xl mx-auto px-6">
             <div class="mb-12">
-                <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">WHAT I BUILD</div>
+                <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">WHAT I BUILD</div>
                 <h2 class="section-header text-6xl tracking-tighter">The Craft</h2>
-                <p class="mt-4 max-w-md text-[#94A3B8]">Projects where vision, language, product decisions, and real-world constraints all have to work together.</p>
+                <p class="mt-4 max-w-2xl text-[#94A3B8]">Selected work with outcomes and links. Case studies open in-page; demos and repos where they exist.</p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -802,10 +806,10 @@
                     <div>
                         <div class="project-badge mb-4">APPLIED COMPUTER VISION</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">Threat Detection Systems</h3>
-                        <p class="text-sm text-[#64748B] mt-1">HTX — CBRNE Centre of Expertise</p>
+                        <p class="text-sm text-[#64748B] mt-1">HTX CBRNE · Internship 2023</p>
                     </div>
                     
-                    <p class="mt-6 text-[#94A3B8]">Built and deployed computer vision models for detecting prohibited items in X-ray and security imagery at Singapore checkpoints. The work focused on making models useful in real operational conditions, from data preparation and annotation to evaluation and deployment.</p>
+                    <p class="mt-6 text-[#94A3B8]">End-to-end CV for prohibited-item detection on checkpoint X-ray imagery: on-site data collection, annotation QC, training (YOLOv7 / Detectron2), evaluation, and handoff into operational use at Singapore borders.</p>
                     <div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-[#111827]">
                         <img
                             src="assets/Sample-of-X-ray-images-from-baggage-top-and-cargo-bottom-inspection-red-bounding-box.png"
@@ -814,16 +818,16 @@
                             loading="lazy">
                     </div>
                     <p class="mt-3 text-xs leading-relaxed text-[#64748B]">
-                        Sample inspection imagery pulled from
+                        Illustrative X-ray figure (public research image, not operational data).
                         <a href="https://www.researchgate.net/figure/Sample-of-X-ray-images-from-baggage-top-and-cargo-bottom-inspection-red-bounding-box_fig4_395349804"
                            target="_blank"
                            rel="noopener noreferrer"
-                           class="text-[#C9A227] hover:text-white">this published figure</a>.
+                          >Source →</a>
                     </p>
                     
-                    <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs tracking-widest text-[#64748B]">
-                        <div>PRODUCTION DEPLOYED • REAL-WORLD IMPACT</div>
-                        <button onclick="openRichProjectModal('htx-threat')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
+                    <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
+                        <div>DEPLOYED CAPABILITY</div>
+                        <button onclick="openRichProjectModal('htx-threat')" class="linkish font-medium normal-case tracking-normal">Case study →</button>
                     </div>
                 </div>
 
@@ -832,47 +836,54 @@
                     <div>
                         <div class="project-badge mb-4">COMPUTER VISION + NLP</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">Scene Text Translator</h3>
-                        <p class="text-sm text-[#64748B] mt-1">Final Year Project, NTU</p>
+                        <p class="text-sm text-[#64748B] mt-1">NTU Final Year Project · 2024</p>
                     </div>
                     
-                    <p class="mt-auto pt-8 text-[#94A3B8] md:mt-6 md:pt-0">Developed a pipeline that detects text in natural images, translates it, and reinserts it while preserving layout and readability. It was designed to handle both real-world photos and manga panels.</p>
+                    <p class="mt-6 text-[#94A3B8]">Pipeline: detect text in natural images / manga → context-aware translation → erase and re-render in place. Flask API + React UI; evaluated on Manga109 and real photos.</p>
                     
-                    <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs tracking-widest text-[#64748B] md:mt-auto">
-                        <div>PYTORCH • REACT • FLASK</div>
-                        <button onclick="openRichProjectModal('scene-text')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
+                    <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
+                        <div>PYTORCH · EASYOCR · FLASK</div>
+                        <div class="flex gap-x-3 normal-case tracking-normal">
+                            <button onclick="openRichProjectModal('scene-text')" class="linkish font-medium">Case study →</button>
+                            <a href="https://github.com/AlphaeusNg/FYP" target="_blank" rel="noopener noreferrer" class="font-medium">GitHub →</a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- VotaFun -->
                 <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
                     <div>
-                        <div class="project-badge mb-4">MULTIPLAYER + AI</div>
+                        <div class="project-badge mb-4">FULL-STACK · REAL-TIME</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">VotaFun</h3>
+                        <p class="text-sm text-[#64748B] mt-1">NTU module project · live demo</p>
                     </div>
                     
-                    <p class="mt-auto pt-8 text-[#94A3B8] md:mt-6 md:pt-0">A real-time group decision-making web app designed to help people decide together, with AI used as a helpful assistant rather than a replacement for human judgment.</p>
+                    <p class="mt-6 text-[#94A3B8]">Real-time group decision app: join a room, share preferences, get LLM-ranked options with explanations, vote together. Model assists; people decide. Next.js + Flask + Socket.IO + Redis.</p>
                     
-                    <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs tracking-widest text-[#64748B] md:mt-auto">
-                        <div>WEB • CHATGPT INTEGRATION</div>
-                        <button onclick="openRichProjectModal('votafun')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
+                    <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
+                        <div>NEXT.JS · SOCKET.IO · LLM</div>
+                        <div class="flex gap-x-3 normal-case tracking-normal">
+                            <button onclick="openRichProjectModal('votafun')" class="linkish font-medium">Case study →</button>
+                            <a href="https://votafun.onrender.com/" target="_blank" rel="noopener noreferrer" class="font-medium">Live demo →</a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- KoboForge -->
                 <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
                     <div>
-                        <div class="project-badge mb-4">AI TOOLING • ULTRA-ROBUST</div>
+                        <div class="project-badge mb-4">LOCAL-FIRST TOOLING</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">KoboForge</h3>
-                        <p class="text-sm text-[#64748B] mt-1">Private PDF/DOCX → EPUB for <a href="https://www.kobo.com/us/en/ereaders" target="_blank" rel="noopener noreferrer" class="hover:text-white transition">Kobo</a></p>
+                        <p class="text-sm text-[#64748B] mt-1">PDF/DOCX → EPUB · no upload</p>
                     </div>
                     
-                    <p class="mt-auto pt-8 text-[#94A3B8] md:mt-6 md:pt-0">A privacy-focused tool that converts PDF and DOCX files into clean EPUBs for Kobo readers. I built it because existing converters often struggle with imperfect or complex documents.</p>
+                    <p class="mt-6 text-[#94A3B8]">Browser-only EPUB builder for Kobo: client-side parse, preview, export. Built for messy real documents (tables, spacing) and private files that should not hit a server.</p>
                     
-                    <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between text-xs tracking-widest text-[#64748B] md:mt-auto">
-                        <div>WEB + PYTHON • 8-PHASE BUILD</div>
-                        <div class="flex items-center gap-x-3">
-                            <button onclick="openRichProjectModal('koboforge')" class="text-[#C9A227] hover:text-white font-medium">View case study →</button>
-                            <a href="pages/kobo-forge.html" class="text-[#C9A227] hover:text-white font-medium">Launch →</a>
+                    <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
+                        <div>PDF.JS · MAMMOTH · JSZIP</div>
+                        <div class="flex gap-x-3 normal-case tracking-normal">
+                            <button onclick="openRichProjectModal('koboforge')" class="linkish font-medium">Case study →</button>
+                            <a href="pages/kobo-forge.html" class="font-medium">Launch →</a>
                         </div>
                     </div>
                 </div>
@@ -887,7 +898,7 @@
                         </div>
                         <div class="text-right">
                             <a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth" target="_blank" rel="noopener noreferrer"
-                               class="inline-block text-[#C9A227] hover:text-white transition">
+                               class="inline-block transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                 </svg>
@@ -895,200 +906,72 @@
                         </div>
                     </div>
                     
-                    <p class="pt-8 text-[#94A3B8] max-w-3xl">A public <a href="https://obsidian.md/" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white transition">Obsidian</a>-based knowledge base with Python tooling for serious Scripture study. Visitors can explore notes, backlinks, and the knowledge graph through a full-page vault browser.</p>
+                    <p class="mt-6 text-[#94A3B8] max-w-3xl">A public <a href="https://obsidian.md/" target="_blank" rel="noopener noreferrer" class="transition">Obsidian</a> vault with Python tooling for Scripture study: notes, backlinks, and a live knowledge graph, so the work is browsable rather than locked in private folders.</p>
                     
-                    <div class="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)]">
+                    <div class="mt-6 grid gap-4 sm:grid-cols-2">
                         <div class="rounded-2xl border border-white/10 bg-[#111827] p-5">
-                            <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#C9A227]">Browse flow</div>
-                            <p class="mt-3 text-sm leading-6 text-[#CBD5E1]">Open a note, switch between rendered Markdown and raw source, follow backlinks, and keep the graph visible as you explore.</p>
+                            <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#94A3B8]">In the browser</div>
+                            <p class="mt-3 text-sm leading-6 text-[#CBD5E1]">Open notes, toggle rendered vs raw Markdown, follow links, and drag the live graph.</p>
                         </div>
                         <div class="rounded-2xl border border-white/10 bg-[#111827] p-5">
-                            <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#C9A227]">Best entry points</div>
-                            <p class="mt-3 text-sm leading-6 text-[#CBD5E1]">Start with the public viewer. If you want the full local version, clone the repo and open the vault in Obsidian.</p>
+                            <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#94A3B8]">Locally</div>
+                            <p class="mt-3 text-sm leading-6 text-[#CBD5E1]">Clone the repo and open the vault in Obsidian for canvases, plugins, and full editing.</p>
                         </div>
                     </div>
 
-                    <div class="pt-5 flex flex-wrap items-center gap-3">
-                        <button onclick="openRichProjectModal('seeking-biblical-truth')" 
-                                class="inline-flex items-center gap-x-2 text-sm font-medium text-[#C9A227] hover:text-white transition-all group-hover:gap-x-2.5">
-                            View case study
-                            <span class="text-lg leading-none">→</span>
-                        </button>
-                        <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer"
-                           class="text-xs px-3 py-1 rounded-full border border-white/10 hover:border-[#C9A227]/50 text-[#C9A227] transition">
-                            Full vault + interactive graph →
-                        </a>
+                    <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
+                        <div>OPEN SOURCE · PYTHON + OBSIDIAN</div>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 normal-case tracking-normal">
+                            <button onclick="openRichProjectModal('seeking-biblical-truth')" class="linkish font-medium">Case study →</button>
+                            <a href="pages/seeking-biblical-truth/" class="font-medium">Open vault →</a>
+                        </div>
                     </div>
-                    
-                    <div class="pt-3">
-                        <a href="pages/seeking-biblical-truth/" 
-                           class="inline-flex items-center gap-x-1.5 text-sm font-medium text-[#C9A227] hover:text-white transition-all group-hover:gap-x-2">
-                            Open the full-page vault browser →
-                        </a>
-                        <p class="text-[11px] text-[#94A3B8] mt-1 leading-snug">The full Obsidian vault and editable Markdown live in the GitHub repo.</p>
-                    </div>
-                    
-                    <div class="pt-6 mt-6 border-t border-white/10 text-xs tracking-widest text-[#64748B]">OPEN SOURCE • PYTHON + OBSIDIAN</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- =====================================================
-         Thoughts / Blog (skeleton)
-         Placed after Reflections per design flow (Faith & Code → Writing).
-         Uses .blog-post cards for visual parity with site cards + gold accents + serif-capable headings.
-         Draft note labels mark future content until standalone posts exist.
-         Easy expansion comment below. Matches existing typography, spacing, and color language.
-         ===================================================== -->
-    <section id="thoughts" class="max-w-5xl mx-auto px-6 py-20 md:py-28 scroll-mt-20">
-        <div class="mb-10">
-            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">WRITING &amp; NOTES</div>
-            <h2 class="section-header text-6xl tracking-tighter">Thoughts</h2>
+    <!-- Interests / writing directions (honest, not fake dated posts) -->
+    <section id="thoughts" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20">
+        <div class="mb-12">
+            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">INTERESTS</div>
+            <h2 class="section-header text-6xl tracking-tighter">What I think about</h2>
+            <p class="mt-4 max-w-2xl text-[#94A3B8] leading-relaxed">
+                Themes I return to in work and study. Not a finished blog — longer notes live under Faith and on GitHub.
+            </p>
         </div>
 
-        <p class="text-[#94A3B8] max-w-2xl mb-9 text-[15px]">
-            Short notes on AI, theology, careful thinking, and whatever else stays on my mind. Many are still drafts.
-        </p>
-
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="thoughts-list">
-            <!-- Placeholder 1 -->
-            <div class="blog-post group bg-[#111827] border border-white/10 rounded-2xl p-6 flex flex-col transition hover:border-[#C9A227]/50">
-                <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">APR 2025</div>
-                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">Building tools that still matter after the hype leaves</h3>
-                <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Most AI tools fade quickly. A few remain useful because they solve durable problems well.</p>
-                <span class="text-[#64748B] text-xs font-medium">Draft note</span>
+        <div class="grid sm:grid-cols-2 gap-5" id="thoughts-list">
+            <div class="blog-post bg-[#111827] border border-white/10 rounded-2xl p-6">
+                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 text-[#E2E8F0]">Durable tools over demo theatre</h3>
+                <p class="text-[#94A3B8] text-sm leading-relaxed">I care more about systems that stay useful after launch than about model novelty alone — evaluation, handoff, and the last 20% of reliability.</p>
             </div>
-
-            <!-- Placeholder 2 -->
-            <div class="blog-post group bg-[#111827] border border-white/10 rounded-2xl p-6 flex flex-col transition hover:border-[#C9A227]/50">
-                <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">MAR 2025</div>
-                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">Precision as faithfulness</h3>
-                <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Careless language about God and careless language about models often come from the same habit: speaking too quickly about things that deserve more precision.</p>
-                <span class="text-[#64748B] text-xs font-medium">Draft note</span>
+            <div class="blog-post bg-[#111827] border border-white/10 rounded-2xl p-6">
+                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 text-[#E2E8F0]">Precision in language</h3>
+                <p class="text-[#94A3B8] text-sm leading-relaxed">Whether the domain is ML metrics or doctrine, sloppy words hide bad reasoning. Define terms; show work; admit uncertainty.</p>
             </div>
-
-            <!-- Placeholder 3 -->
-            <div class="blog-post group bg-[#111827] border border-white/10 rounded-2xl p-6 flex flex-col transition hover:border-[#C9A227]/50">
-                <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">FEB 2025</div>
-                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">The map isn't the territory</h3>
-                <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">Every model is a compression, whether it is statistical or theological. Forget that, and you start mistaking your explanation for reality itself.</p>
-                <span class="text-[#64748B] text-xs font-medium">Draft note</span>
+            <div class="blog-post bg-[#111827] border border-white/10 rounded-2xl p-6">
+                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 text-[#E2E8F0]">Models are maps, not territory</h3>
+                <p class="text-[#94A3B8] text-sm leading-relaxed">Statistical and theological models compress reality. Forgetting that is how you confuse the explanation with the world.</p>
             </div>
-
-            <!-- Placeholder 4 (wider feel on large screens) -->
-            <div class="blog-post group bg-[#111827] border border-white/10 rounded-2xl p-6 flex flex-col transition hover:border-[#C9A227]/50 sm:col-span-2 lg:col-span-1">
-                <div class="text-[10px] font-medium tracking-[1.5px] text-[#64748B] mb-1.5">JAN 2025</div>
-                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 group-hover:text-[#C9A227] transition">Making careful study less painful</h3>
-                <p class="text-[#94A3B8] text-sm leading-snug flex-1 mb-4">I am interested in narrowing the gap between a curious reader and the sources that actually matter.</p>
-                <span class="text-[#64748B] text-xs font-medium">Draft note</span>
-            </div>
-        </div>
-
-        <!-- Easy expansion instruction (do not remove) -->
-        <div class="mt-8 text-[11px] text-[#64748B]">
-            <!-- 
-                EXPANSION: Add new entries here as additional .blog-post divs (copy pattern above) 
-                OR via a small JS array + renderer function (see PROJECT_MODAL_DATA pattern in openRichProjectModal for reference).
-                When ready for real posts: replace Draft note labels with real links (e.g. /thoughts/slug.html or GitHub .md raw + renderer).
-                Keep gold accents, rounded-2xl cards, and consistent typography.
-            -->
-        </div>
-    </section>
-
-    <!-- Connect -->
-    <section id="connect" class="border-t border-white/10 bg-[#111827] py-20 scroll-mt-20">
-        <div class="max-w-3xl mx-auto px-6 text-center">
-            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">LET'S TALK</div>
-            <h2 class="section-header text-6xl tracking-tighter mb-6">Connect</h2>
-            <p class="text-xl text-[#94A3B8] max-w-md mx-auto">If you would like to talk about AI, product work, theology, or careful thinking, feel free to email me.</p>
-
-            <!-- =====================================================
-                 Prominent static CV download experience (Task 2)
-                 - Clean card matching site card aesthetic (subtle border, gold hover accents)
-                 - Primary PDF (direct download with nice filename), secondary DOCX
-                 - Tertiary fallback: "Request latest" mailto (preserves old behavior)
-                 - Inline SVGs for icons, file size/type hints, Last updated note
-                 - Anchor #cv-downloads for direct linking from Explore dropdown
-                 ===================================================== -->
-            <div id="cv-downloads" class="mt-9 max-w-xl mx-auto w-full">
-                <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-5 sm:p-6 text-left transition-colors hover:border-[#C9A227]/30">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-y-1 mb-4">
-                        <div>
-                            <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#C9A227]">PROFESSIONAL MATERIALS</div>
-                            <div class="text-[17px] sm:text-lg font-semibold tracking-tight text-white mt-0.5">Resume / CV</div>
-                        </div>
-                        <div class="text-[10px] text-[#64748B] sm:text-right font-medium">Last updated: May 2026</div>
-                    </div>
-
-                    <div class="grid grid-cols-1 gap-2.5">
-                        <!-- Primary: shared Drive resume -->
-                        <a href="https://docs.google.com/document/d/13kFCvREXmmXATNZhuG3DNd3wkhK-uHIq/edit?usp=drive_link&amp;ouid=117813149167461262984&amp;rtpof=true&amp;sd=true" target="_blank" rel="noopener noreferrer"
-                           class="group flex items-center gap-3.5 rounded-xl border border-white/15 bg-white/[0.035] px-4 py-3 hover:border-[#C9A227] hover:bg-[#C9A227]/10 active:scale-[0.985] transition-all">
-                            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#C9A227]/10 text-[#C9A227] group-hover:bg-[#C9A227] group-hover:text-[#0A0F1C] transition-colors">
-                                <!-- Document / PDF icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 3v4a1 1 0 001 1h4" />
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-x-2">
-                                    <span class="font-semibold text-[#E2E8F0] group-hover:text-white transition-colors">Open the resume</span>
-                                    <span class="text-[9px] px-1.5 py-px rounded bg-[#C9A227]/20 text-[#C9A227] font-mono tracking-tight">DRIVE</span>
-                                </div>
-                                <div class="text-[11px] text-[#94A3B8] leading-tight mt-px">The current version, kept up to date and easy to share.</div>
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#64748B] group-hover:text-[#C9A227] transition-colors flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.75">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 13v6m0 0l-3-3m3 3l3-3M3 17v-6a2 2 0 012-2h4" />
-                            </svg>
-                        </a>
-                    </div>
-
-                    <!-- Tertiary fallback (preserves original mailto intent) -->
-                    <div class="mt-4 pt-3 border-t border-white/10 text-center">
-                        <a href="mailto:alphaolivegreen@gmail.com?subject=CV%20Request%20-%20Alphaeus%20Ng" 
-                           class="inline-flex items-center gap-x-1.5 text-xs font-medium text-[#94A3B8] hover:text-[#C9A227] transition-colors">
-                            <span>Want it straight from me? Email me for the latest version.</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2.01 2.01 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-8 flex flex-col items-center gap-y-4">
-                <a href="mailto:alphaolivegreen@gmail.com" 
-                   class="group flex w-full max-w-xs items-center justify-center gap-x-3 rounded-2xl border border-white/15 px-8 py-4 text-lg font-medium hover:bg-white hover:text-[#0A0F1C] transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2.01 2.01 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <span>alphaolivegreen@gmail.com</span>
-                </a>
-
-                <div class="flex flex-wrap justify-center gap-x-4 gap-y-3 pt-3 text-sm">
-                    <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="px-6 py-2 rounded-full border border-white/10 hover:border-white/30 text-[#CBD5E1] hover:text-white transition flex items-center gap-x-2">
-                        <span>GitHub</span>
-                    </a>
-                    <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="px-6 py-2 rounded-full border border-white/10 hover:border-white/30 text-[#CBD5E1] hover:text-white transition flex items-center gap-x-2">
-                        <span>LinkedIn</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="mt-16 text-[10px] tracking-[1.5px] text-[#475569]">
-                SINGAPORE • BUILT WITH PURPOSE
+            <div class="blog-post bg-[#111827] border border-white/10 rounded-2xl p-6">
+                <h3 class="font-semibold text-[1.05rem] tracking-tight leading-snug mb-2 text-[#E2E8F0]">Making serious study navigable</h3>
+                <p class="text-[#94A3B8] text-sm leading-relaxed">
+                    See
+                    <a href="pages/seeking-biblical-truth/">Seeking Biblical Truth</a>
+                    and the journey documents under
+                    <a href="#reflections">Faith</a>.
+                </p>
             </div>
         </div>
     </section>
 
     <!-- Faith -->
-    <section id="reflections" class="max-w-5xl mx-auto px-6 py-16 md:py-20 scroll-mt-20">
-        <div class="mb-10">
-            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#C9A227] mb-3">BEYOND THE FORMAL</div>
-            <h2 class="section-header text-5xl md:text-6xl tracking-tighter">Faith</h2>
-            <p class="mt-4 max-w-3xl text-[#94A3B8] text-[1.02rem] leading-relaxed">Work is important, but Christ is more important. This section comes later on purpose. It reflects my journey through church life, Scripture, repentance, and learning to hold beliefs with both conviction and humility.</p>
+    <section id="reflections" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20">
+        <div class="mb-12">
+            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">FAITH</div>
+            <h2 class="section-header text-6xl tracking-tighter">Faith</h2>
+            <p class="mt-4 max-w-3xl text-[#94A3B8] leading-relaxed">Work matters. Christ matters more. Church, study notes, and the longer record of how I got here — not a decorative footer.</p>
         </div>
 
         <div class="grid lg:grid-cols-[1.05fr_0.95fr] gap-8 items-start">
@@ -1099,8 +982,8 @@
                 </div>
 
                 <div id="church-home" class="scroll-mt-24 bg-[#111827] border border-white/10 rounded-3xl p-7">
-                    <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#C9A227] mb-3">CHURCH</div>
-                    <h3 class="text-2xl tracking-tight font-semibold"><a href="https://www.bukitarang.church/" target="_blank" rel="noopener noreferrer" class="hover:text-[#C9A227] transition">Bethesda Church Bukit Arang</a></h3>
+                    <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#94A3B8] mb-3">CHURCH</div>
+                    <h3 class="text-2xl tracking-tight font-semibold"><a href="https://www.bukitarang.church/" target="_blank" rel="noopener noreferrer" class="transition">Bethesda Church Bukit Arang</a></h3>
                     <p class="mt-3 text-[#94A3B8] leading-relaxed">I attend Bethesda Church Bukit Arang. It has been one of the places where the gospel became more personal, concrete, and formative in my life.</p>
                     <p class="mt-3 text-sm text-[#64748B]">114 Serangoon Avenue 3, Singapore 556110</p>
                     <div class="mt-4 rounded-2xl overflow-hidden border border-white/10">
@@ -1114,7 +997,7 @@
                 </div>
 
                 <div id="journey-documents" class="scroll-mt-24 bg-[#111827] border border-white/10 rounded-3xl p-7">
-                    <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#C9A227] mb-3">SUMMARY</div>
+                    <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#94A3B8] mb-3">SUMMARY</div>
                     <div class="space-y-4 text-[#94A3B8] leading-relaxed">
                         <p>I started with inherited belief and a lot of apologetics. Over time, that became a more personal search for truth, with Scripture first, Christ at the center, and enough honesty to admit that some of my favorite frameworks were too small.</p>
                         <p>That meant wrestling seriously with sovereignty, free will, baptism, church life, and the kind of teaching that produces repentance, joy, unity, and love for Jesus.</p>
@@ -1125,45 +1008,117 @@
 
             <div class="space-y-5">
                 <div class="bg-[#111827] border border-white/10 rounded-3xl p-7">
-                    <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#C9A227] mb-4">JOURNEY DOCUMENTS</div>
+                    <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#94A3B8] mb-4">JOURNEY DOCUMENTS</div>
                     <div class="space-y-5 text-sm">
                         <div>
-                            <a href="https://docs.google.com/document/d/1Xb46dDpXdGp3hn8I7LrbZVnPESaVp7uEMHAo_5Cy_-Y/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="text-[#E2E8F0] hover:text-[#C9A227] font-medium">Thoughts on the Bible</a>
+                            <a href="https://docs.google.com/document/d/1Xb46dDpXdGp3hn8I7LrbZVnPESaVp7uEMHAo_5Cy_-Y/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="font-medium">Thoughts on the Bible</a>
                             <p class="mt-1 text-[#94A3B8]">Started in 2020 as an attempt to read what the Bible actually says, slowly and honestly, even when the answers are inconvenient.</p>
                         </div>
                         <div>
-                            <a href="https://docs.google.com/document/d/1Ya9AB-ZIPlb9tagGyHr9ZiijVUpt_HElWuIR6ZwrQ3E/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="text-[#E2E8F0] hover:text-[#C9A227] font-medium">God's Will &amp; Sovereignty</a>
+                            <a href="https://docs.google.com/document/d/1Ya9AB-ZIPlb9tagGyHr9ZiijVUpt_HElWuIR6ZwrQ3E/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="font-medium">God's Will &amp; Sovereignty</a>
                             <p class="mt-1 text-[#94A3B8]">A long study of free will, depravity, responsibility, and divine sovereignty that pushed me toward a more careful and humble view of doctrine.</p>
                         </div>
                         <div>
-                            <a href="https://docs.google.com/document/d/1qqXT6QfX_3ep1EMuEpqc021aJ3Vwd1EOTasuRBkqR1I/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="text-[#E2E8F0] hover:text-[#C9A227] font-medium">Alphaeus' thoughts</a>
+                            <a href="https://docs.google.com/document/d/1qqXT6QfX_3ep1EMuEpqc021aJ3Vwd1EOTasuRBkqR1I/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="font-medium">Alphaeus' thoughts</a>
                             <p class="mt-1 text-[#94A3B8]">My reflections on moving church, and why I came to believe I needed a more Christ-centered, grace-filled place to grow.</p>
                         </div>
                         <div>
-                            <a href="https://docs.google.com/document/d/1n96U7_bafQTATQ9rka5kOTmFwYKz1C3Q9V8nYBkf2Kg/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="text-[#E2E8F0] hover:text-[#C9A227] font-medium">Baptism Testimony</a>
+                            <a href="https://docs.google.com/document/d/1n96U7_bafQTATQ9rka5kOTmFwYKz1C3Q9V8nYBkf2Kg/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="font-medium">Baptism Testimony</a>
                             <p class="mt-1 text-[#94A3B8]">A short account of apologetics, sin, and the point where grace stopped being a concept and became something I actually needed.</p>
                         </div>
                         <div>
-                            <a href="https://docs.google.com/presentation/d/1hNu3gjw93FmK6fgL74YbJVZAVtH_Zj3T3uolCAHzxoI/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="text-[#E2E8F0] hover:text-[#C9A227] font-medium">Revelation 21:9–21 sermon deck</a>
-                            <p class="mt-1 text-[#94A3B8]">From my brief season pursuing a Masters in Ministry at <a href="https://www.hcu.edu/" target="_blank" rel="noopener noreferrer" class="text-[#C9A227] hover:text-white transition">Heritage Christian University</a>. It focuses on the New Jerusalem, final victory, and God dwelling with His people.</p>
+                            <a href="https://docs.google.com/presentation/d/1hNu3gjw93FmK6fgL74YbJVZAVtH_Zj3T3uolCAHzxoI/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="font-medium">Revelation 21:9–21 sermon deck</a>
+                            <p class="mt-1 text-[#94A3B8]">From my brief season pursuing a Masters in Ministry at <a href="https://www.hcu.edu/" target="_blank" rel="noopener noreferrer" class="transition">Heritage Christian University</a>. It focuses on the New Jerusalem, final victory, and God dwelling with His people.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-[#111827] border border-white/10 rounded-3xl p-7">
-                    <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#C9A227] mb-3">NORTH STAR</div>
+                    <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#94A3B8] mb-3">NORTH STAR</div>
                     <p class="text-[#E2E8F0] text-lg tracking-tight section-header">The created creating, pursuing the Uncaused Cause.</p>
-                    <p class="mt-3 text-sm leading-relaxed text-[#94A3B8]">That line still does the job in both worlds: build carefully, tell the truth, and stay answerable to what's real.</p>
+                    <p class="mt-3 text-sm leading-relaxed text-[#94A3B8]">A personal reminder: build things that are true enough to use, and keep studying under the God who made the world those models approximate.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer class="py-8 text-center text-xs text-[#475569]">
-        © Alphaeus Ng. All rights reserved. <span class="mx-2">—</span> 
-        <a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer" class="hover:text-[#64748B]">Source on GitHub</a>
-        <span class="mx-3 opacity-30">·</span>
-        <a href="pages/conviction.html" class="hover:text-[#94A3B8] transition">Investment Conviction</a>
+    <!-- Connect -->
+    <section id="connect" class="border-t border-white/10 bg-[#111827] py-20 md:py-24 scroll-mt-20">
+        <div class="max-w-3xl mx-auto px-6 text-center">
+            <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">CONTACT</div>
+            <h2 class="section-header text-6xl tracking-tighter mb-4">Connect</h2>
+            <p class="text-lg md:text-xl text-[#94A3B8] max-w-xl mx-auto leading-relaxed">
+                Based in Singapore. For roles, collaborations, or questions about the work: email or LinkedIn. CV downloads below (no form, no login).
+            </p>
+
+            <div id="cv-downloads" class="mt-9 max-w-xl mx-auto w-full text-left">
+                <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-5 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-y-1 mb-4">
+                        <div>
+                            <div class="uppercase tracking-[2.5px] text-[10px] font-semibold text-[#94A3B8]">RESUME / CV</div>
+                            <div class="text-[17px] sm:text-lg font-semibold tracking-tight text-white mt-0.5">Direct download</div>
+                        </div>
+                        <div class="text-[10px] text-[#64748B] sm:text-right font-medium">File on site · PDF &amp; DOCX</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <a href="assets/resume.pdf" download="Alphaeus-Ng-Resume.pdf"
+                           class="group flex items-center gap-3 rounded-xl border border-white/15 bg-white/[0.035] px-4 py-3 hover:border-[#C9A227] hover:bg-[#C9A227]/10 transition-all">
+                            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#C9A227]/10 text-[#C9A227] text-xs font-bold">PDF</div>
+                            <div class="min-w-0">
+                                <div class="font-semibold text-[#E2E8F0] group-hover:text-white text-sm">Download PDF</div>
+                                <div class="text-[11px] text-[#94A3B8]">Best for ATS / printing</div>
+                            </div>
+                        </a>
+                        <a href="assets/resume.docx" download="Alphaeus-Ng-Resume.docx"
+                           class="group flex items-center gap-3 rounded-xl border border-white/15 bg-white/[0.035] px-4 py-3 hover:border-[#C9A227] hover:bg-[#C9A227]/10 transition-all">
+                            <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#C9A227]/10 text-[#C9A227] text-[10px] font-bold">DOCX</div>
+                            <div class="min-w-0">
+                                <div class="font-semibold text-[#E2E8F0] group-hover:text-white text-sm">Download DOCX</div>
+                                <div class="text-[11px] text-[#94A3B8]">Editable Word format</div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <p class="mt-4 text-[11px] text-[#64748B] leading-relaxed">
+                        Prefer a live link?
+                        <a href="https://docs.google.com/document/d/13kFCvREXmmXATNZhuG3DNd3wkhK-uHIq/edit?usp=drive_link" target="_blank" rel="noopener noreferrer">Open Google Drive version →</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col items-center gap-y-4">
+                <a href="mailto:alphaolivegreen@gmail.com?subject=Hello%20from%20your%20portfolio%20%E2%80%94%20Alphaeus%20Ng"
+                   class="group flex w-full max-w-md items-center justify-center gap-x-3 rounded-2xl border border-white/15 px-8 py-4 text-base sm:text-lg font-medium hover:bg-white transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2.01 2.01 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span class="break-all">alphaolivegreen@gmail.com</span>
+                </a>
+
+                <div class="flex flex-wrap justify-center gap-3 pt-1 text-sm">
+                    <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="px-6 py-2.5 rounded-full border border-white/10 hover:border-[#C9A227]/50 transition">
+                        LinkedIn
+                    </a>
+                    <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="px-6 py-2.5 rounded-full border border-white/10 hover:border-[#C9A227]/50 transition">
+                        GitHub
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-14 text-[10px] tracking-[1.5px] text-[#475569]">
+                SINGAPORE · OPEN TO RELEVANT OPPORTUNITIES
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-10 text-center text-xs text-[#475569] border-t border-white/5">
+        <p class="mb-2 text-[11px] tracking-[0.08em] text-[#64748B]">The created creating, pursuing the Uncaused Cause.</p>
+        © Alphaeus Ng. All rights reserved.
+        <span class="mx-2 opacity-40">·</span>
+        <a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer">Source</a>
+        <span class="mx-2 opacity-40">·</span>
+        <a href="pages/conviction.html" class="transition">Conviction</a>
     </footer>
 
     <!-- Rich Project Case Study Modal (hardened minimal shell) -->
@@ -1214,7 +1169,7 @@
             <span class="uppercase tracking-[2.2px] text-[10px] font-medium text-[#C9A227]">LIVE VAULT VIEWER</span>
             <h4 class="text-[#E2E8F0] text-[21px] tracking-tighter mt-px">The actual public Obsidian graph</h4>
           </div>
-          <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-x-1 rounded-full border border-[#C9A227]/35 px-3 py-1 text-[10px] font-medium uppercase tracking-[1.5px] text-[#C9A227] hover:border-[#C9A227]/65 hover:text-white">
+          <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer" class="hidden sm:inline-flex items-center gap-x-1 rounded-full border border-[#C9A227]/35 px-3 py-1 font-medium uppercase tracking-[1.5px] hover:border-[#C9A227]/65">
             Open full viewer ↗
           </a>
         </div>
@@ -1233,7 +1188,7 @@
 
         <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
           <span class="text-[#64748B]">Need the full dedicated page?</span>
-          <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-x-1 text-[#C9A227] hover:underline font-medium">Open the full viewer →</a>
+          <a href="pages/seeking-biblical-truth/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-x-1 hover:underline font-medium">Open the full viewer →</a>
           <span class="text-[#64748B]">· Clone the repo and open it in Obsidian for the native vault, canvases, and raw Markdown.</span>
         </div>
       </div>
