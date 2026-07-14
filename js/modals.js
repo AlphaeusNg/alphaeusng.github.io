@@ -291,7 +291,11 @@ function openRichProjectModal(slug) {
     if (data.intersection) {
       const div = document.createElement('div');
       div.className = 'intersection mt-6 p-4 rounded-xl bg-[#111827]';
-      div.innerHTML = `<strong>Why It Matters</strong><br>${data.intersection.content}`;
+      const title = document.createElement('strong');
+      title.textContent = 'Why It Matters';
+      div.appendChild(title);
+      div.appendChild(document.createElement('br'));
+      div.appendChild(document.createTextNode(data.intersection.content));
       body.appendChild(div);
     }
 
@@ -315,11 +319,15 @@ function openRichProjectModal(slug) {
       body.appendChild(p);
     }
 
-    // Quote
+    // Quote (DOM APIs only — avoid innerHTML for static content hygiene)
     if (data.quote) {
       const q = document.createElement('p');
       q.className = 'mt-6 text-sm border-l-2 border-[#C9A227]/60 pl-5 text-[#94A3B8]';
-      q.innerHTML = `“${data.quote.text}” — <span class="not-italic">${data.quote.attribution}</span>`;
+      q.appendChild(document.createTextNode(`“${data.quote.text}” — `));
+      const attr = document.createElement('span');
+      attr.className = 'not-italic';
+      attr.textContent = data.quote.attribution;
+      q.appendChild(attr);
       body.appendChild(q);
     }
 
