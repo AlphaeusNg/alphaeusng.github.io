@@ -77,6 +77,7 @@ It also defaults to rendered Markdown previews with a raw-source toggle in the n
 Run before pushing:
 
 ```bash
+python3 tools/check_site.py
 python3 -m compileall tools
 node --check js/main.js
 node --check js/modals.js
