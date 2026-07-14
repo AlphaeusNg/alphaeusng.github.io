@@ -4,8 +4,10 @@ data/Networth Tracker.xlsx
 
 # Python
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # OS
 .DS_Store
