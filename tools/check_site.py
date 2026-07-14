@@ -42,6 +42,7 @@ def main() -> None:
         ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json",
         ROOT / "assets" / "alphaeus-portrait.jpg",
         ROOT / "assets" / "xray-baggage-sample.jpg",
+        ROOT / "LICENSE",
     ]
     for path in required:
         if not path.is_file():
