@@ -506,8 +506,28 @@ function populateBenchmark(data) {
     setBenchmarkView('value');
 }
 
+function waitForChart(timeoutMs = 8000) {
+    if (typeof Chart !== 'undefined') return Promise.resolve();
+    return new Promise((resolve, reject) => {
+        const start = Date.now();
+        const tick = () => {
+            if (typeof Chart !== 'undefined') {
+                resolve();
+                return;
+            }
+            if (Date.now() - start > timeoutMs) {
+                reject(new Error('Chart.js failed to load'));
+                return;
+            }
+            requestAnimationFrame(tick);
+        };
+        tick();
+    });
+}
+
 async function initConvictionPage() {
     try {
+        await waitForChart();
         const response = await fetch(CONVICTION_DATA_PATH, { cache: 'no-store' });
         if (!response.ok) {
             throw new Error(`Failed to load conviction data (${response.status})`);

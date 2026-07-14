@@ -24,7 +24,8 @@ The design should remain restrained, professional, and easy to share. It should 
   - `data/conviction_tsla_history.json`: TSLA transaction history plus the benchmark comparison used by `pages/conviction.html`.
 - `css/`: site CSS used by the portfolio.
 - `js/`: site JavaScript used by the portfolio and modals.
-- `assets/`: images and share assets referenced by public pages.
+- `assets/`: images and share assets referenced by public pages (prefer compressed JPEG web assets; keep originals only when needed).
+- `robots.txt` / `sitemap.xml`: basic crawl hints for the public site.
 - `tools/`: scripts grouped by domain.
   - `tools/koboforge/`: KoboForge companion tooling.
   - `tools/finance/`: local-only financial data helpers, including the TSLA-versus-SPY benchmark generator, the legacy benchmark snapshot, and the anonymized trade ledger.
