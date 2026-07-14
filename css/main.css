@@ -32,6 +32,29 @@ body {
     color: var(--text);
 }
 
+.skip-link {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    z-index: 100;
+    padding: 0.55rem 0.95rem;
+    border-radius: 999px;
+    background: var(--gold);
+    color: var(--ink) !important;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none !important;
+    transform: translateY(-160%);
+    transition: transform 0.15s ease;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid #E8C547;
+    outline-offset: 2px;
+}
+
 /* ============================================================
    Link system
    - Clickable <a> / linkish buttons → gold
