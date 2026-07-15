@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KoboForge • Client-side EPUB Builder</title>
-    <meta name="description" content="Client-side DOCX, PDF, TXT, and Markdown to EPUB conversion with better paragraph and indentation preservation for Kobo readers.">
+    <meta name="description" content="Client-side DOCX, PDF, TXT, and Markdown to EPUB conversion with paragraph, indentation, and HTML table preservation for Kobo readers.">
     <meta name="theme-color" content="#080d17">
     <link rel="canonical" href="https://alphaeusng.github.io/pages/kobo-forge.html">
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
@@ -82,6 +82,36 @@
             color: #cbd5e1;
             margin: 0 0 1.15rem;
         }
+
+        #preview table.kobo-table,
+        #preview table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0 1.25rem;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.25);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        #preview th,
+        #preview td {
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.45rem 0.65rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        #preview th {
+            background: rgba(201, 162, 39, 0.12);
+            color: #f8fafc;
+            font-weight: 600;
+        }
+
+        #preview tr:nth-child(even) td {
+            background: rgba(255, 255, 255, 0.03);
+        }
     </style>
 
     <style>
@@ -113,6 +143,7 @@
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Runs fully in your browser</div>
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">DOCX + PDF + TXT + Markdown</div>
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Structure-preserving PDF heuristics</div>
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">PDF/MD tables → HTML for Kobo</div>
         </div>
     </header>
 
@@ -128,7 +159,7 @@
                     </div>
                     <h2 class="mt-4 text-xl font-semibold tracking-tight">Drop a file here</h2>
                     <p class="mt-2 text-sm leading-7 text-slate-400">
-                        Best results come from DOCX. PDFs are supported with client-side structure reconstruction that tries to preserve line grouping, paragraph breaks, and indentation.
+                        Best results come from DOCX. PDFs are supported with client-side structure reconstruction that tries to preserve line grouping, paragraph breaks, indentation, and table grids.
                     </p>
                     <button id="pickFileBtn" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-[#C9A227] px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844]">Choose file</button>
                     <input id="fileInput" type="file" accept=".docx,.pdf,.txt,.md,.markdown" class="hidden">
@@ -145,11 +176,20 @@
                     </label>
                 </div>
 
+                <label class="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
+                    <input id="preserveTables" type="checkbox" checked class="mt-1 h-4 w-4 rounded border-white/20 bg-slate-900 text-[#C9A227] focus:ring-[#C9A227]">
+                    <span>
+                        <span class="block text-sm font-medium text-slate-100">Preserve tables as structured HTML</span>
+                        <span class="mt-1 block text-xs leading-5 text-slate-400">PDF grids and Markdown pipe tables become real &lt;table&gt; elements for best Kobo compatibility. Uncheck to flatten tables to plain text.</span>
+                    </span>
+                </label>
+
                 <div class="mt-6 rounded-3xl border border-white/10 bg-slate-950/35 p-5">
                     <div class="text-xs font-semibold uppercase tracking-[0.18em] text-[#C9A227]">Why this works better</div>
                     <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-300">
                         <li>DOCX keeps native paragraph structure, so conversion stays close to the source.</li>
                         <li>PDF extraction groups text by line height and x-position to reconstruct spaces and paragraph blocks.</li>
+                        <li>Grid-like PDF regions are detected and rebuilt as HTML tables (column clustering + row proximity).</li>
                         <li>Indented lines stay indented in both the preview and the exported EPUB.</li>
                     </ul>
                 </div>
@@ -198,7 +238,17 @@
     <footer class="border-t border-white/10 py-8 text-center text-xs text-slate-500">
         All processing stays local in your browser. <span class="mx-2">·</span>
         <a href="../index.html#craft" class="transition hover:text-slate-300">Back to The Craft</a>
+        <span class="mx-2">·</span>
+        <span id="site-version" class="font-mono text-slate-500" title="Bump js/version.js on each deploy">v—</span>
     </footer>
+    <script src="../js/version.js"></script>
+    <script>
+      (function () {
+        var el = document.getElementById('site-version');
+        var v = window.SITE_VERSION;
+        if (el && v) el.textContent = 'v' + v.id + ' · ' + v.repo;
+      })();
+    </script>
 
     <script type="module">
         import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
@@ -217,9 +267,15 @@
         const statStructure = document.getElementById('statStructure');
         const bookTitleInput = document.getElementById('bookTitle');
         const bookAuthorInput = document.getElementById('bookAuthor');
+        const preserveTablesEl = document.getElementById('preserveTables');
 
         let currentOutput = null;
         let currentFile = null;
+
+        // Re-run extraction when table preference changes (PDF/Markdown)
+        preserveTablesEl?.addEventListener('change', () => {
+            if (currentFile) processFile(currentFile);
+        });
 
         function waitForGlobal(name, timeoutMs = 12000) {
             if (window[name]) return Promise.resolve(window[name]);
@@ -339,51 +395,80 @@
             };
         }
 
+        function preserveTablesEnabled() {
+            const el = document.getElementById('preserveTables');
+            return !el || el.checked;
+        }
+
         async function parsePlainText(file, ext) {
             const text = await file.text();
             const html = ext === 'txt'
                 ? plainTextToStructuredHtml(text)
                 : markdownLikeToHtml(text);
             const paragraphCount = (html.match(/<p/g) || []).length || 1;
+            const tableCount = (html.match(/<table/gi) || []).length;
             return {
                 title: file.name.replace(/\.[^.]+$/, ''),
                 author: '',
-                bodyHtml: html,
+                bodyHtml: sanitizeBody(html),
                 paragraphCount,
                 formatLabel: ext === 'txt' ? 'TXT' : 'Markdown',
-                structureNote: 'Blank lines and indentation preserved',
-                status: `${ext.toUpperCase()} parsed locally with paragraph breaks and indentation preserved.`
+                structureNote: tableCount
+                    ? `${tableCount} table${tableCount === 1 ? '' : 's'} + paragraphs`
+                    : 'Blank lines and indentation preserved',
+                status: tableCount
+                    ? `${ext.toUpperCase()} parsed locally. ${tableCount} Markdown table${tableCount === 1 ? '' : 's'} converted to HTML for Kobo.`
+                    : `${ext.toUpperCase()} parsed locally with paragraph breaks and indentation preserved.`
             };
         }
 
         async function parsePdf(file) {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            const paragraphs = [];
+            const blocks = [];
+            let tableCount = 0;
 
             for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
                 const page = await pdf.getPage(pageNumber);
                 const textContent = await page.getTextContent();
-                const pageParagraphs = extractPdfParagraphs(textContent.items);
-                paragraphs.push(...pageParagraphs);
+                const pageBlocks = extractPdfBlocks(textContent.items, {
+                    preserveTables: preserveTablesEnabled()
+                });
+                for (const block of pageBlocks) {
+                    if (block.type === 'table') tableCount += 1;
+                    blocks.push(block);
+                }
             }
 
-            const html = paragraphs.length
-                ? paragraphs.map((paragraph) => `<p class="preserve-structure">${escapeHtml(paragraph)}</p>`).join('')
+            const html = blocks.length
+                ? blocks.map((block) => {
+                    if (block.type === 'table') return block.html;
+                    return `<p class="preserve-structure">${escapeHtml(block.text)}</p>`;
+                }).join('')
                 : '<p class="preserve-structure">No extractable text found.</p>';
+
+            const paragraphCount = blocks.filter((b) => b.type === 'paragraph').length || 1;
+            const structureNote = tableCount
+                ? `${tableCount} table${tableCount === 1 ? '' : 's'} + line/indent reconstruction`
+                : 'Heuristic line + indent reconstruction';
 
             return {
                 title: file.name.replace(/\.[^.]+$/, ''),
                 author: '',
-                bodyHtml: html,
-                paragraphCount: paragraphs.length || 1,
+                bodyHtml: sanitizeBody(html),
+                paragraphCount,
                 formatLabel: 'PDF',
-                structureNote: 'Heuristic line + indent reconstruction',
-                status: 'PDF parsed locally. KoboForge reconstructed spaces, paragraph boundaries, and indentation heuristically from page coordinates.'
+                structureNote,
+                status: tableCount
+                    ? `PDF parsed locally. Detected ${tableCount} table${tableCount === 1 ? '' : 's'} as HTML grids; also reconstructed spaces, paragraphs, and indentation.`
+                    : 'PDF parsed locally. KoboForge reconstructed spaces, paragraph boundaries, and indentation heuristically from page coordinates.'
             };
         }
 
-        function extractPdfParagraphs(items) {
+        /**
+         * Normalize PDF.js text items and group into visual lines (top→bottom).
+         */
+        function buildPdfLines(items) {
             const normalized = items
                 .filter((item) => item.str && item.str.trim() !== '')
                 .map((item) => {
@@ -421,7 +506,7 @@
             }
 
             const minX = lines.reduce((value, line) => Math.min(value, line.xStart), Number.POSITIVE_INFINITY);
-            const builtLines = lines.map((line) => {
+            return lines.map((line) => {
                 const sorted = line.items.sort((a, b) => a.x - b.x);
                 let text = '';
                 let previousEnd = null;
@@ -440,12 +525,194 @@
                 const indentSpaces = Math.max(0, Math.round((line.xStart - minX) / Math.max(avgSpace, 4)));
                 return {
                     y: line.y,
+                    xStart: line.xStart,
                     rawText: `${' '.repeat(Math.min(indentSpaces, 12))}${text.trimEnd()}`,
+                    plainText: text.trim(),
                     indentSpaces,
-                    lineHeight: Math.max(...sorted.map((part) => part.height || 10), 10)
+                    lineHeight: Math.max(...sorted.map((part) => part.height || 10), 10),
+                    avgCharWidth: avgSpace,
+                    cells: sorted.map((part) => ({
+                        text: part.text,
+                        x: part.x,
+                        width: part.width,
+                        end: part.x + part.width
+                    }))
                 };
             });
+        }
 
+        /**
+         * Cluster similar X positions into column anchors (for table detection).
+         */
+        function clusterColumnXs(xs, tolerance) {
+            if (!xs.length) return [];
+            const sorted = [...xs].sort((a, b) => a - b);
+            const clusters = [[sorted[0]]];
+            for (let i = 1; i < sorted.length; i += 1) {
+                const last = clusters[clusters.length - 1];
+                const center = last.reduce((s, v) => s + v, 0) / last.length;
+                if (Math.abs(sorted[i] - center) <= tolerance) {
+                    last.push(sorted[i]);
+                } else {
+                    clusters.push([sorted[i]]);
+                }
+            }
+            return clusters.map((c) => c.reduce((s, v) => s + v, 0) / c.length);
+        }
+
+        /**
+         * Assign each text run on a line to the nearest column center.
+         */
+        function lineToRow(line, colCenters, colTolerance) {
+            const row = colCenters.map(() => '');
+            for (const cell of line.cells) {
+                let bestIdx = 0;
+                let bestDist = Infinity;
+                for (let i = 0; i < colCenters.length; i += 1) {
+                    const dist = Math.abs(cell.x - colCenters[i]);
+                    if (dist < bestDist) {
+                        bestDist = dist;
+                        bestIdx = i;
+                    }
+                }
+                if (bestDist > colTolerance * 2.5) continue;
+                row[bestIdx] = row[bestIdx] ? `${row[bestIdx]} ${cell.text}`.trim() : cell.text.trim();
+            }
+            return row;
+        }
+
+        /** True when a single line looks multi-column (gaps between text runs). */
+        function lineLooksTabular(line) {
+            if (!line.cells || line.cells.length < 2) return false;
+            let bigGaps = 0;
+            for (let i = 1; i < line.cells.length; i += 1) {
+                const gap = line.cells[i].x - line.cells[i - 1].end;
+                if (gap > Math.max(line.avgCharWidth * 2.2, 10)) bigGaps += 1;
+            }
+            return bigGaps >= 1 || line.cells.length >= 3;
+        }
+
+        function buildTableHtml(rows, { headerRow = true } = {}) {
+            if (!rows.length) return '';
+            const colCount = Math.max(...rows.map((r) => r.length));
+            const normalized = rows.map((r) => {
+                const copy = r.slice();
+                while (copy.length < colCount) copy.push('');
+                return copy;
+            });
+            // Drop empty columns
+            const usedCols = [];
+            for (let c = 0; c < colCount; c += 1) {
+                if (normalized.some((r) => (r[c] || '').trim())) usedCols.push(c);
+            }
+            if (usedCols.length < 2) return '';
+
+            const slim = normalized.map((r) => usedCols.map((c) => (r[c] || '').trim()));
+            const nonEmptyRows = slim.filter((r) => r.some((cell) => cell));
+            if (nonEmptyRows.length < 2) return '';
+
+            let html = '<table class="kobo-table">';
+            nonEmptyRows.forEach((row, idx) => {
+                const tag = headerRow && idx === 0 ? 'th' : 'td';
+                html += '<tr>';
+                row.forEach((cell) => {
+                    html += `<${tag}>${escapeHtml(cell || ' ')}</${tag}>`;
+                });
+                html += '</tr>';
+            });
+            html += '</table>';
+            return html;
+        }
+
+        function tryBuildTableFromLines(lines) {
+            if (lines.length < 2) return null;
+            const tabularCount = lines.filter(lineLooksTabular).length;
+            if (tabularCount < 2) return null;
+            if (tabularCount < Math.ceil(lines.length * 0.5)) return null;
+
+            const allXs = [];
+            let avgChar = 4;
+            for (const line of lines) {
+                avgChar = (avgChar + (line.avgCharWidth || 4)) / 2;
+                for (const cell of line.cells) allXs.push(cell.x);
+            }
+            const colTolerance = Math.max(avgChar * 1.8, 8);
+            const colCenters = clusterColumnXs(allXs, colTolerance);
+            if (colCenters.length < 2) return null;
+
+            const rows = lines.map((line) => lineToRow(line, colCenters, colTolerance));
+            const tableHtml = buildTableHtml(rows, { headerRow: true });
+            return tableHtml || null;
+        }
+
+        /**
+         * Detect contiguous table regions in built lines; return mixed paragraph/table blocks.
+         * Strategy: mark multi-column lines, group contiguous runs (≥2 rows), build HTML tables.
+         */
+        function extractPdfBlocks(items, { preserveTables = true } = {}) {
+            const builtLines = buildPdfLines(items);
+            if (!builtLines.length) return [];
+
+            if (!preserveTables) {
+                return linesToParagraphBlocks(builtLines);
+            }
+
+            const flags = builtLines.map(lineLooksTabular);
+            const blocks = [];
+            let proseBuf = [];
+            const flushProse = () => {
+                if (!proseBuf.length) return;
+                linesToParagraphBlocks(proseBuf).forEach((b) => blocks.push(b));
+                proseBuf = [];
+            };
+
+            let i = 0;
+            while (i < builtLines.length) {
+                if (!flags[i]) {
+                    proseBuf.push(builtLines[i]);
+                    i += 1;
+                    continue;
+                }
+
+                // Grow contiguous tabular region (allow 1 non-tabular row inside if neighbors are tabular)
+                let j = i;
+                const region = [];
+                while (j < builtLines.length) {
+                    const line = builtLines[j];
+                    if (region.length) {
+                        const prev = region[region.length - 1];
+                        const gap = prev.y - line.y;
+                        if (gap > prev.lineHeight * 2.4) break;
+                    }
+                    if (flags[j]) {
+                        region.push(line);
+                        j += 1;
+                        continue;
+                    }
+                    // single interstitial prose row inside a table (rare) — stop
+                    break;
+                }
+
+                if (region.length >= 2) {
+                    const tableHtml = tryBuildTableFromLines(region);
+                    if (tableHtml) {
+                        flushProse();
+                        blocks.push({ type: 'table', html: tableHtml });
+                        i = j;
+                        continue;
+                    }
+                }
+
+                // Not a confident table — treat as prose
+                proseBuf.push(builtLines[i]);
+                i += 1;
+            }
+
+            flushProse();
+            return blocks;
+        }
+
+        function linesToParagraphBlocks(builtLines) {
             const paragraphs = [];
             let current = [];
             let previousLine = null;
@@ -474,7 +741,14 @@
                 paragraphs.push(current.join('\n'));
             }
 
-            return paragraphs.filter(Boolean);
+            return paragraphs.filter(Boolean).map((text) => ({ type: 'paragraph', text }));
+        }
+
+        /** @deprecated use extractPdfBlocks — kept for any external callers */
+        function extractPdfParagraphs(items) {
+            return extractPdfBlocks(items, { preserveTables: false })
+                .filter((b) => b.type === 'paragraph')
+                .map((b) => b.text);
         }
 
         function plainTextToStructuredHtml(text) {
@@ -487,10 +761,47 @@
                 .join('');
         }
 
+        function isMarkdownTableBlock(block) {
+            const lines = block.trim().split('\n').map((l) => l.trim()).filter(Boolean);
+            if (lines.length < 2) return false;
+            if (!lines.every((l) => l.includes('|'))) return false;
+            // Separator row: |---| or |:---| etc.
+            const sep = lines[1].replace(/\s/g, '');
+            return /^\|?[:\-]+(\|[:\-]+)+\|?$/.test(sep);
+        }
+
+        function markdownTableToHtml(block) {
+            const lines = block.trim().split('\n').map((l) => l.trim()).filter(Boolean);
+            const parseRow = (line) => {
+                let s = line.trim();
+                if (s.startsWith('|')) s = s.slice(1);
+                if (s.endsWith('|')) s = s.slice(0, -1);
+                return s.split('|').map((c) => c.trim());
+            };
+            const header = parseRow(lines[0]);
+            const body = lines.slice(2).map(parseRow);
+            let html = '<table class="kobo-table"><tr>';
+            header.forEach((cell) => { html += `<th>${escapeHtml(cell)}</th>`; });
+            html += '</tr>';
+            body.forEach((row) => {
+                html += '<tr>';
+                for (let i = 0; i < header.length; i += 1) {
+                    html += `<td>${escapeHtml(row[i] || '')}</td>`;
+                }
+                html += '</tr>';
+            });
+            html += '</table>';
+            return html;
+        }
+
         function markdownLikeToHtml(text) {
+            const preserve = preserveTablesEnabled();
             const blocks = text.replace(/\r\n/g, '\n').split(/\n{2,}/).filter(Boolean);
             return blocks.map((block) => {
                 const trimmed = block.trimEnd();
+                if (preserve && isMarkdownTableBlock(trimmed)) {
+                    return markdownTableToHtml(trimmed);
+                }
                 if (trimmed.startsWith('### ')) return `<h3>${escapeHtml(trimmed.slice(4))}</h3>`;
                 if (trimmed.startsWith('## ')) return `<h2>${escapeHtml(trimmed.slice(3))}</h2>`;
                 if (trimmed.startsWith('# ')) return `<h1>${escapeHtml(trimmed.slice(2))}</h1>`;
@@ -500,9 +811,10 @@
 
         function sanitizeBody(html) {
             return html
-                .replace(/<table/gi, '<table class="w-full border-collapse text-sm text-slate-200"')
-                .replace(/<th/gi, '<th class="border border-white/10 px-2 py-1 text-left"')
-                .replace(/<td/gi, '<td class="border border-white/10 px-2 py-1 align-top"');
+                .replace(/<table(?![^>]*class=)/gi, '<table class="kobo-table w-full border-collapse text-sm text-slate-200"')
+                .replace(/<table class="kobo-table"/gi, '<table class="kobo-table w-full border-collapse text-sm text-slate-200"')
+                .replace(/<th(?![^>]*class=)/gi, '<th class="border border-white/10 px-2 py-1 text-left font-semibold bg-white/5"')
+                .replace(/<td(?![^>]*class=)/gi, '<td class="border border-white/10 px-2 py-1 align-top"');
         }
 
         async function buildEpubBlob({ title, author, bodyHtml }) {
@@ -517,7 +829,8 @@
 </container>`);
 
             const oebps = zip.folder('OEBPS');
-            oebps.file('styles.css', `body{font-family:serif;line-height:1.55;margin:5%;}h1,h2,h3{margin-top:1.2em;}p{margin:0 0 1em;}p.preserve-structure{white-space:pre-wrap;font-family:monospace;line-height:1.45;}blockquote{border-left:.2em solid #999;padding-left:1em;margin-left:0;}table{border-collapse:collapse;width:100%;margin-bottom:1.2em;}td,th{border:1px solid #999;padding:.35em;vertical-align:top;}`);
+            // Kobo-friendly table CSS: clear borders, readable padding, stacked layout on narrow screens
+            oebps.file('styles.css', `body{font-family:serif;line-height:1.55;margin:5%;}h1,h2,h3{margin-top:1.2em;}p{margin:0 0 1em;}p.preserve-structure{white-space:pre-wrap;font-family:monospace;line-height:1.45;}blockquote{border-left:.2em solid #999;padding-left:1em;margin-left:0;}table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.9em;}th,td{border:1px solid #444;padding:6px 8px;text-align:left;vertical-align:top;}th{font-weight:700;background:#f0f0f0;}@media (max-width:600px){table,thead,tbody,th,td,tr{display:block;}tr{margin-bottom:1em;border-bottom:2px solid #666;}th,td{border:1px solid #666;}}`);
             oebps.file('nav.xhtml', `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">

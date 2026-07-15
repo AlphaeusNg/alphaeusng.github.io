@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Seeking Biblical Truth — Vault Graph · Alphaeus Ng</title>
-  <meta name="description" content="Interactive public graph and note browser generated from the Seeking Biblical Truth Obsidian vault.">
+  <meta name="description" content="Interactive public graph and note browser for the Seeking Biblical Truth Obsidian vault — read publicly, edit online with Google sign-in.">
   <meta name="theme-color" content="#0A0F1C">
   <link rel="canonical" href="https://alphaeusng.github.io/pages/seeking-biblical-truth/">
   <meta property="og:title" content="Seeking Biblical Truth — Vault Graph">
@@ -39,6 +39,41 @@
     .note-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92em; }
     .note-body th, .note-body td { border: 1px solid rgba(255,255,255,.08); padding: .45rem .6rem; text-align: left; vertical-align: top; }
     .note-body hr { margin: 1rem 0; border: 0; border-top: 1px solid rgba(255,255,255,.08); }
+    /* Obsidian-style callouts */
+    .note-body .callout {
+      margin: 1rem 0;
+      padding: .75rem 1rem;
+      border-radius: .75rem;
+      border-left: 4px solid rgba(201,162,39,.7);
+      background: rgba(201,162,39,.08);
+    }
+    .note-body .callout-title { font-weight: 650; color: #F8FAFC; margin-bottom: .35rem; font-size: .92em; letter-spacing: .02em; }
+    .note-body .callout[data-callout="note"], .note-body .callout[data-callout="info"] { border-left-color: #5B9BD5; background: rgba(91,155,213,.1); }
+    .note-body .callout[data-callout="tip"], .note-body .callout[data-callout="hint"] { border-left-color: #4CAF8A; background: rgba(76,175,138,.1); }
+    .note-body .callout[data-callout="warning"], .note-body .callout[data-callout="caution"] { border-left-color: #E8A838; background: rgba(232,168,56,.1); }
+    .note-body .callout[data-callout="danger"], .note-body .callout[data-callout="error"] { border-left-color: #E07A7A; background: rgba(224,122,122,.1); }
+    .note-body .callout[data-callout="quote"], .note-body .callout[data-callout="cite"] { border-left-color: #9F7AEA; background: rgba(159,122,234,.1); }
+    .note-body .callout[data-callout="question"] { border-left-color: #C9A227; background: rgba(201,162,39,.1); }
+    .file-tree-item { display: block; width: 100%; text-align: left; border-radius: .5rem; padding: .35rem .6rem; font-size: .82rem; color: #CBD5E1; }
+    .file-tree-item:hover { background: rgba(255,255,255,.05); }
+    .file-tree-item.active { background: rgba(201,162,39,.2); color: #F8FAFC; }
+    .file-tree-folder { font-size: .72rem; font-weight: 650; text-transform: uppercase; letter-spacing: .12em; color: #64748B; margin: .65rem 0 .25rem; }
+    #note-editor {
+      width: 100%;
+      min-height: 50vh;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: .88rem;
+      line-height: 1.55;
+      color: #E2E8F0;
+      background: #0A0F1C;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: .75rem;
+      padding: 1rem;
+    }
+    #note-editor:focus { outline: none; border-color: rgba(201,162,39,.6); }
+    .auth-chip { display: inline-flex; align-items: center; gap: .5rem; }
+    .auth-chip img { width: 22px; height: 22px; border-radius: 999px; }
   </style>
 </head>
 <body class="bg-[#0A0F1C] text-[#F3F4F6]">
@@ -49,10 +84,18 @@
         <h1 class="vault-title text-4xl tracking-tight md:text-6xl">Seeking Biblical Truth</h1>
         <p id="vault-summary" class="mt-3 max-w-2xl text-sm leading-6 text-[#94A3B8]">Loading notes from the repository...</p>
       </div>
-      <div class="flex flex-wrap gap-2 text-sm">
-        <a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth" target="_blank" rel="noopener noreferrer" class="rounded-full border border-[#C9A227]/50 px-4 py-2 text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">GitHub repo</a>
-        <a id="open-vault" href="obsidian://open?vault=Seeking-Biblical-Truth" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white">Open Obsidian vault</a>
-        <a href="../../" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white">Portfolio</a>
+      <div class="flex flex-col items-stretch gap-2 sm:items-end">
+        <div class="flex flex-wrap gap-2 text-sm justify-end">
+          <button type="button" id="refresh-vault" class="rounded-full border border-[#C9A227]/50 px-4 py-2 text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">Refresh vault</button>
+          <a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth" target="_blank" rel="noopener noreferrer" class="rounded-full border border-[#C9A227]/50 px-4 py-2 text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">GitHub repo</a>
+          <a id="open-vault" href="obsidian://open?vault=Seeking-Biblical-Truth" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white">Open Obsidian vault</a>
+          <a href="../../" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white">Portfolio</a>
+        </div>
+        <div id="auth-bar" class="flex flex-wrap items-center justify-end gap-2 text-xs text-[#94A3B8]">
+          <span id="auth-status">Cloud editor off — configure Firebase to edit online.</span>
+          <button type="button" id="btn-google-signin" class="hidden rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[#F3F4F6] hover:border-[#C9A227] hover:text-white">Sign in with Google</button>
+          <button type="button" id="btn-google-signout" class="hidden rounded-full border border-white/10 px-3 py-1.5 text-[#CBD5E1] hover:border-white/30">Sign out</button>
+        </div>
       </div>
     </header>
 
@@ -60,17 +103,25 @@
       <aside class="self-start rounded-2xl border border-white/10 bg-[#111827] p-4 xl:sticky xl:top-4">
         <label class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]" for="search">Search notes</label>
         <input id="search" class="mt-2 w-full rounded-xl border border-white/10 bg-[#0A0F1C] px-3 py-2 text-sm text-white outline-none focus:border-[#C9A227]" placeholder="Baptism, Romans, Gospel...">
-        <div class="mt-4 flex gap-2">
+        <div class="mt-4 flex flex-wrap gap-2">
           <button id="fit" class="rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#CBD5E1] hover:border-[#C9A227]">Fit</button>
           <button id="reset" class="rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#CBD5E1] hover:border-[#C9A227]">Reset</button>
           <button id="export-png" class="rounded-full border border-[#C9A227]/50 px-3 py-1.5 text-xs text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">PNG</button>
         </div>
+        <label class="mt-4 flex cursor-pointer items-center gap-2 text-xs text-[#94A3B8]">
+          <input id="live-notes" type="checkbox" checked class="rounded border-white/20 bg-[#0A0F1C] text-[#C9A227] focus:ring-[#C9A227]">
+          <span>Fetch latest note body from GitHub on open</span>
+        </label>
         <div class="mt-5">
           <div class="mb-2 text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">Folders</div>
           <div id="folder-list" class="space-y-1 text-sm"></div>
         </div>
+        <div class="mt-5">
+          <div class="mb-2 text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">File explorer</div>
+          <div id="file-tree" class="max-h-56 space-y-0.5 overflow-auto text-sm"></div>
+        </div>
         <div class="mt-5 rounded-xl border border-white/10 bg-black/20 p-3 text-xs leading-5 text-[#94A3B8]">
-          Drag nodes. Scroll or pinch to zoom. Click a note to preview it. Folder nodes mirror Obsidian graph grouping; note links come from real Markdown and canvas references.
+          Drag nodes · click a note to read. <strong class="text-[#CBD5E1]">Sign in with Google</strong> (allowlisted account) to edit online and <strong class="text-[#CBD5E1]">Save to cloud</strong> from any device. Optional <strong class="text-[#CBD5E1]">Push to GitHub</strong> so Obsidian can pull. See <code class="text-[#C9A227]">FIREBASE.md</code> in this folder.
         </div>
       </aside>
 
@@ -90,10 +141,45 @@
         </div>
       </aside>
     </section>
+
+    <footer class="mt-10 border-t border-white/10 py-6 text-center text-xs text-[#64748B]">
+      © Alphaeus Ng · Seeking Biblical Truth
+      <span class="mx-2 opacity-40">·</span>
+      <span id="site-version" class="font-mono text-[#94A3B8]" title="Bump js/version.js on each deploy">v—</span>
+    </footer>
   </main>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="../../js/version.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/vault-cloud.js"></script>
   <script>
-    const state = { data: null, selected: null, filter: 'all', simulation: null, zoom: null, graphLayer: null, noteView: 'rendered', byId: {}, byLookup: {} };
+    const VAULT_JSON = 'vault-data.json';
+    const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/AlphaeusNg/Seeking-Biblical-Truth/main/';
+    const state = {
+      data: null,
+      selected: null,
+      filter: 'all',
+      simulation: null,
+      zoom: null,
+      graphLayer: null,
+      noteView: 'rendered', // rendered | source | edit
+      byId: {},
+      byLookup: {},
+      liveCache: Object.create(null),
+      loadingNote: null,
+      dirty: false,
+      editDraft: ''
+    };
+
+    function paintVersion() {
+      const el = document.getElementById('site-version');
+      const v = window.SITE_VERSION;
+      if (el && v) el.textContent = `v${v.id} · ${v.repo}`;
+    }
+    paintVersion();
     const color = d3.scaleOrdinal()
       .domain(['Word of God', 'Heritage Christian University', 'Meaning of ideas, words', 'Journal', 'Root', 'Canvas'])
       .range(['#5B9BD5', '#C9A227', '#9F7AEA', '#E07A7A', '#CBD5E1', '#4CAF8A']);
@@ -160,6 +246,53 @@
       });
     }
 
+    /** Convert Obsidian callouts `> [!note] Title` into HTML callout blocks before markdown-it. */
+    function preprocessCallouts(text = '') {
+      const lines = text.replace(/\r\n/g, '\n').split('\n');
+      const out = [];
+      let i = 0;
+      while (i < lines.length) {
+        const m = lines[i].match(/^>\s*\[!([^\]]+)\]\s*(.*)$/i);
+        if (!m) {
+          out.push(lines[i]);
+          i += 1;
+          continue;
+        }
+        const kind = m[1].trim().toLowerCase().split('|')[0].trim();
+        const title = (m[2] || kind).trim() || kind;
+        const body = [];
+        i += 1;
+        while (i < lines.length && /^>\s?/.test(lines[i])) {
+          body.push(lines[i].replace(/^>\s?/, ''));
+          i += 1;
+        }
+        // Use HTML that markdown-it will pass through when html is false — inject after render instead via markers
+        out.push(`:::callout{${kind}}{${title}}`);
+        if (body.length) out.push(body.join('\n'));
+        out.push(':::');
+      }
+      return out.join('\n');
+    }
+
+    function applyCalloutMarkup(html = '') {
+      // Turn :::callout{type}{title} ... ::: into callout divs
+      return html.replace(
+        /<p>:::callout\{([^}]+)\}\{([^}]*)\}<\/p>([\s\S]*?)<p>:::<\/p>/gi,
+        (_, type, title, inner) => {
+          const t = esc(type || 'note');
+          const label = esc(title || type || 'Note');
+          return `<div class="callout" data-callout="${t}"><div class="callout-title">${label}</div>${inner}</div>`;
+        }
+      ).replace(
+        /<p>:::callout\{([^}]+)\}\{([^}]*)\}\s*([\s\S]*?):::<\/p>/gi,
+        (_, type, title, inner) => {
+          const t = esc(type || 'note');
+          const label = esc(title || type || 'Note');
+          return `<div class="callout" data-callout="${t}"><div class="callout-title">${label}</div><p>${inner}</p></div>`;
+        }
+      );
+    }
+
     function resolveNoteReference(reference, currentNode) {
       const cleaned = decodeURIComponent((reference || '').replace(/^note:/, '')).split('#')[0].trim();
       if (!cleaned) return null;
@@ -180,8 +313,33 @@
 
     function renderMarkdown(note) {
       const raw = note.content || note.excerpt || '';
-      const html = markdown.render(preprocessWikiLinks(raw));
+      const prepared = preprocessCallouts(preprocessWikiLinks(raw));
+      let html = markdown.render(prepared);
+      html = applyCalloutMarkup(html);
       return window.DOMPurify ? window.DOMPurify.sanitize(html) : html;
+    }
+
+    function liveNotesEnabled() {
+      const el = document.getElementById('live-notes');
+      return !el || el.checked;
+    }
+
+    async function fetchLiveNoteBody(note) {
+      if (!note?.path || note.type === 'folder' || note.type === 'canvas') return null;
+      if (!liveNotesEnabled()) return null;
+      const cacheKey = note.path;
+      if (state.liveCache[cacheKey]) return state.liveCache[cacheKey];
+      try {
+        const url = `${GITHUB_RAW_BASE}${note.path.split('/').map(encodeURIComponent).join('/')}?t=${Date.now()}`;
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        state.liveCache[cacheKey] = text;
+        return text;
+      } catch (err) {
+        console.warn('[vault] live note fetch failed', note.path, err);
+        return null;
+      }
     }
 
     function renderNoteContent(note) {
@@ -190,12 +348,58 @@
       return renderMarkdown(note);
     }
 
+    function authState() {
+      return window.VaultCloud?.getAuthState?.() || { canEdit: false, configured: false, status: 'off' };
+    }
+
+    function paintAuthBar() {
+      const a = authState();
+      const statusEl = document.getElementById('auth-status');
+      const signIn = document.getElementById('btn-google-signin');
+      const signOut = document.getElementById('btn-google-signout');
+      if (!statusEl) return;
+
+      if (!a.configured) {
+        statusEl.textContent = 'Cloud editor off — set enabled:true in js/firebase-config.js';
+        signIn?.classList.add('hidden');
+        signOut?.classList.add('hidden');
+        return;
+      }
+      if (a.status === 'connecting') {
+        statusEl.textContent = 'Connecting cloud…';
+        return;
+      }
+      if (a.status === 'error') {
+        statusEl.textContent = 'Cloud error — check Firebase config / authorized domains';
+        signIn?.classList.remove('hidden');
+        signOut?.classList.add('hidden');
+        return;
+      }
+      if (a.email) {
+        const role = a.canEdit ? 'editor' : 'signed in (read-only)';
+        statusEl.innerHTML = `<span class="auth-chip">${a.photoURL ? `<img src="${esc(a.photoURL)}" alt="">` : ''}<span>${esc(a.email)} · ${role}</span></span>`;
+        signIn?.classList.add('hidden');
+        signOut?.classList.remove('hidden');
+      } else {
+        statusEl.textContent = 'Sign in with Google to edit & save from any device';
+        signIn?.classList.remove('hidden');
+        signOut?.classList.add('hidden');
+      }
+    }
+
     function bindPanelLinks(note) {
       const panel = document.getElementById('note-panel');
       panel.querySelectorAll('[data-note-view]').forEach(btn => {
         btn.addEventListener('click', () => {
+          if (state.noteView === 'edit' && state.dirty) {
+            if (!confirm('Discard unsaved edits?')) return;
+            state.dirty = false;
+          }
           state.noteView = btn.dataset.noteView;
-          selectNode(note);
+          if (state.noteView === 'edit') {
+            state.editDraft = note.content || note.excerpt || '';
+          }
+          paintNotePanel(note, { liveStatus: note._sourceLabel || '' });
         });
       });
 
@@ -204,6 +408,25 @@
           const target = state.byId[btn.dataset.node];
           if (target) selectNode(target);
         });
+      });
+
+      const editor = panel.querySelector('#note-editor');
+      if (editor) {
+        editor.addEventListener('input', () => {
+          state.editDraft = editor.value;
+          state.dirty = true;
+          const saveBtn = panel.querySelector('#btn-save-note');
+          if (saveBtn) saveBtn.disabled = false;
+        });
+      }
+
+      panel.querySelector('#btn-save-note')?.addEventListener('click', () => saveCurrentNote(note));
+      panel.querySelector('#btn-push-github')?.addEventListener('click', () => pushCurrentNote(note));
+      panel.querySelector('#btn-cancel-edit')?.addEventListener('click', () => {
+        if (state.dirty && !confirm('Discard unsaved edits?')) return;
+        state.dirty = false;
+        state.noteView = 'rendered';
+        paintNotePanel(note, { liveStatus: note._sourceLabel || '' });
       });
 
       if (state.noteView !== 'rendered') return;
@@ -232,6 +455,57 @@
       });
     }
 
+    async function saveCurrentNote(note) {
+      const panel = document.getElementById('note-panel');
+      const editor = panel.querySelector('#note-editor');
+      const statusLine = panel.querySelector('#edit-status');
+      const content = editor ? editor.value : state.editDraft;
+      if (!note?.path) return;
+      try {
+        if (statusLine) statusLine.textContent = 'Saving to cloud…';
+        await window.VaultCloud.saveNote(note.path, content, { title: note.title });
+        note.content = content;
+        const node = state.byId[note.id];
+        if (node) node.content = content;
+        state.liveCache[note.path] = content;
+        state.dirty = false;
+        note._sourceLabel = 'cloud (just saved)';
+        if (statusLine) statusLine.textContent = 'Saved to cloud — available on any device after you sign in.';
+        const saveBtn = panel.querySelector('#btn-save-note');
+        if (saveBtn) saveBtn.disabled = true;
+      } catch (err) {
+        console.error(err);
+        if (statusLine) statusLine.textContent = err.message || 'Save failed';
+        alert(err.message || 'Save failed');
+      }
+    }
+
+    async function pushCurrentNote(note) {
+      const panel = document.getElementById('note-panel');
+      const editor = panel.querySelector('#note-editor');
+      const statusLine = panel.querySelector('#edit-status');
+      const content = editor ? editor.value : (note.content || '');
+      if (!note?.path) return;
+      try {
+        if (statusLine) statusLine.textContent = 'Pushing to GitHub…';
+        // Save cloud first so web stays in sync
+        if (window.VaultCloud?.canEdit?.()) {
+          await window.VaultCloud.saveNote(note.path, content, { title: note.title }).catch(() => {});
+        }
+        await window.VaultCloud.pushNoteToGitHub(note.path, content, {
+          message: `web: update ${note.path}`
+        });
+        note.content = content;
+        state.liveCache[note.path] = content;
+        note._sourceLabel = 'pushed to GitHub';
+        if (statusLine) statusLine.textContent = 'Pushed to GitHub — pull in Obsidian to see it locally.';
+      } catch (err) {
+        console.error(err);
+        if (statusLine) statusLine.textContent = err.message || 'Push failed';
+        alert(err.message || 'Push failed');
+      }
+    }
+
     function radius(d) {
       if (d.type === 'folder') return 16;
       if (d.type === 'canvas') return 13;
@@ -252,9 +526,50 @@
         const btn = document.createElement('button');
         btn.className = `block w-full rounded-lg px-3 py-2 text-left text-sm ${state.filter === folder ? 'bg-[#C9A227] text-[#0A0F1C]' : 'text-[#CBD5E1] hover:bg-white/5'}`;
         btn.textContent = folder === 'all' ? 'All notes' : folder;
-        btn.addEventListener('click', () => { state.filter = folder; renderFolders(); applyVisibility(); });
+        btn.addEventListener('click', () => {
+          state.filter = folder;
+          renderFolders();
+          renderFileTree();
+          applyVisibility();
+        });
         host.appendChild(btn);
       });
+    }
+
+    function renderFileTree() {
+      const host = document.getElementById('file-tree');
+      if (!host || !state.data) return;
+      host.innerHTML = '';
+      const notes = state.data.nodes
+        .filter(n => n.type === 'note' || n.type === 'canvas')
+        .filter(n => state.filter === 'all' || n.group === state.filter)
+        .sort((a, b) => (a.path || a.title).localeCompare(b.path || b.title));
+
+      const byFolder = new Map();
+      notes.forEach(n => {
+        const folder = n.group || 'Root';
+        if (!byFolder.has(folder)) byFolder.set(folder, []);
+        byFolder.get(folder).push(n);
+      });
+
+      for (const [folder, list] of byFolder) {
+        const head = document.createElement('div');
+        head.className = 'file-tree-folder';
+        head.textContent = folder;
+        host.appendChild(head);
+        list.forEach(n => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `file-tree-item${state.selected?.id === n.id ? ' active' : ''}`;
+          btn.textContent = n.title;
+          btn.title = n.path || n.id;
+          btn.addEventListener('click', () => selectNode(n));
+          host.appendChild(btn);
+        });
+      }
+      if (!notes.length) {
+        host.innerHTML = '<p class="text-xs text-[#64748B]">No notes in this folder.</p>';
+      }
     }
 
     function syncGraphHeight() {
@@ -320,29 +635,124 @@
       document.getElementById('graph-count').textContent = `${visible.size} visible / ${state.data.counts.nodes} nodes`;
     }
 
-    function selectNode(d) {
-      state.selected = d;
+    function paintNotePanel(d, { liveStatus = '' } = {}) {
+      if (liveStatus) d._sourceLabel = liveStatus;
+      const a = authState();
+      const canEdit = !!(a.canEdit && d.path && d.type === 'note');
       const outgoing = state.data.links.filter(l => l.source === d.id || (l.source.id === d.id)).map(l => l.target.id || l.target);
       const incoming = state.data.links.filter(l => l.target === d.id || (l.target.id === d.id)).map(l => l.source.id || l.source);
       const relatedList = ids => ids.filter(id => state.byId[id] && state.byId[id].type !== 'folder').slice(0, 12).map(id => `<button class="block text-left text-[#C9A227] hover:text-[#E8C547]" data-node="${esc(id)}">${esc(state.byId[id].title)}</button>`).join('') || '<span class="text-[#64748B]">None</span>';
+
+      const viewToggle = `
+          <div class="inline-flex overflow-hidden rounded-full border border-white/10">
+            <button type="button" data-note-view="rendered" class="px-3 py-1.5 ${state.noteView === 'rendered' ? 'bg-[#C9A227] text-[#0A0F1C]' : 'text-[#CBD5E1] hover:bg-white/5'}">Rendered</button>
+            <button type="button" data-note-view="source" class="px-3 py-1.5 ${state.noteView === 'source' ? 'bg-[#C9A227] text-[#0A0F1C]' : 'text-[#CBD5E1] hover:bg-white/5'}">Raw</button>
+            ${canEdit ? `<button type="button" data-note-view="edit" class="px-3 py-1.5 ${state.noteView === 'edit' ? 'bg-[#C9A227] text-[#0A0F1C]' : 'text-[#CBD5E1] hover:bg-white/5'}">Edit</button>` : ''}
+          </div>`;
+
+      const isEdit = state.noteView === 'edit' && canEdit;
+      const draft = isEdit
+        ? (state.editDraft != null && state.selected?.id === d.id ? state.editDraft : (d.content || d.excerpt || ''))
+        : '';
+
+      let bodyHtml;
+      if (isEdit) {
+        bodyHtml = `
+          <div class="mt-4 flex flex-wrap gap-2 text-xs">
+            <button type="button" id="btn-save-note" class="rounded-full bg-[#C9A227] px-4 py-2 font-semibold text-[#0A0F1C] hover:bg-[#E8C547]">Save to cloud</button>
+            <button type="button" id="btn-push-github" class="rounded-full border border-[#C9A227]/50 px-4 py-2 text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">Push to GitHub</button>
+            <button type="button" id="btn-cancel-edit" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30">Cancel</button>
+          </div>
+          <p id="edit-status" class="mt-2 text-xs text-[#94A3B8]">Edits save to Firebase (any device after Google login). Push to GitHub if you want Obsidian to pull the file.</p>
+          <textarea id="note-editor" class="mt-3" spellcheck="true"></textarea>`;
+      } else {
+        bodyHtml = `<div class="note-body mt-5 max-h-[64vh] overflow-auto rounded-xl border border-white/10 bg-[#0A0F1C] p-4 text-sm leading-6 text-[#CBD5E1] xl:max-h-[70vh]">${renderNoteContent(d)}</div>`;
+      }
+
       document.getElementById('note-panel').innerHTML = `
-        <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">${esc(d.group)} / ${esc(d.type)}</div>
+        <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">${esc(d.group)} / ${esc(d.type)}${liveStatus ? ` · ${esc(liveStatus)}` : ''}</div>
         <h2 class="mt-2 text-2xl font-semibold tracking-tight">${esc(d.title)}</h2>
         <p class="mt-2 text-xs text-[#64748B]">${esc(d.path || d.id)}</p>
         <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
           ${d.obsidianUri ? `<a href="${d.obsidianUri}" class="rounded-full border border-[#C9A227]/50 px-3 py-1.5 text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">Open this note in Obsidian</a>` : ''}
           ${d.path ? `<a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth/blob/main/${encodeURI(d.path)}" target="_blank" rel="noopener noreferrer" class="rounded-full border border-white/10 px-3 py-1.5 text-[#CBD5E1] hover:text-white">View source</a>` : ''}
-          <div class="inline-flex overflow-hidden rounded-full border border-white/10">
-            <button type="button" data-note-view="rendered" class="px-3 py-1.5 ${state.noteView === 'rendered' ? 'bg-[#C9A227] text-[#0A0F1C]' : 'text-[#CBD5E1] hover:bg-white/5'}">Rendered</button>
-            <button type="button" data-note-view="source" class="px-3 py-1.5 ${state.noteView === 'source' ? 'bg-[#C9A227] text-[#0A0F1C]' : 'text-[#CBD5E1] hover:bg-white/5'}">Raw</button>
-          </div>
+          ${viewToggle}
         </div>
-        <div class="note-body mt-5 max-h-[64vh] overflow-auto rounded-xl border border-white/10 bg-[#0A0F1C] p-4 text-sm leading-6 text-[#CBD5E1] xl:max-h-[70vh]">${renderNoteContent(d)}</div>
+        ${bodyHtml}
         <div class="mt-5 grid grid-cols-2 gap-4 text-sm">
           <div><div class="mb-2 text-[10px] uppercase tracking-[2px] text-[#64748B]">Outgoing</div>${relatedList(outgoing)}</div>
           <div><div class="mb-2 text-[10px] uppercase tracking-[2px] text-[#64748B]">Backlinks</div>${relatedList(incoming)}</div>
         </div>`;
+
+      // Set textarea value via DOM API (safe for raw Markdown; avoids entity-escaping issues)
+      if (isEdit) {
+        const ta = document.getElementById('note-editor');
+        if (ta) {
+          ta.value = draft;
+          state.editDraft = draft;
+        }
+      }
+
       bindPanelLinks(d);
+      renderFileTree();
+    }
+
+    async function selectNode(d) {
+      if (state.noteView === 'edit' && state.dirty && state.selected && state.selected.id !== d.id) {
+        if (!confirm('Discard unsaved edits and switch notes?')) return;
+        state.dirty = false;
+        state.noteView = 'rendered';
+      }
+      state.selected = d;
+      if (state.noteView === 'edit' && !authState().canEdit) state.noteView = 'rendered';
+
+      paintNotePanel(d, { liveStatus: d.path ? 'loading…' : '' });
+
+      if (!d.path || d.type === 'folder' || d.type === 'canvas') {
+        paintNotePanel(d, { liveStatus: d.type || '' });
+        return;
+      }
+
+      const token = `${d.id}:${Date.now()}`;
+      state.loadingNote = token;
+
+      // 1) Prefer Firestore cloud save (works from any device after login)
+      let sourceLabel = 'snapshot';
+      if (window.VaultCloud?.getAuthState?.()?.online) {
+        const cloud = await window.VaultCloud.loadNote(d.path);
+        if (state.loadingNote !== token || state.selected?.id !== d.id) return;
+        if (cloud && typeof cloud.content === 'string') {
+          d.content = cloud.content;
+          const node = state.byId[d.id];
+          if (node) node.content = cloud.content;
+          state.liveCache[d.path] = cloud.content;
+          sourceLabel = cloud.updatedBy
+            ? `cloud · ${cloud.updatedBy}`
+            : 'cloud';
+          paintNotePanel(d, { liveStatus: sourceLabel });
+          if (state.noteView === 'edit') state.editDraft = d.content;
+          return;
+        }
+      }
+
+      // 2) GitHub raw
+      if (liveNotesEnabled()) {
+        const live = await fetchLiveNoteBody(d);
+        if (state.loadingNote !== token || state.selected?.id !== d.id) return;
+        if (live != null) {
+          d.content = live;
+          const node = state.byId[d.id];
+          if (node) node.content = live;
+          sourceLabel = 'live from GitHub';
+          paintNotePanel(d, { liveStatus: sourceLabel });
+          if (state.noteView === 'edit') state.editDraft = d.content;
+          return;
+        }
+        sourceLabel = 'snapshot (live fetch failed)';
+      }
+
+      paintNotePanel(d, { liveStatus: sourceLabel });
+      if (state.noteView === 'edit') state.editDraft = d.content || d.excerpt || '';
     }
 
     function fitGraph() {
@@ -403,24 +813,92 @@
 
     window.addEventListener('resize', scheduleGraphRender);
 
-    fetch('vault-data.json').then(r => r.json()).then(data => {
-      state.data = data;
-      buildIndexes();
-      document.getElementById('vault-summary').textContent = `${data.counts.notes} Markdown notes, ${data.counts.canvas} canvas, and ${data.counts.links} links generated from the live repository structure.`;
-      renderFolders();
-      renderGraph();
-      if ('ResizeObserver' in window) {
-        const graphPanel = document.getElementById('graph')?.parentElement;
-        if (graphPanel) {
-          const graphResizeObserver = new ResizeObserver(scheduleGraphRender);
-          graphResizeObserver.observe(graphPanel);
+    let graphResizeObserver = null;
+
+    async function loadVault({ bustCache = false, keepSelection = false } = {}) {
+      const summary = document.getElementById('vault-summary');
+      const refreshBtn = document.getElementById('refresh-vault');
+      if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'Refreshing…';
+      }
+      try {
+        const url = bustCache ? `${VAULT_JSON}?t=${Date.now()}` : VAULT_JSON;
+        const res = await fetch(url, { cache: bustCache ? 'no-store' : 'default' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        state.data = data;
+        state.liveCache = Object.create(null);
+        buildIndexes();
+        const when = new Date().toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        summary.textContent = `${data.counts.notes} Markdown notes, ${data.counts.canvas} canvas, and ${data.counts.links} links · loaded ${when}. Sign in with Google to edit online; Save to cloud works from any device.`;
+        renderFolders();
+        renderFileTree();
+        renderGraph();
+        if ('ResizeObserver' in window && !graphResizeObserver) {
+          const graphPanel = document.getElementById('graph')?.parentElement;
+          if (graphPanel) {
+            graphResizeObserver = new ResizeObserver(scheduleGraphRender);
+            graphResizeObserver.observe(graphPanel);
+          }
+        }
+        const prevId = keepSelection ? state.selected?.id : null;
+        const first =
+          (prevId && state.byId[prevId]) ||
+          data.nodes.find(n => n.path === 'My Search for Truth.md') ||
+          data.nodes.find(n => n.type === 'note');
+        if (first) selectNode(first);
+      } catch (err) {
+        summary.textContent = `Could not load vault-data.json: ${err.message}`;
+      } finally {
+        if (refreshBtn) {
+          refreshBtn.disabled = false;
+          refreshBtn.textContent = 'Refresh vault';
         }
       }
-      const first = data.nodes.find(n => n.path === 'My Search for Truth.md') || data.nodes.find(n => n.type === 'note');
-      if (first) selectNode(first);
-    }).catch(err => {
-      document.getElementById('vault-summary').textContent = `Could not load vault-data.json: ${err.message}`;
+    }
+
+    document.getElementById('refresh-vault')?.addEventListener('click', () => {
+      loadVault({ bustCache: true, keepSelection: true });
     });
+
+    document.getElementById('btn-google-signin')?.addEventListener('click', async () => {
+      try {
+        await window.VaultCloud.signInWithGoogle();
+        paintAuthBar();
+        if (state.selected) selectNode(state.selected);
+      } catch (err) {
+        console.error(err);
+        alert(err.message || 'Google sign-in failed. Check Firebase Google provider + authorized domain alphaeusng.github.io');
+      }
+    });
+
+    document.getElementById('btn-google-signout')?.addEventListener('click', async () => {
+      try {
+        if (state.noteView === 'edit' && state.dirty && !confirm('Discard unsaved edits and sign out?')) return;
+        state.noteView = 'rendered';
+        state.dirty = false;
+        await window.VaultCloud.signOut();
+        paintAuthBar();
+        if (state.selected) paintNotePanel(state.selected, { liveStatus: state.selected._sourceLabel || '' });
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    // Boot cloud + vault
+    paintAuthBar();
+    if (window.VaultCloud) {
+      window.VaultCloud.onChange(() => {
+        paintAuthBar();
+        if (state.selected && state.noteView !== 'edit') {
+          paintNotePanel(state.selected, { liveStatus: state.selected._sourceLabel || '' });
+        }
+      });
+      window.VaultCloud.init().then(() => paintAuthBar());
+    }
+
+    loadVault();
   </script>
 </body>
 </html>
