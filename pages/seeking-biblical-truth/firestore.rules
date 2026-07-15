@@ -2,18 +2,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ---- AlpArcade scores (if sharing one Firebase project) ----
-    // Google sign-in only · one doc per user per game: scores/{uid}_{game}
+    
+    // ---- AlpArcade (Google-only writes; paste full AlpArcade/firestore.rules if this project is arcade-only) ----
     function isGoogleUser() {
       return request.auth != null
-        && request.auth.token.firebase.sign_in_provider == 'google.com'
-        && request.auth.token.email != null;
+        && request.auth.uid is string
+        && request.auth.token.email is string
+        && request.auth.token.email.size() > 3
+        && (
+          request.auth.token.firebase.sign_in_provider == 'google.com'
+          || request.auth.token.firebase.identities.keys().hasAny(['google.com'])
+        );
     }
 
     match /scores/{scoreId} {
       allow read: if true;
-      allow create, update: if isGoogleUser()
-        && request.resource.data.keys().hasAll(['game', 'playerName', 'score', 'rankScore', 'userId', 'timestamp'])
+      allow create: if isGoogleUser()
         && request.resource.data.game in ['tictactoe', 'shooter', 'snake', 'reaction', 'memory']
         && request.resource.data.playerName is string
         && request.resource.data.playerName.size() >= 2
@@ -23,8 +27,17 @@ service cloud.firestore {
         && request.resource.data.score <= 10000000
         && request.resource.data.rankScore is number
         && request.resource.data.userId == request.auth.uid
-        && scoreId == request.auth.uid + '_' + request.resource.data.game
-        && (resource == null || resource.data.userId == request.auth.uid);
+        && scoreId == request.auth.uid + '_' + request.resource.data.game;
+      allow update: if isGoogleUser()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.game in ['tictactoe', 'shooter', 'snake', 'reaction', 'memory']
+        && request.resource.data.playerName is string
+        && request.resource.data.playerName.size() >= 2
+        && request.resource.data.playerName.size() <= 16
+        && request.resource.data.score is number
+        && request.resource.data.rankScore is number
+        && scoreId == request.auth.uid + '_' + request.resource.data.game;
       allow delete: if false;
     }
 
@@ -38,7 +51,7 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // ---- Seeking Biblical Truth web vault notes ----
+// ---- Seeking Biblical Truth web vault notes ----
     // Public read so the site can show cloud-saved content.
     // Write only for signed-in Google users whose email is allowlisted below.
     // IMPORTANT: keep this list in sync with VAULT_FIREBASE_CONFIG.allowedEmails
