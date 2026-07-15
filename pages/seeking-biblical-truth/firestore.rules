@@ -3,21 +3,39 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ---- AlpArcade scores (if sharing one Firebase project) ----
+    // Google sign-in only · one doc per user per game: scores/{uid}_{game}
+    function isGoogleUser() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email != null;
+    }
+
     match /scores/{scoreId} {
       allow read: if true;
-      allow create: if request.auth != null
-        && request.resource.data.keys().hasAll(['game', 'playerName', 'score', 'rankScore', 'timestamp'])
-        && request.resource.data.game is string
+      allow create, update: if isGoogleUser()
+        && request.resource.data.keys().hasAll(['game', 'playerName', 'score', 'rankScore', 'userId', 'timestamp'])
         && request.resource.data.game in ['tictactoe', 'shooter', 'snake', 'reaction', 'memory']
         && request.resource.data.playerName is string
-        && request.resource.data.playerName.size() > 0
+        && request.resource.data.playerName.size() >= 2
         && request.resource.data.playerName.size() <= 16
         && request.resource.data.score is number
         && request.resource.data.score >= 0
         && request.resource.data.score <= 10000000
         && request.resource.data.rankScore is number
-        && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if false;
+        && request.resource.data.userId == request.auth.uid
+        && scoreId == request.auth.uid + '_' + request.resource.data.game
+        && (resource == null || resource.data.userId == request.auth.uid);
+      allow delete: if false;
+    }
+
+    match /players/{uid} {
+      allow read: if true;
+      allow create, update: if isGoogleUser()
+        && request.auth.uid == uid
+        && request.resource.data.username is string
+        && request.resource.data.username.size() >= 2
+        && request.resource.data.username.size() <= 16;
+      allow delete: if false;
     }
 
     // ---- Seeking Biblical Truth web vault notes ----
