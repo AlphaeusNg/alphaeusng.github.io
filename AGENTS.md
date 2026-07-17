@@ -21,15 +21,14 @@ js/conviction.js
 js/version.js              # SITE_VERSION — bump every deploy
 firebase/                  # Shared Firebase infra (rules + indexes + docs)
   README.md
-  firestore.rules          # Combined: arcade scores + vaultNotes
+  firestore.rules          # Combined: arcade scores/players/progress + vaultNotes
   firestore.indexes.json
-firebase.json  .firebaserc # CLI entry (repo root)
+firebase.json  .firebaserc # CLI entry (repo root — standard)
 pages/
   conviction.html
   kobo-forge.html
   seeking-biblical-truth/  # Public vault viewer (vault-data.json)
     js/firebase-config.js  # Runtime vault editor keys only
-    FIREBASE.md            # Stub → ../../firebase/README.md
   README.md
 data/                      # Public JSON/CSV (conviction history, etc.)
 assets/                    # Images, resume files

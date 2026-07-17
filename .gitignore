@@ -2,12 +2,26 @@
 data/Networth Tracker.xlsx
 *.xlsx
 
+# Firebase CLI cache
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*.log
+*-firebase-adminsdk-*.json
+serviceAccount*.json
+.env
+.env.*
+
 # Python
 __pycache__/
 **/__pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+
+# Dependencies (none required for static site)
+node_modules/
 
 # OS
 .DS_Store
@@ -16,6 +30,8 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+*.swp
+*~
 
 # Seeking Biblical Truth integration
 # The committed public viewer lives in `pages/seeking-biblical-truth/` and is

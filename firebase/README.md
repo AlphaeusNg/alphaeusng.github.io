@@ -4,18 +4,31 @@ Infra for the **shared** Firebase project used by:
 
 | Product | Collections | Runtime config |
 |---------|-------------|----------------|
-| **AlpArcade** | `scores`, `players` | `/home/alph/projects/AlpArcade/js/firebase-config.js` |
+| **AlpArcade** | `scores`, `players`, `progress` | `/home/alph/projects/AlpArcade/js/firebase-config.js` |
 | **Seeking Biblical Truth** viewer | `vaultNotes` | `pages/seeking-biblical-truth/js/firebase-config.js` |
+
+## Layout (standard practice)
 
 | Path | Role |
 |------|------|
 | `firestore.rules` | **Combined** rules (arcade + vault) — deploy this when sharing one project |
 | `firestore.indexes.json` | Arcade scoreboard composite index |
-| `../firebase.json` | Firebase CLI entry (portfolio repo root) |
+| `../firebase.json` | Firebase CLI entry (**repo root**) |
 | `../.firebaserc` | Default project `alparcade-cb87c` |
 
-> If AlpArcade is the **only** consumer of the project, you may deploy arcade-only rules from  
-> `/home/alph/projects/AlpArcade/firebase/`.  
+```text
+alphaeusng.github.io/
+  firebase.json
+  .firebaserc
+  firebase/                 # all backend/infra for the shared project
+    firestore.rules         # combined
+    firestore.indexes.json
+    README.md
+  pages/seeking-biblical-truth/js/firebase-config.js   # client keys only
+```
+
+> Arcade-only rules (if this project is **not** shared with the vault editor):  
+> `/home/alph/projects/AlpArcade/firebase/`  
 > If the vault editor is enabled on the same project, **always deploy this combined file**.
 
 ## Deploy

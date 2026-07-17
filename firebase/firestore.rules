@@ -52,7 +52,9 @@ service cloud.firestore {
       allow update: if validScoreWrite(scoreId)
         && resource.data.userId == request.auth.uid;
 
-      allow delete: if false;
+      // Owner may delete own leaderboard row (factory reset / clean slate)
+      allow delete: if signedIn()
+        && resource.data.userId == request.auth.uid;
     }
 
     match /players/{uid} {
@@ -64,7 +66,7 @@ service cloud.firestore {
         && request.resource.data.username.size() >= 1
         && request.resource.data.username.size() <= 16;
 
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == uid;
     }
 
     // AlpArcade full account progress — owner only
@@ -75,7 +77,7 @@ service cloud.firestore {
         && request.auth.uid == uid
         && request.resource.data.userId == request.auth.uid;
 
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == uid;
     }
 
     match /vaultNotes/{noteId} {
