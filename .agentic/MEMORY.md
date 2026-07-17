@@ -14,7 +14,7 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `kobo-forge.html`: standalone client-side EPUB builder page.
 - `pages/`: secondary public pages.
 - `pages/seeking-biblical-truth/index.html`: data-driven interactive viewer for the Biblical Truth knowledge-base project.
-- `pages/seeking-biblical-truth/vault-data.json`: generated from `/home/alph/codex/Seeking-Biblical-Truth` Markdown notes and `Big Picture.canvas`.
+- `pages/seeking-biblical-truth/vault-data.json`: generated from `/home/alph/projects/Seeking-Biblical-Truth` Markdown notes and `Big Picture.canvas`.
 - `assets/`: images and share assets referenced by public pages.
 - `tools/`: maintenance scripts grouped by domain.
 - `tools/koboforge/`: KoboForge companion tooling.
@@ -45,7 +45,7 @@ GitHub Pages serves the repository root from `main`. The current site is zero-bu
 Run:
 
 ```bash
-cd /home/alph/alphaeusng.github.io
+cd /home/alph/projects/alphaeusng.github.io
 python3 -m http.server 8000
 ```
 

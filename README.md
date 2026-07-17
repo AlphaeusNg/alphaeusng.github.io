@@ -34,7 +34,7 @@ The design should remain restrained, professional, and easy to share. It should 
 ## Local Development
 
 ```bash
-cd alphaeusng.github.io   # or your local clone path
+cd /home/alph/projects/alphaeusng.github.io   # local workspace path
 python3 -m http.server 8000
 ```
 
@@ -59,14 +59,14 @@ The generator reads `tools/finance/tsla_trades_anonymized.csv` and writes the le
 
 The public viewer is served from `pages/seeking-biblical-truth/`. It uses `vault-data.json`, generated from the separate source repo:
 
-`/home/alph/codex/Seeking-Biblical-Truth`
+`/home/alph/projects/Seeking-Biblical-Truth`
 
 When the vault changes:
 
 ```bash
-cd /home/alph/codex/Seeking-Biblical-Truth
+cd /home/alph/projects/Seeking-Biblical-Truth
 python3 tools/generate_vault_data.py
-cp pages/vault-data.json /home/alph/codex/alphaeusng.github.io/pages/seeking-biblical-truth/vault-data.json
+cp pages/vault-data.json /home/alph/projects/alphaeusng.github.io/pages/seeking-biblical-truth/vault-data.json
 ```
 
 The viewer includes `obsidian://open?vault=Seeking-Biblical-Truth` links for users who cloned and opened the vault in Obsidian.
