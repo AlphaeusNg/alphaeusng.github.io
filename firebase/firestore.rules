@@ -24,7 +24,7 @@ service cloud.firestore {
     }
 
     function validGame(g) {
-      return g in ['tictactoe', 'shooter', 'snake', 'reaction', 'memory', 'tapper'];
+      return g in ['tictactoe', 'shooter', 'snake', 'reaction', 'memory', 'tapper', 'jubeat', 'breaker'];
     }
 
     function validScoreWrite(scoreId) {
