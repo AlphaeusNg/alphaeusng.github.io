@@ -1,0 +1,96 @@
+rules_version = '2';
+// Combined rules: AlpArcade (scores/players) + Seeking Biblical Truth (vaultNotes).
+// Deploy from portfolio root:
+//   npx firebase-tools deploy --only firestore:rules
+//
+// CRITICAL: path wildcards (e.g. scoreId) MUST be passed into functions.
+// Using scoreId inside a top-level function without an argument evaluates false
+// → permanent permission-denied even when auth is fine.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null && request.auth.uid is string;
+    }
+
+    // Keep in sync with pages/seeking-biblical-truth/js/firebase-config.js allowedEmails
+    function isVaultEditor() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [
+          'alphaolivegreen@gmail.com'
+        ];
+    }
+
+    function validGame(g) {
+      return g in ['tictactoe', 'shooter', 'snake', 'reaction', 'memory', 'tapper'];
+    }
+
+    function validScoreWrite(scoreId) {
+      let d = request.resource.data;
+      return signedIn()
+        && d.userId is string
+        && d.userId == request.auth.uid
+        && d.game is string
+        && validGame(d.game)
+        && scoreId == request.auth.uid + '_' + d.game
+        && d.playerName is string
+        && d.playerName.size() >= 1
+        && d.playerName.size() <= 16
+        && d.score is number
+        && d.score >= 0
+        && d.score <= 10000000
+        && d.rankScore is number;
+    }
+
+    match /scores/{scoreId} {
+      allow read: if true;
+
+      allow create: if validScoreWrite(scoreId);
+
+      allow update: if validScoreWrite(scoreId)
+        && resource.data.userId == request.auth.uid;
+
+      allow delete: if false;
+    }
+
+    match /players/{uid} {
+      allow read: if true;
+
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.username is string
+        && request.resource.data.username.size() >= 1
+        && request.resource.data.username.size() <= 16;
+
+      allow delete: if false;
+    }
+
+    // AlpArcade full account progress — owner only
+    match /progress/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.userId == request.auth.uid;
+
+      allow delete: if false;
+    }
+
+    match /vaultNotes/{noteId} {
+      allow read: if true;
+
+      allow create, update: if isVaultEditor()
+        && request.resource.data.path is string
+        && request.resource.data.path.size() > 0
+        && request.resource.data.path.size() < 500
+        && request.resource.data.content is string
+        && request.resource.data.content.size() < 1000000
+        && request.resource.data.updatedBy == request.auth.token.email
+        && request.resource.data.updatedByUid == request.auth.uid;
+
+      allow delete: if isVaultEditor();
+    }
+  }
+}

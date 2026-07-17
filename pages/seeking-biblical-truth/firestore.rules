@@ -1,82 +1,10 @@
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-
-    
-    // ---- AlpArcade (Google-only writes; paste full AlpArcade/firestore.rules if this project is arcade-only) ----
-    function isGoogleUser() {
-      return request.auth != null
-        && request.auth.uid is string
-        && request.auth.token.email is string
-        && request.auth.token.email.size() > 3
-        && (
-          request.auth.token.firebase.sign_in_provider == 'google.com'
-          || request.auth.token.firebase.identities.keys().hasAny(['google.com'])
-        );
-    }
-
-    match /scores/{scoreId} {
-      allow read: if true;
-      allow create: if isGoogleUser()
-        && request.resource.data.game in ['tictactoe', 'shooter', 'snake', 'reaction', 'memory']
-        && request.resource.data.playerName is string
-        && request.resource.data.playerName.size() >= 2
-        && request.resource.data.playerName.size() <= 16
-        && request.resource.data.score is number
-        && request.resource.data.score >= 0
-        && request.resource.data.score <= 10000000
-        && request.resource.data.rankScore is number
-        && request.resource.data.userId == request.auth.uid
-        && scoreId == request.auth.uid + '_' + request.resource.data.game;
-      allow update: if isGoogleUser()
-        && resource.data.userId == request.auth.uid
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.game in ['tictactoe', 'shooter', 'snake', 'reaction', 'memory']
-        && request.resource.data.playerName is string
-        && request.resource.data.playerName.size() >= 2
-        && request.resource.data.playerName.size() <= 16
-        && request.resource.data.score is number
-        && request.resource.data.rankScore is number
-        && scoreId == request.auth.uid + '_' + request.resource.data.game;
-      allow delete: if false;
-    }
-
-    match /players/{uid} {
-      allow read: if true;
-      allow create, update: if isGoogleUser()
-        && request.auth.uid == uid
-        && request.resource.data.username is string
-        && request.resource.data.username.size() >= 2
-        && request.resource.data.username.size() <= 16;
-      allow delete: if false;
-    }
-
-// ---- Seeking Biblical Truth web vault notes ----
-    // Public read so the site can show cloud-saved content.
-    // Write only for signed-in Google users whose email is allowlisted below.
-    // IMPORTANT: keep this list in sync with VAULT_FIREBASE_CONFIG.allowedEmails
-    function isVaultEditor() {
-      return request.auth != null
-        && request.auth.token.email != null
-        && request.auth.token.email_verified == true
-        && request.auth.token.email in [
-          'alphaolivegreen@gmail.com'
-        ];
-    }
-
-    match /vaultNotes/{noteId} {
-      allow read: if true;
-
-      allow create, update: if isVaultEditor()
-        && request.resource.data.path is string
-        && request.resource.data.path.size() > 0
-        && request.resource.data.path.size() < 500
-        && request.resource.data.content is string
-        && request.resource.data.content.size() < 1000000
-        && request.resource.data.updatedBy == request.auth.token.email
-        && request.resource.data.updatedByUid == request.auth.uid;
-
-      allow delete: if isVaultEditor();
-    }
-  }
-}
+// Moved: combined Firestore rules now live at the portfolio repo root infra folder.
+//
+//   ../../firebase/firestore.rules
+//   ../../firebase/README.md
+//
+// Deploy from portfolio root:
+//   npx firebase-tools deploy --only firestore:rules
+//
+// This stub is kept so old bookmarks / docs do not 404 in the tree.
+// Do not publish this empty file to Firebase.

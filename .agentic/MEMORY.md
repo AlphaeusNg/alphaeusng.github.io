@@ -15,6 +15,8 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `pages/`: secondary public pages.
 - `pages/seeking-biblical-truth/index.html`: data-driven interactive viewer for the Biblical Truth knowledge-base project.
 - `pages/seeking-biblical-truth/vault-data.json`: generated from `/home/alph/projects/Seeking-Biblical-Truth` Markdown notes and `Big Picture.canvas`.
+- `pages/seeking-biblical-truth/js/firebase-config.js`: runtime Firebase keys for the vault editor only.
+- `firebase/`: shared Firebase infra (combined Firestore rules + indexes + deploy docs). CLI: root `firebase.json` / `.firebaserc`.
 - `assets/`: images and share assets referenced by public pages.
 - `tools/`: maintenance scripts grouped by domain.
 - `tools/koboforge/`: KoboForge companion tooling.

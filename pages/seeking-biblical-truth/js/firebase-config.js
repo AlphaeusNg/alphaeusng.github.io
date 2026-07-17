@@ -1,16 +1,18 @@
 /**
  * Firebase config for Seeking Biblical Truth web vault (edit + save).
+ * Runtime only — loaded by index.html. Infra lives at ../../../firebase/
  *
- * Setup:
+ * Setup: see ../../../firebase/README.md
  * 1. Same Firebase project as AlpArcade (or a dedicated one) — free Spark tier OK
  * 2. Authentication → Sign-in method → enable Google
- * 3. Authentication → Settings → Authorized domains → add alphaeusng.github.io
- * 4. Firestore → paste rules from firestore.rules (this folder or FIREBASE.md)
+ * 3. Authorized domains → alphaeusng.github.io + localhost + 127.0.0.1
+ * 4. Publish combined rules: firebase/firestore.rules (portfolio root)
  * 5. Project settings → Web app → paste config below
  * 6. Set enabled: true and allowedEmails to YOUR Google account(s)
+ *    (must match isVaultEditor() emails in firebase/firestore.rules)
  * 7. Commit + push alphaeusng.github.io
  *
- * Google sign-in is recommended: only emails in allowedEmails can write notes.
+ * Google sign-in: only emails in allowedEmails can write notes.
  * Everyone else can still read the public vault.
  */
 (function (global) {
