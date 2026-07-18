@@ -174,6 +174,13 @@
                         <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Author</span>
                         <input id="bookAuthor" type="text" class="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-[#C9A227]" placeholder="Optional">
                     </label>
+                    <label class="block">
+                        <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Language</span>
+                        <input id="bookLang" type="text" value="en" maxlength="8" class="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-[#C9A227]" placeholder="en">
+                    </label>
+                    <div class="flex items-end">
+                        <button type="button" id="sampleBtn" class="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 transition hover:border-[#C9A227]/40 hover:text-[#C9A227]">Load sample Markdown</button>
+                    </div>
                 </div>
 
                 <label class="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
@@ -181,6 +188,14 @@
                     <span>
                         <span class="block text-sm font-medium text-slate-100">Preserve tables as structured HTML</span>
                         <span class="mt-1 block text-xs leading-5 text-slate-400">PDF grids and Markdown pipe tables become real &lt;table&gt; elements for best Kobo compatibility. Uncheck to flatten tables to plain text.</span>
+                    </span>
+                </label>
+
+                <label class="mt-3 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
+                    <input id="splitChapters" type="checkbox" checked class="mt-1 h-4 w-4 rounded border-white/20 bg-slate-900 text-[#C9A227] focus:ring-[#C9A227]">
+                    <span>
+                        <span class="block text-sm font-medium text-slate-100">Split into chapters by headings</span>
+                        <span class="mt-1 block text-xs leading-5 text-slate-400">H1/H2 headings become separate EPUB spine items with a real table of contents — easier navigation on Kobo.</span>
                     </span>
                 </label>
 
@@ -196,15 +211,27 @@
             </div>
 
             <div class="glass-card rounded-[2rem] p-7">
-                <div class="flex items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">2. Status</div>
                         <h2 class="mt-2 text-2xl font-semibold tracking-tight">Client-side output</h2>
                     </div>
-                    <button id="downloadBtn" class="rounded-2xl bg-[#C9A227] px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-50" disabled>Download EPUB</button>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" id="clearBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-white/30 disabled:opacity-40" disabled>Clear</button>
+                        <button id="downloadBtn" class="rounded-2xl bg-[#C9A227] px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-50" disabled>Download EPUB</button>
+                    </div>
                 </div>
                 <div id="status" class="mt-5 text-sm leading-7 text-slate-400">Waiting for a document.</div>
-                <div id="stats" class="mt-5 grid hidden gap-4 sm:grid-cols-3">
+                <div id="progressWrap" class="mt-4 hidden">
+                    <div class="mb-1 flex justify-between text-[11px] uppercase tracking-[0.14em] text-slate-500">
+                        <span id="progressLabel">Processing</span>
+                        <span id="progressPct">0%</span>
+                    </div>
+                    <div class="h-2 overflow-hidden rounded-full bg-white/10">
+                        <div id="progressBar" class="h-full w-0 rounded-full bg-[#C9A227] transition-[width] duration-200"></div>
+                    </div>
+                </div>
+                <div id="stats" class="mt-5 grid hidden gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
                         <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Format</div>
                         <div id="statFormat" class="mt-2 text-lg font-semibold text-slate-100">—</div>
@@ -212,6 +239,10 @@
                     <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
                         <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Paragraphs</div>
                         <div id="statParagraphs" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Words</div>
+                        <div id="statWords" class="mt-2 text-lg font-semibold text-slate-100">—</div>
                     </div>
                     <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
                         <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Structure</div>
@@ -227,9 +258,9 @@
                     <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">3. Preview</div>
                     <h2 class="mt-2 text-2xl font-semibold tracking-tight">Extracted content</h2>
                 </div>
-                <div class="text-xs text-slate-500">The preview is the exact content that goes into the EPUB chapter.</div>
+                <div class="text-xs text-slate-500">Preview matches the EPUB body. Chapter splits appear as heading breaks.</div>
             </div>
-            <div id="preview" class="mt-6 min-h-[540px] rounded-[1.75rem] border border-white/10 bg-slate-950/35 px-6 py-6">
+            <div id="preview" class="mt-6 max-h-[70vh] min-h-[540px] overflow-y-auto rounded-[1.75rem] border border-white/10 bg-slate-950/35 px-6 py-6">
                 <p class="text-slate-500">Load a document to inspect the reconstructed structure before exporting.</p>
             </div>
         </div>
@@ -259,15 +290,24 @@
         const fileInput = document.getElementById('fileInput');
         const pickFileBtn = document.getElementById('pickFileBtn');
         const downloadBtn = document.getElementById('downloadBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const sampleBtn = document.getElementById('sampleBtn');
         const statusEl = document.getElementById('status');
         const previewEl = document.getElementById('preview');
         const statsEl = document.getElementById('stats');
         const statFormat = document.getElementById('statFormat');
         const statParagraphs = document.getElementById('statParagraphs');
+        const statWords = document.getElementById('statWords');
         const statStructure = document.getElementById('statStructure');
         const bookTitleInput = document.getElementById('bookTitle');
         const bookAuthorInput = document.getElementById('bookAuthor');
+        const bookLangInput = document.getElementById('bookLang');
         const preserveTablesEl = document.getElementById('preserveTables');
+        const splitChaptersEl = document.getElementById('splitChapters');
+        const progressWrap = document.getElementById('progressWrap');
+        const progressBar = document.getElementById('progressBar');
+        const progressPct = document.getElementById('progressPct');
+        const progressLabel = document.getElementById('progressLabel');
 
         let currentOutput = null;
         let currentFile = null;
@@ -275,6 +315,77 @@
         // Re-run extraction when table preference changes (PDF/Markdown)
         preserveTablesEl?.addEventListener('change', () => {
             if (currentFile) processFile(currentFile);
+        });
+        splitChaptersEl?.addEventListener('change', () => {
+            // Export-only preference — no re-parse needed
+            if (currentOutput) {
+                statusEl.textContent = currentOutput.status + (splitChaptersEl.checked
+                    ? ' · Chapters will split on H1/H2.'
+                    : ' · Single-chapter export.');
+            }
+        });
+
+        function setProgress(pct, label) {
+            if (!progressWrap) return;
+            const p = Math.max(0, Math.min(100, Math.round(pct)));
+            progressWrap.classList.toggle('hidden', p <= 0 && !label);
+            if (progressBar) progressBar.style.width = `${p}%`;
+            if (progressPct) progressPct.textContent = `${p}%`;
+            if (progressLabel && label) progressLabel.textContent = label;
+            if (p >= 100) {
+                setTimeout(() => progressWrap.classList.add('hidden'), 600);
+            }
+        }
+
+        function countWords(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            const text = (tmp.textContent || '').replace(/\s+/g, ' ').trim();
+            if (!text) return 0;
+            return text.split(/\s+/).filter(Boolean).length;
+        }
+
+        function clearWorkspace() {
+            currentFile = null;
+            currentOutput = null;
+            downloadBtn.disabled = true;
+            if (clearBtn) clearBtn.disabled = true;
+            statsEl.classList.add('hidden');
+            previewEl.innerHTML = '<p class="text-slate-500">Load a document to inspect the reconstructed structure before exporting.</p>';
+            statusEl.textContent = 'Waiting for a document.';
+            bookTitleInput.value = '';
+            if (fileInput) fileInput.value = '';
+            setProgress(0);
+        }
+
+        clearBtn?.addEventListener('click', clearWorkspace);
+
+        sampleBtn?.addEventListener('click', () => {
+            const sample = `# KoboForge sample
+
+A short multi-chapter document so you can try export without uploading a file.
+
+## Why local conversion
+
+Private notes and work docs never leave your browser. DOCX keeps native paragraphs; PDFs are reconstructed from page coordinates.
+
+## Sample table
+
+| Feature | Kobo benefit |
+| --- | --- |
+| HTML tables | Aligns columns on e-ink |
+| Chapter split | Real TOC on device |
+| Indent preserve | Code / poetry stays readable |
+
+## Closing
+
+Export this sample, sideload the EPUB, and open the TOC on your Kobo.
+`;
+            const blob = new Blob([sample], { type: 'text/markdown' });
+            const file = new File([blob], 'koboforge-sample.md', { type: 'text/markdown' });
+            bookTitleInput.value = 'KoboForge sample';
+            bookAuthorInput.value = bookAuthorInput.value || 'Alphaeus Ng';
+            processFile(file);
         });
 
         function waitForGlobal(name, timeoutMs = 12000) {
@@ -323,58 +434,82 @@
         });
 
         downloadBtn.addEventListener('click', async () => {
-            if (!currentOutput || !currentFile) return;
-            const title = bookTitleInput.value.trim() || currentOutput.title;
-            const author = bookAuthorInput.value.trim() || currentOutput.author || 'Alphaeus Ng';
-            statusEl.textContent = 'Building EPUB locally…';
-            const blob = await buildEpubBlob({
-                title,
-                author,
-                bodyHtml: currentOutput.bodyHtml
-            });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `${slugify(title || currentFile.name.replace(/\.[^.]+$/, '')) || 'koboforge-output'}.epub`;
-            link.click();
-            URL.revokeObjectURL(url);
-            statusEl.textContent = 'EPUB ready. Nothing left your browser.';
+            if (!currentOutput) return;
+            try {
+                const title = bookTitleInput.value.trim() || currentOutput.title;
+                const author = bookAuthorInput.value.trim() || currentOutput.author || 'Alphaeus Ng';
+                const lang = (bookLangInput?.value || 'en').trim() || 'en';
+                statusEl.textContent = 'Building EPUB locally…';
+                setProgress(10, 'Building EPUB');
+                const split = !splitChaptersEl || splitChaptersEl.checked;
+                const blob = await buildEpubBlob({
+                    title,
+                    author,
+                    lang,
+                    bodyHtml: currentOutput.bodyHtml,
+                    splitChapters: split
+                });
+                setProgress(90, 'Preparing download');
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                const base = currentFile?.name?.replace(/\.[^.]+$/, '') || title;
+                link.download = `${slugify(title || base) || 'koboforge-output'}.epub`;
+                link.click();
+                URL.revokeObjectURL(url);
+                setProgress(100, 'Done');
+                statusEl.textContent = 'EPUB ready. Nothing left your browser.';
+            } catch (error) {
+                console.error('[KoboForge]', error);
+                statusEl.textContent = error.message || 'EPUB build failed.';
+                setProgress(0);
+            }
         });
 
         async function processFile(file) {
             currentFile = file;
             currentOutput = null;
             downloadBtn.disabled = true;
+            if (clearBtn) clearBtn.disabled = false;
             statsEl.classList.add('hidden');
             previewEl.innerHTML = '<p class="text-slate-500">Processing…</p>';
             statusEl.textContent = `Reading ${file.name} locally…`;
-            bookTitleInput.value = file.name.replace(/\.[^.]+$/, '');
+            if (!bookTitleInput.value.trim()) {
+                bookTitleInput.value = file.name.replace(/\.[^.]+$/, '');
+            }
+            setProgress(5, 'Reading file');
 
             try {
                 const ext = file.name.split('.').pop().toLowerCase();
                 let output;
                 if (ext === 'docx') {
+                    setProgress(30, 'Parsing DOCX');
                     output = await parseDocx(file);
                 } else if (ext === 'pdf') {
                     output = await parsePdf(file);
                 } else if (ext === 'txt' || ext === 'md' || ext === 'markdown') {
+                    setProgress(40, 'Parsing text');
                     output = await parsePlainText(file, ext);
                 } else {
                     throw new Error('Unsupported file type. Use DOCX, PDF, TXT, or Markdown.');
                 }
 
+                setProgress(90, 'Rendering preview');
                 currentOutput = output;
                 previewEl.innerHTML = output.bodyHtml;
                 statusEl.textContent = output.status;
                 statFormat.textContent = output.formatLabel;
                 statParagraphs.textContent = String(output.paragraphCount);
+                if (statWords) statWords.textContent = String(countWords(output.bodyHtml)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                 statStructure.textContent = output.structureNote;
                 statsEl.classList.remove('hidden');
                 downloadBtn.disabled = false;
+                setProgress(100, 'Ready');
             } catch (error) {
                 console.error('[KoboForge]', error);
                 statusEl.textContent = error.message || 'Failed to process file.';
                 previewEl.innerHTML = '<p class="text-rose-300">Processing failed. Try DOCX for the cleanest result, or a simpler PDF.</p>';
+                setProgress(0);
             }
         }
 
@@ -424,9 +559,11 @@
 
         async function parsePdf(file) {
             const arrayBuffer = await file.arrayBuffer();
+            setProgress(12, 'Opening PDF');
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const blocks = [];
             let tableCount = 0;
+            const total = pdf.numPages || 1;
 
             for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
                 const page = await pdf.getPage(pageNumber);
@@ -438,6 +575,7 @@
                     if (block.type === 'table') tableCount += 1;
                     blocks.push(block);
                 }
+                setProgress(12 + (pageNumber / total) * 70, `PDF page ${pageNumber}/${total}`);
             }
 
             const html = blocks.length
@@ -817,7 +955,66 @@
                 .replace(/<td(?![^>]*class=)/gi, '<td class="border border-white/10 px-2 py-1 align-top"');
         }
 
-        async function buildEpubBlob({ title, author, bodyHtml }) {
+        /**
+         * Split body HTML into chapters on H1/H2. First prose before any heading
+         * becomes "Front matter" when other chapters exist.
+         */
+        function splitBodyIntoChapters(bodyHtml, bookTitle) {
+            const doc = new DOMParser().parseFromString(
+                `<div id="root">${bodyHtml}</div>`,
+                'text/html'
+            );
+            const root = doc.getElementById('root');
+            if (!root) {
+                return [{ id: 'ch1', title: bookTitle, html: bodyHtml }];
+            }
+            const chapters = [];
+            let buf = [];
+            let title = bookTitle;
+            let started = false;
+
+            const flush = () => {
+                const html = buf.join('').trim();
+                if (!html && !started) return;
+                chapters.push({
+                    id: `ch${chapters.length + 1}`,
+                    title: title || `Chapter ${chapters.length + 1}`,
+                    html: html || '<p></p>'
+                });
+                buf = [];
+            };
+
+            for (const node of Array.from(root.childNodes)) {
+                if (node.nodeType === 1) {
+                    const tag = node.tagName.toLowerCase();
+                    if (tag === 'h1' || tag === 'h2') {
+                        if (started || buf.length) flush();
+                        title = (node.textContent || '').trim() || `Chapter ${chapters.length + 1}`;
+                        started = true;
+                        buf.push(node.outerHTML);
+                        continue;
+                    }
+                }
+                if (node.nodeType === 1) buf.push(node.outerHTML);
+                else if (node.nodeType === 3 && node.textContent.trim()) {
+                    buf.push(`<p>${escapeHtml(node.textContent)}</p>`);
+                }
+            }
+            flush();
+
+            if (!chapters.length) {
+                return [{ id: 'ch1', title: bookTitle, html: bodyHtml || '<p></p>' }];
+            }
+            // Rename first untitled front matter
+            if (chapters[0] && chapters[0].title === bookTitle && chapters.length > 1) {
+                const first = chapters[0].html.replace(/<[^>]+>/g, ' ').trim();
+                if (!first) chapters.shift();
+                else chapters[0].title = 'Front matter';
+            }
+            return chapters;
+        }
+
+        async function buildEpubBlob({ title, author, lang = 'en', bodyHtml, splitChapters = true }) {
             const JSZipCtor = await waitForGlobal('JSZip');
             const zip = new JSZipCtor();
             zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
@@ -829,46 +1026,76 @@
 </container>`);
 
             const oebps = zip.folder('OEBPS');
-            // Kobo-friendly table CSS: clear borders, readable padding, stacked layout on narrow screens
-            oebps.file('styles.css', `body{font-family:serif;line-height:1.55;margin:5%;}h1,h2,h3{margin-top:1.2em;}p{margin:0 0 1em;}p.preserve-structure{white-space:pre-wrap;font-family:monospace;line-height:1.45;}blockquote{border-left:.2em solid #999;padding-left:1em;margin-left:0;}table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.9em;}th,td{border:1px solid #444;padding:6px 8px;text-align:left;vertical-align:top;}th{font-weight:700;background:#f0f0f0;}@media (max-width:600px){table,thead,tbody,th,td,tr{display:block;}tr{margin-bottom:1em;border-bottom:2px solid #666;}th,td{border:1px solid #666;}}`);
+            // Kobo-friendly CSS: serif body, clear tables, hyphenation-friendly
+            oebps.file('styles.css', `body{font-family:serif;line-height:1.6;margin:4%;color:#111;-webkit-hyphens:auto;hyphens:auto;}h1,h2,h3{margin:1.25em 0 .55em;line-height:1.25;page-break-after:avoid;}h1{font-size:1.55em;}h2{font-size:1.3em;}h3{font-size:1.12em;}p{margin:0 0 0.9em;text-align:justify;}p.preserve-structure{white-space:pre-wrap;font-family:monospace;font-size:0.92em;line-height:1.45;text-align:left;}blockquote{border-left:.25em solid #888;padding-left:1em;margin:0 0 1em;color:#333;}ul,ol{margin:0 0 1em 1.2em;}table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.9em;page-break-inside:avoid;}th,td{border:1px solid #555;padding:6px 8px;text-align:left;vertical-align:top;}th{font-weight:700;background:#eee;}img{max-width:100%;height:auto;}`);
+
+            const chapters = splitChapters
+                ? splitBodyIntoChapters(bodyHtml, title)
+                : [{ id: 'ch1', title, html: `<h1>${escapeXml(title)}</h1>${bodyHtml}` }];
+
+            // Ensure single-chapter mode still has a title heading if missing
+            if (!splitChapters && !/<h1[\s>]/i.test(bodyHtml)) {
+                chapters[0].html = `<h1>${escapeXml(title)}</h1>${bodyHtml}`;
+            }
+
+            const tocItems = chapters.map((ch, i) =>
+                `<li><a href="chapter-${i + 1}.xhtml">${escapeXml(ch.title)}</a></li>`
+            ).join('\n    ');
+
             oebps.file('nav.xhtml', `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-<head><title>Navigation</title></head>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="${escapeXml(lang)}">
+<head><title>Navigation</title><link rel="stylesheet" type="text/css" href="styles.css"/></head>
 <body>
   <nav epub:type="toc" id="toc">
     <h1>Contents</h1>
-    <ol><li><a href="chapter.xhtml">${escapeXml(title)}</a></li></ol>
+    <ol>
+    ${tocItems}
+    </ol>
   </nav>
 </body>
 </html>`);
-            oebps.file('chapter.xhtml', `<?xml version="1.0" encoding="UTF-8"?>
+
+            chapters.forEach((ch, i) => {
+                const n = i + 1;
+                const hasH1 = /<h1[\s>]/i.test(ch.html);
+                const body = hasH1 ? ch.html : `<h1>${escapeXml(ch.title)}</h1>${ch.html}`;
+                oebps.file(`chapter-${n}.xhtml`, `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="${escapeXml(lang)}">
 <head>
-  <title>${escapeXml(title)}</title>
+  <title>${escapeXml(ch.title)}</title>
   <link rel="stylesheet" type="text/css" href="styles.css"/>
 </head>
 <body>
-  <h1>${escapeXml(title)}</h1>
-  ${bodyHtml}
+  ${body}
 </body>
 </html>`);
+            });
+
+            const manifestItems = chapters.map((ch, i) =>
+                `    <item id="ch${i + 1}" href="chapter-${i + 1}.xhtml" media-type="application/xhtml+xml"/>`
+            ).join('\n');
+            const spineItems = chapters.map((ch, i) =>
+                `    <itemref idref="ch${i + 1}"/>`
+            ).join('\n');
+
             oebps.file('content.opf', `<?xml version="1.0" encoding="UTF-8"?>
 <package version="3.0" unique-identifier="bookid" xmlns="http://www.idpf.org/2007/opf">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:identifier id="bookid">urn:uuid:${crypto.randomUUID()}</dc:identifier>
     <dc:title>${escapeXml(title)}</dc:title>
-    <dc:language>en</dc:language>
+    <dc:language>${escapeXml(lang)}</dc:language>
     <dc:creator>${escapeXml(author)}</dc:creator>
+    <meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')}</meta>
   </metadata>
   <manifest>
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
-    <item id="chapter" href="chapter.xhtml" media-type="application/xhtml+xml"/>
+${manifestItems}
     <item id="css" href="styles.css" media-type="text/css"/>
   </manifest>
   <spine>
-    <itemref idref="chapter"/>
+${spineItems}
   </spine>
 </package>`);
 
