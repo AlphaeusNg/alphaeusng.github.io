@@ -61,8 +61,8 @@ const PROJECT_MODAL_DATA = {
       },
       {
         heading: 'The Approach',
-        content: 'The public page runs fully client-side. DOCX, PDF, TXT, and Markdown go through the browser, get previewed before export, and end up packaged as EPUB without being uploaded anywhere. PDF handling leans on line-height and x-position heuristics to rebuild spaces, paragraph breaks, and indentation more faithfully than the older version did.',
-        techNote: 'Tech: static HTML, JSZip, Mammoth, PDF.js, client-side EPUB packaging, plus optional Python companion tooling under tools/.'
+        content: 'The public page runs fully client-side. DOCX, PDF, TXT, and Markdown go through the browser; you get diagnostics, a chapter outline, PDF page jumps, e-ink preview, and View/Edit/HTML modes so you can fix structure before export. PDF handling reconstructs spaces, paragraphs, tables, and heading guesses from page coordinates. EPUB ships with nav + NCX for Kobo TOC.',
+        techNote: 'Tech: static HTML, JSZip, Mammoth, PDF.js, contenteditable + HTML source edit, client-side EPUB3 packaging, optional Python companion (pdfplumber find_tables) under tools/.'
       }
     ],
     intersection: {

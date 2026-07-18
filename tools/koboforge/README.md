@@ -1,10 +1,25 @@
 # KoboForge Companion Tools
 
-High-fidelity helpers that complement the KoboForge page at https://alphaeusng.github.io/pages/kobo-forge.html
+High-fidelity helpers that complement the KoboForge page at
+https://alphaeusng.github.io/pages/kobo-forge.html
 
-## Python Companion
+## Web converter (primary)
 
-`koboforge-companion.py` — the best option when table fidelity is critical (dense reports, financial tables, scientific PDFs).
+The public page is the main product:
+
+1. Drop DOCX / PDF / TXT / Markdown
+2. Read **diagnostics** (empty pages, missing headings, table risks)
+3. Use **Contents** + **PDF page chips** to spot-check structure
+4. **Edit** (contenteditable) or **HTML** mode to fix body before export
+5. Toggle **E-ink** for paper-like contrast
+6. Download EPUB (NCX + nav TOC for Kobo)
+
+Nothing is uploaded. Preferences (author, language, table/chapter toggles, e-ink) stick in `localStorage`.
+
+## Python companion (offline / dense tables)
+
+`koboforge-companion.py` — batch/offline path when you want pdfplumber’s
+`find_tables()` pipeline or CLI automation.
 
 ### Installation
 
@@ -26,17 +41,19 @@ python tools/koboforge/koboforge-companion.py financials.pdf \
   --output "q3-financials-kobo.epub"
 ```
 
-### Why this is better for tables
+Presets adjust CSS font size / margins: `clara` | `libra` | `sage` | `generic`.
 
-- `pdfplumber` extracts tables with cell-level accuracy and bounding boxes
-- Tables are emitted as real `<table>` elements (not text blobs)
-- Clean reflowable XHTML + Kobo-tuned CSS
-- No middleman conversion layers that destroy structure
+### Why companion vs web
 
-The web converter (JS) is excellent for most DOCX files and simple PDFs. Use this when the web version warns you or when you see broken tables after transfer.
+| Case | Prefer |
+|------|--------|
+| Interactive fix of PDF glitches | **Web** (edit + e-ink + outline) |
+| DOCX with native headings | Either (web is faster) |
+| Dense PDF tables / batch scripts | **Companion** (`find_tables`) |
+| Scanned/image PDFs | OCR first, then either tool |
 
 ## License
 
-Same as the main site (MIT-like). Use freely, improve, share.
+Same as the main site. Use freely, improve, share.
 
-Built because I got tired of broken tables on my Kobo.
+Built because broken tables on Kobo are a personal insult.

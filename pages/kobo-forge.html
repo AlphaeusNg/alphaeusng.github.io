@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KoboForge • Client-side EPUB Builder</title>
-    <meta name="description" content="Client-side DOCX, PDF, TXT, and Markdown to EPUB conversion with paragraph, indentation, and HTML table preservation for Kobo readers.">
+    <meta name="description" content="Client-side DOCX, PDF, TXT, and Markdown to EPUB conversion with preview editing, chapter outline, and structure preservation for Kobo readers.">
     <meta name="theme-color" content="#080d17">
     <link rel="canonical" href="https://alphaeusng.github.io/pages/kobo-forge.html">
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
@@ -45,6 +45,11 @@
         .dropzone-active {
             border-color: rgba(201, 162, 39, 0.72);
             background: rgba(201, 162, 39, 0.08);
+        }
+
+        /* —— Preview (dark default) —— */
+        #preview {
+            outline: none;
         }
 
         #preview p {
@@ -112,6 +117,138 @@
         #preview tr:nth-child(even) td {
             background: rgba(255, 255, 255, 0.03);
         }
+
+        /* Preview-only chrome: page + chapter markers */
+        #preview .kf-page-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin: 1.25rem 0 0.75rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            border: 1px solid rgba(201, 162, 39, 0.35);
+            background: rgba(201, 162, 39, 0.1);
+            color: #e8d48b;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        #preview .kf-chapter-marker {
+            display: block;
+            margin: 1.5rem 0 0.5rem;
+            padding: 0.35rem 0.75rem;
+            border-left: 3px solid rgba(201, 162, 39, 0.7);
+            background: rgba(201, 162, 39, 0.06);
+            color: #f1e4a8;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        #preview.kf-editing {
+            box-shadow: inset 0 0 0 2px rgba(201, 162, 39, 0.45);
+        }
+
+        #preview.kf-editing:focus {
+            box-shadow: inset 0 0 0 2px rgba(201, 162, 39, 0.75);
+        }
+
+        /* E-ink preview — closer to Kobo paper */
+        #previewWrap.eink #preview {
+            background: #f4f1e8 !important;
+            color: #1a1a1a;
+            border-color: #d4cfc0 !important;
+        }
+
+        #previewWrap.eink #preview p,
+        #previewWrap.eink #preview ul,
+        #previewWrap.eink #preview ol,
+        #previewWrap.eink #preview blockquote {
+            color: #222;
+        }
+
+        #previewWrap.eink #preview h1,
+        #previewWrap.eink #preview h2,
+        #previewWrap.eink #preview h3,
+        #previewWrap.eink #preview h4 {
+            color: #111;
+            font-family: Georgia, 'Times New Roman', serif;
+        }
+
+        #previewWrap.eink #preview table,
+        #previewWrap.eink #preview table.kobo-table {
+            color: #111;
+            box-shadow: 0 0 0 1px #999;
+            border-radius: 0;
+        }
+
+        #previewWrap.eink #preview th,
+        #previewWrap.eink #preview td {
+            border-color: #888;
+            color: #111;
+        }
+
+        #previewWrap.eink #preview th {
+            background: #e8e4d8;
+            color: #111;
+        }
+
+        #previewWrap.eink #preview tr:nth-child(even) td {
+            background: #faf8f2;
+        }
+
+        #previewWrap.eink #preview .kf-page-label {
+            border-color: #aaa;
+            background: #ebe6d8;
+            color: #444;
+        }
+
+        #previewWrap.eink #preview .kf-chapter-marker {
+            border-left-color: #666;
+            background: #ebe6d8;
+            color: #333;
+        }
+
+        #previewWrap.eink #preview p.preserve-structure {
+            font-family: Georgia, serif;
+            font-size: 1rem;
+        }
+
+        .mode-btn.active {
+            background: rgba(201, 162, 39, 0.2);
+            border-color: rgba(201, 162, 39, 0.55);
+            color: #f8fafc;
+        }
+
+        #chapterOutline button.active {
+            border-color: rgba(201, 162, 39, 0.5);
+            background: rgba(201, 162, 39, 0.12);
+            color: #f8fafc;
+        }
+
+        #bodyHtmlSource {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            tab-size: 2;
+        }
+
+        .diag-warn {
+            border-left: 3px solid rgba(251, 191, 36, 0.8);
+        }
+
+        .diag-info {
+            border-left: 3px solid rgba(148, 163, 184, 0.6);
+        }
+
+        .diag-ok {
+            border-left: 3px solid rgba(52, 211, 153, 0.7);
+        }
     </style>
 
     <style>
@@ -137,13 +274,13 @@
         <div class="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#C9A227]">Client-side Processing</div>
         <h1 class="heading-serif max-w-4xl text-6xl leading-none text-slate-50 md:text-7xl">KoboForge</h1>
         <p class="mt-6 max-w-3xl text-2xl leading-tight text-slate-200">
-            A private EPUB builder for Kobo readers that preserves paragraph boundaries and indentation instead of clumping everything into one block of text.
+            Convert → spot-check → edit → export. A private EPUB builder for Kobo that keeps structure intact and lets you fix the result before sideload.
         </p>
         <div class="mt-8 flex flex-wrap gap-3 text-sm text-slate-300">
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Runs fully in your browser</div>
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">DOCX + PDF + TXT + Markdown</div>
-            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Structure-preserving PDF heuristics</div>
-            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">PDF/MD tables → HTML for Kobo</div>
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Edit body before export</div>
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Chapter outline + e-ink preview</div>
         </div>
     </header>
 
@@ -159,7 +296,7 @@
                     </div>
                     <h2 class="mt-4 text-xl font-semibold tracking-tight">Drop a file here</h2>
                     <p class="mt-2 text-sm leading-7 text-slate-400">
-                        Best results come from DOCX. PDFs are supported with client-side structure reconstruction that tries to preserve line grouping, paragraph breaks, indentation, and table grids.
+                        Best results come from DOCX. PDFs are reconstructed client-side (spaces, paragraphs, tables, heading guesses). Then edit anything that looks off before you export.
                     </p>
                     <button id="pickFileBtn" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-[#C9A227] px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844]">Choose file</button>
                     <input id="fileInput" type="file" accept=".docx,.pdf,.txt,.md,.markdown" class="hidden">
@@ -195,18 +332,19 @@
                     <input id="splitChapters" type="checkbox" checked class="mt-1 h-4 w-4 rounded border-white/20 bg-slate-900 text-[#C9A227] focus:ring-[#C9A227]">
                     <span>
                         <span class="block text-sm font-medium text-slate-100">Split into chapters by headings</span>
-                        <span class="mt-1 block text-xs leading-5 text-slate-400">H1/H2 headings become separate EPUB spine items with a real table of contents — easier navigation on Kobo.</span>
+                        <span class="mt-1 block text-xs leading-5 text-slate-400">H1/H2 become separate EPUB spine items with a real TOC. Edit headings in the preview if PDF missed them.</span>
                     </span>
                 </label>
 
                 <div class="mt-6 rounded-3xl border border-white/10 bg-slate-950/35 p-5">
-                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-[#C9A227]">Why this works better</div>
-                    <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-300">
-                        <li>DOCX keeps native paragraph structure, so conversion stays close to the source.</li>
-                        <li>PDF extraction groups text by line height and x-position to reconstruct spaces and paragraph blocks.</li>
-                        <li>Grid-like PDF regions are detected and rebuilt as HTML tables (column clustering + row proximity).</li>
-                        <li>Indented lines stay indented in both the preview and the exported EPUB.</li>
-                    </ul>
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-[#C9A227]">Workflow</div>
+                    <ol class="mt-4 list-decimal space-y-2 pl-5 text-sm leading-7 text-slate-300">
+                        <li>Import a document (or load the sample).</li>
+                        <li>Scan diagnostics + chapter outline for issues.</li>
+                        <li>Switch to <strong class="text-slate-100">Edit</strong> or <strong class="text-slate-100">HTML</strong> and fix paragraphs, headings, tables.</li>
+                        <li>Toggle e-ink preview to sanity-check on paper-like contrast.</li>
+                        <li>Download EPUB and sideload to your Kobo.</li>
+                    </ol>
                 </div>
             </div>
 
@@ -222,6 +360,7 @@
                     </div>
                 </div>
                 <div id="status" class="mt-5 text-sm leading-7 text-slate-400">Waiting for a document.</div>
+                <div id="editedBadge" class="mt-2 hidden text-xs font-medium text-amber-300/90">Body edited — export will use your changes.</div>
                 <div id="progressWrap" class="mt-4 hidden">
                     <div class="mb-1 flex justify-between text-[11px] uppercase tracking-[0.14em] text-slate-500">
                         <span id="progressLabel">Processing</span>
@@ -231,37 +370,86 @@
                         <div id="progressBar" class="h-full w-0 rounded-full bg-[#C9A227] transition-[width] duration-200"></div>
                     </div>
                 </div>
-                <div id="stats" class="mt-5 grid hidden gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div id="stats" class="mt-5 grid hidden gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
                         <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Format</div>
                         <div id="statFormat" class="mt-2 text-lg font-semibold text-slate-100">—</div>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
-                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Paragraphs</div>
-                        <div id="statParagraphs" class="mt-2 text-lg font-semibold text-slate-100">—</div>
                     </div>
                     <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
                         <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Words</div>
                         <div id="statWords" class="mt-2 text-lg font-semibold text-slate-100">—</div>
                     </div>
                     <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
-                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Structure</div>
-                        <div id="statStructure" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Paragraphs</div>
+                        <div id="statParagraphs" class="mt-2 text-lg font-semibold text-slate-100">—</div>
                     </div>
+                    <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Tables</div>
+                        <div id="statTables" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Chapters</div>
+                        <div id="statChapters" class="mt-2 text-lg font-semibold text-slate-100">—</div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
+                        <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Structure</div>
+                        <div id="statStructure" class="mt-2 text-base font-semibold leading-snug text-slate-100">—</div>
+                    </div>
+                </div>
+                <div id="diagnostics" class="mt-5 hidden space-y-2"></div>
+                <div id="pageChips" class="mt-4 hidden">
+                    <div class="mb-2 text-[11px] uppercase tracking-[0.18em] text-slate-500">Jump to PDF page</div>
+                    <div id="pageChipsInner" class="flex flex-wrap gap-1.5"></div>
                 </div>
             </div>
         </div>
 
         <div class="glass-card rounded-[2rem] p-7">
-            <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                <div>
-                    <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">3. Preview</div>
-                    <h2 class="mt-2 text-2xl font-semibold tracking-tight">Extracted content</h2>
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">3. Preview &amp; edit</div>
+                        <h2 class="mt-2 text-2xl font-semibold tracking-tight">Spot-check before export</h2>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex rounded-2xl border border-white/10 bg-slate-950/40 p-1" role="group" aria-label="Preview mode">
+                            <button type="button" data-mode="view" class="mode-btn active rounded-xl px-3 py-1.5 text-xs font-medium text-slate-300 transition">View</button>
+                            <button type="button" data-mode="edit" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200">Edit</button>
+                            <button type="button" data-mode="html" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200">HTML</button>
+                        </div>
+                        <button type="button" id="einkToggle" class="rounded-2xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-[#C9A227]/40" title="Paper-like contrast">E-ink</button>
+                    </div>
                 </div>
-                <div class="text-xs text-slate-500">Preview matches the EPUB body. Chapter splits appear as heading breaks.</div>
+                <p class="text-xs leading-5 text-slate-500">
+                    Preview matches the EPUB body (plus page/chapter markers that are stripped on export). Edit mode is contenteditable; HTML mode is for precise fixes. Changes feed the download.
+                </p>
             </div>
-            <div id="preview" class="mt-6 max-h-[70vh] min-h-[540px] overflow-y-auto rounded-[1.75rem] border border-white/10 bg-slate-950/35 px-6 py-6">
-                <p class="text-slate-500">Load a document to inspect the reconstructed structure before exporting.</p>
+
+            <div id="chapterOutlineWrap" class="mt-4 hidden">
+                <div class="mb-2 flex items-center justify-between gap-2">
+                    <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Contents (export TOC)</div>
+                    <span id="chapterOutlineHint" class="text-[11px] text-slate-500"></span>
+                </div>
+                <div id="chapterOutline" class="flex max-h-36 flex-col gap-1 overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/30 p-2"></div>
+            </div>
+
+            <div id="previewWrap" class="mt-4">
+                <div id="preview" class="max-h-[62vh] min-h-[480px] overflow-y-auto rounded-[1.75rem] border border-white/10 bg-slate-950/35 px-6 py-6" tabindex="0">
+                    <p class="text-slate-500">Load a document to inspect and edit the reconstructed structure before exporting.</p>
+                </div>
+                <textarea id="bodyHtmlSource" class="mt-0 hidden max-h-[62vh] min-h-[480px] w-full resize-y rounded-[1.75rem] border border-white/10 bg-slate-950/50 px-4 py-4 text-slate-200 outline-none focus:border-[#C9A227]" spellcheck="false" aria-label="Body HTML source"></textarea>
+                <div id="editToolbar" class="mt-3 hidden flex flex-wrap gap-2">
+                    <button type="button" data-block="p" class="block-fmt-btn rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Paragraph</button>
+                    <button type="button" data-block="h1" class="block-fmt-btn rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Heading 1</button>
+                    <button type="button" data-block="h2" class="block-fmt-btn rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Heading 2</button>
+                    <button type="button" data-block="h3" class="block-fmt-btn rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Heading 3</button>
+                    <span class="self-center text-[11px] text-slate-500">Select text or click a block, then promote for Kobo TOC.</span>
+                </div>
+                <div id="htmlToolbar" class="mt-3 hidden flex flex-wrap gap-2">
+                    <button type="button" id="applyHtmlBtn" class="rounded-2xl bg-[#C9A227] px-4 py-2 text-xs font-semibold text-slate-950 transition hover:bg-[#d9b844]">Apply HTML</button>
+                    <button type="button" id="cancelHtmlBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-medium text-slate-300">Back to view</button>
+                    <span class="self-center text-[11px] text-slate-500">Download auto-applies HTML. Invalid tags may be cleaned for XHTML.</span>
+                </div>
             </div>
         </div>
     </section>
@@ -269,6 +457,8 @@
     <footer class="border-t border-white/10 py-8 text-center text-xs text-slate-500">
         All processing stays local in your browser. <span class="mx-2">·</span>
         <a href="../index.html#craft" class="transition hover:text-slate-300">Back to The Craft</a>
+        <span class="mx-2">·</span>
+        <a href="../tools/koboforge/README.md" class="transition hover:text-slate-300">Offline companion (Python)</a>
         <span class="mx-2">·</span>
         <span id="site-version" class="font-mono text-slate-500" title="Bump js/version.js on each deploy">v—</span>
     </footer>
@@ -286,6 +476,8 @@
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
 
+        const PREFS_KEY = 'koboforge.prefs.v1';
+
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
         const pickFileBtn = document.getElementById('pickFileBtn');
@@ -294,11 +486,27 @@
         const sampleBtn = document.getElementById('sampleBtn');
         const statusEl = document.getElementById('status');
         const previewEl = document.getElementById('preview');
+        const previewWrap = document.getElementById('previewWrap');
+        const bodyHtmlSource = document.getElementById('bodyHtmlSource');
+        const htmlToolbar = document.getElementById('htmlToolbar');
+        const editToolbar = document.getElementById('editToolbar');
+        const applyHtmlBtn = document.getElementById('applyHtmlBtn');
+        const cancelHtmlBtn = document.getElementById('cancelHtmlBtn');
         const statsEl = document.getElementById('stats');
+        const diagnosticsEl = document.getElementById('diagnostics');
+        const pageChips = document.getElementById('pageChips');
+        const pageChipsInner = document.getElementById('pageChipsInner');
+        const chapterOutlineWrap = document.getElementById('chapterOutlineWrap');
+        const chapterOutline = document.getElementById('chapterOutline');
+        const chapterOutlineHint = document.getElementById('chapterOutlineHint');
+        const editedBadge = document.getElementById('editedBadge');
+        const einkToggle = document.getElementById('einkToggle');
         const statFormat = document.getElementById('statFormat');
         const statParagraphs = document.getElementById('statParagraphs');
         const statWords = document.getElementById('statWords');
         const statStructure = document.getElementById('statStructure');
+        const statTables = document.getElementById('statTables');
+        const statChapters = document.getElementById('statChapters');
         const bookTitleInput = document.getElementById('bookTitle');
         const bookAuthorInput = document.getElementById('bookAuthor');
         const bookLangInput = document.getElementById('bookLang');
@@ -308,22 +516,382 @@
         const progressBar = document.getElementById('progressBar');
         const progressPct = document.getElementById('progressPct');
         const progressLabel = document.getElementById('progressLabel');
+        const modeButtons = document.querySelectorAll('.mode-btn');
 
         let currentOutput = null;
         let currentFile = null;
+        let bodyEdited = false;
+        let editMode = 'view'; // view | edit | html
+        let commitTimer = null;
 
-        // Re-run extraction when table preference changes (PDF/Markdown)
+        // —— Preferences ——
+        function loadPrefs() {
+            try {
+                const raw = localStorage.getItem(PREFS_KEY);
+                if (!raw) return;
+                const p = JSON.parse(raw);
+                if (typeof p.preserveTables === 'boolean' && preserveTablesEl) preserveTablesEl.checked = p.preserveTables;
+                if (typeof p.splitChapters === 'boolean' && splitChaptersEl) splitChaptersEl.checked = p.splitChapters;
+                if (typeof p.eink === 'boolean' && p.eink) previewWrap?.classList.add('eink');
+                if (p.author && bookAuthorInput && !bookAuthorInput.value) bookAuthorInput.value = p.author;
+                if (p.lang && bookLangInput) bookLangInput.value = p.lang;
+            } catch (_) { /* ignore */ }
+        }
+
+        function savePrefs() {
+            try {
+                localStorage.setItem(PREFS_KEY, JSON.stringify({
+                    preserveTables: !!preserveTablesEl?.checked,
+                    splitChapters: !!splitChaptersEl?.checked,
+                    eink: previewWrap?.classList.contains('eink'),
+                    author: bookAuthorInput?.value?.trim() || '',
+                    lang: bookLangInput?.value?.trim() || 'en'
+                }));
+            } catch (_) { /* ignore */ }
+        }
+
+        loadPrefs();
+        updateEinkButton();
+
+        bookAuthorInput?.addEventListener('change', savePrefs);
+        bookLangInput?.addEventListener('change', savePrefs);
+
         preserveTablesEl?.addEventListener('change', () => {
-            if (currentFile) processFile(currentFile);
+            savePrefs();
+            if (!currentFile) return;
+            if (bodyEdited) {
+                const ok = confirm('Re-extracting will discard your body edits. Continue?');
+                if (!ok) {
+                    preserveTablesEl.checked = !preserveTablesEl.checked;
+                    return;
+                }
+            }
+            processFile(currentFile);
         });
+
         splitChaptersEl?.addEventListener('change', () => {
-            // Export-only preference — no re-parse needed
+            savePrefs();
             if (currentOutput) {
+                refreshOutlineAndStats();
+                paintPreview();
                 statusEl.textContent = currentOutput.status + (splitChaptersEl.checked
-                    ? ' · Chapters will split on H1/H2.'
+                    ? ' · Chapters split on H1/H2.'
                     : ' · Single-chapter export.');
             }
         });
+
+        einkToggle?.addEventListener('click', () => {
+            previewWrap?.classList.toggle('eink');
+            updateEinkButton();
+            savePrefs();
+        });
+
+        function updateEinkButton() {
+            if (!einkToggle) return;
+            const on = previewWrap?.classList.contains('eink');
+            einkToggle.classList.toggle('border-[#C9A227]/50', on);
+            einkToggle.classList.toggle('bg-[#C9A227]/15', on);
+            einkToggle.classList.toggle('text-[#C9A227]', on);
+            einkToggle.textContent = on ? 'E-ink on' : 'E-ink';
+        }
+
+        // —— Preview modes ——
+        modeButtons.forEach((btn) => {
+            btn.addEventListener('click', () => setEditMode(btn.dataset.mode));
+        });
+
+        function setEditMode(mode) {
+            if (!currentOutput && mode !== 'view') {
+                statusEl.textContent = 'Load a document first.';
+                return;
+            }
+            if (editMode === 'edit' && mode !== 'edit') {
+                commitPreviewFromDom();
+            }
+            if (editMode === 'html' && mode !== 'html') {
+                // Leaving HTML: if textarea dirty vs body, offer to apply
+                if (currentOutput && bodyHtmlSource) {
+                    const pending = canonicalizeBody(bodyHtmlSource.value);
+                    if (pending !== canonicalizeBody(currentOutput.bodyHtml)) {
+                        const apply = confirm('Apply HTML changes before leaving?');
+                        if (apply) {
+                            currentOutput.bodyHtml = pending;
+                            markEdited();
+                            refreshOutlineAndStats();
+                        }
+                    }
+                }
+            }
+
+            editMode = mode;
+            modeButtons.forEach((b) => {
+                const active = b.dataset.mode === mode;
+                b.classList.toggle('active', active);
+                b.classList.toggle('text-slate-300', active);
+                b.classList.toggle('text-slate-400', !active);
+            });
+
+            const isHtml = mode === 'html';
+            const isEdit = mode === 'edit';
+
+            previewEl.classList.toggle('hidden', isHtml);
+            bodyHtmlSource.classList.toggle('hidden', !isHtml);
+            htmlToolbar?.classList.toggle('hidden', !isHtml);
+            editToolbar?.classList.toggle('hidden', !isEdit);
+
+            previewEl.contentEditable = isEdit ? 'true' : 'false';
+            previewEl.classList.toggle('kf-editing', isEdit);
+            if (isEdit) {
+                previewEl.setAttribute('aria-label', 'Editable document body');
+                previewEl.focus();
+            } else {
+                previewEl.removeAttribute('aria-label');
+            }
+
+            if (isHtml && currentOutput) {
+                bodyHtmlSource.value = prettyPrintHtml(currentOutput.bodyHtml);
+            }
+            if (!isHtml) {
+                paintPreview();
+            }
+        }
+
+        /** Promote selection / current block to p|h1|h2|h3 for TOC fixes. */
+        function formatBlockTag(tag) {
+            if (editMode !== 'edit' || !currentOutput) return;
+            const allowed = { p: true, h1: true, h2: true, h3: true };
+            if (!allowed[tag]) return;
+            try {
+                // Prefer modern edit API; fall back to execCommand
+                document.execCommand('formatBlock', false, tag);
+            } catch (_) { /* ignore */ }
+            // If execCommand left a div, force wrap
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount) {
+                let node = sel.anchorNode;
+                if (node && node.nodeType === 3) node = node.parentElement;
+                const block = node?.closest?.('p, h1, h2, h3, h4, div, li');
+                if (block && block !== previewEl && previewEl.contains(block)) {
+                    if (block.tagName.toLowerCase() !== tag && block.tagName.toLowerCase() !== 'li') {
+                        const next = document.createElement(tag);
+                        next.innerHTML = block.innerHTML;
+                        // Keep preserve-structure on paragraphs from PDF
+                        if (tag === 'p' && block.classList?.contains('preserve-structure')) {
+                            next.className = 'preserve-structure';
+                        }
+                        block.replaceWith(next);
+                        // Restore caret
+                        const range = document.createRange();
+                        range.selectNodeContents(next);
+                        range.collapse(true);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+                    }
+                }
+            }
+            markEdited();
+            clearTimeout(commitTimer);
+            commitTimer = setTimeout(() => commitPreviewFromDom(), 200);
+        }
+
+        editToolbar?.querySelectorAll('.block-fmt-btn').forEach((btn) => {
+            btn.addEventListener('mousedown', (e) => {
+                // Prevent blur losing selection before click
+                e.preventDefault();
+            });
+            btn.addEventListener('click', () => formatBlockTag(btn.dataset.block));
+        });
+
+        previewEl.addEventListener('input', () => {
+            if (editMode !== 'edit' || !currentOutput) return;
+            markEdited();
+            clearTimeout(commitTimer);
+            commitTimer = setTimeout(() => commitPreviewFromDom(), 400);
+        });
+
+        previewEl.addEventListener('blur', () => {
+            if (editMode === 'edit') commitPreviewFromDom();
+        });
+
+        applyHtmlBtn?.addEventListener('click', () => {
+            if (!currentOutput) return;
+            const cleaned = canonicalizeBody(bodyHtmlSource.value);
+            currentOutput.bodyHtml = cleaned;
+            markEdited();
+            refreshOutlineAndStats();
+            setEditMode('view');
+            statusEl.textContent = 'HTML applied to body. Spot-check the preview, then download.';
+        });
+
+        cancelHtmlBtn?.addEventListener('click', () => setEditMode('view'));
+
+        function markEdited() {
+            bodyEdited = true;
+            editedBadge?.classList.remove('hidden');
+        }
+
+        function clearEditedFlag() {
+            bodyEdited = false;
+            editedBadge?.classList.add('hidden');
+        }
+
+        /**
+         * Canonical body for storage/export:
+         * - tables: class="kobo-table" only
+         * - PDF page anchors kept as <div class="kf-page-break" data-page="N"></div>
+         * - chapter markers stripped (preview-only)
+         * - page labels converted back to page-break anchors
+         */
+        function canonicalizeBody(html, { forExport = false } = {}) {
+            const doc = new DOMParser().parseFromString(
+                `<div id="root">${html || ''}</div>`,
+                'text/html'
+            );
+            const root = doc.getElementById('root');
+            if (!root) return '';
+
+            // Chapter chrome is never stored
+            root.querySelectorAll('.kf-chapter-marker').forEach((el) => el.remove());
+
+            // Convert visible page labels back to stable anchors (survives edit cycles)
+            root.querySelectorAll('.kf-page-label').forEach((el) => {
+                const page = el.getAttribute('data-page')
+                    || (el.id && el.id.replace(/^kf-page-/, ''))
+                    || (el.textContent || '').replace(/\D+/g, '');
+                const anchor = doc.createElement('div');
+                anchor.className = 'kf-page-break';
+                if (page) anchor.setAttribute('data-page', page);
+                el.replaceWith(anchor);
+            });
+
+            if (forExport) {
+                // EPUB should not include page chrome
+                root.querySelectorAll('.kf-page-break').forEach((el) => el.remove());
+            } else {
+                // Normalize page-break nodes
+                root.querySelectorAll('.kf-page-break').forEach((el) => {
+                    const page = el.getAttribute('data-page') || '';
+                    el.removeAttribute('id');
+                    el.className = 'kf-page-break';
+                    if (page) el.setAttribute('data-page', page);
+                    el.innerHTML = '';
+                });
+            }
+
+            root.querySelectorAll('table').forEach((table) => {
+                table.setAttribute('class', 'kobo-table');
+                table.querySelectorAll('th, td').forEach((cell) => {
+                    cell.removeAttribute('class');
+                });
+            });
+
+            return root.innerHTML.trim();
+        }
+
+        /** Preview paint: markers + light class decoration for dark UI. */
+        function decorateForPreview(bodyHtml, { chapters = [], pageCount = 0 } = {}) {
+            let html = bodyHtml || '';
+            // Ensure tables have class for CSS
+            html = html
+                .replace(/<table(?![^>]*class=)/gi, '<table class="kobo-table"')
+                .replace(/<table class="kobo-table"/gi, '<table class="kobo-table"');
+
+            // Chapter markers (preview only) — align IDs with outline list (0..n-1)
+            if (chapters.length > 1 && splitChaptersEl?.checked) {
+                const doc = new DOMParser().parseFromString(`<div id="root">${html}</div>`, 'text/html');
+                const root = doc.getElementById('root');
+                let chIdx = 0;
+                if (chapters[0] && chapters[0].title === 'Front matter') {
+                    const marker = doc.createElement('div');
+                    marker.className = 'kf-chapter-marker';
+                    marker.id = 'kf-ch-0';
+                    marker.textContent = 'Chapter 1: Front matter';
+                    root.insertBefore(marker, root.firstChild);
+                    chIdx = 1;
+                }
+                for (const node of Array.from(root.childNodes)) {
+                    if (node.nodeType !== 1) continue;
+                    const tag = node.tagName.toLowerCase();
+                    if (tag === 'h1' || tag === 'h2') {
+                        if (chIdx >= chapters.length) break;
+                        const marker = doc.createElement('div');
+                        marker.className = 'kf-chapter-marker';
+                        marker.id = `kf-ch-${chIdx}`;
+                        const label = chapters[chIdx]?.title || (node.textContent || '').trim();
+                        marker.textContent = `Chapter ${chIdx + 1}: ${String(label).slice(0, 60)}`;
+                        root.insertBefore(marker, node);
+                        chIdx += 1;
+                    }
+                }
+                html = root.innerHTML;
+            }
+
+            // PDF page anchors → visible labels (DOM walk; attribute order safe)
+            {
+                const doc = new DOMParser().parseFromString(`<div id="root">${html}</div>`, 'text/html');
+                const root = doc.getElementById('root');
+                root.querySelectorAll('.kf-page-break').forEach((el) => {
+                    const page = el.getAttribute('data-page') || '';
+                    if (!page) {
+                        el.remove();
+                        return;
+                    }
+                    const label = doc.createElement('div');
+                    label.className = 'kf-page-label';
+                    label.id = `kf-page-${page}`;
+                    label.setAttribute('data-page', page);
+                    label.textContent = `PDF page ${page}`;
+                    el.replaceWith(label);
+                });
+                html = root.innerHTML;
+            }
+
+            return html;
+        }
+
+        function paintPreview() {
+            if (!currentOutput) {
+                previewEl.innerHTML = '<p class="text-slate-500">Load a document to inspect and edit the reconstructed structure before exporting.</p>';
+                return;
+            }
+            const title = bookTitleInput.value.trim() || currentOutput.title;
+            const chapters = splitChaptersEl?.checked
+                ? splitBodyIntoChapters(currentOutput.bodyHtml, title)
+                : [{ id: 'ch1', title, html: currentOutput.bodyHtml }];
+            previewEl.innerHTML = decorateForPreview(currentOutput.bodyHtml, {
+                chapters,
+                pageCount: currentOutput.pageCount || 0
+            });
+        }
+
+        function commitPreviewFromDom() {
+            if (!currentOutput || editMode === 'html') return;
+            const clone = previewEl.cloneNode(true);
+            // Keep .kf-page-label so canonicalizeBody can convert them back to page-break anchors.
+            // Only strip chapter markers (pure preview chrome).
+            clone.querySelectorAll('.kf-chapter-marker').forEach((el) => el.remove());
+            currentOutput.bodyHtml = canonicalizeBody(clone.innerHTML);
+            refreshOutlineAndStats();
+        }
+
+        function bodyHtmlForExport() {
+            if (editMode === 'edit') commitPreviewFromDom();
+            if (editMode === 'html' && bodyHtmlSource && !bodyHtmlSource.classList.contains('hidden')) {
+                // Auto-apply textarea so Download never silently drops HTML edits
+                const cleaned = canonicalizeBody(bodyHtmlSource.value);
+                currentOutput.bodyHtml = cleaned;
+                markEdited();
+            }
+            return canonicalizeBody(currentOutput?.bodyHtml || '', { forExport: true });
+        }
+
+        function prettyPrintHtml(html) {
+            // Lightweight pretty print for edit comfort
+            return (html || '')
+                .replace(/></g, '>\n<')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
 
         function setProgress(pct, label) {
             if (!progressWrap) return;
@@ -345,13 +913,34 @@
             return text.split(/\s+/).filter(Boolean).length;
         }
 
+        function countTables(html) {
+            return (html.match(/<table\b/gi) || []).length;
+        }
+
+        function countHeadings(html) {
+            return (html.match(/<h[12]\b/gi) || []).length;
+        }
+
         function clearWorkspace() {
             currentFile = null;
             currentOutput = null;
+            clearEditedFlag();
+            editMode = 'view';
+            setEditMode('view');
             downloadBtn.disabled = true;
             if (clearBtn) clearBtn.disabled = true;
             statsEl.classList.add('hidden');
-            previewEl.innerHTML = '<p class="text-slate-500">Load a document to inspect the reconstructed structure before exporting.</p>';
+            diagnosticsEl.classList.add('hidden');
+            diagnosticsEl.innerHTML = '';
+            pageChips.classList.add('hidden');
+            pageChipsInner.innerHTML = '';
+            chapterOutlineWrap.classList.add('hidden');
+            chapterOutline.innerHTML = '';
+            previewEl.innerHTML = '<p class="text-slate-500">Load a document to inspect and edit the reconstructed structure before exporting.</p>';
+            previewEl.contentEditable = 'false';
+            previewEl.classList.remove('kf-editing');
+            bodyHtmlSource.classList.add('hidden');
+            htmlToolbar.classList.add('hidden');
             statusEl.textContent = 'Waiting for a document.';
             bookTitleInput.value = '';
             if (fileInput) fileInput.value = '';
@@ -363,7 +952,7 @@
         sampleBtn?.addEventListener('click', () => {
             const sample = `# KoboForge sample
 
-A short multi-chapter document so you can try export without uploading a file.
+A short multi-chapter document so you can try edit → export without uploading a file.
 
 ## Why local conversion
 
@@ -375,11 +964,14 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
 | --- | --- |
 | HTML tables | Aligns columns on e-ink |
 | Chapter split | Real TOC on device |
-| Indent preserve | Code / poetry stays readable |
+| Body edit | Fix PDF glitches before sideload |
+| E-ink preview | Spot-check contrast |
 
 ## Closing
 
-Export this sample, sideload the EPUB, and open the TOC on your Kobo.
+1. Open **Edit** and tweak a paragraph.
+2. Check the **Contents** list on the right.
+3. Export, sideload the EPUB, and open the TOC on your Kobo.
 `;
             const blob = new Blob([sample], { type: 'text/markdown' });
             const file = new File([blob], 'koboforge-sample.md', { type: 'text/markdown' });
@@ -407,9 +999,7 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
         pickFileBtn.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (event) => {
             const file = event.target.files?.[0];
-            if (file) {
-                processFile(file);
-            }
+            if (file) processFile(file);
         });
 
         ['dragenter', 'dragover'].forEach((eventName) => {
@@ -428,25 +1018,24 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
 
         dropzone.addEventListener('drop', (event) => {
             const file = event.dataTransfer?.files?.[0];
-            if (file) {
-                processFile(file);
-            }
+            if (file) processFile(file);
         });
 
         downloadBtn.addEventListener('click', async () => {
             if (!currentOutput) return;
             try {
                 const title = bookTitleInput.value.trim() || currentOutput.title;
-                const author = bookAuthorInput.value.trim() || currentOutput.author || 'Alphaeus Ng';
+                const author = bookAuthorInput.value.trim() || currentOutput.author || 'Unknown';
                 const lang = (bookLangInput?.value || 'en').trim() || 'en';
                 statusEl.textContent = 'Building EPUB locally…';
                 setProgress(10, 'Building EPUB');
                 const split = !splitChaptersEl || splitChaptersEl.checked;
+                const bodyHtml = bodyHtmlForExport();
                 const blob = await buildEpubBlob({
                     title,
                     author,
                     lang,
-                    bodyHtml: currentOutput.bodyHtml,
+                    bodyHtml,
                     splitChapters: split
                 });
                 setProgress(90, 'Preparing download');
@@ -458,7 +1047,10 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                 link.click();
                 URL.revokeObjectURL(url);
                 setProgress(100, 'Done');
-                statusEl.textContent = 'EPUB ready. Nothing left your browser.';
+                savePrefs();
+                statusEl.textContent = bodyEdited
+                    ? 'EPUB ready with your edits. Nothing left your browser.'
+                    : 'EPUB ready. Nothing left your browser.';
             } catch (error) {
                 console.error('[KoboForge]', error);
                 statusEl.textContent = error.message || 'EPUB build failed.';
@@ -467,17 +1059,29 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
         });
 
         async function processFile(file) {
+            if (bodyEdited && currentOutput) {
+                const ok = confirm('Loading a new file will discard your body edits. Continue?');
+                if (!ok) {
+                    if (fileInput) fileInput.value = '';
+                    return;
+                }
+            }
             currentFile = file;
             currentOutput = null;
+            clearEditedFlag();
             downloadBtn.disabled = true;
             if (clearBtn) clearBtn.disabled = false;
             statsEl.classList.add('hidden');
+            diagnosticsEl.classList.add('hidden');
+            pageChips.classList.add('hidden');
+            chapterOutlineWrap.classList.add('hidden');
             previewEl.innerHTML = '<p class="text-slate-500">Processing…</p>';
             statusEl.textContent = `Reading ${file.name} locally…`;
             if (!bookTitleInput.value.trim()) {
                 bookTitleInput.value = file.name.replace(/\.[^.]+$/, '');
             }
             setProgress(5, 'Reading file');
+            setEditMode('view');
 
             try {
                 const ext = file.name.split('.').pop().toLowerCase();
@@ -496,21 +1100,165 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
 
                 setProgress(90, 'Rendering preview');
                 currentOutput = output;
-                previewEl.innerHTML = output.bodyHtml;
+                currentOutput.bodyHtml = canonicalizeBody(output.bodyHtml);
+                refreshOutlineAndStats();
+                paintPreview();
                 statusEl.textContent = output.status;
-                statFormat.textContent = output.formatLabel;
-                statParagraphs.textContent = String(output.paragraphCount);
-                if (statWords) statWords.textContent = String(countWords(output.bodyHtml)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                statStructure.textContent = output.structureNote;
-                statsEl.classList.remove('hidden');
                 downloadBtn.disabled = false;
                 setProgress(100, 'Ready');
             } catch (error) {
                 console.error('[KoboForge]', error);
                 statusEl.textContent = error.message || 'Failed to process file.';
-                previewEl.innerHTML = '<p class="text-rose-300">Processing failed. Try DOCX for the cleanest result, or a simpler PDF.</p>';
+                previewEl.innerHTML = '<p class="text-rose-300">Processing failed. Try DOCX for the cleanest result, or a simpler PDF. You can also use the Python companion for dense tables.</p>';
                 setProgress(0);
             }
+        }
+
+        function refreshOutlineAndStats() {
+            if (!currentOutput) return;
+            const html = currentOutput.bodyHtml;
+            const title = bookTitleInput.value.trim() || currentOutput.title;
+            const split = !!splitChaptersEl?.checked;
+            const chapters = split
+                ? splitBodyIntoChapters(html, title)
+                : [{ id: 'ch1', title, html }];
+
+            currentOutput.chapters = chapters;
+            const tableCount = countTables(html);
+            const headingCount = countHeadings(html);
+            const words = countWords(html);
+            const paraCount = currentOutput.paragraphCount
+                || (html.match(/<p\b/gi) || []).length
+                || 1;
+
+            statFormat.textContent = currentOutput.formatLabel;
+            statParagraphs.textContent = String(paraCount);
+            if (statWords) statWords.textContent = String(words).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            if (statTables) statTables.textContent = String(tableCount);
+            if (statChapters) statChapters.textContent = String(chapters.length);
+            statStructure.textContent = currentOutput.structureNote;
+            statsEl.classList.remove('hidden');
+
+            // Outline
+            chapterOutline.innerHTML = '';
+            if (chapters.length) {
+                chapterOutlineWrap.classList.remove('hidden');
+                chapters.forEach((ch, i) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left text-xs text-slate-300 transition hover:border-white/25';
+                    btn.textContent = `${i + 1}. ${ch.title}`;
+                    btn.addEventListener('click', () => {
+                        if (editMode === 'html') setEditMode('view');
+                        let el = document.getElementById(`kf-ch-${i}`);
+                        if (!el) {
+                            const heads = previewEl.querySelectorAll('h1, h2');
+                            // Account for front-matter chapter without a heading
+                            const offset = (chapters[0]?.title === 'Front matter') ? 1 : 0;
+                            if (i === 0 && chapters[0]?.title === 'Front matter') {
+                                el = previewEl.firstElementChild;
+                            } else {
+                                el = heads[i - offset] || heads[Math.min(i, heads.length - 1)];
+                            }
+                        }
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        } else {
+                            previewEl.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                        chapterOutline.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    });
+                    chapterOutline.appendChild(btn);
+                });
+                if (split && chapters.length === 1 && headingCount === 0) {
+                    chapterOutlineHint.textContent = 'No H1/H2 — single spine item. Add headings in Edit.';
+                } else if (!split) {
+                    chapterOutlineHint.textContent = 'Chapter split off — one file in EPUB.';
+                } else {
+                    chapterOutlineHint.textContent = `${chapters.length} spine item${chapters.length === 1 ? '' : 's'}`;
+                }
+            } else {
+                chapterOutlineWrap.classList.add('hidden');
+            }
+
+            // Page chips
+            const pages = currentOutput.pageCount || 0;
+            if (pages > 0) {
+                pageChips.classList.remove('hidden');
+                pageChipsInner.innerHTML = '';
+                for (let p = 1; p <= pages; p += 1) {
+                    const chip = document.createElement('button');
+                    chip.type = 'button';
+                    chip.className = 'rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-slate-300 hover:border-[#C9A227]/40';
+                    chip.textContent = String(p);
+                    chip.title = `Jump to PDF page ${p}`;
+                    chip.addEventListener('click', () => {
+                        if (editMode === 'html') setEditMode('view');
+                        document.getElementById(`kf-page-${p}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    });
+                    pageChipsInner.appendChild(chip);
+                }
+            } else {
+                pageChips.classList.add('hidden');
+            }
+
+            renderDiagnostics({
+                ...currentOutput,
+                tableCount,
+                headingCount,
+                words,
+                chapterCount: chapters.length,
+                split
+            });
+        }
+
+        function renderDiagnostics(out) {
+            const items = [];
+            const warnings = out.warnings || [];
+            warnings.forEach((w) => items.push({ level: 'warn', text: w }));
+
+            if (out.formatLabel === 'PDF' && out.headingCount === 0 && out.split) {
+                items.push({
+                    level: 'warn',
+                    text: 'No H1/H2 headings detected. Chapter split will export as one spine item. Use Edit to promote titles to headings (e.g. wrap with a heading style or switch to HTML and add <h2>).'
+                });
+            }
+            if (out.formatLabel === 'PDF' && out.emptyPages?.length) {
+                items.push({
+                    level: 'warn',
+                    text: `No extractable text on page(s) ${out.emptyPages.join(', ')} — likely scanned/image-only. OCR first, or use the Python companion after OCR.`
+                });
+            }
+            if (out.formatLabel === 'PDF' && out.tableCount > 0) {
+                items.push({
+                    level: 'info',
+                    text: `${out.tableCount} table region(s) detected. Multi-column layouts can false-positive as tables — uncheck “Preserve tables” or edit/flatten in HTML mode.`
+                });
+            }
+            if (out.words > 0 && out.words < 40 && (currentFile?.size || 0) > 80000) {
+                items.push({
+                    level: 'warn',
+                    text: 'Very little text extracted from a large file — possible scanned PDF or protected content.'
+                });
+            }
+            if (out.formatLabel === 'DOCX' && out.mammothMessages?.length) {
+                out.mammothMessages.slice(0, 6).forEach((m) => {
+                    items.push({ level: 'info', text: `DOCX: ${m}` });
+                });
+            }
+            if (bodyEdited) {
+                items.push({ level: 'ok', text: 'Body has manual edits — export will use your version.' });
+            }
+            if (!items.length) {
+                items.push({ level: 'ok', text: 'No issues flagged. Still skim the preview (and e-ink mode) before sideload.' });
+            }
+
+            diagnosticsEl.innerHTML = items.map((item) => {
+                const cls = item.level === 'warn' ? 'diag-warn' : item.level === 'ok' ? 'diag-ok' : 'diag-info';
+                return `<div class="${cls} rounded-xl border border-white/10 bg-slate-950/40 px-3 py-2 text-xs leading-5 text-slate-300">${escapeHtml(item.text)}</div>`;
+            }).join('');
+            diagnosticsEl.classList.remove('hidden');
         }
 
         async function parseDocx(file) {
@@ -519,14 +1267,24 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             const result = await mammoth.convertToHtml({ arrayBuffer });
             const doc = new DOMParser().parseFromString(result.value, 'text/html');
             const paragraphCount = doc.body.querySelectorAll('p, li, blockquote').length || 1;
+            const messages = (result.messages || [])
+                .map((m) => m.message || String(m))
+                .filter(Boolean);
+            const warnings = [];
+            if (!doc.body.querySelector('h1, h2, h3')) {
+                warnings.push('DOCX has no headings — consider adding them in Word, or insert <h2> in HTML edit for a Kobo TOC.');
+            }
             return {
                 title: file.name.replace(/\.[^.]+$/, ''),
                 author: '',
-                bodyHtml: sanitizeBody(doc.body.innerHTML),
+                bodyHtml: doc.body.innerHTML,
                 paragraphCount,
                 formatLabel: 'DOCX',
                 structureNote: 'Native paragraphs preserved',
-                status: 'DOCX parsed locally. Paragraph and heading structure preserved from the source document.'
+                status: 'DOCX parsed locally. Paragraph and heading structure preserved from the source document.',
+                warnings,
+                mammothMessages: messages,
+                pageCount: 0
             };
         }
 
@@ -545,7 +1303,7 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             return {
                 title: file.name.replace(/\.[^.]+$/, ''),
                 author: '',
-                bodyHtml: sanitizeBody(html),
+                bodyHtml: html,
                 paragraphCount,
                 formatLabel: ext === 'txt' ? 'TXT' : 'Markdown',
                 structureNote: tableCount
@@ -553,7 +1311,9 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                     : 'Blank lines and indentation preserved',
                 status: tableCount
                     ? `${ext.toUpperCase()} parsed locally. ${tableCount} Markdown table${tableCount === 1 ? '' : 's'} converted to HTML for Kobo.`
-                    : `${ext.toUpperCase()} parsed locally with paragraph breaks and indentation preserved.`
+                    : `${ext.toUpperCase()} parsed locally with paragraph breaks and indentation preserved.`,
+                warnings: [],
+                pageCount: 0
             };
         }
 
@@ -561,8 +1321,10 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             const arrayBuffer = await file.arrayBuffer();
             setProgress(12, 'Opening PDF');
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            const blocks = [];
+            const parts = [];
             let tableCount = 0;
+            let headingCount = 0;
+            const emptyPages = [];
             const total = pdf.numPages || 1;
 
             for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
@@ -571,35 +1333,56 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                 const pageBlocks = extractPdfBlocks(textContent.items, {
                     preserveTables: preserveTablesEnabled()
                 });
-                for (const block of pageBlocks) {
-                    if (block.type === 'table') tableCount += 1;
-                    blocks.push(block);
+
+                parts.push(`<div class="kf-page-break" data-page="${pageNumber}"></div>`);
+
+                if (!pageBlocks.length) {
+                    emptyPages.push(pageNumber);
+                    parts.push('<p class="preserve-structure"><em>(No extractable text on this page)</em></p>');
+                } else {
+                    for (const block of pageBlocks) {
+                        if (block.type === 'table') {
+                            tableCount += 1;
+                            parts.push(block.html);
+                        } else if (block.type === 'heading') {
+                            headingCount += 1;
+                            const tag = block.level === 1 ? 'h1' : 'h2';
+                            parts.push(`<${tag}>${escapeHtml(block.text)}</${tag}>`);
+                        } else {
+                            parts.push(`<p class="preserve-structure">${escapeHtml(block.text)}</p>`);
+                        }
+                    }
                 }
                 setProgress(12 + (pageNumber / total) * 70, `PDF page ${pageNumber}/${total}`);
             }
 
-            const html = blocks.length
-                ? blocks.map((block) => {
-                    if (block.type === 'table') return block.html;
-                    return `<p class="preserve-structure">${escapeHtml(block.text)}</p>`;
-                }).join('')
+            const html = parts.length
+                ? parts.join('')
                 : '<p class="preserve-structure">No extractable text found.</p>';
 
-            const paragraphCount = blocks.filter((b) => b.type === 'paragraph').length || 1;
+            const paragraphCount = (html.match(/<p\b/gi) || []).length || 1;
             const structureNote = tableCount
                 ? `${tableCount} table${tableCount === 1 ? '' : 's'} + line/indent reconstruction`
                 : 'Heuristic line + indent reconstruction';
 
+            const warnings = [];
+            if (emptyPages.length === total) {
+                warnings.push('Entire PDF had no extractable text — likely scanned. Run OCR before converting.');
+            }
+
             return {
                 title: file.name.replace(/\.[^.]+$/, ''),
                 author: '',
-                bodyHtml: sanitizeBody(html),
+                bodyHtml: html,
                 paragraphCount,
                 formatLabel: 'PDF',
                 structureNote,
                 status: tableCount
-                    ? `PDF parsed locally. Detected ${tableCount} table${tableCount === 1 ? '' : 's'} as HTML grids; also reconstructed spaces, paragraphs, and indentation.`
-                    : 'PDF parsed locally. KoboForge reconstructed spaces, paragraph boundaries, and indentation heuristically from page coordinates.'
+                    ? `PDF parsed locally. Detected ${tableCount} table${tableCount === 1 ? '' : 's'}; reconstructed spaces, paragraphs, indentation${headingCount ? `, and ${headingCount} heading guess(es)` : ''}.`
+                    : `PDF parsed locally. Reconstructed spaces, paragraph boundaries, and indentation from page coordinates${headingCount ? `; ${headingCount} heading guess(es)` : ''}.`,
+                warnings,
+                emptyPages,
+                pageCount: total
             };
         }
 
@@ -634,16 +1417,21 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                         y: item.y,
                         xStart: item.x,
                         avgCharWidth: item.avgCharWidth,
+                        maxHeight: item.height,
                         items: [item]
                     });
                 } else {
                     currentLine.items.push(item);
                     currentLine.xStart = Math.min(currentLine.xStart, item.x);
                     currentLine.avgCharWidth = Math.min(currentLine.avgCharWidth, item.avgCharWidth);
+                    currentLine.maxHeight = Math.max(currentLine.maxHeight || 0, item.height);
                 }
             }
 
             const minX = lines.reduce((value, line) => Math.min(value, line.xStart), Number.POSITIVE_INFINITY);
+            const heights = lines.map((l) => l.maxHeight || 10);
+            const medianHeight = median(heights) || 10;
+
             return lines.map((line) => {
                 const sorted = line.items.sort((a, b) => a.x - b.x);
                 let text = '';
@@ -661,13 +1449,16 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                     avgSpace = (avgSpace + part.avgCharWidth) / 2;
                 }
                 const indentSpaces = Math.max(0, Math.round((line.xStart - minX) / Math.max(avgSpace, 4)));
+                const lineHeight = Math.max(...sorted.map((part) => part.height || 10), 10);
                 return {
                     y: line.y,
                     xStart: line.xStart,
                     rawText: `${' '.repeat(Math.min(indentSpaces, 12))}${text.trimEnd()}`,
                     plainText: text.trim(),
                     indentSpaces,
-                    lineHeight: Math.max(...sorted.map((part) => part.height || 10), 10),
+                    lineHeight,
+                    maxHeight: line.maxHeight || lineHeight,
+                    medianHeight,
                     avgCharWidth: avgSpace,
                     cells: sorted.map((part) => ({
                         text: part.text,
@@ -679,9 +1470,13 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             });
         }
 
-        /**
-         * Cluster similar X positions into column anchors (for table detection).
-         */
+        function median(arr) {
+            if (!arr.length) return 0;
+            const s = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(s.length / 2);
+            return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+        }
+
         function clusterColumnXs(xs, tolerance) {
             if (!xs.length) return [];
             const sorted = [...xs].sort((a, b) => a - b);
@@ -698,9 +1493,6 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             return clusters.map((c) => c.reduce((s, v) => s + v, 0) / c.length);
         }
 
-        /**
-         * Assign each text run on a line to the nearest column center.
-         */
         function lineToRow(line, colCenters, colTolerance) {
             const row = colCenters.map(() => '');
             for (const cell of line.cells) {
@@ -719,7 +1511,6 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             return row;
         }
 
-        /** True when a single line looks multi-column (gaps between text runs). */
         function lineLooksTabular(line) {
             if (!line.cells || line.cells.length < 2) return false;
             let bigGaps = 0;
@@ -730,6 +1521,21 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             return bigGaps >= 1 || line.cells.length >= 3;
         }
 
+        /** Heading heuristic: short, larger font, title-like text. */
+        function lineLooksLikeHeading(line) {
+            const t = (line.plainText || '').trim();
+            if (!t || t.length > 90 || t.length < 2) return false;
+            if (t.endsWith('.') && t.length > 40) return false;
+            if (lineLooksTabular(line)) return false;
+            const ratio = (line.maxHeight || line.lineHeight) / (line.medianHeight || 10);
+            const isChapter = /^(chapter|part|section|appendix)\b/i.test(t);
+            const isNumbered = /^(\d+[\.\):]|[IVXLC]+\.)\s+\S/.test(t);
+            const isAllCaps = t.length <= 60 && t === t.toUpperCase() && /[A-Z]/.test(t) && t.split(/\s+/).length <= 12;
+            if (ratio >= 1.28 || isChapter) return { level: 1 };
+            if (ratio >= 1.12 || isNumbered || isAllCaps) return { level: 2 };
+            return null;
+        }
+
         function buildTableHtml(rows, { headerRow = true } = {}) {
             if (!rows.length) return '';
             const colCount = Math.max(...rows.map((r) => r.length));
@@ -738,7 +1544,6 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                 while (copy.length < colCount) copy.push('');
                 return copy;
             });
-            // Drop empty columns
             const usedCols = [];
             for (let c = 0; c < colCount; c += 1) {
                 if (normalized.some((r) => (r[c] || '').trim())) usedCols.push(c);
@@ -783,10 +1588,6 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             return tableHtml || null;
         }
 
-        /**
-         * Detect contiguous table regions in built lines; return mixed paragraph/table blocks.
-         * Strategy: mark multi-column lines, group contiguous runs (≥2 rows), build HTML tables.
-         */
         function extractPdfBlocks(items, { preserveTables = true } = {}) {
             const builtLines = buildPdfLines(items);
             if (!builtLines.length) return [];
@@ -812,7 +1613,6 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                     continue;
                 }
 
-                // Grow contiguous tabular region (allow 1 non-tabular row inside if neighbors are tabular)
                 let j = i;
                 const region = [];
                 while (j < builtLines.length) {
@@ -827,7 +1627,6 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                         j += 1;
                         continue;
                     }
-                    // single interstitial prose row inside a table (rare) — stop
                     break;
                 }
 
@@ -841,7 +1640,6 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                     }
                 }
 
-                // Not a confident table — treat as prose
                 proseBuf.push(builtLines[i]);
                 i += 1;
             }
@@ -851,10 +1649,60 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
         }
 
         function linesToParagraphBlocks(builtLines) {
-            const paragraphs = [];
+            // Soft-hyphen join across line breaks
+            const joined = [];
+            for (let i = 0; i < builtLines.length; i += 1) {
+                const line = { ...builtLines[i] };
+                if (
+                    joined.length
+                    && /[A-Za-z]-$/.test(joined[joined.length - 1].plainText)
+                    && /^[a-z]/.test(line.plainText)
+                ) {
+                    const prev = joined[joined.length - 1];
+                    const mergedText = prev.plainText.replace(/-$/, '') + line.plainText;
+                    prev.plainText = mergedText;
+                    prev.rawText = prev.rawText.replace(/-\s*$/, '') + line.plainText;
+                    prev.y = line.y;
+                    continue;
+                }
+                joined.push(line);
+            }
+
+            const blocks = [];
             let current = [];
             let previousLine = null;
-            for (const line of builtLines) {
+
+            const flushPara = () => {
+                if (!current.length) return;
+                const text = current.join('\n');
+                // Single-line heading?
+                if (current.length === 1 && previousLine) {
+                    // handled when we only have one line in current — check first line meta
+                }
+                blocks.push({ type: 'paragraph', text });
+                current = [];
+            };
+
+            for (const line of joined) {
+                const heading = lineLooksLikeHeading(line);
+                // Only promote isolated lines: paragraph break above (or start) and not mid-run
+                const isolatedAbove = !previousLine
+                    || !current.length
+                    || (previousLine.y - line.y) > previousLine.lineHeight * 1.35;
+                if (heading && isolatedAbove && !current.length) {
+                    blocks.push({ type: 'heading', level: heading.level, text: line.plainText });
+                    previousLine = line;
+                    continue;
+                }
+                if (heading && isolatedAbove && current.length) {
+                    // Flush prose, then heading
+                    blocks.push({ type: 'paragraph', text: current.join('\n') });
+                    current = [];
+                    blocks.push({ type: 'heading', level: heading.level, text: line.plainText });
+                    previousLine = line;
+                    continue;
+                }
+
                 if (!previousLine) {
                     current.push(line.rawText);
                     previousLine = line;
@@ -867,7 +1715,9 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                     Math.abs(line.indentSpaces - previousLine.indentSpaces) >= 6;
 
                 if (paragraphBreak) {
-                    paragraphs.push(current.join('\n'));
+                    if (current.length) {
+                        blocks.push({ type: 'paragraph', text: current.join('\n') });
+                    }
                     current = [line.rawText];
                 } else {
                     current.push(line.rawText);
@@ -876,17 +1726,10 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             }
 
             if (current.length) {
-                paragraphs.push(current.join('\n'));
+                blocks.push({ type: 'paragraph', text: current.join('\n') });
             }
 
-            return paragraphs.filter(Boolean).map((text) => ({ type: 'paragraph', text }));
-        }
-
-        /** @deprecated use extractPdfBlocks — kept for any external callers */
-        function extractPdfParagraphs(items) {
-            return extractPdfBlocks(items, { preserveTables: false })
-                .filter((b) => b.type === 'paragraph')
-                .map((b) => b.text);
+            return blocks.filter((b) => b.text || b.type === 'heading');
         }
 
         function plainTextToStructuredHtml(text) {
@@ -903,7 +1746,6 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             const lines = block.trim().split('\n').map((l) => l.trim()).filter(Boolean);
             if (lines.length < 2) return false;
             if (!lines.every((l) => l.includes('|'))) return false;
-            // Separator row: |---| or |:---| etc.
             const sep = lines[1].replace(/\s/g, '');
             return /^\|?[:\-]+(\|[:\-]+)+\|?$/.test(sep);
         }
@@ -932,6 +1774,31 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             return html;
         }
 
+        function isListBlock(block) {
+            const lines = block.trim().split('\n').filter((l) => l.trim());
+            if (!lines.length) return false;
+            return lines.every((l) => /^\s*([-*+]|\d+\.)\s+/.test(l));
+        }
+
+        function listBlockToHtml(block) {
+            const lines = block.trim().split('\n').filter((l) => l.trim());
+            const ordered = /^\s*\d+\./.test(lines[0]);
+            const tag = ordered ? 'ol' : 'ul';
+            const items = lines.map((l) => {
+                const text = l.replace(/^\s*([-*+]|\d+\.)\s+/, '');
+                return `<li>${inlineMarkdown(text)}</li>`;
+            }).join('');
+            return `<${tag}>${items}</${tag}>`;
+        }
+
+        function inlineMarkdown(text) {
+            let s = escapeHtml(text);
+            s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            s = s.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+            return s;
+        }
+
         function markdownLikeToHtml(text) {
             const preserve = preserveTablesEnabled();
             const blocks = text.replace(/\r\n/g, '\n').split(/\n{2,}/).filter(Boolean);
@@ -940,19 +1807,12 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                 if (preserve && isMarkdownTableBlock(trimmed)) {
                     return markdownTableToHtml(trimmed);
                 }
-                if (trimmed.startsWith('### ')) return `<h3>${escapeHtml(trimmed.slice(4))}</h3>`;
-                if (trimmed.startsWith('## ')) return `<h2>${escapeHtml(trimmed.slice(3))}</h2>`;
-                if (trimmed.startsWith('# ')) return `<h1>${escapeHtml(trimmed.slice(2))}</h1>`;
-                return `<p class="preserve-structure">${escapeHtml(trimmed)}</p>`;
+                if (isListBlock(trimmed)) return listBlockToHtml(trimmed);
+                if (trimmed.startsWith('### ')) return `<h3>${inlineMarkdown(trimmed.slice(4))}</h3>`;
+                if (trimmed.startsWith('## ')) return `<h2>${inlineMarkdown(trimmed.slice(3))}</h2>`;
+                if (trimmed.startsWith('# ')) return `<h1>${inlineMarkdown(trimmed.slice(2))}</h1>`;
+                return `<p class="preserve-structure">${inlineMarkdown(trimmed)}</p>`;
             }).join('');
-        }
-
-        function sanitizeBody(html) {
-            return html
-                .replace(/<table(?![^>]*class=)/gi, '<table class="kobo-table w-full border-collapse text-sm text-slate-200"')
-                .replace(/<table class="kobo-table"/gi, '<table class="kobo-table w-full border-collapse text-sm text-slate-200"')
-                .replace(/<th(?![^>]*class=)/gi, '<th class="border border-white/10 px-2 py-1 text-left font-semibold bg-white/5"')
-                .replace(/<td(?![^>]*class=)/gi, '<td class="border border-white/10 px-2 py-1 align-top"');
         }
 
         /**
@@ -968,6 +1828,19 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             if (!root) {
                 return [{ id: 'ch1', title: bookTitle, html: bodyHtml }];
             }
+
+            // Flatten contenteditable wrappers: unwrap bare <div> that only hold a heading/block
+            root.querySelectorAll('div').forEach((div) => {
+                if (div.classList?.contains('kf-page-break') || div.classList?.contains('kf-page-label')
+                    || div.classList?.contains('kf-chapter-marker')) return;
+                const onlyHeading = div.children.length === 1
+                    && /^(H1|H2)$/.test(div.children[0].tagName)
+                    && !(div.textContent || '').replace(div.children[0].textContent || '', '').trim();
+                if (onlyHeading) {
+                    div.replaceWith(div.children[0]);
+                }
+            });
+
             const chapters = [];
             let buf = [];
             let title = bookTitle;
@@ -984,34 +1857,79 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
                 buf = [];
             };
 
-            for (const node of Array.from(root.childNodes)) {
-                if (node.nodeType === 1) {
-                    const tag = node.tagName.toLowerCase();
-                    if (tag === 'h1' || tag === 'h2') {
-                        if (started || buf.length) flush();
-                        title = (node.textContent || '').trim() || `Chapter ${chapters.length + 1}`;
-                        started = true;
+            const walk = (parent) => {
+                for (const node of Array.from(parent.childNodes)) {
+                    if (node.nodeType === 1) {
+                        const tag = node.tagName.toLowerCase();
+                        if (tag === 'div' && (
+                            node.classList?.contains('kf-page-label')
+                            || node.classList?.contains('kf-chapter-marker')
+                            || node.classList?.contains('kf-page-break')
+                        )) {
+                            if (node.classList.contains('kf-page-break')) {
+                                buf.push(node.outerHTML);
+                            }
+                            continue;
+                        }
+                        if (tag === 'h1' || tag === 'h2') {
+                            if (started || buf.length) flush();
+                            title = (node.textContent || '').trim() || `Chapter ${chapters.length + 1}`;
+                            started = true;
+                            buf.push(node.outerHTML);
+                            continue;
+                        }
+                        // Contenteditable often wraps blocks in div — recurse if no direct semantic
+                        if (tag === 'div' && !node.classList?.contains('kobo-table')) {
+                            const hasBlockChild = node.querySelector('h1, h2, h3, p, table, ul, ol');
+                            if (hasBlockChild && node.children.length) {
+                                walk(node);
+                                continue;
+                            }
+                        }
                         buf.push(node.outerHTML);
-                        continue;
+                    } else if (node.nodeType === 3 && node.textContent.trim()) {
+                        buf.push(`<p>${escapeHtml(node.textContent)}</p>`);
                     }
                 }
-                if (node.nodeType === 1) buf.push(node.outerHTML);
-                else if (node.nodeType === 3 && node.textContent.trim()) {
-                    buf.push(`<p>${escapeHtml(node.textContent)}</p>`);
-                }
-            }
+            };
+            walk(root);
             flush();
 
             if (!chapters.length) {
                 return [{ id: 'ch1', title: bookTitle, html: bodyHtml || '<p></p>' }];
             }
-            // Rename first untitled front matter
             if (chapters[0] && chapters[0].title === bookTitle && chapters.length > 1) {
                 const first = chapters[0].html.replace(/<[^>]+>/g, ' ').trim();
                 if (!first) chapters.shift();
                 else chapters[0].title = 'Front matter';
             }
             return chapters;
+        }
+
+        function xhtmlBodyFragment(html) {
+            // Ensure void-ish hygiene for common tags; JSZip string body is XHTML
+            return (html || '')
+                .replace(/<br\s*>/gi, '<br/>')
+                .replace(/<hr\s*>/gi, '<hr/>')
+                .replace(/\u00a0/g, '&#160;');
+        }
+
+        /**
+         * If chapter already opens with H1/H2, keep it (no duplicate title).
+         * Otherwise prepend a single H1 for the spine title.
+         */
+        function ensureChapterTitle(html, title) {
+            const trimmed = (html || '').trim();
+            if (/^<h[12][\s>]/i.test(trimmed)) return trimmed;
+            // Also skip if first element (after optional whitespace/comments) is heading
+            const doc = new DOMParser().parseFromString(`<div id="root">${trimmed}</div>`, 'text/html');
+            const root = doc.getElementById('root');
+            const first = root?.querySelector?.('h1, h2, h3, p, table, ul, ol, blockquote, div');
+            if (first) {
+                const tag = first.tagName.toLowerCase();
+                if (tag === 'h1' || tag === 'h2') return trimmed;
+            }
+            return `<h1>${escapeXml(title)}</h1>${trimmed}`;
         }
 
         async function buildEpubBlob({ title, author, lang = 'en', bodyHtml, splitChapters = true }) {
@@ -1027,15 +1945,17 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
 
             const oebps = zip.folder('OEBPS');
             // Kobo-friendly CSS: serif body, clear tables, hyphenation-friendly
-            oebps.file('styles.css', `body{font-family:serif;line-height:1.6;margin:4%;color:#111;-webkit-hyphens:auto;hyphens:auto;}h1,h2,h3{margin:1.25em 0 .55em;line-height:1.25;page-break-after:avoid;}h1{font-size:1.55em;}h2{font-size:1.3em;}h3{font-size:1.12em;}p{margin:0 0 0.9em;text-align:justify;}p.preserve-structure{white-space:pre-wrap;font-family:monospace;font-size:0.92em;line-height:1.45;text-align:left;}blockquote{border-left:.25em solid #888;padding-left:1em;margin:0 0 1em;color:#333;}ul,ol{margin:0 0 1em 1.2em;}table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.9em;page-break-inside:avoid;}th,td{border:1px solid #555;padding:6px 8px;text-align:left;vertical-align:top;}th{font-weight:700;background:#eee;}img{max-width:100%;height:auto;}`);
+            // E-ink: avoid pure black crush; modest margins; tables stay bordered
+            oebps.file('styles.css', `body{font-family:Georgia,"Times New Roman",serif;line-height:1.55;margin:3% 4%;color:#111;-webkit-hyphens:auto;hyphens:auto;}h1,h2,h3{margin:1.25em 0 .55em;line-height:1.25;page-break-after:avoid;font-family:Georgia,serif;}h1{font-size:1.45em;}h2{font-size:1.22em;}h3{font-size:1.08em;}p{margin:0 0 0.85em;text-align:justify;}p.preserve-structure{white-space:pre-wrap;font-family:Georgia,serif;font-size:0.98em;line-height:1.5;text-align:left;}blockquote{border-left:.25em solid #888;padding-left:1em;margin:0 0 1em;color:#333;}ul,ol{margin:0 0 1em 1.2em;}li{margin:0.25em 0;}table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.88em;page-break-inside:avoid;}th,td{border:1px solid #555;padding:5px 7px;text-align:left;vertical-align:top;}th{font-weight:700;background:#eee;}code{font-family:monospace;font-size:0.92em;}img{max-width:100%;height:auto;}`);
 
+            // bodyHtml should already be export-clean; strip any residual chrome
+            const cleanBody = canonicalizeBody(bodyHtml, { forExport: true });
             const chapters = splitChapters
-                ? splitBodyIntoChapters(bodyHtml, title)
-                : [{ id: 'ch1', title, html: `<h1>${escapeXml(title)}</h1>${bodyHtml}` }];
+                ? splitBodyIntoChapters(cleanBody, title)
+                : [{ id: 'ch1', title, html: cleanBody }];
 
-            // Ensure single-chapter mode still has a title heading if missing
-            if (!splitChapters && !/<h1[\s>]/i.test(bodyHtml)) {
-                chapters[0].html = `<h1>${escapeXml(title)}</h1>${bodyHtml}`;
+            if (!splitChapters && !/<h1[\s>]/i.test(cleanBody)) {
+                chapters[0].html = `<h1>${escapeXml(title)}</h1>${cleanBody}`;
             }
 
             const tocItems = chapters.map((ch, i) =>
@@ -1056,10 +1976,32 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
 </body>
 </html>`);
 
+            const bookId = crypto.randomUUID();
+            const bookUrn = `urn:uuid:${bookId}`;
+
+            // NCX for older Kobo / Adobe-path firmware (uid must match OPF identifier)
+            const ncxNavPoints = chapters.map((ch, i) => `    <navPoint id="navPoint-${i + 1}" playOrder="${i + 1}">
+      <navLabel><text>${escapeXml(ch.title)}</text></navLabel>
+      <content src="chapter-${i + 1}.xhtml"/>
+    </navPoint>`).join('\n');
+            oebps.file('toc.ncx', `<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head>
+    <meta name="dtb:uid" content="${escapeXml(bookUrn)}"/>
+    <meta name="dtb:depth" content="1"/>
+    <meta name="dtb:totalPageCount" content="0"/>
+    <meta name="dtb:maxPageNumber" content="0"/>
+  </head>
+  <docTitle><text>${escapeXml(title)}</text></docTitle>
+  <navMap>
+${ncxNavPoints}
+  </navMap>
+</ncx>`);
+
             chapters.forEach((ch, i) => {
                 const n = i + 1;
-                const hasH1 = /<h1[\s>]/i.test(ch.html);
-                const body = hasH1 ? ch.html : `<h1>${escapeXml(ch.title)}</h1>${ch.html}`;
+                // Avoid double titles when chapter already starts with H1 or H2
+                const body = ensureChapterTitle(ch.html, ch.title);
                 oebps.file(`chapter-${n}.xhtml`, `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="${escapeXml(lang)}">
@@ -1068,7 +2010,7 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
   <link rel="stylesheet" type="text/css" href="styles.css"/>
 </head>
 <body>
-  ${body}
+  ${xhtmlBodyFragment(body)}
 </body>
 </html>`);
             });
@@ -1081,9 +2023,9 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
             ).join('\n');
 
             oebps.file('content.opf', `<?xml version="1.0" encoding="UTF-8"?>
-<package version="3.0" unique-identifier="bookid" xmlns="http://www.idpf.org/2007/opf">
+<package version="3.0" unique-identifier="bookid" xmlns="http://www.idpf.org/2007/opf" prefix="rendition: http://www.idpf.org/vocab/rendition/#">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:identifier id="bookid">urn:uuid:${crypto.randomUUID()}</dc:identifier>
+    <dc:identifier id="bookid">${escapeXml(bookUrn)}</dc:identifier>
     <dc:title>${escapeXml(title)}</dc:title>
     <dc:language>${escapeXml(lang)}</dc:language>
     <dc:creator>${escapeXml(author)}</dc:creator>
@@ -1091,10 +2033,11 @@ Export this sample, sideload the EPUB, and open the TOC on your Kobo.
   </metadata>
   <manifest>
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
 ${manifestItems}
     <item id="css" href="styles.css" media-type="text/css"/>
   </manifest>
-  <spine>
+  <spine toc="ncx">
 ${spineItems}
   </spine>
 </package>`);
@@ -1107,7 +2050,7 @@ ${spineItems}
         }
 
         function escapeHtml(text) {
-            return text
+            return String(text)
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
@@ -1116,6 +2059,11 @@ ${spineItems}
         function escapeXml(text) {
             return escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&apos;');
         }
+
+        // Keep outline in sync when title changes
+        bookTitleInput?.addEventListener('change', () => {
+            if (currentOutput) refreshOutlineAndStats();
+        });
     </script>
 </body>
 </html>
