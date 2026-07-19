@@ -46,9 +46,11 @@ robots.txt  sitemap.xml  .nojekyll
 |---|---|---|
 | AlpArcade | `/home/alph/projects/AlpArcade` | https://alphaeusng.github.io/AlpArcade/ |
 | VerseKeep | `/home/alph/projects/VerseKeep` | https://alphaeusng.github.io/VerseKeep/ |
+| ChristoDay | `/home/alph/projects/ChristoDay` | https://alphaeusng.github.io/ChristoDay/ |
+| CardFitSG | `/home/alph/projects/CardFitSG` | https://alphaeusng.github.io/CardFitSG/ |
 | Vault source | `/home/alph/projects/Seeking-Biblical-Truth` | (content repo; viewer is under `pages/seeking-biblical-truth/`) |
 
-Do **not** implement arcade or VerseKeep features in this repo — only links and portfolio cards.
+Do **not** implement arcade, VerseKeep, ChristoDay, or CardFitSG features in this repo — only links and portfolio cards.
 
 ## Commands
 
