@@ -25,7 +25,7 @@ const features = [
     ['ncx', 'toc.ncx'],
     ['diagnostics', 'function renderDiagnostics'],
     ['outline', 'chapterOutline'],
-    ['prefs', 'koboforge.prefs.v1'],
+    ['prefs', 'koboforge.prefs.v2'],
     ['heading heuristic', 'lineLooksLikeHeading'],
     ['list markdown', 'listBlockToHtml'],
     ['confirm discard', 'Re-extracting will discard'],
@@ -168,6 +168,10 @@ assert.ok(page.includes("setEditMode('edit')"), 'import opens Edit');
 assert.ok(page.includes('mode-view'), 'View mode class for device preview');
 assert.ok(page.includes('#f4f1e8') || page.includes('f4f1e8'), 'Kobo e-ink paper background on preview');
 assert.ok(!page.includes('id="einkToggle"'), 'standalone e-ink toggle removed (View is the device sim)');
+assert.ok(page.includes("id=\"splitChapters\"") && !page.match(/id="splitChapters"[^>]*checked/),
+    'chapter split off by default for continuous Kobo reading');
+assert.ok(page.includes('tag === \'h1\'') || page.includes('tag === "h1"'), 'spine splits H1 only');
+assert.ok(page.includes('ratio >= 1.55'), 'conservative PDF heading size threshold');
 // EPUB styles.css string must not set pre-wrap (preview CSS may still use it)
 const epubCssMatch = page.match(/oebps\.file\('styles\.css',\s*\[([\s\S]*?)\]\.join/);
 assert.ok(epubCssMatch, 'EPUB CSS built as array join');

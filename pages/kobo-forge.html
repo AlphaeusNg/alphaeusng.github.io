@@ -364,10 +364,10 @@
                 </label>
 
                 <label class="mt-3 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
-                    <input id="splitChapters" type="checkbox" checked class="mt-1 h-4 w-4 rounded border-white/20 bg-slate-900 text-[#C9A227] focus:ring-[#C9A227]">
+                    <input id="splitChapters" type="checkbox" class="mt-1 h-4 w-4 rounded border-white/20 bg-slate-900 text-[#C9A227] focus:ring-[#C9A227]">
                     <span>
-                        <span class="block text-sm font-medium text-slate-100">Split into chapters by headings</span>
-                        <span class="mt-1 block text-xs leading-5 text-slate-400">H1/H2 become separate EPUB spine items with a real TOC. Edit headings in the preview if PDF missed them.</span>
+                        <span class="block text-sm font-medium text-slate-100">Split into chapters by H1 only</span>
+                        <span class="mt-1 block text-xs leading-5 text-slate-400">Off by default (one continuous book — best for Kobo page-turn). When on, only H1 starts a new spine item; H2 stays inline so section titles like “Offerings…” do not cut the book in half.</span>
                     </span>
                 </label>
 
@@ -522,7 +522,7 @@
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
 
-        const PREFS_KEY = 'koboforge.prefs.v1';
+        const PREFS_KEY = 'koboforge.prefs.v2';
 
         const dropzone = document.getElementById('dropzone');
         const dropzoneIdle = document.getElementById('dropzoneIdle');
@@ -1306,7 +1306,13 @@
             if (out.formatLabel === 'PDF' && out.headingCount === 0 && out.split) {
                 items.push({
                     level: 'warn',
-                    text: 'No H1/H2 headings detected. Chapter split will export as one spine item. Use Edit to promote titles to headings (e.g. wrap with a heading style or switch to HTML and add <h2>).'
+                    text: 'No H1 headings detected. Chapter split stays one spine item. Promote a real chapter title to Heading 1 in Edit if you want TOC entries.'
+                });
+            }
+            if (out.split && out.chapterCount > 6) {
+                items.push({
+                    level: 'warn',
+                    text: `${out.chapterCount} spine chapters — if Kobo stops after the first section, turn off “Split into chapters” and re-export for one continuous book.`
                 });
             }
             if (out.formatLabel === 'PDF' && out.emptyPages?.length) {
@@ -1692,27 +1698,49 @@
         }
 
         function lineLooksTabular(line) {
-            if (!line.cells || line.cells.length < 2) return false;
+            // Require clear multi-column geometry. Verse numbers + prose often look
+            // like 2 cells with one gap and must NOT become a <table> (Kobo truncates).
+            if (!line.cells || line.cells.length < 3) return false;
             let bigGaps = 0;
             for (let i = 1; i < line.cells.length; i += 1) {
                 const gap = line.cells[i].x - line.cells[i - 1].end;
-                if (gap > Math.max(line.avgCharWidth * 2.2, 10)) bigGaps += 1;
+                if (gap > Math.max(line.avgCharWidth * 3.5, 18)) bigGaps += 1;
             }
-            return bigGaps >= 1 || line.cells.length >= 3;
+            return bigGaps >= 2;
         }
 
-        /** Heading heuristic: short, larger font, title-like text. */
+        /**
+         * Heading heuristic (conservative): false H2s used to split the EPUB spine
+         * mid-document (e.g. “Offerings at the Tabernacle's Consecration”), so Kobo
+         * looked stuck after that title while the rest lived in later spine items.
+         */
         function lineLooksLikeHeading(line) {
             const t = (line.plainText || '').trim();
-            if (!t || t.length > 90 || t.length < 2) return false;
-            if (t.endsWith('.') && t.length > 40) return false;
+            if (!t || t.length > 80 || t.length < 3) return false;
+            if (t.endsWith('.') && t.length > 30) return false;
             if (lineLooksTabular(line)) return false;
+            // Long prose / verses starting with a number are not outline headings
+            if (/^\d+\s+[“"A-Za-z]/.test(t) && t.length > 45) return false;
+            // Bare bible refs stay body text unless massively oversized
+            if (/^(numbers|genesis|exodus|leviticus|deuteronomy|matthew|mark|luke|john)\b/i.test(t)
+                && t.length < 40
+                && !/^\d+\./.test(t)) {
+                const r0 = (line.maxHeight || line.lineHeight) / (line.medianHeight || 10);
+                if (r0 < 1.5) return false;
+            }
             const ratio = (line.maxHeight || line.lineHeight) / (line.medianHeight || 10);
             const isChapter = /^(chapter|part|section|appendix)\b/i.test(t);
-            const isNumbered = /^(\d+[\.\):]|[IVXLC]+\.)\s+\S/.test(t);
-            const isAllCaps = t.length <= 60 && t === t.toUpperCase() && /[A-Z]/.test(t) && t.split(/\s+/).length <= 12;
-            if (ratio >= 1.28 || isChapter) return { level: 1 };
-            if (ratio >= 1.12 || isNumbered || isAllCaps) return { level: 2 };
+            // Outline only: "1. God goes with his people" — not "1 On the day when Moses"
+            const isNumberedOutline = /^\d{1,2}[\.\)]\s+\S/.test(t) && t.length <= 70 && !/^\d+\s+[A-Z]/.test(t);
+            const isAllCaps = t.length <= 50
+                && t === t.toUpperCase()
+                && /[A-Z]/.test(t)
+                && t.split(/\s+/).length <= 10;
+            if (isChapter || (isAllCaps && ratio >= 1.4)) return { level: 1 };
+            if (isNumberedOutline) return { level: 2 };
+            if (isAllCaps && ratio >= 1.22) return { level: 2 };
+            // Size-only promotion needs a strong signal (avoids section subtitles)
+            if (ratio >= 1.55) return { level: 2 };
             return null;
         }
 
@@ -1996,8 +2024,8 @@
         }
 
         /**
-         * Split body HTML into chapters on H1/H2. First prose before any heading
-         * becomes "Front matter" when other chapters exist.
+         * Split body HTML into chapters on H1 only (H2 stays in-flow).
+         * First prose before any H1 becomes "Front matter" when other chapters exist.
          */
         function splitBodyIntoChapters(bodyHtml, bookTitle) {
             const doc = new DOMParser().parseFromString(
@@ -2051,7 +2079,8 @@
                             }
                             continue;
                         }
-                        if (tag === 'h1' || tag === 'h2') {
+                        // Spine splits on H1 only — H2 section titles stay continuous
+                        if (tag === 'h1') {
                             if (started || buf.length) flush();
                             title = (node.textContent || '').trim() || `Chapter ${chapters.length + 1}`;
                             started = true;
@@ -2220,24 +2249,27 @@
             // - no page-break-inside:avoid on full tables (traps reader on page 1)
             // - height:auto so content can reflow across pages
             oebps.file('styles.css', [
-                'html,body{height:auto;overflow:visible;}',
+                'html,body{height:auto !important;max-height:none !important;overflow:visible !important;}',
                 'body{font-family:Georgia,"Times New Roman",serif;line-height:1.55;margin:3% 4%;color:#111;-webkit-hyphens:auto;hyphens:auto;orphans:2;widows:2;}',
-                'h1,h2,h3{margin:1.25em 0 .55em;line-height:1.25;page-break-after:avoid;font-family:Georgia,serif;}',
+                /* Do NOT use page-break-after:avoid — some Kobo builds refuse to paginate past a heading */
+                'h1,h2,h3{margin:1.25em 0 .55em;line-height:1.25;font-family:Georgia,serif;page-break-after:auto;page-break-inside:auto;}',
                 'h1{font-size:1.45em;}h2{font-size:1.22em;}h3{font-size:1.08em;}',
-                'p{margin:0 0 0.85em;text-align:justify;page-break-inside:auto;}',
+                'p{margin:0 0 0.85em;text-align:justify;page-break-inside:auto;page-break-before:auto;page-break-after:auto;}',
                 'blockquote{border-left:.25em solid #888;padding-left:1em;margin:0 0 1em;color:#333;}',
                 'ul,ol{margin:0 0 1em 1.2em;}li{margin:0.25em 0;}',
-                'table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.88em;page-break-inside:auto;}',
-                'tr{page-break-inside:auto;}',
+                'table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.88em;page-break-inside:auto !important;}',
+                'thead,tbody,tr,th,td{page-break-inside:auto !important;}',
                 'th,td{border:1px solid #555;padding:5px 7px;text-align:left;vertical-align:top;}',
                 'th{font-weight:700;background:#eee;}',
                 'code{font-family:monospace;font-size:0.92em;}',
-                'img{max-width:100%;height:auto;page-break-inside:avoid;}',
+                'img{max-width:100%;height:auto;}',
                 'br{line-height:1.55;}'
             ].join(''));
 
             // bodyHtml should already be export-clean; strip any residual chrome
             const cleanBody = canonicalizeBody(bodyHtml, { forExport: true });
+            // Default path: ONE continuous spine item so Kobo page-turn works end-to-end.
+            // Optional H1-only split when the user opts in.
             let chapters = splitChapters
                 ? splitBodyIntoChapters(cleanBody, title)
                 : [{ id: 'ch1', title, html: cleanBody }];
@@ -2251,8 +2283,16 @@
                 chapters = [{ id: 'ch1', title, html: cleanBody || '<p>(Empty document)</p>' }];
             }
 
-            if (!splitChapters && !/<h1[\s>]/i.test(cleanBody)) {
-                chapters[0].html = `<h1>${escapeXml(title)}</h1>${chapters[0].html}`;
+            // Safety: too many tiny spine items ≈ stuck after first section on Kobo
+            if (chapters.length > 12) {
+                chapters = [{ id: 'ch1', title, html: cleanBody }];
+            }
+
+            if (!splitChapters || chapters.length === 1) {
+                // Single continuous chapter: ensure one H1 book title if none
+                if (!/<h1[\s>]/i.test(chapters[0].html)) {
+                    chapters[0].html = `<h1>${escapeXml(title)}</h1>${chapters[0].html}`;
+                }
             }
 
             const tocItems = chapters.map((ch, i) =>
@@ -2299,15 +2339,16 @@ ${ncxNavPoints}
                 const n = i + 1;
                 // Avoid double titles when chapter already starts with H1 or H2
                 const body = ensureChapterTitle(ch.html, ch.title);
+                const safeBody = xhtmlBodyFragment(body);
                 oebps.file(`chapter-${n}.xhtml`, `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="${escapeXml(lang)}">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${escapeXml(lang)}" lang="${escapeXml(lang)}">
 <head>
   <title>${escapeXml(ch.title)}</title>
   <link rel="stylesheet" type="text/css" href="styles.css"/>
 </head>
 <body>
-  ${xhtmlBodyFragment(body)}
+${safeBody}
 </body>
 </html>`);
             });
