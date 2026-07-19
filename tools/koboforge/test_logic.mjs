@@ -183,6 +183,10 @@ assert.ok(page.includes('diff-h-tag') || page.includes('headingChanges'), 'headi
 assert.ok(page.includes('function wordDiffOps') || page.includes('function buildWordLevelDiff'), 'word-level diff');
 assert.ok(page.includes('compressWordOps'), 'word context compression');
 assert.ok(page.includes('diff-w-add') && page.includes('diff-w-del'), 'inline word add/del styles');
+assert.ok(page.includes("data-mode=\"diff\"") || page.includes("data-mode='diff'"), 'Diff mode tab');
+assert.ok(page.includes('function buildTrackChangesDocument'), 'full-document track changes');
+assert.ok(page.includes('kf-tc-del') && page.includes('kf-tc-ins'), 'Google Docs style del/ins');
+assert.ok(page.includes('function jumpToChange'), 'clickable jump to change');
 // EPUB styles.css string must not set pre-wrap (preview CSS may still use it)
 const epubCssMatch = page.match(/oebps\.file\('styles\.css',\s*\[([\s\S]*?)\]\.join/);
 assert.ok(epubCssMatch, 'EPUB CSS built as array join');

@@ -252,13 +252,31 @@
             word-break: break-word;
         }
 
+        /* Jump list (git-style index under Diff mode) */
         #diffBody .diff-hunk {
-            padding: 0.35rem 0.5rem;
-            margin: 0.2rem 0;
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.45rem 0.55rem;
+            margin: 0.25rem 0;
             border-radius: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             background: rgba(15, 23, 42, 0.55);
             line-height: 1.65;
+            cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        #diffBody .diff-hunk:hover,
+        #diffBody .diff-hunk:focus-visible {
+            border-color: rgba(201, 162, 39, 0.45);
+            background: rgba(201, 162, 39, 0.08);
+            outline: none;
+        }
+
+        #diffBody .diff-hunk.is-active {
+            border-color: rgba(201, 162, 39, 0.65);
+            box-shadow: inset 2px 0 0 #C9A227;
         }
 
         #diffBody .diff-w-add {
@@ -298,11 +316,6 @@
             font-size: 0.68rem;
         }
 
-        #diffBody .diff-heading {
-            font-weight: 700;
-            letter-spacing: -0.01em;
-        }
-
         #diffBody .diff-h-tag {
             display: inline-block;
             margin-right: 0.3rem;
@@ -315,6 +328,43 @@
             font-weight: 700;
             letter-spacing: 0.06em;
             vertical-align: 0.05em;
+        }
+
+        /* Google Docs–style track changes in Diff mode main view */
+        #previewWrap.mode-diff #preview {
+            /* still Kobo paper, but annotations visible */
+        }
+
+        #preview .kf-tc-del,
+        #preview del.kf-tc-del {
+            background: rgba(220, 38, 38, 0.14);
+            color: #9f1239;
+            text-decoration: line-through;
+            text-decoration-thickness: 1.5px;
+            text-decoration-color: #e11d48;
+            padding: 0 0.12em;
+            border-radius: 0.15em;
+        }
+
+        #preview .kf-tc-ins,
+        #preview ins.kf-tc-ins {
+            background: rgba(22, 163, 74, 0.18);
+            color: #14532d;
+            text-decoration: none;
+            padding: 0 0.12em;
+            border-radius: 0.15em;
+            font-weight: 600;
+        }
+
+        #preview .kf-tc-block.is-flash {
+            outline: 2px solid rgba(201, 162, 39, 0.85);
+            outline-offset: 3px;
+            transition: outline-color 0.8s ease;
+        }
+
+        #preview .kf-tc-empty {
+            color: #666;
+            font-style: italic;
         }
 
         .mode-btn.active {
@@ -468,8 +518,8 @@
                         <li>Import a document (DOCX, PDF, TXT, or Markdown).</li>
                         <li>Scan status, diagnostics, and chapter outline.</li>
                         <li>Fix structure in <strong class="text-slate-100">Edit</strong> (opens by default) or <strong class="text-slate-100">HTML</strong>.</li>
-                        <li>Switch to <strong class="text-slate-100">View</strong> for a plain Kobo-like device preview.</li>
-                        <li>Download EPUB at the bottom and sideload to your Kobo.</li>
+                        <li>Use <strong class="text-slate-100">Diff</strong> for full-document track changes; jump from the change index.</li>
+                        <li>Switch to <strong class="text-slate-100">View</strong> for a plain Kobo-like device preview, then download the EPUB.</li>
                     </ol>
                 </div>
             </div>
@@ -534,15 +584,17 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <div class="flex rounded-2xl border border-white/10 bg-slate-950/40 p-1" role="group" aria-label="Preview mode">
-                            <button type="button" data-mode="view" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Plain Kobo-like device preview (export body only — no editor chrome)">View</button>
+                            <button type="button" data-mode="view" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Plain Kobo-like device preview (export body only)">View</button>
                             <button type="button" data-mode="edit" class="mode-btn active rounded-xl px-3 py-1.5 text-xs font-medium text-slate-300 transition" title="Edit body structure (opens after import)">Edit</button>
+                            <button type="button" data-mode="diff" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Full-document track changes: red strikeout = removed, green = added">Diff</button>
                             <button type="button" data-mode="html" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Raw HTML source for precise fixes">HTML</button>
                         </div>
                     </div>
                 </div>
                 <p class="text-xs leading-5 text-slate-500">
-                    <strong class="font-medium text-slate-400">Edit</strong> opens after import so you can fix headings and structure.
-                    <strong class="font-medium text-slate-400">View</strong> is a plain device simulation (Georgia on e-ink paper, same CSS intent as the EPUB) — not a styled site preview.
+                    <strong class="font-medium text-slate-400">Edit</strong> opens after import.
+                    <strong class="font-medium text-slate-400">View</strong> = Kobo-like device preview.
+                    <strong class="font-medium text-slate-400">Diff</strong> = full document with Google Docs–style track changes (red strikeout / green add); the list below jumps to each change.
                 </p>
             </div>
 
@@ -572,18 +624,15 @@
                     <span class="self-center text-[11px] text-slate-500">Download always syncs the latest Edit/HTML body into the EPUB.</span>
                 </div>
 
-                <div id="diffPanel" class="mt-4 hidden rounded-2xl p-4">
+                <div id="diffPanel" class="mt-4 hidden rounded-2xl border border-white/10 bg-slate-950/40 p-4">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                            <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#C9A227]">Your edits</div>
-                            <p id="diffSummary" class="mt-1 text-xs text-slate-400">Word-level vs original import (only changed words; headings as H1/H2/…).</p>
+                            <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#C9A227]">Change index</div>
+                            <p id="diffSummary" class="mt-1 text-xs text-slate-400">Click a change to jump to it in the document above.</p>
                         </div>
-                        <div class="flex flex-wrap gap-2">
-                            <button type="button" id="diffRefreshBtn" class="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Refresh diff</button>
-                            <button type="button" id="diffHideBtn" class="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-white/30">Hide</button>
-                        </div>
+                        <button type="button" id="diffRefreshBtn" class="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Refresh</button>
                     </div>
-                    <div id="diffBody" class="mt-3 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-slate-950/50 p-2" aria-live="polite"></div>
+                    <div id="diffBody" class="mt-3 max-h-64 overflow-y-auto rounded-xl border border-white/10 bg-slate-950/50 p-2" aria-live="polite"></div>
                 </div>
             </div>
         </div>
@@ -596,12 +645,12 @@
                     <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">4. Export</div>
                     <h2 id="export-heading" class="mt-2 text-2xl font-semibold tracking-tight">Download EPUB</h2>
                     <p class="mt-2 text-sm leading-6 text-slate-400">
-                        Download always pulls the latest Edit/HTML body first, then builds the EPUB. Use <strong class="font-medium text-slate-300">Show edits</strong> for a git-like diff vs the original import.
+                        Download always pulls the latest Edit/HTML body first, then builds the EPUB. Open the <strong class="font-medium text-slate-300">Diff</strong> tab to review track changes in the full document.
                     </p>
                     <p id="exportEditHint" class="mt-2 hidden text-xs font-medium text-amber-300/90"></p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 md:justify-end">
-                    <button type="button" id="showDiffBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-[#C9A227]/40 hover:text-[#C9A227] disabled:opacity-40" disabled title="Show a line diff of your edits vs the original import">Show edits</button>
+                    <button type="button" id="showDiffBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-[#C9A227]/40 hover:text-[#C9A227] disabled:opacity-40" disabled title="Open Diff mode: full-document track changes">Open Diff</button>
                     <button type="button" id="clearBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-white/30 disabled:opacity-40" disabled>Clear workspace</button>
                     <button id="downloadBtn" class="rounded-2xl bg-[#C9A227] px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-50" disabled title="Sync edits, then build and download EPUB">Download EPUB</button>
                 </div>
@@ -656,7 +705,6 @@
         const diffBody = document.getElementById('diffBody');
         const diffSummary = document.getElementById('diffSummary');
         const diffRefreshBtn = document.getElementById('diffRefreshBtn');
-        const diffHideBtn = document.getElementById('diffHideBtn');
         const statsEl = document.getElementById('stats');
         const diagnosticsEl = document.getElementById('diagnostics');
         const pageChips = document.getElementById('pageChips');
@@ -753,7 +801,7 @@
                 statusEl.textContent = 'Load a document first.';
                 return;
             }
-            if (!currentOutput && (mode === 'edit' || mode === 'html')) {
+            if (!currentOutput && (mode === 'edit' || mode === 'html' || mode === 'diff')) {
                 statusEl.textContent = 'Load a document first.';
                 return;
             }
@@ -770,16 +818,25 @@
                 b.classList.toggle('text-slate-400', !active);
             });
 
-            previewWrap?.classList.remove('mode-view', 'mode-edit', 'mode-html');
+            previewWrap?.classList.remove('mode-view', 'mode-edit', 'mode-html', 'mode-diff');
             previewWrap?.classList.add(`mode-${mode}`);
 
             const isHtml = mode === 'html';
             const isEdit = mode === 'edit';
+            const isDiff = mode === 'diff';
 
             previewEl.classList.toggle('hidden', isHtml);
             bodyHtmlSource.classList.toggle('hidden', !isHtml);
             htmlToolbar?.classList.toggle('hidden', !isHtml);
             editToolbar?.classList.toggle('hidden', !isEdit);
+            if (isDiff) {
+                diffPanel?.classList.remove('hidden');
+                diffOpen = true;
+            } else {
+                // Keep panel only in Diff mode so the main flow stays clean
+                diffPanel?.classList.add('hidden');
+                diffOpen = false;
+            }
 
             previewEl.contentEditable = isEdit ? 'true' : 'false';
             previewEl.classList.toggle('kf-editing', isEdit);
@@ -788,6 +845,8 @@
                 previewEl.focus();
             } else if (mode === 'view') {
                 previewEl.setAttribute('aria-label', 'Kobo device preview — export body only');
+            } else if (mode === 'diff') {
+                previewEl.setAttribute('aria-label', 'Track-changes view — red removed, green added');
             } else {
                 previewEl.removeAttribute('aria-label');
             }
@@ -798,6 +857,8 @@
             if (!isHtml) {
                 paintPreview({ force: true });
             }
+            if (isDiff) renderDiffPanel();
+            if (showDiffBtn) showDiffBtn.textContent = isDiff ? 'Diff open' : 'Open Diff';
             updateEditChrome();
         }
 
@@ -1246,57 +1307,96 @@
             }).join(' ');
         }
 
+        function jumpToChange(changeId) {
+            if (editMode !== 'diff') setEditMode('diff');
+            // Wait a tick so paint can run
+            requestAnimationFrame(() => {
+                const el = document.getElementById(`kf-change-${changeId}`);
+                if (!el) return;
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('is-flash');
+                setTimeout(() => el.classList.remove('is-flash'), 1200);
+                diffBody?.querySelectorAll('.diff-hunk').forEach((btn) => {
+                    btn.classList.toggle('is-active', btn.dataset.changeId === String(changeId));
+                });
+            });
+        }
+
         function renderDiffPanel() {
             if (!currentOutput || !diffBody) return;
             syncBodyFromUi();
-            const a = htmlToDiffLines(currentOutput.originalBodyHtml || '');
-            const b = htmlToDiffLines(currentOutput.bodyHtml || '');
-            const { added, removed, hunks, headingChanges } = diffStats(a, b);
+            // Rebuild track-changes doc so anchors match the jump list
+            const tc = buildTrackChangesDocument(
+                currentOutput.originalBodyHtml || '',
+                currentOutput.bodyHtml || ''
+            );
+            if (editMode === 'diff') {
+                previewEl.innerHTML = tc.html || '<p class="kf-tc-empty">No content.</p>';
+            }
+            currentOutput._diffNav = tc.navItems;
+
             if (diffSummary) {
-                if (added + removed === 0) {
+                if (tc.added + tc.removed === 0) {
                     diffSummary.textContent = 'No word or heading differences vs the original import.';
                 } else {
-                    const headBit = headingChanges
-                        ? ` · ${headingChanges} heading change${headingChanges === 1 ? '' : 's'}`
+                    const headBit = tc.headingChanges
+                        ? ` · ${tc.headingChanges} heading change${tc.headingChanges === 1 ? '' : 's'}`
                         : '';
-                    diffSummary.textContent = `+${added} words · −${removed} words${headBit}  (word-level vs original import)`;
+                    diffSummary.textContent = `+${tc.added} words · −${tc.removed} words${headBit} — click a row to jump in the document`;
                 }
             }
+
             const rows = [];
-            if (added + removed === 0) {
-                rows.push('<div class="diff-meta">No word-level changes detected.</div>');
+            if (!tc.navItems.length) {
+                rows.push('<div class="diff-meta">No changes to jump to. Edit the body, then open Diff again.</div>');
             } else {
-                hunks.forEach((wordOps) => {
-                    rows.push(`<div class="diff-hunk">${formatWordOpsHtml(wordOps)}</div>`);
+                tc.navItems.forEach((item, idx) => {
+                    const label = item.summary
+                        ? escapeHtml(item.summary.slice(0, 72)) + (item.summary.length > 72 ? '…' : '')
+                        : `Change ${idx + 1}`;
+                    rows.push(
+                        `<button type="button" class="diff-hunk" data-change-id="${item.id}" title="Jump to this change">`
+                        + `<span class="diff-w-ctx">#${idx + 1}</span> `
+                        + formatWordOpsHtml(item.wordOps)
+                        + `<div class="diff-meta" style="padding-left:0;padding-top:0.25rem">${label}</div>`
+                        + `</button>`
+                    );
                 });
             }
-            diffBody.innerHTML = rows.join('') || '<div class="diff-meta">No changes.</div>';
-            diffPanel?.classList.remove('hidden');
-            diffOpen = true;
+            diffBody.innerHTML = rows.join('');
+            diffBody.querySelectorAll('.diff-hunk[data-change-id]').forEach((btn) => {
+                btn.addEventListener('click', () => jumpToChange(btn.dataset.changeId));
+            });
+            if (editMode === 'diff') {
+                diffPanel?.classList.remove('hidden');
+                diffOpen = true;
+            }
             updateEditChrome();
         }
 
         function hideDiffPanel() {
+            if (editMode === 'diff') return; // owned by Diff mode
             diffPanel?.classList.add('hidden');
             diffOpen = false;
             if (diffBody) diffBody.innerHTML = '';
         }
 
-        function showDiffPanel() {
-            if (!currentOutput) return;
-            renderDiffPanel();
-            diffPanel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
         showDiffBtn?.addEventListener('click', () => {
-            if (diffOpen) hideDiffPanel();
-            else showDiffPanel();
-            if (showDiffBtn) showDiffBtn.textContent = diffOpen ? 'Hide edits' : 'Show edits';
+            if (!currentOutput) return;
+            if (editMode === 'diff') {
+                setEditMode('edit');
+            } else {
+                setEditMode('diff');
+                diffPanel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         });
-        diffRefreshBtn?.addEventListener('click', () => renderDiffPanel());
-        diffHideBtn?.addEventListener('click', () => {
-            hideDiffPanel();
-            if (showDiffBtn) showDiffBtn.textContent = 'Show edits';
+        diffRefreshBtn?.addEventListener('click', () => {
+            if (editMode !== 'diff') setEditMode('diff');
+            else {
+                syncBodyFromUi();
+                paintPreview({ force: true });
+                renderDiffPanel();
+            }
         });
 
         /**
@@ -1452,6 +1552,18 @@
             }
 
             const title = bookTitleInput.value.trim() || currentOutput.title;
+
+            // Diff: full document track-changes (Google Docs style)
+            if (editMode === 'diff') {
+                const tc = buildTrackChangesDocument(
+                    currentOutput.originalBodyHtml || '',
+                    currentOutput.bodyHtml || ''
+                );
+                previewEl.innerHTML = tc.html || '<p class="kf-tc-empty">No content.</p>';
+                currentOutput._diffNav = tc.navItems;
+                return;
+            }
+
             // View: export-faithful body only (what the device sees — no page/chapter chrome)
             if (editMode === 'view') {
                 const exportBody = prepareHtmlForEpub(
@@ -1468,6 +1580,179 @@
                 chapters,
                 pageCount: currentOutput.pageCount || 0
             });
+        }
+
+        function lineToTag(line) {
+            const h = parseHeadingDiffLine(line);
+            if (h) return `h${h.level}`;
+            return 'p';
+        }
+
+        function plainFromDiffLine(line) {
+            const h = parseHeadingDiffLine(line);
+            return h ? h.text : String(line || '');
+        }
+
+        function wordOpsToTrackHtml(ops, changeId) {
+            const parts = [];
+            ops.forEach((op) => {
+                if (op.type === 'ellipsis') return; // full doc never uses ellipsis
+                if (isHeadingToken(op.text)) {
+                    // Level lives on the block tag; still mark level swaps inline
+                    if (op.type === 'del') {
+                        parts.push(`<del class="kf-tc-del" data-diff="${changeId}"><span class="diff-h-tag">${escapeHtml(op.text.replace(':', ''))}</span></del> `);
+                    } else if (op.type === 'add') {
+                        parts.push(`<ins class="kf-tc-ins" data-diff="${changeId}"><span class="diff-h-tag">${escapeHtml(op.text.replace(':', ''))}</span></ins> `);
+                    }
+                    return;
+                }
+                if (op.type === 'same') {
+                    parts.push(escapeHtml(op.text));
+                    parts.push(' ');
+                } else if (op.type === 'del') {
+                    parts.push(`<del class="kf-tc-del" data-diff="${changeId}">${escapeHtml(op.text)}</del> `);
+                } else if (op.type === 'add') {
+                    parts.push(`<ins class="kf-tc-ins" data-diff="${changeId}">${escapeHtml(op.text)}</ins> `);
+                }
+            });
+            return parts.join('').replace(/\s+$/, '');
+        }
+
+        function wrapBlock(tag, innerHtml, changeId, hasChange) {
+            const idAttr = hasChange ? ` id="kf-change-${changeId}"` : '';
+            const cls = hasChange ? ' class="kf-tc-block"' : '';
+            const t = /^h[1-6]$/.test(tag) ? tag : 'p';
+            return `<${t}${idAttr}${cls}>${innerHtml || '&#160;'}</${t}>`;
+        }
+
+        /**
+         * Full-document track changes (like Google Docs):
+         * - removed words: red strikeout
+         * - added words: green highlight
+         * - unchanged blocks rendered normally
+         * Each change region gets id="kf-change-N" for jump-from-index.
+         */
+        function buildTrackChangesDocument(originalHtml, currentHtml) {
+            const aLines = htmlToDiffLines(originalHtml);
+            const bLines = htmlToDiffLines(currentHtml);
+            const lineOps = lineDiff(aLines, bLines);
+            const parts = [];
+            const navItems = [];
+            let changeId = 0;
+            let wordAdded = 0;
+            let wordRemoved = 0;
+            let headingChanges = 0;
+            let i = 0;
+
+            function pushNav(id, wordOps, summary) {
+                navItems.push({
+                    id,
+                    summary: summary || '',
+                    wordOps: compressWordOps(wordOps, 2)
+                });
+            }
+
+            while (i < lineOps.length) {
+                const op = lineOps[i];
+                if (op.type === 'same') {
+                    const tag = lineToTag(op.text);
+                    const text = plainFromDiffLine(op.text);
+                    const h = parseHeadingDiffLine(op.text);
+                    const inner = h
+                        ? escapeHtml(text)
+                        : escapeHtml(text);
+                    parts.push(wrapBlock(tag, inner, 0, false));
+                    i += 1;
+                    continue;
+                }
+
+                const dels = [];
+                const adds = [];
+                while (i < lineOps.length && lineOps[i].type === 'del') {
+                    dels.push(lineOps[i].text);
+                    i += 1;
+                }
+                while (i < lineOps.length && lineOps[i].type === 'add') {
+                    adds.push(lineOps[i].text);
+                    i += 1;
+                }
+
+                if (dels.length === adds.length) {
+                    for (let k = 0; k < dels.length; k += 1) {
+                        const id = changeId;
+                        changeId += 1;
+                        const tag = lineToTag(adds[k]) || lineToTag(dels[k]);
+                        const wOps = wordDiffOps(dels[k], adds[k]);
+                        const c = countWordChanges(wOps);
+                        wordAdded += c.added;
+                        wordRemoved += c.removed;
+                        headingChanges += countHeadingChangesFromWordOps(wOps);
+                        const inner = wordOpsToTrackHtml(wOps, id);
+                        parts.push(wrapBlock(tag, inner, id, true));
+                        pushNav(id, wOps, plainFromDiffLine(adds[k]) || plainFromDiffLine(dels[k]));
+                    }
+                } else if (dels.length === 0) {
+                    adds.forEach((line) => {
+                        const id = changeId;
+                        changeId += 1;
+                        const tag = lineToTag(line);
+                        const text = plainFromDiffLine(line);
+                        const wOps = wordDiffOps('', line);
+                        const c = countWordChanges(wOps);
+                        wordAdded += c.added;
+                        wordRemoved += c.removed;
+                        headingChanges += countHeadingChangesFromWordOps(wOps);
+                        parts.push(wrapBlock(
+                            tag,
+                            `<ins class="kf-tc-ins" data-diff="${id}">${escapeHtml(text)}</ins>`,
+                            id,
+                            true
+                        ));
+                        pushNav(id, wOps, text);
+                    });
+                } else if (adds.length === 0) {
+                    dels.forEach((line) => {
+                        const id = changeId;
+                        changeId += 1;
+                        const tag = lineToTag(line);
+                        const text = plainFromDiffLine(line);
+                        const wOps = wordDiffOps(line, '');
+                        const c = countWordChanges(wOps);
+                        wordAdded += c.added;
+                        wordRemoved += c.removed;
+                        headingChanges += countHeadingChangesFromWordOps(wOps);
+                        parts.push(wrapBlock(
+                            tag,
+                            `<del class="kf-tc-del" data-diff="${id}">${escapeHtml(text)}</del>`,
+                            id,
+                            true
+                        ));
+                        pushNav(id, wOps, text);
+                    });
+                } else {
+                    // Unequal multi-line replace → one continuous track-changes block
+                    const id = changeId;
+                    changeId += 1;
+                    const left = dels.join(' ');
+                    const right = adds.join(' ');
+                    const wOps = wordDiffOps(left, right);
+                    const c = countWordChanges(wOps);
+                    wordAdded += c.added;
+                    wordRemoved += c.removed;
+                    headingChanges += countHeadingChangesFromWordOps(wOps);
+                    const tag = lineToTag(adds[0] || dels[0]);
+                    parts.push(wrapBlock(tag, wordOpsToTrackHtml(wOps, id), id, true));
+                    pushNav(id, wOps, plainFromDiffLine(adds[0] || dels[0]));
+                }
+            }
+
+            return {
+                html: parts.join('\n') || '<p class="kf-tc-empty">No content.</p>',
+                navItems,
+                added: wordAdded,
+                removed: wordRemoved,
+                headingChanges
+            };
         }
 
         /** @deprecated use syncBodyFromUi — kept as alias for any residual call sites */
