@@ -902,9 +902,12 @@
             markEdited();
             clearTimeout(commitTimer);
             commitTimer = setTimeout(() => {
-                syncBodyFromUi();
-                if (diffOpen) renderDiffPanel();
-            }, 200);
+                if (editMode === 'diff') refreshDiffLive();
+                else {
+                    syncBodyFromUi();
+                    if (diffOpen) renderDiffPanel();
+                }
+            }, 80);
         }
 
         editToolbar?.querySelectorAll('.block-fmt-btn').forEach((btn) => {
@@ -919,21 +922,21 @@
             if ((editMode !== 'edit' && editMode !== 'diff') || !currentOutput) return;
             markEdited();
             clearTimeout(commitTimer);
+            // Diff: live track-changes re-paint (short debounce + caret restore)
+            // Edit: sync model only
             commitTimer = setTimeout(() => {
-                syncBodyFromUi();
-                // In Diff mode, refresh the jump index only (do not re-paint track-changes mid-type)
-                if (editMode === 'diff') renderDiffNavOnly();
-            }, 350);
+                if (editMode === 'diff') refreshDiffLive();
+                else syncBodyFromUi();
+            }, 60);
         });
 
         previewEl.addEventListener('blur', () => {
             if (editMode === 'edit' || editMode === 'diff') {
                 clearTimeout(commitTimer);
-                syncBodyFromUi();
                 if (editMode === 'diff') {
-                    // Recompute track-changes markup from original vs new body
-                    paintPreview({ force: true });
-                    renderDiffPanel();
+                    refreshDiffLive();
+                } else {
+                    syncBodyFromUi();
                 }
             }
         });
@@ -1331,19 +1334,115 @@
             });
         }
 
-        /** Refresh jump-index only (keeps contenteditable caret while typing in Diff). */
-        function renderDiffNavOnly() {
-            if (!currentOutput || !diffBody || editMode !== 'diff') return;
-            const a = htmlToDiffLines(currentOutput.originalBodyHtml || '');
-            const b = htmlToDiffLines(currentOutput.bodyHtml || '');
-            const stats = diffStats(a, b);
-            // Rebuild nav from a lightweight track-changes pass without replacing the live DOM
+        function isNodeInTrackDel(node, root) {
+            let n = node;
+            if (n && n.nodeType === 3) n = n.parentElement;
+            while (n && n !== root) {
+                if (n.tagName === 'DEL' || n.classList?.contains('kf-tc-del')) return true;
+                n = n.parentElement;
+            }
+            return false;
+        }
+
+        /** Caret offset in “accepted” text only (ignores red deleted regions). */
+        function getAcceptedCaretOffset(root) {
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount || !root) return null;
+            const anchorNode = sel.anchorNode;
+            const anchorOffset = sel.anchorOffset;
+            if (!anchorNode || !root.contains(anchorNode)) return null;
+
+            // If caret is inside a deleted span, treat as just after that span in accepted text
+            if (isNodeInTrackDel(anchorNode, root)) {
+                let count = 0;
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+                while (walker.nextNode()) {
+                    const node = walker.currentNode;
+                    if (isNodeInTrackDel(node, root)) continue;
+                    // stop when we pass the del's position in document order
+                    if (
+                        anchorNode.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING
+                        || (node === anchorNode)
+                    ) {
+                        break;
+                    }
+                    count += (node.nodeValue || '').length;
+                }
+                return count;
+            }
+
+            let count = 0;
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            while (walker.nextNode()) {
+                const node = walker.currentNode;
+                if (isNodeInTrackDel(node, root)) continue;
+                if (node === anchorNode) {
+                    return count + Math.min(anchorOffset, (node.nodeValue || '').length);
+                }
+                count += (node.nodeValue || '').length;
+            }
+            return count;
+        }
+
+        function setAcceptedCaretOffset(root, offset) {
+            if (offset == null || !root) return;
+            const sel = window.getSelection();
+            if (!sel) return;
+            let count = 0;
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            while (walker.nextNode()) {
+                const node = walker.currentNode;
+                if (isNodeInTrackDel(node, root)) continue;
+                const len = (node.nodeValue || '').length;
+                if (count + len >= offset) {
+                    const range = document.createRange();
+                    const pos = Math.max(0, Math.min(offset - count, len));
+                    range.setStart(node, pos);
+                    range.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                    return;
+                }
+                count += len;
+            }
+            // Place at end of last accepted text node
+            const endWalker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            let last = null;
+            while (endWalker.nextNode()) {
+                if (!isNodeInTrackDel(endWalker.currentNode, root)) last = endWalker.currentNode;
+            }
+            if (last) {
+                const range = document.createRange();
+                range.setStart(last, last.nodeValue.length);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+
+        /**
+         * Real-time Diff refresh: sync body ← DOM, recompute red/green markup + jump list,
+         * restore caret so typing stays continuous.
+         */
+        function refreshDiffLive() {
+            if (editMode !== 'diff' || !currentOutput || !previewEl) return;
+            const caret = getAcceptedCaretOffset(previewEl);
+            const scrollTop = previewEl.scrollTop;
+            syncBodyFromUi();
             const tc = buildTrackChangesDocument(
                 currentOutput.originalBodyHtml || '',
                 currentOutput.bodyHtml || ''
             );
+            previewEl.innerHTML = tc.html || '<p class="kf-tc-empty">No content.</p>';
+            previewEl.contentEditable = 'true';
+            previewEl.classList.add('kf-editing');
+            previewEl.scrollTop = scrollTop;
             currentOutput._diffNav = tc.navItems;
             paintDiffNavList(tc);
+            // Restore caret after layout
+            requestAnimationFrame(() => {
+                setAcceptedCaretOffset(previewEl, caret);
+            });
             updateEditChrome();
         }
 
