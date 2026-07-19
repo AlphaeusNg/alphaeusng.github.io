@@ -58,176 +58,184 @@
             background: rgba(201, 162, 39, 0.08);
         }
 
-        /* —— Preview (dark default) —— */
+        /*
+         * Preview pane mimics Kobo EPUB body CSS (not the dark site chrome).
+         * View mode = device-faithful; Edit reuses the same surface for WYSIWYG.
+         */
+        #previewWrap {
+            /* soft device frame */
+            padding: 0.65rem;
+            border-radius: 0.35rem;
+            background: linear-gradient(160deg, #3a3a3a 0%, #1f1f1f 45%, #2a2a2a 100%);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        }
+
         #preview {
             outline: none;
+            background: #f4f1e8;
+            color: #111;
+            font-family: Georgia, "Times New Roman", Times, serif;
+            font-size: 1.02rem;
+            line-height: 1.55;
+            -webkit-hyphens: auto;
+            hyphens: auto;
+            border: 1px solid #bdb7a8;
+            border-radius: 2px;
+            box-shadow: inset 0 0 48px rgba(40, 35, 20, 0.06);
+        }
+
+        #preview > :first-child {
+            margin-top: 0;
         }
 
         #preview p {
-            margin: 0 0 1.15rem 0;
-            color: #cbd5e1;
-            line-height: 1.75;
+            margin: 0 0 0.85em;
+            color: #111;
+            line-height: 1.55;
+            text-align: justify;
+            page-break-inside: auto;
         }
 
         #preview p.preserve-structure {
             white-space: pre-wrap;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-size: 0.94rem;
-            line-height: 1.65;
+            font-family: Georgia, "Times New Roman", Times, serif;
+            font-size: 0.98rem;
+            line-height: 1.5;
+            text-align: left;
         }
 
         #preview h1,
         #preview h2,
         #preview h3,
         #preview h4 {
-            font-family: 'Playfair Display', Georgia, serif;
-            color: #f8fafc;
-            letter-spacing: -0.02em;
-            margin: 1.4rem 0 0.65rem;
+            font-family: Georgia, "Times New Roman", Times, serif;
+            color: #111;
+            letter-spacing: 0;
+            font-weight: 700;
+            line-height: 1.25;
+            margin: 1.25em 0 0.55em;
         }
+
+        #preview h1 { font-size: 1.45em; }
+        #preview h2 { font-size: 1.22em; }
+        #preview h3 { font-size: 1.08em; }
 
         #preview ul,
         #preview ol {
-            color: #cbd5e1;
-            margin: 0 0 1.15rem 1.2rem;
+            color: #111;
+            margin: 0 0 1em 1.2em;
+        }
+
+        #preview li {
+            margin: 0.25em 0;
+            color: #111;
         }
 
         #preview blockquote {
-            border-left: 3px solid rgba(201, 162, 39, 0.75);
-            padding-left: 1rem;
-            color: #cbd5e1;
-            margin: 0 0 1.15rem;
+            border-left: 0.25em solid #888;
+            padding-left: 1em;
+            color: #333;
+            margin: 0 0 1em;
         }
 
         #preview table.kobo-table,
         #preview table {
             width: 100%;
             border-collapse: collapse;
-            margin: 1rem 0 1.25rem;
-            font-size: 0.9rem;
-            color: #e2e8f0;
-            box-shadow: 0 0 0 1px rgba(201, 162, 39, 0.25);
-            border-radius: 0.5rem;
-            overflow: hidden;
+            margin: 1em 0;
+            font-size: 0.88em;
+            color: #111;
+            box-shadow: none;
+            border-radius: 0;
+            overflow: visible;
+            page-break-inside: auto;
         }
 
         #preview th,
         #preview td {
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 0.45rem 0.65rem;
+            border: 1px solid #555;
+            padding: 5px 7px;
             text-align: left;
             vertical-align: top;
+            color: #111;
         }
 
         #preview th {
-            background: rgba(201, 162, 39, 0.12);
-            color: #f8fafc;
-            font-weight: 600;
+            background: #eee;
+            color: #111;
+            font-weight: 700;
         }
 
         #preview tr:nth-child(even) td {
-            background: rgba(255, 255, 255, 0.03);
+            background: transparent;
         }
 
-        /* Preview-only chrome: page + chapter markers */
+        #preview img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        #preview code {
+            font-family: monospace;
+            font-size: 0.92em;
+        }
+
+        /* Edit-only chrome (not on device). Hidden in pure View. */
         #preview .kf-page-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            margin: 1.25rem 0 0.75rem;
-            padding: 0.25rem 0.65rem;
-            border-radius: 999px;
-            border: 1px solid rgba(201, 162, 39, 0.35);
-            background: rgba(201, 162, 39, 0.1);
-            color: #e8d48b;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
+            display: block;
+            margin: 1.1em 0 0.55em;
+            padding: 0.15em 0;
+            border: 0;
+            border-top: 1px dashed #999;
+            border-radius: 0;
+            background: transparent;
+            color: #555;
+            font-family: Georgia, "Times New Roman", Times, serif;
+            font-size: 0.72rem;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            text-transform: none;
             user-select: none;
         }
 
         #preview .kf-chapter-marker {
             display: block;
-            margin: 1.5rem 0 0.5rem;
-            padding: 0.35rem 0.75rem;
-            border-left: 3px solid rgba(201, 162, 39, 0.7);
-            background: rgba(201, 162, 39, 0.06);
-            color: #f1e4a8;
+            margin: 1.25em 0 0.4em;
+            padding: 0.2em 0;
+            border: 0;
+            border-bottom: 1px solid #bbb;
+            background: transparent;
+            color: #444;
+            font-family: Georgia, "Times New Roman", Times, serif;
             font-size: 0.72rem;
             font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            text-transform: none;
             user-select: none;
         }
 
+        /* View = export body only (no page/chapter chrome) */
+        #previewWrap.mode-view #preview .kf-page-label,
+        #previewWrap.mode-view #preview .kf-chapter-marker {
+            display: none !important;
+        }
+
         #preview.kf-editing {
-            box-shadow: inset 0 0 0 2px rgba(201, 162, 39, 0.45);
+            box-shadow:
+                inset 0 0 48px rgba(40, 35, 20, 0.06),
+                inset 0 0 0 2px rgba(201, 162, 39, 0.55);
         }
 
         #preview.kf-editing:focus {
-            box-shadow: inset 0 0 0 2px rgba(201, 162, 39, 0.75);
+            box-shadow:
+                inset 0 0 48px rgba(40, 35, 20, 0.06),
+                inset 0 0 0 2px rgba(201, 162, 39, 0.85);
         }
 
-        /* E-ink preview — closer to Kobo paper */
-        #previewWrap.eink #preview {
-            background: #f4f1e8 !important;
-            color: #1a1a1a;
-            border-color: #d4cfc0 !important;
-        }
-
-        #previewWrap.eink #preview p,
-        #previewWrap.eink #preview ul,
-        #previewWrap.eink #preview ol,
-        #previewWrap.eink #preview blockquote {
-            color: #222;
-        }
-
-        #previewWrap.eink #preview h1,
-        #previewWrap.eink #preview h2,
-        #previewWrap.eink #preview h3,
-        #previewWrap.eink #preview h4 {
-            color: #111;
-            font-family: Georgia, 'Times New Roman', serif;
-        }
-
-        #previewWrap.eink #preview table,
-        #previewWrap.eink #preview table.kobo-table {
-            color: #111;
-            box-shadow: 0 0 0 1px #999;
-            border-radius: 0;
-        }
-
-        #previewWrap.eink #preview th,
-        #previewWrap.eink #preview td {
-            border-color: #888;
-            color: #111;
-        }
-
-        #previewWrap.eink #preview th {
-            background: #e8e4d8;
-            color: #111;
-        }
-
-        #previewWrap.eink #preview tr:nth-child(even) td {
-            background: #faf8f2;
-        }
-
-        #previewWrap.eink #preview .kf-page-label {
-            border-color: #aaa;
-            background: #ebe6d8;
-            color: #444;
-        }
-
-        #previewWrap.eink #preview .kf-chapter-marker {
-            border-left-color: #666;
-            background: #ebe6d8;
-            color: #333;
-        }
-
-        #previewWrap.eink #preview p.preserve-structure {
-            font-family: Georgia, serif;
-            font-size: 1rem;
+        #preview .kf-empty-hint {
+            color: #666;
+            text-align: left;
+            font-style: italic;
         }
 
         .mode-btn.active {
@@ -291,7 +299,7 @@
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Runs fully in your browser</div>
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">DOCX + PDF + TXT + Markdown</div>
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Edit body before export</div>
-            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Chapter outline + e-ink preview</div>
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Edit + Kobo device view</div>
         </div>
     </header>
 
@@ -368,8 +376,8 @@
                     <ol class="mt-4 list-decimal space-y-2 pl-5 text-sm leading-7 text-slate-300">
                         <li>Import a document (DOCX, PDF, TXT, or Markdown).</li>
                         <li>Scan status, diagnostics, and chapter outline.</li>
-                        <li>Preview, then fix with <strong class="text-slate-100">Edit</strong> or <strong class="text-slate-100">HTML</strong>.</li>
-                        <li>Optional: toggle e-ink for paper-like contrast.</li>
+                        <li>Fix structure in <strong class="text-slate-100">Edit</strong> (opens by default) or <strong class="text-slate-100">HTML</strong>.</li>
+                        <li>Switch to <strong class="text-slate-100">View</strong> for a plain Kobo-like device preview.</li>
                         <li>Download EPUB at the bottom and sideload to your Kobo.</li>
                     </ol>
                 </div>
@@ -435,15 +443,15 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <div class="flex rounded-2xl border border-white/10 bg-slate-950/40 p-1" role="group" aria-label="Preview mode">
-                            <button type="button" data-mode="view" class="mode-btn active rounded-xl px-3 py-1.5 text-xs font-medium text-slate-300 transition">View</button>
-                            <button type="button" data-mode="edit" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200">Edit</button>
-                            <button type="button" data-mode="html" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200">HTML</button>
+                            <button type="button" data-mode="view" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Plain Kobo-like device preview (export body only — no editor chrome)">View</button>
+                            <button type="button" data-mode="edit" class="mode-btn active rounded-xl px-3 py-1.5 text-xs font-medium text-slate-300 transition" title="Edit body structure (opens after import)">Edit</button>
+                            <button type="button" data-mode="html" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Raw HTML source for precise fixes">HTML</button>
                         </div>
-                        <button type="button" id="einkToggle" class="rounded-2xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-[#C9A227]/40" title="Preview the body with paper-like e-ink contrast (cream background, dark text) so you can spot-check readability before sideloading to your Kobo. Does not change the exported EPUB." aria-label="Toggle e-ink preview: paper-like contrast for Kobo readability check">E-ink</button>
                     </div>
                 </div>
                 <p class="text-xs leading-5 text-slate-500">
-                    Preview matches the EPUB body (plus page/chapter markers that are stripped on export). Edit mode is contenteditable; HTML mode is for precise fixes. Changes feed the download.
+                    <strong class="font-medium text-slate-400">Edit</strong> opens after import so you can fix headings and structure.
+                    <strong class="font-medium text-slate-400">View</strong> is a plain device simulation (Georgia on e-ink paper, same CSS intent as the EPUB) — not a styled site preview.
                 </p>
             </div>
 
@@ -455,9 +463,9 @@
                 <div id="chapterOutline" class="flex max-h-36 flex-col gap-1 overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/30 p-2"></div>
             </div>
 
-            <div id="previewWrap" class="mt-4">
-                <div id="preview" class="max-h-[62vh] min-h-[480px] overflow-y-auto rounded-[1.75rem] border border-white/10 bg-slate-950/35 px-6 py-6" tabindex="0">
-                    <p class="text-slate-500">Load a document to inspect and edit the reconstructed structure before exporting.</p>
+            <div id="previewWrap" class="mt-4 mode-edit">
+                <div id="preview" class="max-h-[62vh] min-h-[480px] overflow-y-auto px-[4%] py-[3%]" tabindex="0">
+                    <p class="kf-empty-hint">Load a document to edit structure, then switch to View to see a Kobo-like device preview.</p>
                 </div>
                 <textarea id="bodyHtmlSource" class="mt-0 hidden max-h-[62vh] min-h-[480px] w-full resize-y rounded-[1.75rem] border border-white/10 bg-slate-950/50 px-4 py-4 text-slate-200 outline-none focus:border-[#C9A227]" spellcheck="false" aria-label="Body HTML source"></textarea>
                 <div id="editToolbar" class="mt-3 hidden flex flex-wrap gap-2">
@@ -483,7 +491,7 @@
                     <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">4. Export</div>
                     <h2 id="export-heading" class="mt-2 text-2xl font-semibold tracking-tight">Download EPUB</h2>
                     <p class="mt-2 text-sm leading-6 text-slate-400">
-                        After you have checked the preview (and fixed anything in Edit or HTML), build a Kobo-ready EPUB. Processing stays in this browser.
+                        After Edit fixes and a View check (Kobo-like surface), build the EPUB. Processing stays in this browser.
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 md:justify-end">
@@ -543,7 +551,6 @@
         const chapterOutline = document.getElementById('chapterOutline');
         const chapterOutlineHint = document.getElementById('chapterOutlineHint');
         const editedBadge = document.getElementById('editedBadge');
-        const einkToggle = document.getElementById('einkToggle');
         const statFormat = document.getElementById('statFormat');
         const statParagraphs = document.getElementById('statParagraphs');
         const statWords = document.getElementById('statWords');
@@ -564,7 +571,7 @@
         let currentOutput = null;
         let currentFile = null;
         let bodyEdited = false;
-        let editMode = 'view'; // view | edit | html
+        let editMode = 'edit'; // view | edit | html — spot-check defaults to Edit
         let commitTimer = null;
 
         // —— Preferences ——
@@ -575,7 +582,6 @@
                 const p = JSON.parse(raw);
                 if (typeof p.preserveTables === 'boolean' && preserveTablesEl) preserveTablesEl.checked = p.preserveTables;
                 if (typeof p.splitChapters === 'boolean' && splitChaptersEl) splitChaptersEl.checked = p.splitChapters;
-                if (typeof p.eink === 'boolean' && p.eink) previewWrap?.classList.add('eink');
                 if (p.author && bookAuthorInput && !bookAuthorInput.value) bookAuthorInput.value = p.author;
                 if (p.lang && bookLangInput) bookLangInput.value = p.lang;
             } catch (_) { /* ignore */ }
@@ -586,7 +592,6 @@
                 localStorage.setItem(PREFS_KEY, JSON.stringify({
                     preserveTables: !!preserveTablesEl?.checked,
                     splitChapters: !!splitChaptersEl?.checked,
-                    eink: previewWrap?.classList.contains('eink'),
                     author: bookAuthorInput?.value?.trim() || '',
                     lang: bookLangInput?.value?.trim() || 'en'
                 }));
@@ -594,7 +599,6 @@
         }
 
         loadPrefs();
-        updateEinkButton();
 
         bookAuthorInput?.addEventListener('change', savePrefs);
         bookLangInput?.addEventListener('change', savePrefs);
@@ -623,28 +627,17 @@
             }
         });
 
-        einkToggle?.addEventListener('click', () => {
-            previewWrap?.classList.toggle('eink');
-            updateEinkButton();
-            savePrefs();
-        });
-
-        function updateEinkButton() {
-            if (!einkToggle) return;
-            const on = previewWrap?.classList.contains('eink');
-            einkToggle.classList.toggle('border-[#C9A227]/50', on);
-            einkToggle.classList.toggle('bg-[#C9A227]/15', on);
-            einkToggle.classList.toggle('text-[#C9A227]', on);
-            einkToggle.textContent = on ? 'E-ink on' : 'E-ink';
-        }
-
         // —— Preview modes ——
         modeButtons.forEach((btn) => {
             btn.addEventListener('click', () => setEditMode(btn.dataset.mode));
         });
 
         function setEditMode(mode) {
-            if (!currentOutput && mode !== 'view') {
+            if (!currentOutput && mode !== 'view' && mode !== 'edit') {
+                statusEl.textContent = 'Load a document first.';
+                return;
+            }
+            if (!currentOutput && (mode === 'edit' || mode === 'html')) {
                 statusEl.textContent = 'Load a document first.';
                 return;
             }
@@ -674,6 +667,9 @@
                 b.classList.toggle('text-slate-400', !active);
             });
 
+            previewWrap?.classList.remove('mode-view', 'mode-edit', 'mode-html');
+            previewWrap?.classList.add(`mode-${mode}`);
+
             const isHtml = mode === 'html';
             const isEdit = mode === 'edit';
 
@@ -685,8 +681,10 @@
             previewEl.contentEditable = isEdit ? 'true' : 'false';
             previewEl.classList.toggle('kf-editing', isEdit);
             if (isEdit) {
-                previewEl.setAttribute('aria-label', 'Editable document body');
+                previewEl.setAttribute('aria-label', 'Editable document body (Kobo-like surface)');
                 previewEl.focus();
+            } else if (mode === 'view') {
+                previewEl.setAttribute('aria-label', 'Kobo device preview — export body only');
             } else {
                 previewEl.removeAttribute('aria-label');
             }
@@ -762,11 +760,11 @@
             currentOutput.bodyHtml = cleaned;
             markEdited();
             refreshOutlineAndStats();
-            setEditMode('view');
-            statusEl.textContent = 'HTML applied to body. Spot-check the preview, then download.';
+            setEditMode('edit');
+            statusEl.textContent = 'HTML applied. Continue editing, or switch to View for a Kobo-like device check.';
         });
 
-        cancelHtmlBtn?.addEventListener('click', () => setEditMode('view'));
+        cancelHtmlBtn?.addEventListener('click', () => setEditMode(currentOutput ? 'edit' : 'view'));
 
         function markEdited() {
             bodyEdited = true;
@@ -894,10 +892,19 @@
 
         function paintPreview() {
             if (!currentOutput) {
-                previewEl.innerHTML = '<p class="text-slate-500">Load a document to inspect and edit the reconstructed structure before exporting.</p>';
+                previewEl.innerHTML = '<p class="kf-empty-hint">Load a document to edit structure, then switch to View for a Kobo-like device preview.</p>';
                 return;
             }
             const title = bookTitleInput.value.trim() || currentOutput.title;
+            // View: export-faithful body only (what the device sees — no page/chapter chrome)
+            if (editMode === 'view') {
+                const exportBody = prepareHtmlForEpub(
+                    canonicalizeBody(currentOutput.bodyHtml, { forExport: true })
+                );
+                previewEl.innerHTML = exportBody || '<p class="kf-empty-hint">(Empty body)</p>';
+                return;
+            }
+            // Edit: full body + soft markers for jumping PDF pages / chapters
             const chapters = splitChaptersEl?.checked
                 ? splitBodyIntoChapters(currentOutput.bodyHtml, title)
                 : [{ id: 'ch1', title, html: currentOutput.bodyHtml }];
@@ -1000,8 +1007,15 @@
             currentFile = null;
             currentOutput = null;
             clearEditedFlag();
-            editMode = 'view';
-            setEditMode('view');
+            editMode = 'edit';
+            previewWrap?.classList.remove('mode-view', 'mode-edit', 'mode-html');
+            previewWrap?.classList.add('mode-edit');
+            modeButtons.forEach((b) => {
+                const active = b.dataset.mode === 'edit';
+                b.classList.toggle('active', active);
+                b.classList.toggle('text-slate-300', active);
+                b.classList.toggle('text-slate-400', !active);
+            });
             downloadBtn.disabled = true;
             if (clearBtn) clearBtn.disabled = true;
             statsEl.classList.add('hidden');
@@ -1011,11 +1025,12 @@
             pageChipsInner.innerHTML = '';
             chapterOutlineWrap.classList.add('hidden');
             chapterOutline.innerHTML = '';
-            previewEl.innerHTML = '<p class="text-slate-500">Load a document to inspect and edit the reconstructed structure before exporting.</p>';
+            previewEl.innerHTML = '<p class="kf-empty-hint">Load a document to edit structure, then switch to View for a Kobo-like device preview.</p>';
             previewEl.contentEditable = 'false';
-            previewEl.classList.remove('kf-editing');
+            previewEl.classList.remove('kf-editing', 'hidden');
             bodyHtmlSource.classList.add('hidden');
             htmlToolbar.classList.add('hidden');
+            editToolbar?.classList.add('hidden');
             statusEl.textContent = 'Waiting for a document.';
             bookTitleInput.value = '';
             if (fileInput) fileInput.value = '';
@@ -1143,13 +1158,12 @@
             diagnosticsEl.classList.add('hidden');
             pageChips.classList.add('hidden');
             chapterOutlineWrap.classList.add('hidden');
-            previewEl.innerHTML = '<p class="text-slate-500">Processing…</p>';
+            previewEl.innerHTML = '<p class="kf-empty-hint">Processing…</p>';
             statusEl.textContent = `Reading ${file.name} locally…`;
             if (!bookTitleInput.value.trim()) {
                 bookTitleInput.value = file.name.replace(/\.[^.]+$/, '');
             }
             setProgress(5, 'Reading file');
-            setEditMode('view');
 
             try {
                 const ext = file.name.split('.').pop().toLowerCase();
@@ -1170,14 +1184,15 @@
                 currentOutput = output;
                 currentOutput.bodyHtml = canonicalizeBody(output.bodyHtml);
                 refreshOutlineAndStats();
-                paintPreview();
-                statusEl.textContent = output.status;
+                // Spot-check opens in Edit so users can fix structure immediately
+                setEditMode('edit');
+                statusEl.textContent = `${output.status} · Opened in Edit — switch to View for a Kobo-like device check.`;
                 downloadBtn.disabled = false;
                 setProgress(100, 'Ready');
             } catch (error) {
                 console.error('[KoboForge]', error);
                 statusEl.textContent = error.message || 'Failed to process file.';
-                previewEl.innerHTML = '<p class="text-rose-300">Processing failed. Try DOCX for the cleanest result, or a simpler PDF. Scanned PDFs need OCR first.</p>';
+                previewEl.innerHTML = '<p class="kf-empty-hint">Processing failed. Try DOCX for the cleanest result, or a simpler PDF. Scanned PDFs need OCR first.</p>';
                 setProgress(0);
             }
         }
@@ -1217,7 +1232,8 @@
                     btn.className = 'rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-left text-xs text-slate-300 transition hover:border-white/25';
                     btn.textContent = `${i + 1}. ${ch.title}`;
                     btn.addEventListener('click', () => {
-                        if (editMode === 'html') setEditMode('view');
+                        // Chapter markers live in Edit; View is export-body only
+                        if (editMode !== 'edit') setEditMode('edit');
                         let el = document.getElementById(`kf-ch-${i}`);
                         if (!el) {
                             const heads = previewEl.querySelectorAll('h1, h2');
@@ -1262,7 +1278,8 @@
                     chip.textContent = String(p);
                     chip.title = `Jump to PDF page ${p}`;
                     chip.addEventListener('click', () => {
-                        if (editMode === 'html') setEditMode('view');
+                        // Page labels only render in Edit (View is export-body only)
+                        if (editMode !== 'edit') setEditMode('edit');
                         document.getElementById(`kf-page-${p}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     });
                     pageChipsInner.appendChild(chip);
@@ -1322,7 +1339,7 @@
                 items.push({ level: 'ok', text: 'Body has manual edits — export will use your version.' });
             }
             if (!items.length) {
-                items.push({ level: 'ok', text: 'No issues flagged. Still skim the preview (and e-ink mode) before sideload.' });
+                items.push({ level: 'ok', text: 'No issues flagged. Use View for a Kobo-like device check, then download.' });
             }
 
             diagnosticsEl.innerHTML = items.map((item) => {

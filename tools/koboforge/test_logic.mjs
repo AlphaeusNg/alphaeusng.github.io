@@ -163,6 +163,11 @@ assert.ok(page.includes('dropzoneReady') && page.includes('File received'), 'dro
 assert.ok(page.includes('cancelFileBtn') && page.includes('setDropzoneIdle'), 'cancel upload restores idle dropzone');
 assert.ok(page.includes('prepareHtmlForEpub'), 'EPUB body prep for Kobo pagination');
 assert.ok(page.includes('page-break-inside:auto'), 'tables/paragraphs must allow page breaks on Kobo');
+assert.ok(page.includes("let editMode = 'edit'"), 'spot-check defaults to Edit');
+assert.ok(page.includes("setEditMode('edit')"), 'import opens Edit');
+assert.ok(page.includes('mode-view'), 'View mode class for device preview');
+assert.ok(page.includes('#f4f1e8') || page.includes('f4f1e8'), 'Kobo e-ink paper background on preview');
+assert.ok(!page.includes('id="einkToggle"'), 'standalone e-ink toggle removed (View is the device sim)');
 // EPUB styles.css string must not set pre-wrap (preview CSS may still use it)
 const epubCssMatch = page.match(/oebps\.file\('styles\.css',\s*\[([\s\S]*?)\]\.join/);
 assert.ok(epubCssMatch, 'EPUB CSS built as array join');
