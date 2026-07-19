@@ -323,14 +323,26 @@
     </style>
 </head>
 <body class="text-slate-50 antialiased">
-    <nav class="border-b border-white/10">
-        <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-            <div class="flex items-center gap-3">
-                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#C9A227] to-[#8F7417] text-sm font-semibold text-slate-950">A</div>
+    <nav class="border-b border-white/10 bg-[#0A0F1C]/95 backdrop-blur">
+        <div class="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-6">
+            <div class="flex min-w-0 items-center gap-3">
+                <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#C9A227] to-[#8F7417] text-sm font-semibold text-slate-950">A</div>
                 <a href="../index.html" class="font-semibold tracking-tight transition hover:text-[#C9A227]">Alphaeus Ng</a>
                 <span class="hidden text-sm text-slate-500 sm:inline">/ KoboForge</span>
             </div>
-            <a href="../index.html#craft" class="text-sm text-slate-400 transition hover:text-white">← Back to The Craft</a>
+            <a href="../index.html#craft" class="shrink-0 text-sm text-slate-400 transition hover:text-white">← Craft</a>
+        </div>
+        <div class="border-t border-white/5">
+            <div class="mx-auto flex max-w-6xl items-center gap-1.5 overflow-x-auto px-6 py-2" aria-label="Project quick links">
+                <span class="mr-1 shrink-0 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Projects</span>
+                <a href="kobo-forge.html" class="shrink-0 rounded-full border border-[#C9A227]/50 bg-[#C9A227]/15 px-3 py-1 text-xs font-semibold text-[#f5d36d]" aria-current="page">KoboForge</a>
+                <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-[#C9A227]/40 hover:text-white">AlpArcade</a>
+                <a href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" class="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-[#C9A227]/40 hover:text-white">VerseKeep</a>
+                <a href="https://alphaeusng.github.io/ChristoDay/" target="_blank" rel="noopener noreferrer" class="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-[#C9A227]/40 hover:text-white">ChristoDay</a>
+                <a href="https://alphaeusng.github.io/CardFitSG/" target="_blank" rel="noopener noreferrer" class="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-[#C9A227]/40 hover:text-white">CardFitSG</a>
+                <a href="seeking-biblical-truth/" class="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-[#C9A227]/40 hover:text-white">Biblical Truth</a>
+                <a href="conviction.html" class="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-[#C9A227]/40 hover:text-white">Conviction</a>
+            </div>
         </div>
     </nav>
 
@@ -1269,6 +1281,11 @@
             });
             downloadBtn.disabled = true;
             if (clearBtn) clearBtn.disabled = true;
+            if (showDiffBtn) {
+                showDiffBtn.disabled = true;
+                showDiffBtn.textContent = 'Show edits';
+            }
+            hideDiffPanel();
             statsEl.classList.add('hidden');
             diagnosticsEl.classList.add('hidden');
             diagnosticsEl.innerHTML = '';
@@ -1287,6 +1304,10 @@
             if (fileInput) fileInput.value = '';
             setProgress(0);
             setDropzoneIdle();
+            if (exportEditHint) {
+                exportEditHint.classList.add('hidden');
+                exportEditHint.textContent = '';
+            }
         }
 
         clearBtn?.addEventListener('click', clearWorkspace);
@@ -1610,7 +1631,10 @@
                 });
             }
             if (bodyEdited) {
-                items.push({ level: 'ok', text: 'Body has manual edits — export will use your version.' });
+                items.push({
+                    level: 'ok',
+                    text: 'Body has manual edits — Download syncs them into the EPUB. Use “Show edits” for a line diff vs the original import.'
+                });
             }
             if (!items.length) {
                 items.push({ level: 'ok', text: 'No issues flagged. Use View for a Kobo-like device check, then download.' });

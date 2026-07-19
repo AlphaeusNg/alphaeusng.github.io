@@ -1246,6 +1246,96 @@ button.portrait-phone-status:focus-visible {
 
 }
 
+/* —— Project quick-link tabs (under primary nav) —— */
+.project-tabs-bar {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(8, 12, 22, 0.92);
+    backdrop-filter: blur(14px);
+}
+
+.project-tabs-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0.45rem 1.5rem 0.55rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201, 162, 39, 0.35) transparent;
+}
+
+.project-tabs-label {
+    flex-shrink: 0;
+    margin-right: 0.35rem;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.project-tab {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.38rem 0.78rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #cbd5e1 !important;
+    white-space: nowrap;
+    transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease,
+        color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.project-tab:hover,
+.project-tab:focus-visible {
+    border-color: rgba(201, 162, 39, 0.45);
+    background: rgba(201, 162, 39, 0.1);
+    color: #f8fafc !important;
+    outline: none;
+}
+
+.project-tab.is-current {
+    border-color: rgba(201, 162, 39, 0.55);
+    background: rgba(201, 162, 39, 0.14);
+    color: #f5d36d !important;
+    box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.08);
+}
+
+.project-tab-ext {
+    font-size: 0.58rem;
+    opacity: 0.55;
+    font-weight: 500;
+}
+
+/* Space for fixed nav + project tabs */
+body.has-project-tabs {
+    --site-nav-offset: 7.75rem;
+}
+
+body.has-project-tabs .site-nav + * {
+    /* first main block after nav — hero uses its own pt; set for skip targets */
+}
+
+@media (max-width: 767px) {
+    .project-tabs-bar {
+        display: none;
+    }
+
+    body.has-project-tabs {
+        --site-nav-offset: 5rem;
+    }
+}
+
 /* Conviction page specific */
 .conviction-card {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 

@@ -386,7 +386,7 @@
         }
     </style>
 </head>
-<body id="top" class="bg-[#0A0F1C] text-[#F8FAFC] antialiased">
+<body id="top" class="bg-[#0A0F1C] text-[#F8FAFC] antialiased has-project-tabs">
     <a class="skip-link" href="#story">Skip to content</a>
     <!-- Navigation -->
     <nav id="nav" class="site-nav fixed top-0 left-0 right-0 z-50 transition-all duration-300" aria-label="Primary">
@@ -433,16 +433,12 @@
                     <div class="nav-menu" data-nav-menu>
                         <a href="#connect" data-nav-group="connect" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-connect">
                             <span class="nav-pill-label">Connect</span>
-                            <span class="nav-pill-meta">Email · links</span>
+                            <span class="nav-pill-meta">Email · social</span>
                         </a>
                         <div id="nav-submenu-connect" class="nav-submenu" role="menu" aria-hidden="true">
                             <a href="mailto:alphaolivegreen@gmail.com" class="nav-submenu-link" role="menuitem">Email</a>
                             <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">GitHub</a>
                             <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">LinkedIn</a>
-                            <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">AlpArcade</a>
-                            <a href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">VerseKeep</a>
-                            <a href="https://alphaeusng.github.io/ChristoDay/" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">ChristoDay</a>
-                            <a href="https://alphaeusng.github.io/CardFitSG/" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">CardFitSG</a>
                         </div>
                     </div>
                 </div>
@@ -455,6 +451,20 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
+            </div>
+        </div>
+
+        <!-- Project quick-link tabs (desktop/tablet) -->
+        <div class="project-tabs-bar" aria-label="Project quick links">
+            <div class="project-tabs-inner">
+                <span class="project-tabs-label">Projects</span>
+                <a class="project-tab" href="pages/kobo-forge.html" title="Client-side EPUB builder for Kobo">KoboForge</a>
+                <a class="project-tab" href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" title="Mini-game arcade">AlpArcade <span class="project-tab-ext" aria-hidden="true">↗</span></a>
+                <a class="project-tab" href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" title="Scripture memory games">VerseKeep <span class="project-tab-ext" aria-hidden="true">↗</span></a>
+                <a class="project-tab" href="https://alphaeusng.github.io/ChristoDay/" target="_blank" rel="noopener noreferrer" title="Christ-centered daily reading">ChristoDay <span class="project-tab-ext" aria-hidden="true">↗</span></a>
+                <a class="project-tab" href="https://alphaeusng.github.io/CardFitSG/" target="_blank" rel="noopener noreferrer" title="SG cashback card fit">CardFitSG <span class="project-tab-ext" aria-hidden="true">↗</span></a>
+                <a class="project-tab" href="pages/seeking-biblical-truth/" title="Public vault browser">Biblical Truth</a>
+                <a class="project-tab" href="pages/conviction.html" title="Conviction (TSLA) notes">Conviction</a>
             </div>
         </div>
 
@@ -474,6 +484,21 @@
                         <a href="#cv-downloads" class="mobile-link mobile-submenu-link">Resume / CV</a>
                     </div>
                 </div>
+                <div class="mobile-nav-group rounded-2xl border border-[color:var(--nav-border-hover)] bg-[#C9A227]/8 px-4 py-3">
+                    <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="true" aria-controls="mobile-project-links">
+                        <span class="block text-[15px] font-semibold text-white">Projects</span>
+                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#94A3B8] mt-1">Quick links to every app</span>
+                    </button>
+                    <div id="mobile-project-links" class="mobile-nav-panel mt-3">
+                        <a href="pages/kobo-forge.html" class="mobile-link mobile-submenu-link">KoboForge</a>
+                        <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">AlpArcade</a>
+                        <a href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">VerseKeep</a>
+                        <a href="https://alphaeusng.github.io/ChristoDay/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">ChristoDay</a>
+                        <a href="https://alphaeusng.github.io/CardFitSG/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">CardFitSG</a>
+                        <a href="pages/seeking-biblical-truth/" class="mobile-link mobile-submenu-link">Biblical Truth</a>
+                        <a href="pages/conviction.html" class="mobile-link mobile-submenu-link">Conviction</a>
+                    </div>
+                </div>
                 <div class="mobile-nav-group rounded-2xl border border-[color:var(--nav-border)] bg-white/[0.03] px-4 py-3">
                     <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="false" aria-controls="mobile-faith-links">
                         <span class="block text-[15px] font-semibold text-white">Faith</span>
@@ -486,27 +511,23 @@
                         <a href="pages/seeking-biblical-truth/" class="mobile-link mobile-submenu-link">Vault browser</a>
                     </div>
                 </div>
-                <div class="mobile-nav-group rounded-2xl border border-[color:var(--nav-border-hover)] bg-[#C9A227]/8 px-4 py-3">
+                <div class="mobile-nav-group rounded-2xl border border-[color:var(--nav-border)] bg-white/[0.03] px-4 py-3">
                     <button type="button" class="mobile-nav-toggle w-full text-left" aria-expanded="false" aria-controls="mobile-connect-links">
                         <span class="block text-[15px] font-semibold text-white">Connect</span>
-                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#94A3B8] mt-1">Email + links</span>
+                        <span class="block text-[11px] uppercase tracking-[1.8px] text-[#94A3B8] mt-1">Email + social</span>
                     </button>
                     <div id="mobile-connect-links" class="mobile-nav-panel hidden mt-3">
                         <a href="mailto:alphaolivegreen@gmail.com" class="mobile-link mobile-submenu-link">Email</a>
                         <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">GitHub</a>
                         <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">LinkedIn</a>
-                        <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">AlpArcade</a>
-                        <a href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">VerseKeep</a>
-                        <a href="https://alphaeusng.github.io/ChristoDay/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">ChristoDay</a>
-                        <a href="https://alphaeusng.github.io/CardFitSG/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">CardFitSG</a>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero -->
-    <header class="pt-20 min-h-[100dvh] flex items-center relative overflow-hidden">
+    <!-- Hero (extra top pad for nav + project tabs on md+) -->
+    <header class="pt-28 md:pt-32 min-h-[100dvh] flex items-center relative overflow-hidden">
         <div class="pointer-events-none absolute -top-24 right-0 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(201,162,39,0.12),transparent_68%)] blur-2xl"></div>
         <div class="max-w-7xl mx-auto px-6 pt-12 pb-16 md:pt-16 md:pb-20 relative z-10">
             <div class="grid md:grid-cols-12 gap-x-8 items-center">
