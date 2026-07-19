@@ -252,29 +252,44 @@
             word-break: break-word;
         }
 
-        #diffBody .diff-add {
-            background: rgba(34, 197, 94, 0.14);
+        #diffBody .diff-hunk {
+            padding: 0.35rem 0.5rem;
+            margin: 0.2rem 0;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(15, 23, 42, 0.55);
+            line-height: 1.65;
+        }
+
+        #diffBody .diff-w-add {
+            display: inline;
+            padding: 0.05rem 0.2rem;
+            margin: 0 0.05rem;
+            border-radius: 0.25rem;
+            background: rgba(34, 197, 94, 0.22);
             color: #86efac;
-            border-left: 3px solid rgba(34, 197, 94, 0.7);
-            padding: 0.1rem 0.4rem;
-            margin: 0.05rem 0;
+            font-weight: 600;
         }
 
-        #diffBody .diff-del {
-            background: rgba(244, 63, 94, 0.12);
+        #diffBody .diff-w-del {
+            display: inline;
+            padding: 0.05rem 0.2rem;
+            margin: 0 0.05rem;
+            border-radius: 0.25rem;
+            background: rgba(244, 63, 94, 0.18);
             color: #fda4af;
-            border-left: 3px solid rgba(244, 63, 94, 0.65);
-            padding: 0.1rem 0.4rem;
-            margin: 0.05rem 0;
+            font-weight: 600;
             text-decoration: line-through;
-            text-decoration-color: rgba(253, 164, 175, 0.5);
+            text-decoration-color: rgba(253, 164, 175, 0.55);
         }
 
-        #diffBody .diff-ctx {
+        #diffBody .diff-w-ctx {
             color: #94a3b8;
-            padding: 0.1rem 0.4rem;
-            margin: 0.05rem 0;
-            opacity: 0.85;
+        }
+
+        #diffBody .diff-w-sep {
+            color: #475569;
+            margin: 0 0.15rem;
         }
 
         #diffBody .diff-meta {
@@ -288,9 +303,9 @@
             letter-spacing: -0.01em;
         }
 
-        #diffBody .diff-heading .diff-h-tag {
+        #diffBody .diff-h-tag {
             display: inline-block;
-            margin-right: 0.35rem;
+            margin-right: 0.3rem;
             padding: 0.05rem 0.35rem;
             border-radius: 0.3rem;
             border: 1px solid rgba(201, 162, 39, 0.35);
@@ -561,7 +576,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <div>
                             <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#C9A227]">Your edits</div>
-                            <p id="diffSummary" class="mt-1 text-xs text-slate-400">Compared to the original import (text + headings as H1/H2/…).</p>
+                            <p id="diffSummary" class="mt-1 text-xs text-slate-400">Word-level vs original import (only changed words; headings as H1/H2/…).</p>
                         </div>
                         <div class="flex flex-wrap gap-2">
                             <button type="button" id="diffRefreshBtn" class="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Refresh diff</button>
@@ -901,7 +916,7 @@
                 const headBit = stats.headingChanges
                     ? ` · ${stats.headingChanges} heading change${stats.headingChanges === 1 ? '' : 's'}`
                     : '';
-                exportEditHint.textContent = `Edits will be included in Download: +${stats.added} / −${stats.removed} lines${headBit} vs original import.`;
+                exportEditHint.textContent = `Edits will be included in Download: +${stats.added} / −${stats.removed} words${headBit} vs original import.`;
             } else if (bodyEdited) {
                 exportEditHint.classList.remove('hidden');
                 exportEditHint.textContent = 'Body marked edited (structure/HTML). Download will use the current body.';
@@ -911,7 +926,7 @@
             }
         }
 
-        /** @deprecated alias — structure-aware lines include headings */
+        /** @deprecated alias */
         function htmlToPlainLines(html) {
             return htmlToDiffLines(html);
         }
@@ -962,7 +977,6 @@
                 }
 
                 if (tag === 'p' || tag === 'li' || tag === 'blockquote') {
-                    // Prefer innerText-ish line breaks from <br> / pre-wrap
                     const clone = node.cloneNode(true);
                     clone.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
                     pushTextBlock(clone.textContent || '');
@@ -990,14 +1004,21 @@
             return lines;
         }
 
-        /** Myers-inspired O(n*m) LCS line diff — fine for sermon-sized docs. */
-        function lineDiff(aLines, bLines) {
-            const n = aLines.length;
-            const m = bLines.length;
+        /** LCS sequence diff (words or lines). */
+        function sequenceDiff(aItems, bItems) {
+            const n = aItems.length;
+            const m = bItems.length;
+            // Guard huge inputs: fall back to whole-block replace
+            if (n * m > 250000) {
+                const ops = [];
+                aItems.forEach((t) => ops.push({ type: 'del', text: t }));
+                bItems.forEach((t) => ops.push({ type: 'add', text: t }));
+                return ops;
+            }
             const dp = Array.from({ length: n + 1 }, () => new Uint32Array(m + 1));
             for (let i = n - 1; i >= 0; i -= 1) {
                 for (let j = m - 1; j >= 0; j -= 1) {
-                    if (aLines[i] === bLines[j]) dp[i][j] = dp[i + 1][j + 1] + 1;
+                    if (aItems[i] === bItems[j]) dp[i][j] = dp[i + 1][j + 1] + 1;
                     else dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
                 }
             }
@@ -1005,87 +1026,224 @@
             let i = 0;
             let j = 0;
             while (i < n && j < m) {
-                if (aLines[i] === bLines[j]) {
-                    ops.push({ type: 'same', text: aLines[i] });
+                if (aItems[i] === bItems[j]) {
+                    ops.push({ type: 'same', text: aItems[i] });
                     i += 1;
                     j += 1;
                 } else if (dp[i + 1][j] >= dp[i][j + 1]) {
-                    ops.push({ type: 'del', text: aLines[i] });
+                    ops.push({ type: 'del', text: aItems[i] });
                     i += 1;
                 } else {
-                    ops.push({ type: 'add', text: bLines[j] });
+                    ops.push({ type: 'add', text: bItems[j] });
                     j += 1;
                 }
             }
             while (i < n) {
-                ops.push({ type: 'del', text: aLines[i] });
+                ops.push({ type: 'del', text: aItems[i] });
                 i += 1;
             }
             while (j < m) {
-                ops.push({ type: 'add', text: bLines[j] });
+                ops.push({ type: 'add', text: bItems[j] });
                 j += 1;
             }
             return ops;
         }
 
-        function countHeadingChanges(ops) {
-            // Count heading-related edits. Consecutive del+add on the same title
-            // (level change or plain↔heading) counts as one heading change.
-            let changes = 0;
+        function lineDiff(aLines, bLines) {
+            return sequenceDiff(aLines, bLines);
+        }
+
+        function tokenizeWords(text) {
+            // Keep words/punctuation as tokens; headings keep leading # markers as one token each
+            const s = String(text || '').trim();
+            if (!s) return [];
+            const heading = parseHeadingDiffLine(s);
+            if (heading) {
+                return [`H${heading.level}:`, ...tokenizeWords(heading.text)];
+            }
+            return s.match(/\S+/g) || [];
+        }
+
+        /**
+         * Word-level ops for a changed span. Collapses long same-runs to "…" so only
+         * changed words (plus a little context) are shown — not the whole paragraph.
+         */
+        function wordDiffOps(aText, bText) {
+            const aW = tokenizeWords(aText);
+            const bW = tokenizeWords(bText);
+            return sequenceDiff(aW, bW);
+        }
+
+        function compressWordOps(ops, contextWords = 2) {
+            // Mark indices near changes
+            const keep = new Array(ops.length).fill(false);
+            ops.forEach((op, idx) => {
+                if (op.type === 'same') return;
+                for (let k = Math.max(0, idx - contextWords); k <= Math.min(ops.length - 1, idx + contextWords); k += 1) {
+                    keep[k] = true;
+                }
+            });
+            const out = [];
             let i = 0;
             while (i < ops.length) {
-                const op = ops[i];
-                if (op.type !== 'add' && op.type !== 'del') {
+                if (keep[i]) {
+                    out.push(ops[i]);
                     i += 1;
                     continue;
                 }
-                const next = ops[i + 1];
-                if (op.type === 'del' && next && next.type === 'add') {
-                    const a = parseHeadingDiffLine(op.text);
-                    const b = parseHeadingDiffLine(next.text);
-                    const plainToH = !a && b && op.text === b.text;
-                    const hToPlain = a && !b && a.text === next.text;
-                    const levelChange = a && b && a.text === b.text && a.level !== b.level;
-                    const eitherHeading = isHeadingDiffLine(op.text) || isHeadingDiffLine(next.text);
-                    if (plainToH || hToPlain || levelChange) {
-                        changes += 1;
-                        i += 2;
-                        continue;
-                    }
-                    if (eitherHeading) {
-                        // Two different heading lines swapped — count each
-                        if (isHeadingDiffLine(op.text)) changes += 1;
-                        if (isHeadingDiffLine(next.text)) changes += 1;
-                        i += 2;
-                        continue;
-                    }
-                }
-                if (isHeadingDiffLine(op.text)) changes += 1;
-                i += 1;
+                // skip run of non-kept same tokens → single ellipsis
+                let j = i;
+                while (j < ops.length && !keep[j]) j += 1;
+                if (j > i) out.push({ type: 'ellipsis', text: '…' });
+                i = j;
             }
-            return changes;
+            return out;
         }
 
-        function diffStats(aLines, bLines) {
-            const ops = lineDiff(aLines, bLines);
+        function countWordChanges(wordOps) {
             let added = 0;
             let removed = 0;
-            ops.forEach((op) => {
+            wordOps.forEach((op) => {
                 if (op.type === 'add') added += 1;
                 if (op.type === 'del') removed += 1;
             });
-            const headingChanges = countHeadingChanges(ops);
-            return { added, removed, ops, headingChanges };
+            return { added, removed };
         }
 
-        function formatDiffLineHtml(op) {
-            const prefix = op.type === 'add' ? '+ ' : op.type === 'del' ? '− ' : '  ';
-            const heading = parseHeadingDiffLine(op.text);
-            if (heading) {
-                const tag = `H${heading.level}`;
-                return `${escapeHtml(prefix)}<span class="diff-h-tag">${tag}</span>${escapeHtml(heading.text)}`;
+        function isHeadingToken(tok) {
+            return /^H[1-6]:$/.test(tok || '');
+        }
+
+        function countHeadingChangesFromWordOps(wordOps) {
+            let changes = 0;
+            for (let i = 0; i < wordOps.length; i += 1) {
+                const op = wordOps[i];
+                if (op.type !== 'add' && op.type !== 'del') continue;
+                if (isHeadingToken(op.text)) changes += 1;
             }
-            return escapeHtml(prefix + op.text);
+            // Level change H2: → H1: on same following words: counted as 2 tokens; prefer 1
+            for (let i = 0; i < wordOps.length - 1; i += 1) {
+                if (wordOps[i].type === 'del' && wordOps[i + 1].type === 'add'
+                    && isHeadingToken(wordOps[i].text) && isHeadingToken(wordOps[i + 1].text)) {
+                    changes -= 1; // pair as one change
+                }
+            }
+            return Math.max(0, changes);
+        }
+
+        /**
+         * Align lines, then expand changed pairs into word-level diffs.
+         * Returns flat list of display hunks (each hunk is word ops with context).
+         */
+        function buildWordLevelDiff(aLines, bLines) {
+            const lineOps = lineDiff(aLines, bLines);
+            const hunks = [];
+            let wordAdded = 0;
+            let wordRemoved = 0;
+            let headingChanges = 0;
+            let i = 0;
+
+            while (i < lineOps.length) {
+                const op = lineOps[i];
+                if (op.type === 'same') {
+                    i += 1;
+                    continue;
+                }
+
+                // Collect consecutive del block then add block (classic replace region)
+                const dels = [];
+                const adds = [];
+                while (i < lineOps.length && lineOps[i].type === 'del') {
+                    dels.push(lineOps[i].text);
+                    i += 1;
+                }
+                while (i < lineOps.length && lineOps[i].type === 'add') {
+                    adds.push(lineOps[i].text);
+                    i += 1;
+                }
+
+                // Pair line-by-line where possible for tighter word diffs
+                const maxPair = Math.max(dels.length, adds.length);
+                if (maxPair === 0) continue;
+
+                // If both sides have content, word-diff joined sides as one span when
+                // lengths differ a lot; else pair 1:1 for cleaner local hunks
+                if (dels.length === adds.length) {
+                    for (let k = 0; k < dels.length; k += 1) {
+                        const wOps = compressWordOps(wordDiffOps(dels[k], adds[k]), 2);
+                        const c = countWordChanges(wOps);
+                        wordAdded += c.added;
+                        wordRemoved += c.removed;
+                        headingChanges += countHeadingChangesFromWordOps(wOps);
+                        if (c.added + c.removed > 0) hunks.push(wOps);
+                    }
+                } else if (dels.length === 0) {
+                    // pure insert of line(s) — still word-level tokens (all adds)
+                    const wOps = compressWordOps(wordDiffOps('', adds.join(' ')), 2);
+                    const c = countWordChanges(wOps);
+                    wordAdded += c.added;
+                    wordRemoved += c.removed;
+                    headingChanges += countHeadingChangesFromWordOps(wOps);
+                    if (c.added + c.removed > 0) hunks.push(wOps);
+                } else if (adds.length === 0) {
+                    const wOps = compressWordOps(wordDiffOps(dels.join(' '), ''), 2);
+                    const c = countWordChanges(wOps);
+                    wordAdded += c.added;
+                    wordRemoved += c.removed;
+                    headingChanges += countHeadingChangesFromWordOps(wOps);
+                    if (c.added + c.removed > 0) hunks.push(wOps);
+                } else {
+                    // unequal multi-line replace → one word-level span
+                    const wOps = compressWordOps(wordDiffOps(dels.join(' '), adds.join(' ')), 2);
+                    const c = countWordChanges(wOps);
+                    wordAdded += c.added;
+                    wordRemoved += c.removed;
+                    headingChanges += countHeadingChangesFromWordOps(wOps);
+                    if (c.added + c.removed > 0) hunks.push(wOps);
+                }
+            }
+
+            return { hunks, added: wordAdded, removed: wordRemoved, headingChanges };
+        }
+
+        function diffStats(aLines, bLines) {
+            const result = buildWordLevelDiff(aLines, bLines);
+            return {
+                added: result.added,
+                removed: result.removed,
+                headingChanges: result.headingChanges,
+                hunks: result.hunks
+            };
+        }
+
+        function formatWordOpsHtml(wordOps) {
+            return wordOps.map((op) => {
+                if (op.type === 'ellipsis') {
+                    return `<span class="diff-w-sep">${escapeHtml('…')}</span>`;
+                }
+                if (op.type === 'same') {
+                    if (isHeadingToken(op.text)) {
+                        const level = op.text.replace(/[^\d]/g, '');
+                        return `<span class="diff-h-tag">H${escapeHtml(level)}</span>`;
+                    }
+                    return `<span class="diff-w-ctx">${escapeHtml(op.text)}</span>`;
+                }
+                if (op.type === 'add') {
+                    if (isHeadingToken(op.text)) {
+                        const level = op.text.replace(/[^\d]/g, '');
+                        return `<span class="diff-w-add"><span class="diff-h-tag">H${escapeHtml(level)}</span></span>`;
+                    }
+                    return `<span class="diff-w-add">${escapeHtml('+' + op.text)}</span>`;
+                }
+                if (op.type === 'del') {
+                    if (isHeadingToken(op.text)) {
+                        const level = op.text.replace(/[^\d]/g, '');
+                        return `<span class="diff-w-del"><span class="diff-h-tag">H${escapeHtml(level)}</span></span>`;
+                    }
+                    return `<span class="diff-w-del">${escapeHtml('−' + op.text)}</span>`;
+                }
+                return '';
+            }).join(' ');
         }
 
         function renderDiffPanel() {
@@ -1093,34 +1251,23 @@
             syncBodyFromUi();
             const a = htmlToDiffLines(currentOutput.originalBodyHtml || '');
             const b = htmlToDiffLines(currentOutput.bodyHtml || '');
-            const { added, removed, ops, headingChanges } = diffStats(a, b);
+            const { added, removed, hunks, headingChanges } = diffStats(a, b);
             if (diffSummary) {
                 if (added + removed === 0) {
-                    diffSummary.textContent = 'No text or heading differences vs the original import.';
+                    diffSummary.textContent = 'No word or heading differences vs the original import.';
                 } else {
                     const headBit = headingChanges
                         ? ` · ${headingChanges} heading change${headingChanges === 1 ? '' : 's'}`
                         : '';
-                    diffSummary.textContent = `+${added} added · −${removed} removed${headBit}  (vs original import; headings shown as H1/H2/…)`;
+                    diffSummary.textContent = `+${added} words · −${removed} words${headBit}  (word-level vs original import)`;
                 }
             }
-            // Show context: only change hunks + 1 context line
             const rows = [];
             if (added + removed === 0) {
-                rows.push('<div class="diff-meta">No text or heading changes detected.</div>');
+                rows.push('<div class="diff-meta">No word-level changes detected.</div>');
             } else {
-                ops.forEach((op, idx) => {
-                    const prev = ops[idx - 1];
-                    const next = ops[idx + 1];
-                    const nearChange = op.type !== 'same'
-                        || (prev && prev.type !== 'same')
-                        || (next && next.type !== 'same');
-                    if (!nearChange) return;
-                    const cls = [
-                        op.type === 'add' ? 'diff-add' : op.type === 'del' ? 'diff-del' : 'diff-ctx',
-                        isHeadingDiffLine(op.text) ? 'diff-heading' : ''
-                    ].filter(Boolean).join(' ');
-                    rows.push(`<div class="${cls}">${formatDiffLineHtml(op)}</div>`);
+                hunks.forEach((wordOps) => {
+                    rows.push(`<div class="diff-hunk">${formatWordOpsHtml(wordOps)}</div>`);
                 });
             }
             diffBody.innerHTML = rows.join('') || '<div class="diff-meta">No changes.</div>';
