@@ -238,6 +238,51 @@
             font-style: italic;
         }
 
+        /* Edit diff (git-like) */
+        #diffPanel {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(2, 6, 23, 0.65);
+        }
+
+        #diffBody {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.72rem;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        #diffBody .diff-add {
+            background: rgba(34, 197, 94, 0.14);
+            color: #86efac;
+            border-left: 3px solid rgba(34, 197, 94, 0.7);
+            padding: 0.1rem 0.4rem;
+            margin: 0.05rem 0;
+        }
+
+        #diffBody .diff-del {
+            background: rgba(244, 63, 94, 0.12);
+            color: #fda4af;
+            border-left: 3px solid rgba(244, 63, 94, 0.65);
+            padding: 0.1rem 0.4rem;
+            margin: 0.05rem 0;
+            text-decoration: line-through;
+            text-decoration-color: rgba(253, 164, 175, 0.5);
+        }
+
+        #diffBody .diff-ctx {
+            color: #94a3b8;
+            padding: 0.1rem 0.4rem;
+            margin: 0.05rem 0;
+            opacity: 0.85;
+        }
+
+        #diffBody .diff-meta {
+            color: #64748b;
+            padding: 0.35rem 0.4rem;
+            font-size: 0.68rem;
+        }
+
         .mode-btn.active {
             background: rgba(201, 162, 39, 0.2);
             border-color: rgba(201, 162, 39, 0.55);
@@ -477,8 +522,22 @@
                 </div>
                 <div id="htmlToolbar" class="mt-3 hidden flex flex-wrap gap-2">
                     <button type="button" id="applyHtmlBtn" class="rounded-2xl bg-[#C9A227] px-4 py-2 text-xs font-semibold text-slate-950 transition hover:bg-[#d9b844]">Apply HTML</button>
-                    <button type="button" id="cancelHtmlBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-medium text-slate-300">Back to view</button>
-                    <span class="self-center text-[11px] text-slate-500">Download auto-applies HTML. Invalid tags may be cleaned for XHTML.</span>
+                    <button type="button" id="cancelHtmlBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-medium text-slate-300">Back to Edit</button>
+                    <span class="self-center text-[11px] text-slate-500">Download always syncs the latest Edit/HTML body into the EPUB.</span>
+                </div>
+
+                <div id="diffPanel" class="mt-4 hidden rounded-2xl p-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#C9A227]">Your edits</div>
+                            <p id="diffSummary" class="mt-1 text-xs text-slate-400">Compared to the original import (plain text).</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" id="diffRefreshBtn" class="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Refresh diff</button>
+                            <button type="button" id="diffHideBtn" class="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-white/30">Hide</button>
+                        </div>
+                    </div>
+                    <div id="diffBody" class="mt-3 max-h-56 overflow-y-auto rounded-xl border border-white/10 bg-slate-950/50 p-2" aria-live="polite"></div>
                 </div>
             </div>
         </div>
@@ -491,12 +550,14 @@
                     <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">4. Export</div>
                     <h2 id="export-heading" class="mt-2 text-2xl font-semibold tracking-tight">Download EPUB</h2>
                     <p class="mt-2 text-sm leading-6 text-slate-400">
-                        After Edit fixes and a View check (Kobo-like surface), build the EPUB. Processing stays in this browser.
+                        Download always pulls the latest Edit/HTML body first, then builds the EPUB. Use <strong class="font-medium text-slate-300">Show edits</strong> for a git-like diff vs the original import.
                     </p>
+                    <p id="exportEditHint" class="mt-2 hidden text-xs font-medium text-amber-300/90"></p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 md:justify-end">
+                    <button type="button" id="showDiffBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-[#C9A227]/40 hover:text-[#C9A227] disabled:opacity-40" disabled title="Show a line diff of your edits vs the original import">Show edits</button>
                     <button type="button" id="clearBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-white/30 disabled:opacity-40" disabled>Clear workspace</button>
-                    <button id="downloadBtn" class="rounded-2xl bg-[#C9A227] px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-50" disabled title="Build and download an EPUB from the current preview body">Download EPUB</button>
+                    <button id="downloadBtn" class="rounded-2xl bg-[#C9A227] px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-50" disabled title="Sync edits, then build and download EPUB">Download EPUB</button>
                 </div>
             </div>
         </div>
@@ -535,6 +596,8 @@
         const cancelFileBtn = document.getElementById('cancelFileBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const clearBtn = document.getElementById('clearBtn');
+        const showDiffBtn = document.getElementById('showDiffBtn');
+        const exportEditHint = document.getElementById('exportEditHint');
         const statusEl = document.getElementById('status');
         const previewEl = document.getElementById('preview');
         const previewWrap = document.getElementById('previewWrap');
@@ -543,6 +606,11 @@
         const editToolbar = document.getElementById('editToolbar');
         const applyHtmlBtn = document.getElementById('applyHtmlBtn');
         const cancelHtmlBtn = document.getElementById('cancelHtmlBtn');
+        const diffPanel = document.getElementById('diffPanel');
+        const diffBody = document.getElementById('diffBody');
+        const diffSummary = document.getElementById('diffSummary');
+        const diffRefreshBtn = document.getElementById('diffRefreshBtn');
+        const diffHideBtn = document.getElementById('diffHideBtn');
         const statsEl = document.getElementById('stats');
         const diagnosticsEl = document.getElementById('diagnostics');
         const pageChips = document.getElementById('pageChips');
@@ -573,6 +641,7 @@
         let bodyEdited = false;
         let editMode = 'edit'; // view | edit | html — spot-check defaults to Edit
         let commitTimer = null;
+        let diffOpen = false;
 
         // —— Preferences ——
         function loadPrefs() {
@@ -619,11 +688,12 @@
         splitChaptersEl?.addEventListener('change', () => {
             savePrefs();
             if (currentOutput) {
+                syncBodyFromUi();
                 refreshOutlineAndStats();
-                paintPreview();
+                paintPreview({ force: true });
                 statusEl.textContent = currentOutput.status + (splitChaptersEl.checked
-                    ? ' · Chapters split on H1/H2.'
-                    : ' · Single-chapter export.');
+                    ? ' · Chapters split on H1 only.'
+                    : ' · Single-chapter export (continuous).');
             }
         });
 
@@ -641,22 +711,9 @@
                 statusEl.textContent = 'Load a document first.';
                 return;
             }
-            if (editMode === 'edit' && mode !== 'edit') {
-                commitPreviewFromDom();
-            }
-            if (editMode === 'html' && mode !== 'html') {
-                // Leaving HTML: if textarea dirty vs body, offer to apply
-                if (currentOutput && bodyHtmlSource) {
-                    const pending = canonicalizeBody(bodyHtmlSource.value);
-                    if (pending !== canonicalizeBody(currentOutput.bodyHtml)) {
-                        const apply = confirm('Apply HTML changes before leaving?');
-                        if (apply) {
-                            currentOutput.bodyHtml = pending;
-                            markEdited();
-                            refreshOutlineAndStats();
-                        }
-                    }
-                }
+            // Always flush UI → model before leaving a surface that can hold edits
+            if (editMode === 'edit' || editMode === 'html') {
+                syncBodyFromUi();
             }
 
             editMode = mode;
@@ -693,8 +750,9 @@
                 bodyHtmlSource.value = prettyPrintHtml(currentOutput.bodyHtml);
             }
             if (!isHtml) {
-                paintPreview();
+                paintPreview({ force: true });
             }
+            updateEditChrome();
         }
 
         /** Promote selection / current block to p|h1|h2|h3 for TOC fixes. */
@@ -732,7 +790,10 @@
             }
             markEdited();
             clearTimeout(commitTimer);
-            commitTimer = setTimeout(() => commitPreviewFromDom(), 200);
+            commitTimer = setTimeout(() => {
+                syncBodyFromUi();
+                if (diffOpen) renderDiffPanel();
+            }, 200);
         }
 
         editToolbar?.querySelectorAll('.block-fmt-btn').forEach((btn) => {
@@ -747,11 +808,18 @@
             if (editMode !== 'edit' || !currentOutput) return;
             markEdited();
             clearTimeout(commitTimer);
-            commitTimer = setTimeout(() => commitPreviewFromDom(), 400);
+            commitTimer = setTimeout(() => {
+                syncBodyFromUi();
+                if (diffOpen) renderDiffPanel();
+            }, 350);
         });
 
         previewEl.addEventListener('blur', () => {
-            if (editMode === 'edit') commitPreviewFromDom();
+            if (editMode === 'edit') {
+                clearTimeout(commitTimer);
+                syncBodyFromUi();
+                if (diffOpen) renderDiffPanel();
+            }
         });
 
         applyHtmlBtn?.addEventListener('click', () => {
@@ -761,7 +829,8 @@
             markEdited();
             refreshOutlineAndStats();
             setEditMode('edit');
-            statusEl.textContent = 'HTML applied. Continue editing, or switch to View for a Kobo-like device check.';
+            statusEl.textContent = 'HTML applied and saved to the body that Download will use.';
+            if (diffOpen) renderDiffPanel();
         });
 
         cancelHtmlBtn?.addEventListener('click', () => setEditMode(currentOutput ? 'edit' : 'view'));
@@ -769,12 +838,167 @@
         function markEdited() {
             bodyEdited = true;
             editedBadge?.classList.remove('hidden');
+            updateEditChrome();
         }
 
         function clearEditedFlag() {
             bodyEdited = false;
             editedBadge?.classList.add('hidden');
+            updateEditChrome();
+            hideDiffPanel();
         }
+
+        function updateEditChrome() {
+            const hasDoc = !!currentOutput;
+            if (showDiffBtn) showDiffBtn.disabled = !hasDoc;
+            if (!exportEditHint) return;
+            if (!hasDoc) {
+                exportEditHint.classList.add('hidden');
+                exportEditHint.textContent = '';
+                return;
+            }
+            syncBodyFromUi();
+            const stats = diffStats(
+                htmlToPlainLines(currentOutput.originalBodyHtml || ''),
+                htmlToPlainLines(currentOutput.bodyHtml || '')
+            );
+            const changed = stats.added + stats.removed > 0;
+            bodyEdited = changed || bodyEdited;
+            if (changed) {
+                editedBadge?.classList.remove('hidden');
+                exportEditHint.classList.remove('hidden');
+                exportEditHint.textContent = `Edits will be included in Download: +${stats.added} / −${stats.removed} lines vs original import.`;
+            } else if (bodyEdited) {
+                exportEditHint.classList.remove('hidden');
+                exportEditHint.textContent = 'Body marked edited (structure/HTML). Download will use the current body.';
+            } else {
+                exportEditHint.classList.add('hidden');
+                exportEditHint.textContent = '';
+            }
+        }
+
+        function htmlToPlainLines(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html || '';
+            // Preserve block boundaries as newlines
+            tmp.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+            tmp.querySelectorAll('p, h1, h2, h3, h4, li, tr, div, blockquote').forEach((el) => {
+                el.insertAdjacentText('afterend', '\n');
+            });
+            return (tmp.textContent || '')
+                .replace(/\r\n/g, '\n')
+                .replace(/[ \t]+\n/g, '\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .split('\n')
+                .map((l) => l.replace(/\s+/g, ' ').trim())
+                .filter((l) => l.length > 0);
+        }
+
+        /** Myers-inspired O(n*m) LCS line diff — fine for sermon-sized docs. */
+        function lineDiff(aLines, bLines) {
+            const n = aLines.length;
+            const m = bLines.length;
+            const dp = Array.from({ length: n + 1 }, () => new Uint32Array(m + 1));
+            for (let i = n - 1; i >= 0; i -= 1) {
+                for (let j = m - 1; j >= 0; j -= 1) {
+                    if (aLines[i] === bLines[j]) dp[i][j] = dp[i + 1][j + 1] + 1;
+                    else dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+                }
+            }
+            const ops = [];
+            let i = 0;
+            let j = 0;
+            while (i < n && j < m) {
+                if (aLines[i] === bLines[j]) {
+                    ops.push({ type: 'same', text: aLines[i] });
+                    i += 1;
+                    j += 1;
+                } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+                    ops.push({ type: 'del', text: aLines[i] });
+                    i += 1;
+                } else {
+                    ops.push({ type: 'add', text: bLines[j] });
+                    j += 1;
+                }
+            }
+            while (i < n) {
+                ops.push({ type: 'del', text: aLines[i] });
+                i += 1;
+            }
+            while (j < m) {
+                ops.push({ type: 'add', text: bLines[j] });
+                j += 1;
+            }
+            return ops;
+        }
+
+        function diffStats(aLines, bLines) {
+            const ops = lineDiff(aLines, bLines);
+            let added = 0;
+            let removed = 0;
+            ops.forEach((op) => {
+                if (op.type === 'add') added += 1;
+                if (op.type === 'del') removed += 1;
+            });
+            return { added, removed, ops };
+        }
+
+        function renderDiffPanel() {
+            if (!currentOutput || !diffBody) return;
+            syncBodyFromUi();
+            const a = htmlToPlainLines(currentOutput.originalBodyHtml || '');
+            const b = htmlToPlainLines(currentOutput.bodyHtml || '');
+            const { added, removed, ops } = diffStats(a, b);
+            if (diffSummary) {
+                diffSummary.textContent = added + removed === 0
+                    ? 'No plain-text differences vs the original import (structure-only changes may still exist).'
+                    : `+${added} added · −${removed} removed  (vs original import)`;
+            }
+            // Show context: only change hunks + 1 context line
+            const rows = [];
+            if (added + removed === 0) {
+                rows.push('<div class="diff-meta">No text changes detected.</div>');
+            } else {
+                ops.forEach((op, idx) => {
+                    const prev = ops[idx - 1];
+                    const next = ops[idx + 1];
+                    const nearChange = op.type !== 'same'
+                        || (prev && prev.type !== 'same')
+                        || (next && next.type !== 'same');
+                    if (!nearChange) return;
+                    const cls = op.type === 'add' ? 'diff-add' : op.type === 'del' ? 'diff-del' : 'diff-ctx';
+                    const prefix = op.type === 'add' ? '+ ' : op.type === 'del' ? '− ' : '  ';
+                    rows.push(`<div class="${cls}">${escapeHtml(prefix + op.text)}</div>`);
+                });
+            }
+            diffBody.innerHTML = rows.join('') || '<div class="diff-meta">No changes.</div>';
+            diffPanel?.classList.remove('hidden');
+            diffOpen = true;
+            updateEditChrome();
+        }
+
+        function hideDiffPanel() {
+            diffPanel?.classList.add('hidden');
+            diffOpen = false;
+            if (diffBody) diffBody.innerHTML = '';
+        }
+
+        function showDiffPanel() {
+            if (!currentOutput) return;
+            renderDiffPanel();
+            diffPanel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        showDiffBtn?.addEventListener('click', () => {
+            if (diffOpen) hideDiffPanel();
+            else showDiffPanel();
+            if (showDiffBtn) showDiffBtn.textContent = diffOpen ? 'Hide edits' : 'Show edits';
+        });
+        diffRefreshBtn?.addEventListener('click', () => renderDiffPanel());
+        diffHideBtn?.addEventListener('click', () => {
+            hideDiffPanel();
+            if (showDiffBtn) showDiffBtn.textContent = 'Show edits';
+        });
 
         /**
          * Canonical body for storage/export:
@@ -890,11 +1114,44 @@
             return html;
         }
 
-        function paintPreview() {
+        /**
+         * Flush Edit (contenteditable) or HTML textarea into currentOutput.bodyHtml.
+         * Download and mode switches always call this so edits cannot be left only in the DOM.
+         */
+        function syncBodyFromUi() {
+            if (!currentOutput) return '';
+            if (editMode === 'html' && bodyHtmlSource && !bodyHtmlSource.classList.contains('hidden')) {
+                currentOutput.bodyHtml = canonicalizeBody(bodyHtmlSource.value);
+            } else if (
+                editMode === 'edit'
+                && previewEl
+                && !previewEl.classList.contains('hidden')
+                && previewEl.isContentEditable
+            ) {
+                const clone = previewEl.cloneNode(true);
+                // Keep .kf-page-label → page-break anchors; strip pure chrome
+                clone.querySelectorAll('.kf-chapter-marker').forEach((el) => el.remove());
+                currentOutput.bodyHtml = canonicalizeBody(clone.innerHTML);
+            }
+            // view mode: body already lives in currentOutput from last sync
+            return currentOutput.bodyHtml || '';
+        }
+
+        function paintPreview({ force = false } = {}) {
             if (!currentOutput) {
                 previewEl.innerHTML = '<p class="kf-empty-hint">Load a document to edit structure, then switch to View for a Kobo-like device preview.</p>';
                 return;
             }
+            // Never wipe the contenteditable surface while the user is mid-edit unless forced
+            // (mode switch / import). Forced paths must sync first.
+            if (!force && editMode === 'edit' && previewEl.isContentEditable && bodyEdited) {
+                return;
+            }
+            if (force && (editMode === 'edit' || editMode === 'html')) {
+                // Caller should have synced; belt-and-braces
+                if (editMode === 'html') syncBodyFromUi();
+            }
+
             const title = bookTitleInput.value.trim() || currentOutput.title;
             // View: export-faithful body only (what the device sees — no page/chapter chrome)
             if (editMode === 'view') {
@@ -914,24 +1171,18 @@
             });
         }
 
+        /** @deprecated use syncBodyFromUi — kept as alias for any residual call sites */
         function commitPreviewFromDom() {
-            if (!currentOutput || editMode === 'html') return;
-            const clone = previewEl.cloneNode(true);
-            // Keep .kf-page-label so canonicalizeBody can convert them back to page-break anchors.
-            // Only strip chapter markers (pure preview chrome).
-            clone.querySelectorAll('.kf-chapter-marker').forEach((el) => el.remove());
-            currentOutput.bodyHtml = canonicalizeBody(clone.innerHTML);
+            syncBodyFromUi();
             refreshOutlineAndStats();
         }
 
         function bodyHtmlForExport() {
-            if (editMode === 'edit') commitPreviewFromDom();
-            if (editMode === 'html' && bodyHtmlSource && !bodyHtmlSource.classList.contains('hidden')) {
-                // Auto-apply textarea so Download never silently drops HTML edits
-                const cleaned = canonicalizeBody(bodyHtmlSource.value);
-                currentOutput.bodyHtml = cleaned;
-                markEdited();
-            }
+            clearTimeout(commitTimer);
+            // Hard guarantee: whatever is on screen in Edit/HTML is what the EPUB gets
+            syncBodyFromUi();
+            refreshOutlineAndStats();
+            updateEditChrome();
             return canonicalizeBody(currentOutput?.bodyHtml || '', { forExport: true });
         }
 
@@ -1109,10 +1360,19 @@
                 const title = bookTitleInput.value.trim() || currentOutput.title;
                 const author = bookAuthorInput.value.trim() || currentOutput.author || 'Unknown';
                 const lang = (bookLangInput?.value || 'en').trim() || 'en';
-                statusEl.textContent = 'Building EPUB locally…';
-                setProgress(10, 'Building EPUB');
-                const split = !splitChaptersEl || splitChaptersEl.checked;
+                statusEl.textContent = 'Syncing edits into EPUB body…';
+                setProgress(8, 'Syncing edits');
+                // Force flush Edit/HTML → model before packaging
                 const bodyHtml = bodyHtmlForExport();
+                const stats = diffStats(
+                    htmlToPlainLines(currentOutput.originalBodyHtml || ''),
+                    htmlToPlainLines(bodyHtml)
+                );
+                statusEl.textContent = stats.added + stats.removed
+                    ? `Building EPUB with your edits (+${stats.added}/−${stats.removed} lines)…`
+                    : 'Building EPUB locally…';
+                setProgress(20, 'Building EPUB');
+                const split = !!(splitChaptersEl && splitChaptersEl.checked);
                 const blob = await buildEpubBlob({
                     title,
                     author,
@@ -1130,9 +1390,10 @@
                 URL.revokeObjectURL(url);
                 setProgress(100, 'Done');
                 savePrefs();
-                statusEl.textContent = bodyEdited
-                    ? 'EPUB ready with your edits. Nothing left your browser.'
+                statusEl.textContent = stats.added + stats.removed
+                    ? `EPUB downloaded with your edits (+${stats.added}/−${stats.removed} lines vs import). Nothing left your browser.`
                     : 'EPUB ready. Nothing left your browser.';
+                if (diffOpen) renderDiffPanel();
             } catch (error) {
                 console.error('[KoboForge]', error);
                 statusEl.textContent = error.message || 'EPUB build failed.';
@@ -1182,12 +1443,19 @@
 
                 setProgress(90, 'Rendering preview');
                 currentOutput = output;
-                currentOutput.bodyHtml = canonicalizeBody(output.bodyHtml);
+                const canonical = canonicalizeBody(output.bodyHtml);
+                // Snapshot for git-like diff; export always uses bodyHtml after sync
+                currentOutput.originalBodyHtml = canonical;
+                currentOutput.bodyHtml = canonical;
+                clearEditedFlag();
                 refreshOutlineAndStats();
                 // Spot-check opens in Edit so users can fix structure immediately
                 setEditMode('edit');
-                statusEl.textContent = `${output.status} · Opened in Edit — switch to View for a Kobo-like device check.`;
+                statusEl.textContent = `${output.status} · Opened in Edit — your changes sync into Download automatically.`;
                 downloadBtn.disabled = false;
+                if (showDiffBtn) showDiffBtn.disabled = false;
+                if (showDiffBtn) showDiffBtn.textContent = 'Show edits';
+                updateEditChrome();
                 setProgress(100, 'Ready');
             } catch (error) {
                 console.error('[KoboForge]', error);

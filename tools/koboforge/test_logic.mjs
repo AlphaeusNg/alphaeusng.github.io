@@ -172,6 +172,11 @@ assert.ok(page.includes("id=\"splitChapters\"") && !page.match(/id="splitChapter
     'chapter split off by default for continuous Kobo reading');
 assert.ok(page.includes('tag === \'h1\'') || page.includes('tag === "h1"'), 'spine splits H1 only');
 assert.ok(page.includes('ratio >= 1.55'), 'conservative PDF heading size threshold');
+assert.ok(page.includes('function syncBodyFromUi'), 'edit surface must flush into model before export');
+assert.ok(page.includes('function bodyHtmlForExport') && page.includes('syncBodyFromUi()'), 'download path syncs edits');
+assert.ok(page.includes('originalBodyHtml'), 'snapshot original import for diff');
+assert.ok(page.includes('showDiffBtn') && page.includes('function lineDiff'), 'git-like edit diff UI');
+assert.ok(page.includes('id="diffPanel"'), 'diff panel markup');
 // EPUB styles.css string must not set pre-wrap (preview CSS may still use it)
 const epubCssMatch = page.match(/oebps\.file\('styles\.css',\s*\[([\s\S]*?)\]\.join/);
 assert.ok(epubCssMatch, 'EPUB CSS built as array join');
