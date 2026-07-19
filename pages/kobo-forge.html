@@ -586,7 +586,7 @@
                         <div class="flex rounded-2xl border border-white/10 bg-slate-950/40 p-1" role="group" aria-label="Preview mode">
                             <button type="button" data-mode="view" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Plain Kobo-like device preview (export body only)">View</button>
                             <button type="button" data-mode="edit" class="mode-btn active rounded-xl px-3 py-1.5 text-xs font-medium text-slate-300 transition" title="Edit body structure (opens after import)">Edit</button>
-                            <button type="button" data-mode="diff" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Full-document track changes: red strikeout = removed, green = added">Diff</button>
+                            <button type="button" data-mode="diff" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Track changes (red/green) and edit in place; jump list below">Diff</button>
                             <button type="button" data-mode="html" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Raw HTML source for precise fixes">HTML</button>
                         </div>
                     </div>
@@ -806,7 +806,7 @@
                 return;
             }
             // Always flush UI → model before leaving a surface that can hold edits
-            if (editMode === 'edit' || editMode === 'html') {
+            if (editMode === 'edit' || editMode === 'html' || editMode === 'diff') {
                 syncBodyFromUi();
             }
 
@@ -824,11 +824,14 @@
             const isHtml = mode === 'html';
             const isEdit = mode === 'edit';
             const isDiff = mode === 'diff';
+            // Edit + Diff are both contenteditable surfaces
+            const canType = isEdit || isDiff;
 
             previewEl.classList.toggle('hidden', isHtml);
             bodyHtmlSource.classList.toggle('hidden', !isHtml);
             htmlToolbar?.classList.toggle('hidden', !isHtml);
-            editToolbar?.classList.toggle('hidden', !isEdit);
+            // Heading toolbar works in Edit and Diff
+            editToolbar?.classList.toggle('hidden', !canType);
             if (isDiff) {
                 diffPanel?.classList.remove('hidden');
                 diffOpen = true;
@@ -838,15 +841,16 @@
                 diffOpen = false;
             }
 
-            previewEl.contentEditable = isEdit ? 'true' : 'false';
-            previewEl.classList.toggle('kf-editing', isEdit);
+            previewEl.contentEditable = canType ? 'true' : 'false';
+            previewEl.classList.toggle('kf-editing', canType);
             if (isEdit) {
                 previewEl.setAttribute('aria-label', 'Editable document body (Kobo-like surface)');
                 previewEl.focus();
             } else if (mode === 'view') {
                 previewEl.setAttribute('aria-label', 'Kobo device preview — export body only');
             } else if (mode === 'diff') {
-                previewEl.setAttribute('aria-label', 'Track-changes view — red removed, green added');
+                previewEl.setAttribute('aria-label', 'Editable track-changes view — red removed, green added; type to edit');
+                previewEl.focus();
             } else {
                 previewEl.removeAttribute('aria-label');
             }
@@ -864,7 +868,7 @@
 
         /** Promote selection / current block to p|h1|h2|h3 for TOC fixes. */
         function formatBlockTag(tag) {
-            if (editMode !== 'edit' || !currentOutput) return;
+            if ((editMode !== 'edit' && editMode !== 'diff') || !currentOutput) return;
             const allowed = { p: true, h1: true, h2: true, h3: true };
             if (!allowed[tag]) return;
             try {
@@ -912,20 +916,25 @@
         });
 
         previewEl.addEventListener('input', () => {
-            if (editMode !== 'edit' || !currentOutput) return;
+            if ((editMode !== 'edit' && editMode !== 'diff') || !currentOutput) return;
             markEdited();
             clearTimeout(commitTimer);
             commitTimer = setTimeout(() => {
                 syncBodyFromUi();
-                if (diffOpen) renderDiffPanel();
+                // In Diff mode, refresh the jump index only (do not re-paint track-changes mid-type)
+                if (editMode === 'diff') renderDiffNavOnly();
             }, 350);
         });
 
         previewEl.addEventListener('blur', () => {
-            if (editMode === 'edit') {
+            if (editMode === 'edit' || editMode === 'diff') {
                 clearTimeout(commitTimer);
                 syncBodyFromUi();
-                if (diffOpen) renderDiffPanel();
+                if (editMode === 'diff') {
+                    // Recompute track-changes markup from original vs new body
+                    paintPreview({ force: true });
+                    renderDiffPanel();
+                }
             }
         });
 
@@ -1322,33 +1331,37 @@
             });
         }
 
-        function renderDiffPanel() {
-            if (!currentOutput || !diffBody) return;
-            syncBodyFromUi();
-            // Rebuild track-changes doc so anchors match the jump list
+        /** Refresh jump-index only (keeps contenteditable caret while typing in Diff). */
+        function renderDiffNavOnly() {
+            if (!currentOutput || !diffBody || editMode !== 'diff') return;
+            const a = htmlToDiffLines(currentOutput.originalBodyHtml || '');
+            const b = htmlToDiffLines(currentOutput.bodyHtml || '');
+            const stats = diffStats(a, b);
+            // Rebuild nav from a lightweight track-changes pass without replacing the live DOM
             const tc = buildTrackChangesDocument(
                 currentOutput.originalBodyHtml || '',
                 currentOutput.bodyHtml || ''
             );
-            if (editMode === 'diff') {
-                previewEl.innerHTML = tc.html || '<p class="kf-tc-empty">No content.</p>';
-            }
             currentOutput._diffNav = tc.navItems;
+            paintDiffNavList(tc);
+            updateEditChrome();
+        }
 
+        function paintDiffNavList(tc) {
+            if (!diffBody) return;
             if (diffSummary) {
                 if (tc.added + tc.removed === 0) {
-                    diffSummary.textContent = 'No word or heading differences vs the original import.';
+                    diffSummary.textContent = 'No word or heading differences vs the original import. You can still type in the document above.';
                 } else {
                     const headBit = tc.headingChanges
                         ? ` · ${tc.headingChanges} heading change${tc.headingChanges === 1 ? '' : 's'}`
                         : '';
-                    diffSummary.textContent = `+${tc.added} words · −${tc.removed} words${headBit} — click a row to jump in the document`;
+                    diffSummary.textContent = `+${tc.added} words · −${tc.removed} words${headBit} — click a row to jump · document is editable`;
                 }
             }
-
             const rows = [];
             if (!tc.navItems.length) {
-                rows.push('<div class="diff-meta">No changes to jump to. Edit the body, then open Diff again.</div>');
+                rows.push('<div class="diff-meta">No changes yet. Type in the Diff view above, or edit then return here.</div>');
             } else {
                 tc.navItems.forEach((item, idx) => {
                     const label = item.summary
@@ -1367,6 +1380,24 @@
             diffBody.querySelectorAll('.diff-hunk[data-change-id]').forEach((btn) => {
                 btn.addEventListener('click', () => jumpToChange(btn.dataset.changeId));
             });
+        }
+
+        function renderDiffPanel() {
+            if (!currentOutput || !diffBody) return;
+            syncBodyFromUi();
+            // Rebuild track-changes doc so anchors match the jump list
+            const tc = buildTrackChangesDocument(
+                currentOutput.originalBodyHtml || '',
+                currentOutput.bodyHtml || ''
+            );
+            if (editMode === 'diff') {
+                previewEl.innerHTML = tc.html || '<p class="kf-tc-empty">No content.</p>';
+                // Stay editable after re-paint
+                previewEl.contentEditable = 'true';
+                previewEl.classList.add('kf-editing');
+            }
+            currentOutput._diffNav = tc.navItems;
+            paintDiffNavList(tc);
             if (editMode === 'diff') {
                 diffPanel?.classList.remove('hidden');
                 diffOpen = true;
@@ -1514,13 +1545,46 @@
         }
 
         /**
-         * Flush Edit (contenteditable) or HTML textarea into currentOutput.bodyHtml.
+         * Accept track-changes markup into a clean body:
+         * - <del> / .kf-tc-del removed (not in final document)
+         * - <ins> / .kf-tc-ins unwrapped (kept as normal text)
+         * - plain text kept
+         */
+        function trackChangesDomToBodyHtml(rootEl) {
+            const clone = rootEl.cloneNode(true);
+            clone.querySelectorAll('.kf-chapter-marker, .kf-page-label').forEach((el) => el.remove());
+            // Drop deleted regions entirely
+            clone.querySelectorAll('del, .kf-tc-del').forEach((el) => el.remove());
+            // Keep inserted text as normal content
+            clone.querySelectorAll('ins, .kf-tc-ins').forEach((el) => {
+                const parent = el.parentNode;
+                if (!parent) return;
+                while (el.firstChild) parent.insertBefore(el.firstChild, el);
+                parent.removeChild(el);
+            });
+            clone.querySelectorAll('[id^="kf-change-"]').forEach((el) => {
+                el.removeAttribute('id');
+                el.classList.remove('kf-tc-block', 'is-flash');
+            });
+            clone.querySelectorAll('[data-diff]').forEach((el) => el.removeAttribute('data-diff'));
+            return canonicalizeBody(clone.innerHTML);
+        }
+
+        /**
+         * Flush Edit / Diff (contenteditable) or HTML textarea into currentOutput.bodyHtml.
          * Download and mode switches always call this so edits cannot be left only in the DOM.
          */
         function syncBodyFromUi() {
             if (!currentOutput) return '';
             if (editMode === 'html' && bodyHtmlSource && !bodyHtmlSource.classList.contains('hidden')) {
                 currentOutput.bodyHtml = canonicalizeBody(bodyHtmlSource.value);
+            } else if (
+                editMode === 'diff'
+                && previewEl
+                && !previewEl.classList.contains('hidden')
+                && previewEl.isContentEditable
+            ) {
+                currentOutput.bodyHtml = trackChangesDomToBodyHtml(previewEl);
             } else if (
                 editMode === 'edit'
                 && previewEl
@@ -1543,11 +1607,16 @@
             }
             // Never wipe the contenteditable surface while the user is mid-edit unless forced
             // (mode switch / import). Forced paths must sync first.
-            if (!force && editMode === 'edit' && previewEl.isContentEditable && bodyEdited) {
+            if (
+                !force
+                && (editMode === 'edit' || editMode === 'diff')
+                && previewEl.isContentEditable
+                && bodyEdited
+            ) {
                 return;
             }
-            if (force && (editMode === 'edit' || editMode === 'html')) {
-                // Caller should have synced; belt-and-braces
+            if (force && (editMode === 'edit' || editMode === 'html' || editMode === 'diff')) {
+                // Caller should have synced; belt-and-braces for HTML textarea
                 if (editMode === 'html') syncBodyFromUi();
             }
 

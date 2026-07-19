@@ -187,6 +187,8 @@ assert.ok(page.includes("data-mode=\"diff\"") || page.includes("data-mode='diff'
 assert.ok(page.includes('function buildTrackChangesDocument'), 'full-document track changes');
 assert.ok(page.includes('kf-tc-del') && page.includes('kf-tc-ins'), 'Google Docs style del/ins');
 assert.ok(page.includes('function jumpToChange'), 'clickable jump to change');
+assert.ok(page.includes('function trackChangesDomToBodyHtml'), 'Diff mode edits sync to body');
+assert.ok(page.includes("editMode === 'diff'") && page.includes('contentEditable'), 'Diff surface is editable');
 // EPUB styles.css string must not set pre-wrap (preview CSS may still use it)
 const epubCssMatch = page.match(/oebps\.file\('styles\.css',\s*\[([\s\S]*?)\]\.join/);
 assert.ok(epubCssMatch, 'EPUB CSS built as array join');
