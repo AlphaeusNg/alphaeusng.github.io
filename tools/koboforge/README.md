@@ -1,11 +1,9 @@
-# KoboForge Companion Tools
+# KoboForge tools
 
-High-fidelity helpers that complement the KoboForge page at
+Client-side EPUB builder page:
 https://alphaeusng.github.io/pages/kobo-forge.html
 
-## Web converter (primary)
-
-The public page is the main product:
+## Web converter
 
 1. Drop DOCX / PDF / TXT / Markdown
 2. Read **diagnostics** (empty pages, missing headings, table risks)
@@ -16,41 +14,13 @@ The public page is the main product:
 
 Nothing is uploaded. Preferences (author, language, table/chapter toggles, e-ink) stick in `localStorage`.
 
-## Python companion (offline / dense tables)
+## Tests
 
-`koboforge-companion.py` — batch/offline path when you want pdfplumber’s
-`find_tables()` pipeline or CLI automation.
-
-### Installation
+Lightweight regression checks for page contracts and pure helpers:
 
 ```bash
-pip install pdfplumber python-docx ebooklib pillow typer
+node tools/koboforge/test_logic.mjs
 ```
-
-### Usage
-
-```bash
-# Basic
-python tools/koboforge/koboforge-companion.py report.pdf --output report.epub
-
-# With Kobo preset + metadata
-python tools/koboforge/koboforge-companion.py financials.pdf \
-  --preset libra \
-  --title "Q3 2025 Financials" \
-  --author "Acme Corp" \
-  --output "q3-financials-kobo.epub"
-```
-
-Presets adjust CSS font size / margins: `clara` | `libra` | `sage` | `generic`.
-
-### Why companion vs web
-
-| Case | Prefer |
-|------|--------|
-| Interactive fix of PDF glitches | **Web** (edit + e-ink + outline) |
-| DOCX with native headings | Either (web is faster) |
-| Dense PDF tables / batch scripts | **Companion** (`find_tables`) |
-| Scanned/image PDFs | OCR first, then either tool |
 
 ## License
 

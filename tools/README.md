@@ -1,8 +1,8 @@
 # Tools
 
-Maintenance and companion scripts live here, grouped by domain.
+Maintenance scripts and light tooling live here, grouped by domain.
 
-- `koboforge/`: document conversion companion tooling for KoboForge.
+- `koboforge/`: regression tests and notes for the KoboForge web converter.
 - `finance/`: local-only financial data extraction helpers for `pages/conviction.html`, including TSLA-versus-SPY benchmark export generation.
 
 Do not put page HTML, generated site assets, or Obsidian vault content in this folder.

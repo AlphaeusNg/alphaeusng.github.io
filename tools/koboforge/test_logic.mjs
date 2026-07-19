@@ -155,13 +155,20 @@ assert.ok(
 assert.ok(page.includes('bookUrn'), 'NCX/OPF shared urn');
 assert.ok(page.includes('ensureChapterTitle'), 'export title helper');
 assert.ok(page.includes('formatBlockTag') || page.includes('block-fmt-btn'), 'edit toolbar');
-
-// Companion contract
-const companion = readFileSync(join(__dirname, 'koboforge-companion.py'), 'utf8');
-assert.ok(companion.includes('find_tables'), 'companion must use find_tables');
-assert.ok(companion.includes('_heading_level'), 'companion heading levels');
-assert.ok(!companion.includes('c["x0"] for row in t'), 'old broken bbox path should be gone');
-assert.ok(companion.includes('PRESET_CSS'), 'preset CSS map');
-assert.ok(companion.includes('events.sort'), 'table/prose reading order merge');
+assert.ok(page.includes('stripInvalidXmlChars'), 'XML control-char strip for Kobo');
+assert.ok(page.includes('arrayBuffer.slice(0)'), 'PDF buffer copy before getDocument');
+assert.ok(page.includes('Failed to extract page'), 'per-page PDF isolation');
+assert.ok(page.includes('MAX_INLINE_IMAGE_B64') || page.includes('too large for e-ink'), 'DOCX large-image guard');
+assert.ok(page.includes('dropzoneReady') && page.includes('File received'), 'dropzone received state');
+assert.ok(page.includes('cancelFileBtn') && page.includes('setDropzoneIdle'), 'cancel upload restores idle dropzone');
+assert.ok(page.includes('prepareHtmlForEpub'), 'EPUB body prep for Kobo pagination');
+assert.ok(page.includes('page-break-inside:auto'), 'tables/paragraphs must allow page breaks on Kobo');
+// EPUB styles.css string must not set pre-wrap (preview CSS may still use it)
+const epubCssMatch = page.match(/oebps\.file\('styles\.css',\s*\[([\s\S]*?)\]\.join/);
+assert.ok(epubCssMatch, 'EPUB CSS built as array join');
+assert.ok(
+    !epubCssMatch[1].includes('pre-wrap'),
+    'EPUB styles.css must not use white-space:pre-wrap (Kobo page-turn freeze)'
+);
 
 console.log('All KoboForge logic tests passed.');

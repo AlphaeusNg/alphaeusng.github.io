@@ -62,7 +62,7 @@ const PROJECT_MODAL_DATA = {
       {
         heading: 'The Approach',
         content: 'The public page runs fully client-side. DOCX, PDF, TXT, and Markdown go through the browser; you get diagnostics, a chapter outline, PDF page jumps, e-ink preview, and View/Edit/HTML modes so you can fix structure before export. PDF handling reconstructs spaces, paragraphs, tables, and heading guesses from page coordinates. EPUB ships with nav + NCX for Kobo TOC.',
-        techNote: 'Tech: static HTML, JSZip, Mammoth, PDF.js, contenteditable + HTML source edit, client-side EPUB3 packaging, optional Python companion (pdfplumber find_tables) under tools/.'
+        techNote: 'Tech: static HTML, JSZip, Mammoth, PDF.js, contenteditable + HTML source edit, client-side EPUB3 packaging (nav + NCX).'
       }
     ],
     intersection: {
@@ -74,17 +74,13 @@ const PROJECT_MODAL_DATA = {
     },
     currentState: {
       heading: 'Current State',
-      content: 'The deployed site has the client-side converter back, with local preview and EPUB export. The Python companion is still useful for rougher offline cases and the fidelity work that never fully goes away.'
+      content: 'Fully client-side: import, diagnostics, preview/edit, e-ink check, and EPUB download — nothing leaves the browser.'
     },
     actions: {
       primary: {
         label: 'Open KoboForge page',
         url: 'pages/kobo-forge.html',
         icon: 'external-link'
-      },
-      secondary: {
-        label: 'Read companion notes',
-        url: 'tools/koboforge/README.md'
       }
     }
   },

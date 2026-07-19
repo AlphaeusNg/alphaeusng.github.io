@@ -27,7 +27,7 @@ The design should remain restrained, professional, and easy to share. It should 
 - `assets/`: images and share assets referenced by public pages (prefer compressed JPEG web assets; keep originals only when needed).
 - `robots.txt` / `sitemap.xml`: basic crawl hints for the public site.
 - `tools/`: scripts grouped by domain.
-  - `tools/koboforge/`: KoboForge companion tooling.
+  - `tools/koboforge/`: KoboForge tests and notes (web converter is under `pages/`).
   - `tools/finance/`: local-only financial data helpers, including the TSLA-versus-SPY benchmark generator, the legacy benchmark snapshot, and the anonymized trade ledger.
 - `.nojekyll`: required so GitHub Pages serves this as static files.
 

@@ -47,6 +47,17 @@
             background: rgba(201, 162, 39, 0.08);
         }
 
+        #dropzone.has-file {
+            border-style: solid;
+            border-color: rgba(52, 211, 153, 0.45);
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        #dropzone.has-file.dropzone-active {
+            border-color: rgba(201, 162, 39, 0.72);
+            background: rgba(201, 162, 39, 0.08);
+        }
+
         /* —— Preview (dark default) —— */
         #preview {
             outline: none;
@@ -288,17 +299,36 @@
         <div class="space-y-6">
             <div class="glass-card rounded-[2rem] p-7">
                 <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">1. Import</div>
-                <div id="dropzone" class="mt-5 rounded-[1.75rem] border-2 border-dashed border-white/15 bg-slate-950/30 px-6 py-10 text-center transition">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-[#C9A227]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903 5 5 0 019.393-2.14 4.5 4.5 0 01.879 7.903M12 12v9m0 0l-3-3m3 3l3-3" />
-                        </svg>
+                <div id="dropzone" class="mt-5 rounded-[1.75rem] border-2 border-dashed border-white/15 bg-slate-950/30 px-6 py-10 text-center transition" data-state="idle">
+                    <!-- Empty: waiting for a file -->
+                    <div id="dropzoneIdle">
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-[#C9A227]">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903 5 5 0 019.393-2.14 4.5 4.5 0 01.879 7.903M12 12v9m0 0l-3-3m3 3l3-3" />
+                            </svg>
+                        </div>
+                        <h2 class="mt-4 text-xl font-semibold tracking-tight">Drop a file here</h2>
+                        <p class="mt-2 text-sm leading-7 text-slate-400">
+                            Best results come from DOCX. PDFs are reconstructed client-side (spaces, paragraphs, tables, heading guesses). Then edit anything that looks off before you export.
+                        </p>
+                        <button type="button" id="pickFileBtn" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-[#C9A227] px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844]">Choose file</button>
                     </div>
-                    <h2 class="mt-4 text-xl font-semibold tracking-tight">Drop a file here</h2>
-                    <p class="mt-2 text-sm leading-7 text-slate-400">
-                        Best results come from DOCX. PDFs are reconstructed client-side (spaces, paragraphs, tables, heading guesses). Then edit anything that looks off before you export.
-                    </p>
-                    <button id="pickFileBtn" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-[#C9A227] px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844]">Choose file</button>
+                    <!-- Loaded: confirm receipt + cancel -->
+                    <div id="dropzoneReady" class="hidden" aria-live="polite">
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <h2 class="mt-4 text-xl font-semibold tracking-tight text-emerald-100">File received</h2>
+                        <p id="dropzoneFileName" class="mt-2 break-all text-base font-medium text-slate-100">—</p>
+                        <p id="dropzoneFileMeta" class="mt-1 text-sm text-slate-400">—</p>
+                        <p class="mt-3 text-xs leading-5 text-slate-500">Processed only in this browser — nothing was uploaded to a server.</p>
+                        <div class="mt-6 flex flex-wrap items-center justify-center gap-2">
+                            <button type="button" id="replaceFileBtn" class="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-[#C9A227]/40 hover:text-[#C9A227]">Replace file</button>
+                            <button type="button" id="cancelFileBtn" class="inline-flex items-center justify-center rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-2.5 text-sm font-medium text-rose-200 transition hover:border-rose-400/50 hover:bg-rose-500/15">Cancel</button>
+                        </div>
+                    </div>
                     <input id="fileInput" type="file" accept=".docx,.pdf,.txt,.md,.markdown" class="hidden">
                 </div>
 
@@ -315,9 +345,6 @@
                         <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Language</span>
                         <input id="bookLang" type="text" value="en" maxlength="8" class="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-[#C9A227]" placeholder="en">
                     </label>
-                    <div class="flex items-end">
-                        <button type="button" id="sampleBtn" class="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 transition hover:border-[#C9A227]/40 hover:text-[#C9A227]">Load sample Markdown</button>
-                    </div>
                 </div>
 
                 <label class="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3">
@@ -339,25 +366,20 @@
                 <div class="mt-6 rounded-3xl border border-white/10 bg-slate-950/35 p-5">
                     <div class="text-xs font-semibold uppercase tracking-[0.18em] text-[#C9A227]">Workflow</div>
                     <ol class="mt-4 list-decimal space-y-2 pl-5 text-sm leading-7 text-slate-300">
-                        <li>Import a document (or load the sample).</li>
-                        <li>Scan diagnostics + chapter outline for issues.</li>
-                        <li>Switch to <strong class="text-slate-100">Edit</strong> or <strong class="text-slate-100">HTML</strong> and fix paragraphs, headings, tables.</li>
-                        <li>Toggle e-ink preview to sanity-check on paper-like contrast.</li>
-                        <li>Download EPUB and sideload to your Kobo.</li>
+                        <li>Import a document (DOCX, PDF, TXT, or Markdown).</li>
+                        <li>Scan status, diagnostics, and chapter outline.</li>
+                        <li>Preview, then fix with <strong class="text-slate-100">Edit</strong> or <strong class="text-slate-100">HTML</strong>.</li>
+                        <li>Optional: toggle e-ink for paper-like contrast.</li>
+                        <li>Download EPUB at the bottom and sideload to your Kobo.</li>
                     </ol>
                 </div>
             </div>
 
             <div class="glass-card rounded-[2rem] p-7">
-                <div class="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">2. Status</div>
-                        <h2 class="mt-2 text-2xl font-semibold tracking-tight">Client-side output</h2>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" id="clearBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-white/30 disabled:opacity-40" disabled>Clear</button>
-                        <button id="downloadBtn" class="rounded-2xl bg-[#C9A227] px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-50" disabled>Download EPUB</button>
-                    </div>
+                <div>
+                    <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">2. Status</div>
+                    <h2 class="mt-2 text-2xl font-semibold tracking-tight">Client-side output</h2>
+                    <p class="mt-2 text-xs leading-5 text-slate-500">Progress and diagnostics while the document is reconstructed. Export lives after preview.</p>
                 </div>
                 <div id="status" class="mt-5 text-sm leading-7 text-slate-400">Waiting for a document.</div>
                 <div id="editedBadge" class="mt-2 hidden text-xs font-medium text-amber-300/90">Body edited — export will use your changes.</div>
@@ -409,7 +431,7 @@
                 <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div>
                         <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">3. Preview &amp; edit</div>
-                        <h2 class="mt-2 text-2xl font-semibold tracking-tight">Spot-check before export</h2>
+                        <h2 class="mt-2 text-2xl font-semibold tracking-tight">Spot-check, then export below</h2>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <div class="flex rounded-2xl border border-white/10 bg-slate-950/40 p-1" role="group" aria-label="Preview mode">
@@ -417,7 +439,7 @@
                             <button type="button" data-mode="edit" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200">Edit</button>
                             <button type="button" data-mode="html" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200">HTML</button>
                         </div>
-                        <button type="button" id="einkToggle" class="rounded-2xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-[#C9A227]/40" title="Paper-like contrast">E-ink</button>
+                        <button type="button" id="einkToggle" class="rounded-2xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-[#C9A227]/40" title="Preview the body with paper-like e-ink contrast (cream background, dark text) so you can spot-check readability before sideloading to your Kobo. Does not change the exported EPUB." aria-label="Toggle e-ink preview: paper-like contrast for Kobo readability check">E-ink</button>
                     </div>
                 </div>
                 <p class="text-xs leading-5 text-slate-500">
@@ -454,11 +476,27 @@
         </div>
     </section>
 
+    <section class="mx-auto max-w-6xl px-6 pb-16" aria-labelledby="export-heading">
+        <div class="glass-card rounded-[2rem] p-7">
+            <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div class="max-w-xl">
+                    <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">4. Export</div>
+                    <h2 id="export-heading" class="mt-2 text-2xl font-semibold tracking-tight">Download EPUB</h2>
+                    <p class="mt-2 text-sm leading-6 text-slate-400">
+                        After you have checked the preview (and fixed anything in Edit or HTML), build a Kobo-ready EPUB. Processing stays in this browser.
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 md:justify-end">
+                    <button type="button" id="clearBtn" class="rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-white/30 disabled:opacity-40" disabled>Clear workspace</button>
+                    <button id="downloadBtn" class="rounded-2xl bg-[#C9A227] px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-50" disabled title="Build and download an EPUB from the current preview body">Download EPUB</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <footer class="border-t border-white/10 py-8 text-center text-xs text-slate-500">
         All processing stays local in your browser. <span class="mx-2">·</span>
         <a href="../index.html#craft" class="transition hover:text-slate-300">Back to The Craft</a>
-        <span class="mx-2">·</span>
-        <a href="../tools/koboforge/README.md" class="transition hover:text-slate-300">Offline companion (Python)</a>
         <span class="mx-2">·</span>
         <span id="site-version" class="font-mono text-slate-500" title="Bump js/version.js on each deploy">v—</span>
     </footer>
@@ -479,11 +517,16 @@
         const PREFS_KEY = 'koboforge.prefs.v1';
 
         const dropzone = document.getElementById('dropzone');
+        const dropzoneIdle = document.getElementById('dropzoneIdle');
+        const dropzoneReady = document.getElementById('dropzoneReady');
+        const dropzoneFileName = document.getElementById('dropzoneFileName');
+        const dropzoneFileMeta = document.getElementById('dropzoneFileMeta');
         const fileInput = document.getElementById('fileInput');
         const pickFileBtn = document.getElementById('pickFileBtn');
+        const replaceFileBtn = document.getElementById('replaceFileBtn');
+        const cancelFileBtn = document.getElementById('cancelFileBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const clearBtn = document.getElementById('clearBtn');
-        const sampleBtn = document.getElementById('sampleBtn');
         const statusEl = document.getElementById('status');
         const previewEl = document.getElementById('preview');
         const previewWrap = document.getElementById('previewWrap');
@@ -921,6 +964,38 @@
             return (html.match(/<h[12]\b/gi) || []).length;
         }
 
+        function formatFileSize(bytes) {
+            const n = Number(bytes) || 0;
+            if (n < 1024) return `${n} B`;
+            if (n < 1024 * 1024) return `${(n / 1024).toFixed(n < 10 * 1024 ? 1 : 0)} KB`;
+            return `${(n / (1024 * 1024)).toFixed(n < 10 * 1024 * 1024 ? 1 : 0)} MB`;
+        }
+
+        function setDropzoneIdle() {
+            dropzone?.classList.remove('has-file');
+            dropzone?.setAttribute('data-state', 'idle');
+            dropzoneIdle?.classList.remove('hidden');
+            dropzoneReady?.classList.add('hidden');
+            if (dropzoneFileName) dropzoneFileName.textContent = '—';
+            if (dropzoneFileMeta) dropzoneFileMeta.textContent = '—';
+        }
+
+        function setDropzoneReady(file) {
+            if (!file) {
+                setDropzoneIdle();
+                return;
+            }
+            const ext = (file.name.split('.').pop() || '').toUpperCase() || 'FILE';
+            dropzone?.classList.add('has-file');
+            dropzone?.setAttribute('data-state', 'ready');
+            dropzoneIdle?.classList.add('hidden');
+            dropzoneReady?.classList.remove('hidden');
+            if (dropzoneFileName) dropzoneFileName.textContent = file.name;
+            if (dropzoneFileMeta) {
+                dropzoneFileMeta.textContent = `${ext} · ${formatFileSize(file.size)} · ready in this browser`;
+            }
+        }
+
         function clearWorkspace() {
             currentFile = null;
             currentOutput = null;
@@ -945,39 +1020,18 @@
             bookTitleInput.value = '';
             if (fileInput) fileInput.value = '';
             setProgress(0);
+            setDropzoneIdle();
         }
 
         clearBtn?.addEventListener('click', clearWorkspace);
-
-        sampleBtn?.addEventListener('click', () => {
-            const sample = `# KoboForge sample
-
-A short multi-chapter document so you can try edit → export without uploading a file.
-
-## Why local conversion
-
-Private notes and work docs never leave your browser. DOCX keeps native paragraphs; PDFs are reconstructed from page coordinates.
-
-## Sample table
-
-| Feature | Kobo benefit |
-| --- | --- |
-| HTML tables | Aligns columns on e-ink |
-| Chapter split | Real TOC on device |
-| Body edit | Fix PDF glitches before sideload |
-| E-ink preview | Spot-check contrast |
-
-## Closing
-
-1. Open **Edit** and tweak a paragraph.
-2. Check the **Contents** list on the right.
-3. Export, sideload the EPUB, and open the TOC on your Kobo.
-`;
-            const blob = new Blob([sample], { type: 'text/markdown' });
-            const file = new File([blob], 'koboforge-sample.md', { type: 'text/markdown' });
-            bookTitleInput.value = 'KoboForge sample';
-            bookAuthorInput.value = bookAuthorInput.value || 'Alphaeus Ng';
-            processFile(file);
+        cancelFileBtn?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (bodyEdited && currentOutput) {
+                const ok = confirm('Cancel will discard the loaded file and any body edits. Continue?');
+                if (!ok) return;
+            }
+            clearWorkspace();
         });
 
         function waitForGlobal(name, timeoutMs = 12000) {
@@ -996,7 +1050,20 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
             });
         }
 
-        pickFileBtn.addEventListener('click', () => fileInput.click());
+        function openFilePicker() {
+            if (fileInput) fileInput.click();
+        }
+
+        pickFileBtn?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openFilePicker();
+        });
+        replaceFileBtn?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openFilePicker();
+        });
         fileInput.addEventListener('change', (event) => {
             const file = event.target.files?.[0];
             if (file) processFile(file);
@@ -1069,6 +1136,7 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
             currentFile = file;
             currentOutput = null;
             clearEditedFlag();
+            setDropzoneReady(file);
             downloadBtn.disabled = true;
             if (clearBtn) clearBtn.disabled = false;
             statsEl.classList.add('hidden');
@@ -1109,7 +1177,7 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
             } catch (error) {
                 console.error('[KoboForge]', error);
                 statusEl.textContent = error.message || 'Failed to process file.';
-                previewEl.innerHTML = '<p class="text-rose-300">Processing failed. Try DOCX for the cleanest result, or a simpler PDF. You can also use the Python companion for dense tables.</p>';
+                previewEl.innerHTML = '<p class="text-rose-300">Processing failed. Try DOCX for the cleanest result, or a simpler PDF. Scanned PDFs need OCR first.</p>';
                 setProgress(0);
             }
         }
@@ -1225,9 +1293,12 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
                 });
             }
             if (out.formatLabel === 'PDF' && out.emptyPages?.length) {
+                const allEmpty = out.pageCount && out.emptyPages.length === out.pageCount;
                 items.push({
                     level: 'warn',
-                    text: `No extractable text on page(s) ${out.emptyPages.join(', ')} — likely scanned/image-only. OCR first, or use the Python companion after OCR.`
+                    text: allEmpty
+                        ? `No extractable text on any page — likely fully scanned. Run OCR, re-export as text PDF/DOCX, or paste text in Edit.`
+                        : `No extractable text on page(s) ${out.emptyPages.join(', ')} (other pages still loaded). Those pages are likely image/scan — OCR them or paste text in Edit.`
                 });
             }
             if (out.formatLabel === 'PDF' && out.tableCount > 0) {
@@ -1264,23 +1335,67 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
         async function parseDocx(file) {
             const arrayBuffer = await file.arrayBuffer();
             const mammoth = await waitForGlobal('mammoth');
-            const result = await mammoth.convertToHtml({ arrayBuffer });
-            const doc = new DOMParser().parseFromString(result.value, 'text/html');
+            const warnings = [];
+            let skippedImages = 0;
+            // Cap inline images so multi‑MB Word art does not freeze the preview or
+            // produce Kobo-breaking megabyte data-URI chapters after "page 1".
+            // base64 expands ~4/3; cap decoded size ~450KB so preview + Kobo stay snappy
+            const MAX_INLINE_IMAGE_B64 = Math.floor(450000 * 1.37);
+            const convertOpts = { arrayBuffer };
+            if (mammoth.images?.imgElement) {
+                convertOpts.convertImage = mammoth.images.imgElement((image) =>
+                    image.read('base64').then((b64) => {
+                        if (!b64 || b64.length > MAX_INLINE_IMAGE_B64) {
+                            skippedImages += 1;
+                            return {
+                                src: '',
+                                alt: image.altText || 'Image omitted (too large for e-ink EPUB)'
+                            };
+                        }
+                        return { src: `data:${image.contentType};base64,${b64}` };
+                    }).catch(() => {
+                        skippedImages += 1;
+                        return { src: '', alt: 'Image could not be read' };
+                    })
+                );
+            }
+            const result = await mammoth.convertToHtml(convertOpts);
+            const doc = new DOMParser().parseFromString(
+                stripInvalidXmlChars(result.value || ''),
+                'text/html'
+            );
+            // Drop empty/broken img tags from oversized images so EPUB XHTML stays valid
+            doc.body.querySelectorAll('img').forEach((img) => {
+                const src = img.getAttribute('src') || '';
+                if (!src || src === 'about:blank') {
+                    const note = doc.createElement('p');
+                    note.className = 'preserve-structure';
+                    note.innerHTML = `<em>[${escapeHtml(img.getAttribute('alt') || 'Image omitted')}]</em>`;
+                    img.replaceWith(note);
+                }
+            });
             const paragraphCount = doc.body.querySelectorAll('p, li, blockquote').length || 1;
             const messages = (result.messages || [])
                 .map((m) => m.message || String(m))
                 .filter(Boolean);
-            const warnings = [];
             if (!doc.body.querySelector('h1, h2, h3')) {
                 warnings.push('DOCX has no headings — consider adding them in Word, or insert <h2> in HTML edit for a Kobo TOC.');
             }
+            if (skippedImages > 0) {
+                warnings.push(
+                    `Skipped ${skippedImages} large or unreadable image(s) so the EPUB stays Kobo-friendly. Re-export images smaller in Word if you need them.`
+                );
+            }
+            const imgCount = (doc.body.innerHTML.match(/<img\b/gi) || []).length;
             return {
                 title: file.name.replace(/\.[^.]+$/, ''),
                 author: '',
                 bodyHtml: doc.body.innerHTML,
                 paragraphCount,
                 formatLabel: 'DOCX',
-                structureNote: 'Native paragraphs preserved',
+                structureNote: imgCount
+                    ? `Native paragraphs + ${imgCount} image(s)`
+                    : 'Native paragraphs preserved',
                 status: 'DOCX parsed locally. Paragraph and heading structure preserved from the source document.',
                 warnings,
                 mammothMessages: messages,
@@ -1320,41 +1435,76 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
         async function parsePdf(file) {
             const arrayBuffer = await file.arrayBuffer();
             setProgress(12, 'Opening PDF');
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            // Copy into a fresh Uint8Array. PDF.js may transfer the buffer to the
+            // worker; a detached ArrayBuffer after page 1 is a common multipage hang.
+            const data = new Uint8Array(arrayBuffer.slice(0));
+            let pdf;
+            try {
+                pdf = await pdfjsLib.getDocument({
+                    data,
+                    useSystemFonts: true,
+                    isEvalSupported: false
+                }).promise;
+            } catch (openErr) {
+                console.error('[KoboForge] PDF open failed', openErr);
+                throw new Error(
+                    openErr?.message
+                        ? `Could not open PDF: ${openErr.message}`
+                        : 'Could not open PDF. Try re-exporting or use DOCX.'
+                );
+            }
+
             const parts = [];
             let tableCount = 0;
             let headingCount = 0;
             const emptyPages = [];
+            const failedPages = [];
             const total = pdf.numPages || 1;
+            const warnings = [];
 
             for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-                const page = await pdf.getPage(pageNumber);
-                const textContent = await page.getTextContent();
-                const pageBlocks = extractPdfBlocks(textContent.items, {
-                    preserveTables: preserveTablesEnabled()
-                });
-
                 parts.push(`<div class="kf-page-break" data-page="${pageNumber}"></div>`);
+                try {
+                    const page = await pdf.getPage(pageNumber);
+                    const textContent = await page.getTextContent();
+                    const pageBlocks = extractPdfBlocks(textContent.items || [], {
+                        preserveTables: preserveTablesEnabled()
+                    });
 
-                if (!pageBlocks.length) {
-                    emptyPages.push(pageNumber);
-                    parts.push('<p class="preserve-structure"><em>(No extractable text on this page)</em></p>');
-                } else {
-                    for (const block of pageBlocks) {
-                        if (block.type === 'table') {
-                            tableCount += 1;
-                            parts.push(block.html);
-                        } else if (block.type === 'heading') {
-                            headingCount += 1;
-                            const tag = block.level === 1 ? 'h1' : 'h2';
-                            parts.push(`<${tag}>${escapeHtml(block.text)}</${tag}>`);
-                        } else {
-                            parts.push(`<p class="preserve-structure">${escapeHtml(block.text)}</p>`);
+                    if (!pageBlocks.length) {
+                        emptyPages.push(pageNumber);
+                        parts.push('<p class="preserve-structure"><em>(No extractable text on this page — likely image/scan. OCR first or paste text in Edit.)</em></p>');
+                    } else {
+                        for (const block of pageBlocks) {
+                            if (block.type === 'table') {
+                                tableCount += 1;
+                                parts.push(block.html);
+                            } else if (block.type === 'heading') {
+                                headingCount += 1;
+                                const tag = block.level === 1 ? 'h1' : 'h2';
+                                parts.push(`<${tag}>${escapeHtml(block.text)}</${tag}>`);
+                            } else {
+                                parts.push(`<p class="preserve-structure">${escapeHtml(block.text)}</p>`);
+                            }
                         }
                     }
+                } catch (pageErr) {
+                    // Isolate per-page failures so page 2+ never aborts the whole convert
+                    console.error(`[KoboForge] PDF page ${pageNumber}`, pageErr);
+                    failedPages.push(pageNumber);
+                    emptyPages.push(pageNumber);
+                    parts.push(
+                        `<p class="preserve-structure"><em>(Failed to extract page ${pageNumber}: ${escapeHtml(pageErr?.message || 'unknown error')})</em></p>`
+                    );
                 }
                 setProgress(12 + (pageNumber / total) * 70, `PDF page ${pageNumber}/${total}`);
+                // Yield so progress UI paints between pages (avoids "stuck on page 1")
+                await new Promise((r) => setTimeout(r, 0));
             }
+
+            try {
+                pdf.destroy?.();
+            } catch (_) { /* ignore */ }
 
             const html = parts.length
                 ? parts.join('')
@@ -1365,9 +1515,13 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
                 ? `${tableCount} table${tableCount === 1 ? '' : 's'} + line/indent reconstruction`
                 : 'Heuristic line + indent reconstruction';
 
-            const warnings = [];
             if (emptyPages.length === total) {
                 warnings.push('Entire PDF had no extractable text — likely scanned. Run OCR before converting.');
+            }
+            if (failedPages.length) {
+                warnings.push(
+                    `PDF.js failed on page(s) ${failedPages.join(', ')} (continued with remaining pages). Try re-exporting the PDF or use DOCX.`
+                );
             }
 
             return {
@@ -1378,8 +1532,8 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
                 formatLabel: 'PDF',
                 structureNote,
                 status: tableCount
-                    ? `PDF parsed locally. Detected ${tableCount} table${tableCount === 1 ? '' : 's'}; reconstructed spaces, paragraphs, indentation${headingCount ? `, and ${headingCount} heading guess(es)` : ''}.`
-                    : `PDF parsed locally. Reconstructed spaces, paragraph boundaries, and indentation from page coordinates${headingCount ? `; ${headingCount} heading guess(es)` : ''}.`,
+                    ? `PDF parsed locally (${total} page${total === 1 ? '' : 's'}). Detected ${tableCount} table${tableCount === 1 ? '' : 's'}; reconstructed spaces, paragraphs, indentation${headingCount ? `, and ${headingCount} heading guess(es)` : ''}.`
+                    : `PDF parsed locally (${total} page${total === 1 ? '' : 's'}). Reconstructed spaces, paragraph boundaries, and indentation from page coordinates${headingCount ? `; ${headingCount} heading guess(es)` : ''}.`,
                 warnings,
                 emptyPages,
                 pageCount: total
@@ -1390,20 +1544,29 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
          * Normalize PDF.js text items and group into visual lines (top→bottom).
          */
         function buildPdfLines(items) {
-            const normalized = items
-                .filter((item) => item.str && item.str.trim() !== '')
+            const normalized = (items || [])
+                .filter((item) => item && item.str && String(item.str).trim() !== '')
                 .map((item) => {
-                    const chars = Math.max(item.str.length, 1);
-                    const avgCharWidth = Math.max(item.width / chars, 2);
+                    // Some PDF.js items lack transform (marked content / odd fonts).
+                    // Skipping them used to throw mid-document after page 1.
+                    const tr = item.transform;
+                    if (!tr || tr.length < 6) return null;
+                    const text = stripInvalidXmlChars(String(item.str));
+                    if (!text.trim()) return null;
+                    const chars = Math.max(text.length, 1);
+                    const width = Number(item.width) || 0;
+                    const avgCharWidth = Math.max(width / chars, 2);
+                    const height = Number(item.height) || Math.abs(tr[3]) || Math.abs(tr[0]) || 10;
                     return {
-                        text: item.str,
-                        x: item.transform[4],
-                        y: item.transform[5],
-                        width: item.width,
-                        height: item.height || 10,
+                        text,
+                        x: Number(tr[4]) || 0,
+                        y: Number(tr[5]) || 0,
+                        width,
+                        height: height || 10,
                         avgCharWidth
                     };
                 })
+                .filter(Boolean)
                 .sort((a, b) => {
                     if (Math.abs(a.y - b.y) > 2) return b.y - a.y;
                     return a.x - b.x;
@@ -1906,12 +2069,103 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
             return chapters;
         }
 
+        function stripInvalidXmlChars(text) {
+            // XML 1.0 disallows most C0 controls; they crash Kobo/ADE after the first
+            // well-formed page/chapter when they appear later in the spine.
+            return String(text || '').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+        }
+
+        /**
+         * EPUB/Kobo-safe body prep:
+         * - Drop pre-wrap (Kobo often freezes page-turn on pre-wrap blocks)
+         * - Turn soft newlines into <br/> so line structure survives without pre-wrap
+         * - Allow table page breaks (page-break-inside:avoid on a large false table traps page 1)
+         * - Flatten empty anchors / chrome that survived export
+         */
+        function prepareHtmlForEpub(html) {
+            const doc = new DOMParser().parseFromString(
+                `<div id="root">${html || ''}</div>`,
+                'text/html'
+            );
+            const root = doc.getElementById('root');
+            if (!root) return html || '';
+
+            root.querySelectorAll('.kf-page-break, .kf-page-label, .kf-chapter-marker').forEach((el) => el.remove());
+
+            // convert preserve-structure paragraphs → normal flow + <br/>
+            root.querySelectorAll('p.preserve-structure, pre').forEach((el) => {
+                const tag = el.tagName.toLowerCase();
+                if (tag === 'pre') {
+                    const p = doc.createElement('p');
+                    const text = el.textContent || '';
+                    text.split(/\n/).forEach((line, i, arr) => {
+                        p.appendChild(doc.createTextNode(line));
+                        if (i < arr.length - 1) p.appendChild(doc.createElement('br'));
+                    });
+                    el.replaceWith(p);
+                    return;
+                }
+                el.removeAttribute('class');
+                // Walk text nodes and inject br for newlines (keep nested elements)
+                const walker = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+                const textNodes = [];
+                while (walker.nextNode()) textNodes.push(walker.currentNode);
+                textNodes.forEach((tn) => {
+                    const value = tn.nodeValue || '';
+                    if (!value.includes('\n')) return;
+                    const parts = value.split('\n');
+                    const frag = doc.createDocumentFragment();
+                    parts.forEach((part, i) => {
+                        frag.appendChild(doc.createTextNode(part));
+                        if (i < parts.length - 1) frag.appendChild(doc.createElement('br'));
+                    });
+                    tn.parentNode.replaceChild(frag, tn);
+                });
+            });
+
+            // Large tables must be allowed to break across pages on Kobo
+            root.querySelectorAll('table').forEach((table) => {
+                table.setAttribute('class', 'kobo-table');
+                table.removeAttribute('style');
+            });
+
+            // Drop empty paragraphs that only waste spine
+            root.querySelectorAll('p').forEach((p) => {
+                if (!(p.textContent || '').trim() && !p.querySelector('img, br, table')) {
+                    p.remove();
+                }
+            });
+
+            // Remove empty images
+            root.querySelectorAll('img').forEach((img) => {
+                const src = img.getAttribute('src') || '';
+                if (!src) img.remove();
+            });
+
+            return root.innerHTML;
+        }
+
         function xhtmlBodyFragment(html) {
-            // Ensure void-ish hygiene for common tags; JSZip string body is XHTML
-            return (html || '')
-                .replace(/<br\s*>/gi, '<br/>')
-                .replace(/<hr\s*>/gi, '<hr/>')
-                .replace(/\u00a0/g, '&#160;');
+            // Ensure void-ish hygiene for common tags; JSZip string body is XHTML.
+            // Invalid XML mid-book is a classic "first page works, rest won't open" on Kobo.
+            let out = stripInvalidXmlChars(prepareHtmlForEpub(html || ''));
+            // Self-close void tags that are not already closed
+            const voidTag = (tag) => {
+                const re = new RegExp(`<${tag}(\\s[^>]*)?>`, 'gi');
+                out = out.replace(re, (match, attrs) => {
+                    if (/\//.test(match.slice(0, -1))) return match; // already <tag .../>
+                    return `<${tag}${attrs || ''}/>`;
+                });
+            };
+            ['br', 'hr', 'img', 'col', 'source', 'meta', 'link', 'input', 'area', 'base', 'embed', 'wbr'].forEach(voidTag);
+            out = out
+                .replace(/\u00a0/g, '&#160;')
+                // Bare ampersands that are not already entities break XHTML parse
+                .replace(/&(?![a-zA-Z][a-zA-Z0-9]*;|#[0-9]+;|#x[0-9a-fA-F]+;)/g, '&amp;');
+            // Unescaped < in rare text residues (not tags)
+            // Do not touch real tags — only lone < followed by space or digit
+            out = out.replace(/<(?![a-zA-Z\/!])/g, '&lt;');
+            return out;
         }
 
         /**
@@ -1944,18 +2198,44 @@ Private notes and work docs never leave your browser. DOCX keeps native paragrap
 </container>`);
 
             const oebps = zip.folder('OEBPS');
-            // Kobo-friendly CSS: serif body, clear tables, hyphenation-friendly
-            // E-ink: avoid pure black crush; modest margins; tables stay bordered
-            oebps.file('styles.css', `body{font-family:Georgia,"Times New Roman",serif;line-height:1.55;margin:3% 4%;color:#111;-webkit-hyphens:auto;hyphens:auto;}h1,h2,h3{margin:1.25em 0 .55em;line-height:1.25;page-break-after:avoid;font-family:Georgia,serif;}h1{font-size:1.45em;}h2{font-size:1.22em;}h3{font-size:1.08em;}p{margin:0 0 0.85em;text-align:justify;}p.preserve-structure{white-space:pre-wrap;font-family:Georgia,serif;font-size:0.98em;line-height:1.5;text-align:left;}blockquote{border-left:.25em solid #888;padding-left:1em;margin:0 0 1em;color:#333;}ul,ol{margin:0 0 1em 1.2em;}li{margin:0.25em 0;}table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.88em;page-break-inside:avoid;}th,td{border:1px solid #555;padding:5px 7px;text-align:left;vertical-align:top;}th{font-weight:700;background:#eee;}code{font-family:monospace;font-size:0.92em;}img{max-width:100%;height:auto;}`);
+            // Kobo-friendly CSS — critical pagination rules:
+            // - no white-space:pre-wrap (blocks page-turn on many firmwares)
+            // - no page-break-inside:avoid on full tables (traps reader on page 1)
+            // - height:auto so content can reflow across pages
+            oebps.file('styles.css', [
+                'html,body{height:auto;overflow:visible;}',
+                'body{font-family:Georgia,"Times New Roman",serif;line-height:1.55;margin:3% 4%;color:#111;-webkit-hyphens:auto;hyphens:auto;orphans:2;widows:2;}',
+                'h1,h2,h3{margin:1.25em 0 .55em;line-height:1.25;page-break-after:avoid;font-family:Georgia,serif;}',
+                'h1{font-size:1.45em;}h2{font-size:1.22em;}h3{font-size:1.08em;}',
+                'p{margin:0 0 0.85em;text-align:justify;page-break-inside:auto;}',
+                'blockquote{border-left:.25em solid #888;padding-left:1em;margin:0 0 1em;color:#333;}',
+                'ul,ol{margin:0 0 1em 1.2em;}li{margin:0.25em 0;}',
+                'table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.88em;page-break-inside:auto;}',
+                'tr{page-break-inside:auto;}',
+                'th,td{border:1px solid #555;padding:5px 7px;text-align:left;vertical-align:top;}',
+                'th{font-weight:700;background:#eee;}',
+                'code{font-family:monospace;font-size:0.92em;}',
+                'img{max-width:100%;height:auto;page-break-inside:avoid;}',
+                'br{line-height:1.55;}'
+            ].join(''));
 
             // bodyHtml should already be export-clean; strip any residual chrome
             const cleanBody = canonicalizeBody(bodyHtml, { forExport: true });
-            const chapters = splitChapters
+            let chapters = splitChapters
                 ? splitBodyIntoChapters(cleanBody, title)
                 : [{ id: 'ch1', title, html: cleanBody }];
 
+            // Drop empty spine items (blank chapters freeze some Kobo builds on next-page)
+            chapters = chapters.filter((ch) => {
+                const text = String(ch.html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                return text.length > 0;
+            });
+            if (!chapters.length) {
+                chapters = [{ id: 'ch1', title, html: cleanBody || '<p>(Empty document)</p>' }];
+            }
+
             if (!splitChapters && !/<h1[\s>]/i.test(cleanBody)) {
-                chapters[0].html = `<h1>${escapeXml(title)}</h1>${cleanBody}`;
+                chapters[0].html = `<h1>${escapeXml(title)}</h1>${chapters[0].html}`;
             }
 
             const tocItems = chapters.map((ch, i) =>
