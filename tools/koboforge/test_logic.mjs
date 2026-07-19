@@ -177,6 +177,9 @@ assert.ok(page.includes('function bodyHtmlForExport') && page.includes('syncBody
 assert.ok(page.includes('originalBodyHtml'), 'snapshot original import for diff');
 assert.ok(page.includes('showDiffBtn') && page.includes('function lineDiff'), 'git-like edit diff UI');
 assert.ok(page.includes('id="diffPanel"'), 'diff panel markup');
+assert.ok(page.includes('function htmlToDiffLines'), 'structure-aware diff lines');
+assert.ok(page.includes("repeat(level)") || page.includes("'#'.repeat"), 'headings encoded for diff');
+assert.ok(page.includes('diff-h-tag') || page.includes('headingChanges'), 'heading change badges/stats');
 // EPUB styles.css string must not set pre-wrap (preview CSS may still use it)
 const epubCssMatch = page.match(/oebps\.file\('styles\.css',\s*\[([\s\S]*?)\]\.join/);
 assert.ok(epubCssMatch, 'EPUB CSS built as array join');

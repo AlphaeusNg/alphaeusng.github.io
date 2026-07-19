@@ -283,6 +283,25 @@
             font-size: 0.68rem;
         }
 
+        #diffBody .diff-heading {
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        #diffBody .diff-heading .diff-h-tag {
+            display: inline-block;
+            margin-right: 0.35rem;
+            padding: 0.05rem 0.35rem;
+            border-radius: 0.3rem;
+            border: 1px solid rgba(201, 162, 39, 0.35);
+            background: rgba(201, 162, 39, 0.12);
+            color: #e8d48b;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            vertical-align: 0.05em;
+        }
+
         .mode-btn.active {
             background: rgba(201, 162, 39, 0.2);
             border-color: rgba(201, 162, 39, 0.55);
@@ -542,7 +561,7 @@
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <div>
                             <div class="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#C9A227]">Your edits</div>
-                            <p id="diffSummary" class="mt-1 text-xs text-slate-400">Compared to the original import (plain text).</p>
+                            <p id="diffSummary" class="mt-1 text-xs text-slate-400">Compared to the original import (text + headings as H1/H2/…).</p>
                         </div>
                         <div class="flex flex-wrap gap-2">
                             <button type="button" id="diffRefreshBtn" class="rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Refresh diff</button>
@@ -871,15 +890,18 @@
             }
             syncBodyFromUi();
             const stats = diffStats(
-                htmlToPlainLines(currentOutput.originalBodyHtml || ''),
-                htmlToPlainLines(currentOutput.bodyHtml || '')
+                htmlToDiffLines(currentOutput.originalBodyHtml || ''),
+                htmlToDiffLines(currentOutput.bodyHtml || '')
             );
             const changed = stats.added + stats.removed > 0;
             bodyEdited = changed || bodyEdited;
             if (changed) {
                 editedBadge?.classList.remove('hidden');
                 exportEditHint.classList.remove('hidden');
-                exportEditHint.textContent = `Edits will be included in Download: +${stats.added} / −${stats.removed} lines vs original import.`;
+                const headBit = stats.headingChanges
+                    ? ` · ${stats.headingChanges} heading change${stats.headingChanges === 1 ? '' : 's'}`
+                    : '';
+                exportEditHint.textContent = `Edits will be included in Download: +${stats.added} / −${stats.removed} lines${headBit} vs original import.`;
             } else if (bodyEdited) {
                 exportEditHint.classList.remove('hidden');
                 exportEditHint.textContent = 'Body marked edited (structure/HTML). Download will use the current body.';
@@ -889,21 +911,83 @@
             }
         }
 
+        /** @deprecated alias — structure-aware lines include headings */
         function htmlToPlainLines(html) {
+            return htmlToDiffLines(html);
+        }
+
+        function isHeadingDiffLine(line) {
+            return /^#{1,6}\s/.test(line || '');
+        }
+
+        function parseHeadingDiffLine(line) {
+            const m = /^(#{1,6})\s+(.*)$/.exec(line || '');
+            if (!m) return null;
+            return { level: m[1].length, text: m[2], hashes: m[1] };
+        }
+
+        /**
+         * Serialize body HTML for diffing.
+         * Headings become "# Title" / "## Title" so H1↔H2 promotions and new headers
+         * show up even when the plain text is unchanged.
+         */
+        function htmlToDiffLines(html) {
             const tmp = document.createElement('div');
             tmp.innerHTML = html || '';
-            // Preserve block boundaries as newlines
-            tmp.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
-            tmp.querySelectorAll('p, h1, h2, h3, h4, li, tr, div, blockquote').forEach((el) => {
-                el.insertAdjacentText('afterend', '\n');
-            });
-            return (tmp.textContent || '')
-                .replace(/\r\n/g, '\n')
-                .replace(/[ \t]+\n/g, '\n')
-                .replace(/\n{3,}/g, '\n\n')
-                .split('\n')
-                .map((l) => l.replace(/\s+/g, ' ').trim())
-                .filter((l) => l.length > 0);
+            tmp.querySelectorAll('.kf-page-break, .kf-page-label, .kf-chapter-marker').forEach((el) => el.remove());
+
+            const lines = [];
+
+            function pushTextBlock(raw) {
+                String(raw || '')
+                    .replace(/\r\n/g, '\n')
+                    .split('\n')
+                    .map((s) => s.replace(/\s+/g, ' ').trim())
+                    .filter(Boolean)
+                    .forEach((s) => lines.push(s));
+            }
+
+            function walk(node) {
+                if (!node) return;
+                if (node.nodeType === 3) return;
+                if (node.nodeType !== 1) return;
+                const tag = node.tagName.toLowerCase();
+                if (tag === 'script' || tag === 'style') return;
+
+                if (/^h[1-6]$/.test(tag)) {
+                    const level = Number(tag.charAt(1)) || 1;
+                    const text = (node.textContent || '').replace(/\s+/g, ' ').trim();
+                    if (text) lines.push(`${'#'.repeat(level)} ${text}`);
+                    return;
+                }
+
+                if (tag === 'p' || tag === 'li' || tag === 'blockquote') {
+                    // Prefer innerText-ish line breaks from <br> / pre-wrap
+                    const clone = node.cloneNode(true);
+                    clone.querySelectorAll('br').forEach((br) => br.replaceWith('\n'));
+                    pushTextBlock(clone.textContent || '');
+                    return;
+                }
+
+                if (tag === 'tr') {
+                    const cells = Array.from(node.children)
+                        .filter((c) => /^(th|td)$/i.test(c.tagName))
+                        .map((c) => (c.textContent || '').replace(/\s+/g, ' ').trim())
+                        .filter(Boolean);
+                    if (cells.length) lines.push(cells.join(' | '));
+                    return;
+                }
+
+                if (tag === 'table') {
+                    Array.from(node.querySelectorAll('tr')).forEach(walk);
+                    return;
+                }
+
+                Array.from(node.childNodes).forEach(walk);
+            }
+
+            Array.from(tmp.childNodes).forEach(walk);
+            return lines;
         }
 
         /** Myers-inspired O(n*m) LCS line diff — fine for sermon-sized docs. */
@@ -944,6 +1028,44 @@
             return ops;
         }
 
+        function countHeadingChanges(ops) {
+            // Count heading-related edits. Consecutive del+add on the same title
+            // (level change or plain↔heading) counts as one heading change.
+            let changes = 0;
+            let i = 0;
+            while (i < ops.length) {
+                const op = ops[i];
+                if (op.type !== 'add' && op.type !== 'del') {
+                    i += 1;
+                    continue;
+                }
+                const next = ops[i + 1];
+                if (op.type === 'del' && next && next.type === 'add') {
+                    const a = parseHeadingDiffLine(op.text);
+                    const b = parseHeadingDiffLine(next.text);
+                    const plainToH = !a && b && op.text === b.text;
+                    const hToPlain = a && !b && a.text === next.text;
+                    const levelChange = a && b && a.text === b.text && a.level !== b.level;
+                    const eitherHeading = isHeadingDiffLine(op.text) || isHeadingDiffLine(next.text);
+                    if (plainToH || hToPlain || levelChange) {
+                        changes += 1;
+                        i += 2;
+                        continue;
+                    }
+                    if (eitherHeading) {
+                        // Two different heading lines swapped — count each
+                        if (isHeadingDiffLine(op.text)) changes += 1;
+                        if (isHeadingDiffLine(next.text)) changes += 1;
+                        i += 2;
+                        continue;
+                    }
+                }
+                if (isHeadingDiffLine(op.text)) changes += 1;
+                i += 1;
+            }
+            return changes;
+        }
+
         function diffStats(aLines, bLines) {
             const ops = lineDiff(aLines, bLines);
             let added = 0;
@@ -952,24 +1074,40 @@
                 if (op.type === 'add') added += 1;
                 if (op.type === 'del') removed += 1;
             });
-            return { added, removed, ops };
+            const headingChanges = countHeadingChanges(ops);
+            return { added, removed, ops, headingChanges };
+        }
+
+        function formatDiffLineHtml(op) {
+            const prefix = op.type === 'add' ? '+ ' : op.type === 'del' ? '− ' : '  ';
+            const heading = parseHeadingDiffLine(op.text);
+            if (heading) {
+                const tag = `H${heading.level}`;
+                return `${escapeHtml(prefix)}<span class="diff-h-tag">${tag}</span>${escapeHtml(heading.text)}`;
+            }
+            return escapeHtml(prefix + op.text);
         }
 
         function renderDiffPanel() {
             if (!currentOutput || !diffBody) return;
             syncBodyFromUi();
-            const a = htmlToPlainLines(currentOutput.originalBodyHtml || '');
-            const b = htmlToPlainLines(currentOutput.bodyHtml || '');
-            const { added, removed, ops } = diffStats(a, b);
+            const a = htmlToDiffLines(currentOutput.originalBodyHtml || '');
+            const b = htmlToDiffLines(currentOutput.bodyHtml || '');
+            const { added, removed, ops, headingChanges } = diffStats(a, b);
             if (diffSummary) {
-                diffSummary.textContent = added + removed === 0
-                    ? 'No plain-text differences vs the original import (structure-only changes may still exist).'
-                    : `+${added} added · −${removed} removed  (vs original import)`;
+                if (added + removed === 0) {
+                    diffSummary.textContent = 'No text or heading differences vs the original import.';
+                } else {
+                    const headBit = headingChanges
+                        ? ` · ${headingChanges} heading change${headingChanges === 1 ? '' : 's'}`
+                        : '';
+                    diffSummary.textContent = `+${added} added · −${removed} removed${headBit}  (vs original import; headings shown as H1/H2/…)`;
+                }
             }
             // Show context: only change hunks + 1 context line
             const rows = [];
             if (added + removed === 0) {
-                rows.push('<div class="diff-meta">No text changes detected.</div>');
+                rows.push('<div class="diff-meta">No text or heading changes detected.</div>');
             } else {
                 ops.forEach((op, idx) => {
                     const prev = ops[idx - 1];
@@ -978,9 +1116,11 @@
                         || (prev && prev.type !== 'same')
                         || (next && next.type !== 'same');
                     if (!nearChange) return;
-                    const cls = op.type === 'add' ? 'diff-add' : op.type === 'del' ? 'diff-del' : 'diff-ctx';
-                    const prefix = op.type === 'add' ? '+ ' : op.type === 'del' ? '− ' : '  ';
-                    rows.push(`<div class="${cls}">${escapeHtml(prefix + op.text)}</div>`);
+                    const cls = [
+                        op.type === 'add' ? 'diff-add' : op.type === 'del' ? 'diff-del' : 'diff-ctx',
+                        isHeadingDiffLine(op.text) ? 'diff-heading' : ''
+                    ].filter(Boolean).join(' ');
+                    rows.push(`<div class="${cls}">${formatDiffLineHtml(op)}</div>`);
                 });
             }
             diffBody.innerHTML = rows.join('') || '<div class="diff-meta">No changes.</div>';
@@ -1386,11 +1526,14 @@
                 // Force flush Edit/HTML → model before packaging
                 const bodyHtml = bodyHtmlForExport();
                 const stats = diffStats(
-                    htmlToPlainLines(currentOutput.originalBodyHtml || ''),
-                    htmlToPlainLines(bodyHtml)
+                    htmlToDiffLines(currentOutput.originalBodyHtml || ''),
+                    htmlToDiffLines(bodyHtml)
                 );
+                const headBit = stats.headingChanges
+                    ? `, ${stats.headingChanges} heading`
+                    : '';
                 statusEl.textContent = stats.added + stats.removed
-                    ? `Building EPUB with your edits (+${stats.added}/−${stats.removed} lines)…`
+                    ? `Building EPUB with your edits (+${stats.added}/−${stats.removed}${headBit})…`
                     : 'Building EPUB locally…';
                 setProgress(20, 'Building EPUB');
                 const split = !!(splitChaptersEl && splitChaptersEl.checked);
@@ -1412,7 +1555,7 @@
                 setProgress(100, 'Done');
                 savePrefs();
                 statusEl.textContent = stats.added + stats.removed
-                    ? `EPUB downloaded with your edits (+${stats.added}/−${stats.removed} lines vs import). Nothing left your browser.`
+                    ? `EPUB downloaded with your edits (+${stats.added}/−${stats.removed}${headBit} vs import). Nothing left your browser.`
                     : 'EPUB ready. Nothing left your browser.';
                 if (diffOpen) renderDiffPanel();
             } catch (error) {
