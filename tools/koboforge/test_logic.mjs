@@ -155,6 +155,11 @@ assert.ok(
 assert.ok(page.includes('bookUrn'), 'NCX/OPF shared urn');
 assert.ok(page.includes('ensureChapterTitle'), 'export title helper');
 assert.ok(page.includes('formatBlockTag') || page.includes('block-fmt-btn'), 'edit toolbar');
+assert.ok(page.includes('data-cmd="bold"') && page.includes('data-cmd="italic"'), 'bold/italic toolbar');
+assert.ok(page.includes('strong,b{font-weight:700'), 'EPUB bold CSS');
+assert.ok(page.includes('em,i{font-style:italic'), 'EPUB italic CSS');
+assert.ok(page.includes('function runFormatCommand'), 'inline format commands');
+assert.ok(page.includes('insertUnorderedList') && page.includes('insertOrderedList'), 'list toolbar');
 assert.ok(page.includes('stripInvalidXmlChars'), 'XML control-char strip for Kobo');
 assert.ok(page.includes('arrayBuffer.slice(0)'), 'PDF buffer copy before getDocument');
 assert.ok(page.includes('Failed to extract page'), 'per-page PDF isolation');

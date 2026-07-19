@@ -238,6 +238,105 @@
             font-style: italic;
         }
 
+        /* Inline styles (match Kobo EPUB CSS) */
+        #preview strong, #preview b { font-weight: 700; }
+        #preview em, #preview i { font-style: italic; }
+        #preview u { text-decoration: underline; }
+        #preview s, #preview strike { text-decoration: line-through; }
+        #preview sub { font-size: 0.75em; vertical-align: sub; }
+        #preview sup { font-size: 0.75em; vertical-align: super; }
+
+        /* Mobile-first formatting toolbar */
+        #editToolbar {
+            position: sticky;
+            bottom: 0.5rem;
+            z-index: 20;
+            gap: 0.45rem;
+            padding: 0.55rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(8, 13, 23, 0.94);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+        }
+
+        #editToolbar .tb-row {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 0.35rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding-bottom: 0.1rem;
+        }
+
+        #editToolbar .tb-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        #editToolbar .tb-label {
+            flex-shrink: 0;
+            align-self: center;
+            margin-right: 0.15rem;
+            font-size: 0.58rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        #editToolbar .tb-btn {
+            flex-shrink: 0;
+            min-width: 2.6rem;
+            min-height: 2.6rem;
+            padding: 0.4rem 0.65rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            line-height: 1;
+            transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+        }
+
+        #editToolbar .tb-btn:hover,
+        #editToolbar .tb-btn:focus-visible {
+            border-color: rgba(201, 162, 39, 0.45);
+            color: #f8fafc;
+            outline: none;
+        }
+
+        #editToolbar .tb-btn.is-active {
+            border-color: rgba(201, 162, 39, 0.6);
+            background: rgba(201, 162, 39, 0.18);
+            color: #f5d36d;
+        }
+
+        #editToolbar .tb-btn-wide {
+            min-width: auto;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        @media (min-width: 768px) {
+            #editToolbar {
+                position: static;
+                bottom: auto;
+                box-shadow: none;
+            }
+
+            #editToolbar .tb-row {
+                flex-wrap: wrap;
+                overflow: visible;
+            }
+
+            #editToolbar .tb-btn {
+                min-width: 2.4rem;
+                min-height: 2.25rem;
+            }
+        }
+
         /* Edit diff (git-like) */
         #diffPanel {
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -611,12 +710,29 @@
                     <p class="kf-empty-hint">Load a document to edit structure, then switch to View to see a Kobo-like device preview.</p>
                 </div>
                 <textarea id="bodyHtmlSource" class="mt-0 hidden max-h-[62vh] min-h-[480px] w-full resize-y rounded-[1.75rem] border border-white/10 bg-slate-950/50 px-4 py-4 text-slate-200 outline-none focus:border-[#C9A227]" spellcheck="false" aria-label="Body HTML source"></textarea>
-                <div id="editToolbar" class="mt-3 hidden flex flex-wrap gap-2">
-                    <button type="button" data-block="p" class="block-fmt-btn rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Paragraph</button>
-                    <button type="button" data-block="h1" class="block-fmt-btn rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Heading 1</button>
-                    <button type="button" data-block="h2" class="block-fmt-btn rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Heading 2</button>
-                    <button type="button" data-block="h3" class="block-fmt-btn rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:border-[#C9A227]/40">Heading 3</button>
-                    <span class="self-center text-[11px] text-slate-500">Select text or click a block, then promote for Kobo TOC.</span>
+                <div id="editToolbar" class="mt-3 hidden flex flex-col" role="toolbar" aria-label="Text formatting">
+                    <div class="tb-row" role="group" aria-label="Inline style">
+                        <span class="tb-label">Style</span>
+                        <button type="button" data-cmd="bold" class="tb-btn" title="Bold" aria-label="Bold"><strong>B</strong></button>
+                        <button type="button" data-cmd="italic" class="tb-btn" title="Italic" aria-label="Italic"><em>I</em></button>
+                        <button type="button" data-cmd="underline" class="tb-btn" title="Underline" aria-label="Underline"><span style="text-decoration:underline">U</span></button>
+                        <button type="button" data-cmd="strikeThrough" class="tb-btn" title="Strikethrough" aria-label="Strikethrough"><span style="text-decoration:line-through">S</span></button>
+                        <button type="button" data-cmd="removeFormat" class="tb-btn tb-btn-wide" title="Clear formatting" aria-label="Clear formatting">Clear</button>
+                    </div>
+                    <div class="tb-row" role="group" aria-label="Lists and quote">
+                        <span class="tb-label">List</span>
+                        <button type="button" data-cmd="insertUnorderedList" class="tb-btn tb-btn-wide" title="Bullet list" aria-label="Bullet list">• List</button>
+                        <button type="button" data-cmd="insertOrderedList" class="tb-btn tb-btn-wide" title="Numbered list" aria-label="Numbered list">1. List</button>
+                        <button type="button" data-block="blockquote" class="tb-btn tb-btn-wide block-fmt-btn" title="Quote" aria-label="Block quote">Quote</button>
+                    </div>
+                    <div class="tb-row" role="group" aria-label="Paragraph and headings">
+                        <span class="tb-label">Block</span>
+                        <button type="button" data-block="p" class="tb-btn tb-btn-wide block-fmt-btn" title="Paragraph">¶ Body</button>
+                        <button type="button" data-block="h1" class="tb-btn tb-btn-wide block-fmt-btn" title="Heading 1">H1</button>
+                        <button type="button" data-block="h2" class="tb-btn tb-btn-wide block-fmt-btn" title="Heading 2">H2</button>
+                        <button type="button" data-block="h3" class="tb-btn tb-btn-wide block-fmt-btn" title="Heading 3">H3</button>
+                    </div>
+                    <p class="m-0 px-1 text-[10px] leading-4 text-slate-500">Select text, then tap a style. Bold/italic/underline work on Kobo. Toolbar sticks above the keyboard on phones.</p>
                 </div>
                 <div id="htmlToolbar" class="mt-3 hidden flex flex-wrap gap-2">
                     <button type="button" id="applyHtmlBtn" class="rounded-2xl bg-[#C9A227] px-4 py-2 text-xs font-semibold text-slate-950 transition hover:bg-[#d9b844]">Apply HTML</button>
@@ -866,31 +982,71 @@
             updateEditChrome();
         }
 
-        /** Promote selection / current block to p|h1|h2|h3 for TOC fixes. */
-        function formatBlockTag(tag) {
-            if ((editMode !== 'edit' && editMode !== 'diff') || !currentOutput) return;
-            const allowed = { p: true, h1: true, h2: true, h3: true };
-            if (!allowed[tag]) return;
+        function canFormatNow() {
+            return (editMode === 'edit' || editMode === 'diff') && !!currentOutput && previewEl?.isContentEditable;
+        }
+
+        function afterFormat() {
+            markEdited();
+            updateToolbarActiveState();
+            clearTimeout(commitTimer);
+            commitTimer = setTimeout(() => {
+                if (editMode === 'diff') refreshDiffLive();
+                else syncBodyFromUi();
+            }, 80);
+        }
+
+        /** Inline style: bold / italic / underline / strike / lists (Kobo-safe HTML). */
+        function runFormatCommand(cmd) {
+            if (!canFormatNow() || !cmd) return;
+            previewEl.focus();
             try {
-                // Prefer modern edit API; fall back to execCommand
-                document.execCommand('formatBlock', false, tag);
+                document.execCommand(cmd, false, null);
+            } catch (_) { /* ignore */ }
+            // Prefer semantic tags browsers often emit as b/i
+            if (cmd === 'bold' || cmd === 'italic') {
+                normalizeInlineTags(previewEl);
+            }
+            afterFormat();
+        }
+
+        function normalizeInlineTags(root) {
+            if (!root) return;
+            root.querySelectorAll('b').forEach((el) => {
+                const s = document.createElement('strong');
+                s.innerHTML = el.innerHTML;
+                el.replaceWith(s);
+            });
+            root.querySelectorAll('i').forEach((el) => {
+                const e = document.createElement('em');
+                e.innerHTML = el.innerHTML;
+                el.replaceWith(e);
+            });
+        }
+
+        /** Promote selection / current block to p|h1|h2|h3|blockquote. */
+        function formatBlockTag(tag) {
+            if (!canFormatNow()) return;
+            const allowed = { p: true, h1: true, h2: true, h3: true, blockquote: true };
+            if (!allowed[tag]) return;
+            previewEl.focus();
+            try {
+                document.execCommand('formatBlock', false, tag === 'blockquote' ? 'blockquote' : tag);
             } catch (_) { /* ignore */ }
             // If execCommand left a div, force wrap
             const sel = window.getSelection();
             if (sel && sel.rangeCount) {
                 let node = sel.anchorNode;
                 if (node && node.nodeType === 3) node = node.parentElement;
-                const block = node?.closest?.('p, h1, h2, h3, h4, div, li');
+                const block = node?.closest?.('p, h1, h2, h3, h4, div, li, blockquote');
                 if (block && block !== previewEl && previewEl.contains(block)) {
                     if (block.tagName.toLowerCase() !== tag && block.tagName.toLowerCase() !== 'li') {
                         const next = document.createElement(tag);
                         next.innerHTML = block.innerHTML;
-                        // Keep preserve-structure on paragraphs from PDF
                         if (tag === 'p' && block.classList?.contains('preserve-structure')) {
                             next.className = 'preserve-structure';
                         }
                         block.replaceWith(next);
-                        // Restore caret
                         const range = document.createRange();
                         range.selectNodeContents(next);
                         range.collapse(true);
@@ -899,23 +1055,49 @@
                     }
                 }
             }
-            markEdited();
-            clearTimeout(commitTimer);
-            commitTimer = setTimeout(() => {
-                if (editMode === 'diff') refreshDiffLive();
-                else {
-                    syncBodyFromUi();
-                    if (diffOpen) renderDiffPanel();
-                }
-            }, 80);
+            afterFormat();
         }
 
-        editToolbar?.querySelectorAll('.block-fmt-btn').forEach((btn) => {
+        function updateToolbarActiveState() {
+            if (!editToolbar || !canFormatNow()) {
+                editToolbar?.querySelectorAll('.tb-btn[data-cmd]').forEach((b) => b.classList.remove('is-active'));
+                return;
+            }
+            const cmdMap = {
+                bold: 'bold',
+                italic: 'italic',
+                underline: 'underline',
+                strikeThrough: 'strikeThrough',
+                insertUnorderedList: 'insertUnorderedList',
+                insertOrderedList: 'insertOrderedList'
+            };
+            editToolbar.querySelectorAll('.tb-btn[data-cmd]').forEach((btn) => {
+                const cmd = btn.dataset.cmd;
+                if (!cmd || cmd === 'removeFormat') {
+                    btn.classList.remove('is-active');
+                    return;
+                }
+                let on = false;
+                try {
+                    on = document.queryCommandState(cmdMap[cmd] || cmd);
+                } catch (_) { /* ignore */ }
+                btn.classList.toggle('is-active', !!on);
+            });
+        }
+
+        editToolbar?.querySelectorAll('.tb-btn, .block-fmt-btn').forEach((btn) => {
             btn.addEventListener('mousedown', (e) => {
-                // Prevent blur losing selection before click
+                // Prevent blur losing selection before click (critical on mobile)
                 e.preventDefault();
             });
-            btn.addEventListener('click', () => formatBlockTag(btn.dataset.block));
+            btn.addEventListener('click', () => {
+                if (btn.dataset.cmd) runFormatCommand(btn.dataset.cmd);
+                else if (btn.dataset.block) formatBlockTag(btn.dataset.block);
+            });
+        });
+
+        document.addEventListener('selectionchange', () => {
+            if (editMode === 'edit' || editMode === 'diff') updateToolbarActiveState();
         });
 
         previewEl.addEventListener('input', () => {
@@ -1455,7 +1637,7 @@
                     const headBit = tc.headingChanges
                         ? ` · ${tc.headingChanges} heading change${tc.headingChanges === 1 ? '' : 's'}`
                         : '';
-                    diffSummary.textContent = `+${tc.added} words · −${tc.removed} words${headBit} — click a row to jump · document is editable`;
+                    diffSummary.textContent = `+${tc.added} words · −${tc.removed} words${headBit} — live · click a row to jump`;
                 }
             }
             const rows = [];
@@ -1577,6 +1759,43 @@
                 table.querySelectorAll('th, td').forEach((cell) => {
                     cell.removeAttribute('class');
                 });
+            });
+
+            // Normalize common formatting for Kobo/XHTML
+            root.querySelectorAll('b').forEach((el) => {
+                const s = doc.createElement('strong');
+                s.innerHTML = el.innerHTML;
+                el.replaceWith(s);
+            });
+            root.querySelectorAll('i').forEach((el) => {
+                const e = doc.createElement('em');
+                e.innerHTML = el.innerHTML;
+                el.replaceWith(e);
+            });
+            // Drop editor chrome / empty style spans browsers inject
+            root.querySelectorAll('span[style]').forEach((span) => {
+                const style = (span.getAttribute('style') || '').toLowerCase();
+                // Promote simple style spans into semantic tags when possible
+                if (/font-weight:\s*(bold|[6-9]00)/.test(style) && !span.querySelector('strong,b')) {
+                    const s = doc.createElement('strong');
+                    s.innerHTML = span.innerHTML;
+                    span.replaceWith(s);
+                    return;
+                }
+                if (/font-style:\s*italic/.test(style) && !span.querySelector('em,i')) {
+                    const e = doc.createElement('em');
+                    e.innerHTML = span.innerHTML;
+                    span.replaceWith(e);
+                    return;
+                }
+                if (/text-decoration:\s*underline/.test(style) && !span.querySelector('u')) {
+                    const u = doc.createElement('u');
+                    u.innerHTML = span.innerHTML;
+                    span.replaceWith(u);
+                    return;
+                }
+                // Strip leftover style attribute but keep children
+                span.removeAttribute('style');
             });
 
             return root.innerHTML.trim();
@@ -3290,8 +3509,12 @@
                 'h1,h2,h3{margin:1.25em 0 .55em;line-height:1.25;font-family:Georgia,serif;page-break-after:auto;page-break-inside:auto;}',
                 'h1{font-size:1.45em;}h2{font-size:1.22em;}h3{font-size:1.08em;}',
                 'p{margin:0 0 0.85em;text-align:justify;page-break-inside:auto;page-break-before:auto;page-break-after:auto;}',
+                'strong,b{font-weight:700;}',
+                'em,i{font-style:italic;}',
+                'u{text-decoration:underline;}',
+                's,strike,del{text-decoration:line-through;}',
                 'blockquote{border-left:.25em solid #888;padding-left:1em;margin:0 0 1em;color:#333;}',
-                'ul,ol{margin:0 0 1em 1.2em;}li{margin:0.25em 0;}',
+                'ul,ol{margin:0 0 1em 1.2em;padding-left:0.4em;}li{margin:0.25em 0;}',
                 'table,table.kobo-table{width:100%;border-collapse:collapse;margin:1em 0;font-size:0.88em;page-break-inside:auto !important;}',
                 'thead,tbody,tr,th,td{page-break-inside:auto !important;}',
                 'th,td{border:1px solid #555;padding:5px 7px;text-align:left;vertical-align:top;}',
