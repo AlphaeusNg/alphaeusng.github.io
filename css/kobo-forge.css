@@ -1,0 +1,769 @@
+:root {
+    --gold: #C9A227;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background:
+        radial-gradient(circle at top, rgba(201, 162, 39, 0.16), transparent 34%),
+        linear-gradient(180deg, #080d17 0%, #0c1322 55%, #080d17 100%);
+}
+
+.heading-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.03em;
+}
+
+.glass-card {
+    background: rgba(15, 23, 42, 0.76);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 80px rgba(2, 6, 23, 0.28);
+    backdrop-filter: blur(16px);
+}
+
+.dropzone-active {
+    border-color: rgba(201, 162, 39, 0.72);
+    background: rgba(201, 162, 39, 0.08);
+}
+
+#dropzone.has-file {
+    border-style: solid;
+    border-color: rgba(52, 211, 153, 0.45);
+    background: rgba(16, 185, 129, 0.08);
+}
+
+#dropzone.has-file.dropzone-active {
+    border-color: rgba(201, 162, 39, 0.72);
+    background: rgba(201, 162, 39, 0.08);
+}
+
+/*
+ * Edit pane mirrors the EPUB body CSS. Device mode uses the separate,
+ * paginated physical-scale simulator below.
+ */
+#previewWrap {
+    padding: 0.65rem;
+    border-radius: 1.25rem;
+    background: rgba(2, 6, 23, 0.42);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+#previewWrap.mode-view {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#preview {
+    outline: none;
+    background: #f4f1e8;
+    color: #111;
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-size: 1.02rem;
+    line-height: 1.55;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    border: 1px solid #bdb7a8;
+    border-radius: 2px;
+    box-shadow: inset 0 0 48px rgba(40, 35, 20, 0.06);
+}
+
+#preview > :first-child {
+    margin-top: 0;
+}
+
+#preview p {
+    margin: 0 0 0.85em;
+    color: #111;
+    line-height: 1.55;
+    text-align: justify;
+    page-break-inside: auto;
+}
+
+#preview p.preserve-structure {
+    white-space: pre-wrap;
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-size: 0.98rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+#preview h1,
+#preview h2,
+#preview h3,
+#preview h4 {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    color: #111;
+    letter-spacing: 0;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 1.25em 0 0.55em;
+}
+
+#preview h1 { font-size: 1.45em; }
+#preview h2 { font-size: 1.22em; }
+#preview h3 { font-size: 1.08em; }
+
+#preview ul,
+#preview ol {
+    color: #111;
+    margin: 0 0 1em 1.2em;
+}
+
+#preview li {
+    margin: 0.25em 0;
+    color: #111;
+}
+
+#preview blockquote {
+    border-left: 0.25em solid #888;
+    padding-left: 1em;
+    color: #333;
+    margin: 0 0 1em;
+}
+
+#preview table.kobo-table,
+#preview table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.88em;
+    color: #111;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+    page-break-inside: auto;
+}
+
+#preview th,
+#preview td {
+    border: 1px solid #555;
+    padding: 5px 7px;
+    text-align: left;
+    vertical-align: top;
+    color: #111;
+}
+
+#preview th {
+    background: #eee;
+    color: #111;
+    font-weight: 700;
+}
+
+#preview tr:nth-child(even) td {
+    background: transparent;
+}
+
+#preview img {
+    max-width: 100%;
+    height: auto;
+}
+
+#preview code {
+    font-family: monospace;
+    font-size: 0.92em;
+}
+
+/* Edit-only chrome (not on device). Hidden in pure View. */
+#preview .kf-page-label {
+    display: block;
+    margin: 1.1em 0 0.55em;
+    padding: 0.15em 0;
+    border: 0;
+    border-top: 1px dashed #999;
+    border-radius: 0;
+    background: transparent;
+    color: #555;
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    user-select: none;
+}
+
+#preview .kf-chapter-marker {
+    display: block;
+    margin: 1.25em 0 0.4em;
+    padding: 0.2em 0;
+    border: 0;
+    border-bottom: 1px solid #bbb;
+    background: transparent;
+    color: #444;
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    user-select: none;
+}
+
+/* View = export body only (no page/chapter chrome) */
+#previewWrap.mode-view #preview .kf-page-label,
+#previewWrap.mode-view #preview .kf-chapter-marker {
+    display: none !important;
+}
+
+#preview.kf-editing {
+    box-shadow:
+        inset 0 0 48px rgba(40, 35, 20, 0.06),
+        inset 0 0 0 2px rgba(201, 162, 39, 0.55);
+}
+
+#preview.kf-editing:focus {
+    box-shadow:
+        inset 0 0 48px rgba(40, 35, 20, 0.06),
+        inset 0 0 0 2px rgba(201, 162, 39, 0.85);
+}
+
+#preview .kf-empty-hint {
+    color: #666;
+    text-align: left;
+    font-style: italic;
+}
+
+/* Device-accurate screen/body ratios with paginated EPUB flow */
+#devicePreview {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.5rem;
+    background:
+        radial-gradient(circle at 50% 18%, rgba(201, 162, 39, 0.1), transparent 32%),
+        rgba(2, 6, 23, 0.5);
+    overflow: hidden;
+}
+
+.device-control {
+    min-width: 0;
+}
+
+.device-control select,
+.device-control input[type="range"] {
+    width: 100%;
+}
+
+.device-stage {
+    min-height: 610px;
+    display: grid;
+    place-items: center;
+    padding: 2rem 1rem 1.25rem;
+    overflow: auto;
+}
+
+#deviceFrame {
+    position: relative;
+    width: min(var(--device-css-width, 360px), 100%);
+    flex: none;
+    border-radius: var(--device-radius, 12px);
+    background:
+        linear-gradient(145deg, rgba(76, 76, 76, 0.96), rgba(17, 17, 17, 0.99) 48%, rgba(52, 52, 52, 0.98));
+    box-shadow:
+        0 2px 1px rgba(255, 255, 255, 0.1) inset,
+        0 -2px 2px rgba(0, 0, 0, 0.45) inset,
+        0 28px 65px rgba(0, 0, 0, 0.48);
+    transition: width 0.2s ease, aspect-ratio 0.2s ease;
+}
+
+#deviceFrame::after {
+    content: "kobo";
+    position: absolute;
+    left: 50%;
+    bottom: 2.1%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-family: Georgia, serif;
+    font-size: clamp(8px, 1.35vw, 12px);
+    letter-spacing: 0.08em;
+    pointer-events: none;
+}
+
+#deviceFrame.has-grip::after {
+    left: auto;
+    right: 7%;
+    bottom: 4%;
+    transform: none;
+}
+
+#deviceFrame.orientation-landscape::after {
+    left: 50%;
+    right: auto;
+    bottom: 2%;
+    transform: translateX(-50%);
+}
+
+#deviceScreen {
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid rgba(22, 22, 18, 0.9);
+    border-radius: 2px;
+    background: #f4f1e8;
+    color: #111;
+    box-shadow:
+        inset 0 0 28px rgba(49, 43, 26, 0.08),
+        0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+#deviceFrame.is-colour #deviceScreen {
+    background:
+        linear-gradient(rgba(247, 243, 231, 0.84), rgba(247, 243, 231, 0.84)),
+        repeating-linear-gradient(0deg, rgba(60, 120, 160, 0.025) 0 1px, transparent 1px 3px);
+}
+
+#deviceReaderHeader,
+#deviceReaderFooter {
+    position: absolute;
+    left: var(--reader-margin, 18px);
+    right: var(--reader-margin, 18px);
+    z-index: 2;
+    overflow: hidden;
+    color: #625f56;
+    font-family: Arial, sans-serif;
+    font-size: var(--reader-chrome-size, 7px);
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+#deviceReaderHeader {
+    top: var(--reader-chrome-offset, 9px);
+    text-align: center;
+}
+
+#deviceReaderFooter {
+    bottom: var(--reader-chrome-offset, 9px);
+    text-align: center;
+}
+
+#deviceBookViewport {
+    position: absolute;
+    top: var(--reader-content-top, 20px);
+    right: var(--reader-margin, 18px);
+    bottom: var(--reader-content-bottom, 20px);
+    left: var(--reader-margin, 18px);
+    overflow: hidden;
+}
+
+#deviceBookContent {
+    height: 100%;
+    width: 100%;
+    color: #111;
+    font-family: Georgia, "Times New Roman", Times, serif;
+    line-height: var(--reader-line-height, 1.5);
+    column-fill: auto;
+    column-gap: 0;
+    overflow: visible;
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.14s ease-out;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+
+#deviceBookContent > :first-child {
+    margin-top: 0;
+}
+
+#deviceBookContent p {
+    margin: 0 0 0.82em;
+    line-height: inherit;
+    text-align: justify;
+}
+
+#deviceBookContent p.preserve-structure {
+    white-space: normal;
+    text-align: left;
+}
+
+#deviceBookContent h1,
+#deviceBookContent h2,
+#deviceBookContent h3,
+#deviceBookContent h4 {
+    margin: 1.15em 0 0.52em;
+    color: #111;
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-weight: 700;
+    line-height: 1.22;
+    break-inside: auto;
+}
+
+#deviceBookContent h1 { font-size: 1.45em; }
+#deviceBookContent h2 { font-size: 1.22em; }
+#deviceBookContent h3 { font-size: 1.08em; }
+
+#deviceBookContent ul,
+#deviceBookContent ol {
+    margin: 0 0 1em 1.15em;
+    padding-left: 0.4em;
+}
+
+#deviceBookContent li {
+    margin: 0.24em 0;
+}
+
+#deviceBookContent blockquote {
+    margin: 0 0 1em;
+    padding-left: 0.9em;
+    border-left: 0.22em solid #888;
+    color: #333;
+}
+
+#deviceBookContent table {
+    width: 100%;
+    margin: 0.9em 0;
+    border-collapse: collapse;
+    font-size: 0.82em;
+    break-inside: auto;
+}
+
+#deviceBookContent th,
+#deviceBookContent td {
+    padding: 0.3em 0.4em;
+    border: 1px solid #555;
+    text-align: left;
+    vertical-align: top;
+}
+
+#deviceBookContent img {
+    max-width: 100%;
+    max-height: 95%;
+    height: auto;
+    object-fit: contain;
+}
+
+#devicePagePrev,
+#devicePageNext {
+    min-width: 7rem;
+}
+
+.device-spec-pill {
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: rgba(15, 23, 42, 0.7);
+}
+
+/* Standalone image converter */
+#imageDropzone.is-active {
+    border-color: rgba(201, 162, 39, 0.72);
+    background: rgba(201, 162, 39, 0.08);
+}
+
+#imageDropzone.has-image {
+    border-style: solid;
+    border-color: rgba(52, 211, 153, 0.42);
+    background: rgba(16, 185, 129, 0.07);
+}
+
+.image-preview-shell {
+    min-height: 540px;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 3vw, 2.5rem);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.5rem;
+    background:
+        linear-gradient(45deg, rgba(255, 255, 255, 0.018) 25%, transparent 25% 75%, rgba(255, 255, 255, 0.018) 75%),
+        rgba(2, 6, 23, 0.45);
+    background-size: 22px 22px;
+}
+
+#imageOutputCanvas:not(.hidden) {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 650px;
+    border: 8px solid #252525;
+    background: #f4f1e8;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+    image-rendering: auto;
+}
+
+#imageOutputCanvas.hidden {
+    display: none;
+}
+
+#imageOutputCanvas.is-dithered {
+    image-rendering: pixelated;
+}
+
+@media (max-width: 767px) {
+    .device-stage {
+        min-height: 500px;
+        padding-inline: 0.65rem;
+    }
+
+    #deviceFrame::after {
+        font-size: 7px;
+    }
+
+    #devicePagePrev,
+    #devicePageNext {
+        min-width: 0;
+    }
+
+    .image-preview-shell {
+        min-height: 390px;
+    }
+}
+
+/* Inline styles (match Kobo EPUB CSS) */
+#preview strong, #preview b { font-weight: 700; }
+#preview em, #preview i { font-style: italic; }
+#preview u { text-decoration: underline; }
+#preview s, #preview strike { text-decoration: line-through; }
+#preview sub { font-size: 0.75em; vertical-align: sub; }
+#preview sup { font-size: 0.75em; vertical-align: super; }
+
+/* Mobile-first formatting toolbar */
+#editToolbar {
+    position: sticky;
+    bottom: 0.5rem;
+    z-index: 20;
+    gap: 0.45rem;
+    padding: 0.55rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(8, 13, 23, 0.94);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+#editToolbar .tb-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.1rem;
+}
+
+#editToolbar .tb-row::-webkit-scrollbar {
+    display: none;
+}
+
+#editToolbar .tb-label {
+    flex-shrink: 0;
+    align-self: center;
+    margin-right: 0.15rem;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+#editToolbar .tb-btn {
+    flex-shrink: 0;
+    min-width: 2.6rem;
+    min-height: 2.6rem;
+    padding: 0.4rem 0.65rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+#editToolbar .tb-btn:hover,
+#editToolbar .tb-btn:focus-visible {
+    border-color: rgba(201, 162, 39, 0.45);
+    color: #f8fafc;
+    outline: none;
+}
+
+#editToolbar .tb-btn.is-active {
+    border-color: rgba(201, 162, 39, 0.6);
+    background: rgba(201, 162, 39, 0.18);
+    color: #f5d36d;
+}
+
+#editToolbar .tb-btn-wide {
+    min-width: auto;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+@media (min-width: 768px) {
+    #editToolbar {
+        position: static;
+        bottom: auto;
+        box-shadow: none;
+    }
+
+    #editToolbar .tb-row {
+        flex-wrap: wrap;
+        overflow: visible;
+    }
+
+    #editToolbar .tb-btn {
+        min-width: 2.4rem;
+        min-height: 2.25rem;
+    }
+}
+
+/* Edit diff (git-like) */
+#diffPanel {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(2, 6, 23, 0.65);
+}
+
+#diffBody {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Jump list (git-style index under Diff mode) */
+#diffBody .diff-hunk {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.45rem 0.55rem;
+    margin: 0.25rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.55);
+    line-height: 1.65;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+#diffBody .diff-hunk:hover,
+#diffBody .diff-hunk:focus-visible {
+    border-color: rgba(201, 162, 39, 0.45);
+    background: rgba(201, 162, 39, 0.08);
+    outline: none;
+}
+
+#diffBody .diff-hunk.is-active {
+    border-color: rgba(201, 162, 39, 0.65);
+    box-shadow: inset 2px 0 0 #C9A227;
+}
+
+#diffBody .diff-w-add {
+    display: inline;
+    padding: 0.05rem 0.2rem;
+    margin: 0 0.05rem;
+    border-radius: 0.25rem;
+    background: rgba(34, 197, 94, 0.22);
+    color: #86efac;
+    font-weight: 600;
+}
+
+#diffBody .diff-w-del {
+    display: inline;
+    padding: 0.05rem 0.2rem;
+    margin: 0 0.05rem;
+    border-radius: 0.25rem;
+    background: rgba(244, 63, 94, 0.18);
+    color: #fda4af;
+    font-weight: 600;
+    text-decoration: line-through;
+    text-decoration-color: rgba(253, 164, 175, 0.55);
+}
+
+#diffBody .diff-w-ctx {
+    color: #94a3b8;
+}
+
+#diffBody .diff-w-sep {
+    color: #475569;
+    margin: 0 0.15rem;
+}
+
+#diffBody .diff-meta {
+    color: #64748b;
+    padding: 0.35rem 0.4rem;
+    font-size: 0.68rem;
+}
+
+#diffBody .diff-h-tag {
+    display: inline-block;
+    margin-right: 0.3rem;
+    padding: 0.05rem 0.35rem;
+    border-radius: 0.3rem;
+    border: 1px solid rgba(201, 162, 39, 0.35);
+    background: rgba(201, 162, 39, 0.12);
+    color: #e8d48b;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    vertical-align: 0.05em;
+}
+
+/* Google Docs–style track changes in Diff mode main view */
+#previewWrap.mode-diff #preview {
+    /* still Kobo paper, but annotations visible */
+}
+
+#preview .kf-tc-del,
+#preview del.kf-tc-del {
+    background: rgba(220, 38, 38, 0.14);
+    color: #9f1239;
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: #e11d48;
+    padding: 0 0.12em;
+    border-radius: 0.15em;
+}
+
+#preview .kf-tc-ins,
+#preview ins.kf-tc-ins {
+    background: rgba(22, 163, 74, 0.18);
+    color: #14532d;
+    text-decoration: none;
+    padding: 0 0.12em;
+    border-radius: 0.15em;
+    font-weight: 600;
+}
+
+#preview .kf-tc-block.is-flash {
+    outline: 2px solid rgba(201, 162, 39, 0.85);
+    outline-offset: 3px;
+    transition: outline-color 0.8s ease;
+}
+
+#preview .kf-tc-empty {
+    color: #666;
+    font-style: italic;
+}
+
+.mode-btn.active {
+    background: rgba(201, 162, 39, 0.2);
+    border-color: rgba(201, 162, 39, 0.55);
+    color: #f8fafc;
+}
+
+#chapterOutline button.active {
+    border-color: rgba(201, 162, 39, 0.5);
+    background: rgba(201, 162, 39, 0.12);
+    color: #f8fafc;
+}
+
+#bodyHtmlSource {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    tab-size: 2;
+}
+
+.diag-warn {
+    border-left: 3px solid rgba(251, 191, 36, 0.8);
+}
+
+.diag-info {
+    border-left: 3px solid rgba(148, 163, 184, 0.6);
+}
+
+.diag-ok {
+    border-left: 3px solid rgba(52, 211, 153, 0.7);
+}
+
+:root { --gold: #C9A227; --gold-hover: #E8C547; --ink: #0A0F1C; }
+a { color: var(--gold) !important; text-decoration: none; transition: color .15s ease; }
+a:hover, a:focus-visible { color: var(--gold-hover) !important; }
+a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }

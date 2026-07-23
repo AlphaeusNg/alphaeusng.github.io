@@ -22,8 +22,12 @@ The design should remain restrained, professional, and easy to share. It should 
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.
 - `data/`: root-level public data payloads.
   - `data/conviction_tsla_history.json`: TSLA transaction history plus the benchmark comparison used by `pages/conviction.html`.
-- `css/`: site CSS used by the portfolio.
-- `js/`: site JavaScript used by the portfolio and modals.
+- `css/`: grouped site styles (`main.css` shared foundations plus route-specific
+  `home.css`, `404.css`, `conviction.css`, and `kobo-forge.css`).
+- `js/`: grouped site applications (`main.js`, `modals.js`, `conviction.js`,
+  `kobo-forge.js`, and the shared `version.js` deployment stamp).
+- `pages/seeking-biblical-truth/css/` and `pages/seeking-biblical-truth/js/`:
+  feature-local viewer assets, including the documented Firebase runtime files.
 - `assets/`: images and share assets referenced by public pages (prefer compressed JPEG web assets; keep originals only when needed).
 - `robots.txt` / `sitemap.xml`: basic crawl hints for the public site.
 - `tools/`: scripts grouped by domain.
@@ -79,8 +83,8 @@ Run before pushing:
 ```bash
 python3 tools/check_site.py
 python3 -m compileall tools
-node --check js/main.js
-node --check js/modals.js
+node tools/koboforge/test_logic.mjs
+while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 python3 -m http.server 8000
 ```
 
@@ -97,6 +101,9 @@ curl -I http://127.0.0.1:8000/pages/seeking-biblical-truth/vault-data.json
 - Preserve `index.html` at the repo root; GitHub Pages expects it.
 - Keep `index.html` as the only root-level HTML entry point for the portfolio home.
 - Put secondary public pages under `pages/` and keep the site links aligned with that structure.
+- Keep local CSS and application JavaScript out of HTML entry points. Put
+  site-wide/standalone-page assets in root `css/` and `js/`, and colocate
+  feature-only assets beneath the feature directory.
 - Put public page data in the location actually used by the served page; do not leave duplicate active datasets with divergent outcomes.
 - Put scripts under `tools/<domain>/`; do not leave one-off scripts in the root.
 - Keep `pages/seeking-biblical-truth/` reachable from the portfolio Explore menu and project card.

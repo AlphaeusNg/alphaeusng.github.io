@@ -13,11 +13,18 @@ Personal portfolio for Alphaeus Ng: applied AI / CV / NLP work, contact & resume
 ## Structure
 
 ```text
-index.html                 # Main SPA-like portfolio
-css/main.css
+index.html                 # Main SPA-like portfolio entry point
+404.html                   # GitHub Pages fallback entry point
+css/
+  main.css                 # Shared portfolio foundations
+  home.css
+  404.css
+  conviction.css
+  kobo-forge.css
 js/main.js                 # Nav, mobile menu, scroll, a11y
 js/modals.js               # Project case-study modal content
 js/conviction.js
+js/kobo-forge.js
 js/version.js              # SITE_VERSION — bump every deploy
 firebase/                  # Shared Firebase infra (rules + indexes + docs)
   README.md
@@ -28,7 +35,10 @@ pages/
   conviction.html
   kobo-forge.html
   seeking-biblical-truth/  # Public vault viewer (vault-data.json)
+    css/main.css
+    js/app.js
     js/firebase-config.js  # Runtime vault editor keys only
+    js/vault-cloud.js
   README.md
 data/                      # Public JSON/CSV (conviction history, etc.)
 assets/                    # Images, resume files
@@ -64,7 +74,8 @@ python3 -m http.server 8000
 
 python3 tools/check_site.py
 python3 -m compileall tools
-node --check js/main.js && node --check js/modals.js && node --check js/conviction.js
+node tools/koboforge/test_logic.mjs
+while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 ```
 
 ### Vault data refresh (from sibling repo)
@@ -88,6 +99,8 @@ cp pages/vault-data.json /home/alph/projects/alphaeusng.github.io/pages/seeking-
 - GitHub Pages paths are **case-sensitive**.
 - Home page should stay light — heavy graph libs belong only in the vault viewer page.
 - Fonts: load once via `<link>` per HTML entry; avoid duplicate `@import`.
+- Keep local CSS and application JavaScript in grouped external assets. Root-level
+  page assets belong in `css/` and `js/`; vault-only assets stay with the viewer.
 
 ## Deploy
 

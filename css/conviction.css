@@ -1,0 +1,48 @@
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background:
+        radial-gradient(circle at top, rgba(201, 162, 39, 0.16), transparent 32%),
+        linear-gradient(180deg, #080d17 0%, #0b1220 54%, #080d17 100%);
+}
+
+.heading-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.03em;
+}
+
+.soft-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.35), transparent);
+}
+
+.glass-card {
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 80px rgba(2, 6, 23, 0.28);
+    backdrop-filter: blur(16px);
+}
+
+.metric-card {
+    background: rgba(11, 18, 32, 0.84);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chart-shell {
+    position: relative;
+    height: 420px;
+}
+
+.summary-table tr + tr {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.benchmark-view-toggle[aria-pressed="true"] {
+    background: #C9A227;
+    border-color: #C9A227;
+    color: #0B1220;
+}
+
+:root { --gold: #C9A227; --gold-hover: #E8C547; --ink: #0A0F1C; }
+a { color: var(--gold) !important; text-decoration: none; transition: color .15s ease; }
+a:hover, a:focus-visible { color: var(--gold-hover) !important; }
+a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }
