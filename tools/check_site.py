@@ -32,13 +32,20 @@ def main() -> None:
         ROOT / "robots.txt",
         ROOT / "sitemap.xml",
         ROOT / "404.html",
+        ROOT / "css" / "404.css",
+        ROOT / "css" / "conviction.css",
+        ROOT / "css" / "home.css",
+        ROOT / "css" / "kobo-forge.css",
         ROOT / "css" / "main.css",
         ROOT / "js" / "main.js",
         ROOT / "js" / "modals.js",
         ROOT / "js" / "conviction.js",
+        ROOT / "js" / "kobo-forge.js",
         ROOT / "pages" / "conviction.html",
         ROOT / "pages" / "kobo-forge.html",
         ROOT / "pages" / "seeking-biblical-truth" / "index.html",
+        ROOT / "pages" / "seeking-biblical-truth" / "css" / "main.css",
+        ROOT / "pages" / "seeking-biblical-truth" / "js" / "app.js",
         ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json",
         ROOT / "assets" / "alphaeus-portrait.jpg",
         ROOT / "assets" / "xray-baggage-sample.jpg",
@@ -61,6 +68,24 @@ def main() -> None:
     if 'src="js/main.js" defer' not in home or 'src="js/modals.js" defer' not in home:
         fail("home page should defer main.js and modals.js")
     ok("home page defers main.js and modals.js")
+
+    html_entries = [
+        ROOT / "index.html",
+        ROOT / "404.html",
+        ROOT / "pages" / "conviction.html",
+        ROOT / "pages" / "kobo-forge.html",
+        ROOT / "pages" / "seeking-biblical-truth" / "index.html",
+    ]
+    for entry in html_entries:
+        source = entry.read_text(encoding="utf-8")
+        if re.search(r"(?m)^\s*<style(?:\s[^>]*)?>", source):
+            fail(f"{entry.relative_to(ROOT)} contains inline CSS")
+        if re.search(
+            r"(?ms)^\s*<script(?![^>]*\bsrc=)[^>]*>\s*\S[\s\S]*?</script>",
+            source,
+        ):
+            fail(f"{entry.relative_to(ROOT)} contains inline JavaScript")
+    ok("HTML entry points keep local CSS and JavaScript in grouped assets")
 
     vault = json.loads((ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json").read_text(encoding="utf-8"))
     if not isinstance(vault.get("nodes"), list) or not vault["nodes"]:

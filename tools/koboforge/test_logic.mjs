@@ -9,13 +9,28 @@ import { dirname, join } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const htmlPath = join(__dirname, '../../pages/kobo-forge.html');
-const page = readFileSync(htmlPath, 'utf8');
+const jsPath = join(__dirname, '../../js/kobo-forge.js');
+const cssPath = join(__dirname, '../../css/kobo-forge.css');
+const html = readFileSync(htmlPath, 'utf8');
+const script = readFileSync(jsPath, 'utf8');
+const styles = readFileSync(cssPath, 'utf8');
+const page = [html, script, styles].join('\n');
 
 function assertIncludes(label, needle) {
     assert.ok(page.includes(needle), `missing ${label}: ${needle}`);
 }
 
 // —— Page feature contract ——
+assert.ok(
+    html.includes('rel="stylesheet" href="../css/kobo-forge.css"'),
+    'KoboForge must load its grouped stylesheet'
+);
+assert.ok(
+    html.includes('type="module" src="../js/kobo-forge.js"'),
+    'KoboForge must load its grouped application module'
+);
+assert.ok(!html.includes('<script type="module">'), 'application code must not remain inline');
+
 const features = [
     ['edit mode', 'data-mode="edit"'],
     ['html mode', 'data-mode="html"'],
@@ -25,7 +40,7 @@ const features = [
     ['ncx', 'toc.ncx'],
     ['diagnostics', 'function renderDiagnostics'],
     ['outline', 'chapterOutline'],
-    ['prefs', 'koboforge.prefs.v2'],
+    ['prefs', 'koboforge.prefs.v3'],
     ['heading heuristic', 'lineLooksLikeHeading'],
     ['list markdown', 'listBlockToHtml'],
     ['confirm discard', 'Re-extracting will discard'],
@@ -215,8 +230,9 @@ assert.ok(page.includes('dropzoneReady') && page.includes('File received'), 'dro
 assert.ok(page.includes('cancelFileBtn') && page.includes('setDropzoneIdle'), 'cancel upload restores idle dropzone');
 assert.ok(page.includes('prepareHtmlForEpub'), 'EPUB body prep for Kobo pagination');
 assert.ok(page.includes('page-break-inside:auto'), 'tables/paragraphs must allow page breaks on Kobo');
-assert.ok(page.includes("let editMode = 'edit'"), 'spot-check defaults to Edit');
-assert.ok(page.includes("setEditMode('edit')"), 'import opens Edit');
+assert.ok(page.includes("let editMode = 'edit'"), 'empty workspace defaults to Edit');
+assert.ok(page.includes("setEditMode('view')") && page.includes('Previewing on the ${targetName}'),
+    'import opens the selected Kobo Device preview');
 assert.ok(page.includes('mode-view'), 'View mode class for device preview');
 assert.ok(page.includes('#f4f1e8') || page.includes('f4f1e8'), 'Kobo e-ink paper background on preview');
 assert.ok(!page.includes('id="einkToggle"'), 'standalone e-ink toggle removed (View is the device sim)');
@@ -243,6 +259,17 @@ assert.ok(page.includes('function trackChangesDomToBodyHtml'), 'Diff mode edits 
 assert.ok(page.includes("editMode === 'diff'") && page.includes('contentEditable'), 'Diff surface is editable');
 assert.ok(page.includes('function refreshDiffLive'), 'live track-changes refresh while typing');
 assert.ok(page.includes('getAcceptedCaretOffset') && page.includes('setAcceptedCaretOffset'), 'caret restore after live re-paint');
+const dropzonePos = page.indexOf('id="dropzone"');
+const koboSetupPos = page.indexOf('id="koboPreviewSetup"');
+const titleInputPos = page.indexOf('id="bookTitle"');
+assert.ok(
+    dropzonePos >= 0 && koboSetupPos > dropzonePos && titleInputPos > koboSetupPos,
+    'Kobo model controls must sit directly beneath the initial upload'
+);
+assert.ok(
+    page.includes('<option value="libra-colour" selected>Kobo Libra Colour · 7″ colour</option>'),
+    'Kobo Libra Colour must be the default document preview target'
+);
 // EPUB styles.css string must not set pre-wrap (preview CSS may still use it)
 const epubCssMatch = page.match(/oebps\.file\('styles\.css',\s*\[([\s\S]*?)\]\.join/);
 assert.ok(epubCssMatch, 'EPUB CSS built as array join');
