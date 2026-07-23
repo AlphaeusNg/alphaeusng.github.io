@@ -12,7 +12,7 @@ This repo is a static GitHub Pages portfolio for Alphaeus Ng. Future agents shou
    - `/`
    - `/conviction.html`
    - `/data/conviction_tsla_history.json`
-   - `/kobo-forge.html`
+   - `https://alphaeusng.github.io/KoboForge/` (standalone project)
    - `/pages/seeking-biblical-truth/`
    - compatibility redirect: `/seeking-biblical-truth/`
 6. Check browser console and responsive layout at mobile and desktop widths when possible.
@@ -25,6 +25,8 @@ This repo is a static GitHub Pages portfolio for Alphaeus Ng. Future agents shou
   `https://github.com/AlphaeusNg/Seeking-Biblical-Truth`
 - The canonical viewer path in this repo is:
   `/pages/seeking-biblical-truth/`
+- KoboForge application work lives in `/home/alph/projects/KoboForge`; this
+  portfolio links to `https://alphaeusng.github.io/KoboForge/`.
 - `/seeking-biblical-truth/` is a compatibility redirect.
 - The viewer defaults to rendered Markdown and exposes a raw-source toggle in the selected-note panel.
 - The conviction page reads `data/conviction_tsla_history.json`, generated from `data/tsla_transactions.csv`.

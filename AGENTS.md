@@ -8,7 +8,9 @@
 
 ## Purpose
 
-Personal portfolio for Alphaeus Ng: applied AI / CV / NLP work, contact & resume, conviction writing, KoboForge, and the public Seeking Biblical Truth *viewer*. Design stays restrained and recruiter-friendly.
+Personal portfolio for Alphaeus Ng: applied AI / CV / NLP work, contact and
+resume, project links, conviction writing, and the public Seeking Biblical
+Truth *viewer*. Design stays restrained and recruiter-friendly.
 
 ## Structure
 
@@ -20,11 +22,9 @@ css/
   home.css
   404.css
   conviction.css
-  kobo-forge.css
 js/main.js                 # Nav, mobile menu, scroll, a11y
 js/modals.js               # Project case-study modal content
 js/conviction.js
-js/kobo-forge.js
 js/version.js              # SITE_VERSION — bump every deploy
 firebase/                  # Shared Firebase infra (rules + indexes + docs)
   README.md
@@ -33,7 +33,7 @@ firebase/                  # Shared Firebase infra (rules + indexes + docs)
 firebase.json  .firebaserc # CLI entry (repo root — standard)
 pages/
   conviction.html
-  kobo-forge.html
+  kobo-forge.html           # Redirect to standalone KoboForge repo
   seeking-biblical-truth/  # Public vault viewer (vault-data.json)
     css/main.css
     js/app.js
@@ -45,7 +45,6 @@ assets/                    # Images, resume files
 tools/
   check_site.py
   finance/                 # TSLA/SPY generators (local data helpers)
-  koboforge/
   extract_networth_data.py
 robots.txt  sitemap.xml  .nojekyll
 ```
@@ -58,9 +57,11 @@ robots.txt  sitemap.xml  .nojekyll
 | VerseKeep | `/home/alph/projects/VerseKeep` | https://alphaeusng.github.io/VerseKeep/ |
 | ChristoDay | `/home/alph/projects/ChristoDay` | https://alphaeusng.github.io/ChristoDay/ |
 | CardFitSG | `/home/alph/projects/CardFitSG` | https://alphaeusng.github.io/CardFitSG/ |
+| KoboForge | `/home/alph/projects/KoboForge` | https://alphaeusng.github.io/KoboForge/ |
 | Vault source | `/home/alph/projects/Seeking-Biblical-Truth` | (content repo; viewer is under `pages/seeking-biblical-truth/`) |
 
-Do **not** implement arcade, VerseKeep, ChristoDay, or CardFitSG features in this repo — only links and portfolio cards.
+Do **not** implement arcade, VerseKeep, ChristoDay, CardFitSG, or KoboForge
+features in this repo — only links, portfolio cards, and compatibility redirects.
 
 ## Commands
 
@@ -74,7 +75,6 @@ python3 -m http.server 8000
 
 python3 tools/check_site.py
 python3 -m compileall tools
-node tools/koboforge/test_logic.mjs
 while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 ```
 

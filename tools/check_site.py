@@ -35,12 +35,10 @@ def main() -> None:
         ROOT / "css" / "404.css",
         ROOT / "css" / "conviction.css",
         ROOT / "css" / "home.css",
-        ROOT / "css" / "kobo-forge.css",
         ROOT / "css" / "main.css",
         ROOT / "js" / "main.js",
         ROOT / "js" / "modals.js",
         ROOT / "js" / "conviction.js",
-        ROOT / "js" / "kobo-forge.js",
         ROOT / "pages" / "conviction.html",
         ROOT / "pages" / "kobo-forge.html",
         ROOT / "pages" / "seeking-biblical-truth" / "index.html",
@@ -68,6 +66,14 @@ def main() -> None:
     if 'src="js/main.js" defer' not in home or 'src="js/modals.js" defer' not in home:
         fail("home page should defer main.js and modals.js")
     ok("home page defers main.js and modals.js")
+
+    kobo_url = "https://alphaeusng.github.io/KoboForge/"
+    if kobo_url not in home:
+        fail("portfolio does not link to the standalone KoboForge site")
+    legacy_kobo = (ROOT / "pages" / "kobo-forge.html").read_text(encoding="utf-8")
+    if kobo_url not in legacy_kobo or 'http-equiv="refresh"' not in legacy_kobo:
+        fail("legacy KoboForge page is not a compatibility redirect")
+    ok("KoboForge links and compatibility redirect target the standalone repo")
 
     html_entries = [
         ROOT / "index.html",
