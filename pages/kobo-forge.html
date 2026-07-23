@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KoboForge • Client-side EPUB Builder</title>
-    <meta name="description" content="Client-side DOCX, PDF, TXT, and Markdown to EPUB conversion with preview editing, chapter outline, and structure preservation for Kobo readers.">
+    <title>KoboForge • Kobo EPUB &amp; Image Converter</title>
+    <meta name="description" content="Private client-side EPUB and image conversion with accurate Kobo device profiles, paginated previews, editing, and screen-ready PNG or JPEG output.">
     <meta name="theme-color" content="#080d17">
     <link rel="canonical" href="https://alphaeusng.github.io/pages/kobo-forge.html">
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
@@ -59,15 +59,20 @@
         }
 
         /*
-         * Preview pane mimics Kobo EPUB body CSS (not the dark site chrome).
-         * View mode = device-faithful; Edit reuses the same surface for WYSIWYG.
+         * Edit pane mirrors the EPUB body CSS. Device mode uses the separate,
+         * paginated physical-scale simulator below.
          */
         #previewWrap {
-            /* soft device frame */
             padding: 0.65rem;
-            border-radius: 0.35rem;
-            background: linear-gradient(160deg, #3a3a3a 0%, #1f1f1f 45%, #2a2a2a 100%);
+            border-radius: 1.25rem;
+            background: rgba(2, 6, 23, 0.42);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        #previewWrap.mode-view {
+            padding: 0;
+            background: transparent;
+            box-shadow: none;
         }
 
         #preview {
@@ -236,6 +241,288 @@
             color: #666;
             text-align: left;
             font-style: italic;
+        }
+
+        /* Device-accurate screen/body ratios with paginated EPUB flow */
+        #devicePreview {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.5rem;
+            background:
+                radial-gradient(circle at 50% 18%, rgba(201, 162, 39, 0.1), transparent 32%),
+                rgba(2, 6, 23, 0.5);
+            overflow: hidden;
+        }
+
+        .device-control {
+            min-width: 0;
+        }
+
+        .device-control select,
+        .device-control input[type="range"] {
+            width: 100%;
+        }
+
+        .device-stage {
+            min-height: 610px;
+            display: grid;
+            place-items: center;
+            padding: 2rem 1rem 1.25rem;
+            overflow: auto;
+        }
+
+        #deviceFrame {
+            position: relative;
+            width: min(var(--device-css-width, 360px), 100%);
+            flex: none;
+            border-radius: var(--device-radius, 12px);
+            background:
+                linear-gradient(145deg, rgba(76, 76, 76, 0.96), rgba(17, 17, 17, 0.99) 48%, rgba(52, 52, 52, 0.98));
+            box-shadow:
+                0 2px 1px rgba(255, 255, 255, 0.1) inset,
+                0 -2px 2px rgba(0, 0, 0, 0.45) inset,
+                0 28px 65px rgba(0, 0, 0, 0.48);
+            transition: width 0.2s ease, aspect-ratio 0.2s ease;
+        }
+
+        #deviceFrame::after {
+            content: "kobo";
+            position: absolute;
+            left: 50%;
+            bottom: 2.1%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-family: Georgia, serif;
+            font-size: clamp(8px, 1.35vw, 12px);
+            letter-spacing: 0.08em;
+            pointer-events: none;
+        }
+
+        #deviceFrame.has-grip::after {
+            left: auto;
+            right: 7%;
+            bottom: 4%;
+            transform: none;
+        }
+
+        #deviceFrame.orientation-landscape::after {
+            left: 50%;
+            right: auto;
+            bottom: 2%;
+            transform: translateX(-50%);
+        }
+
+        #deviceScreen {
+            position: absolute;
+            overflow: hidden;
+            border: 1px solid rgba(22, 22, 18, 0.9);
+            border-radius: 2px;
+            background: #f4f1e8;
+            color: #111;
+            box-shadow:
+                inset 0 0 28px rgba(49, 43, 26, 0.08),
+                0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+
+        #deviceFrame.is-colour #deviceScreen {
+            background:
+                linear-gradient(rgba(247, 243, 231, 0.84), rgba(247, 243, 231, 0.84)),
+                repeating-linear-gradient(0deg, rgba(60, 120, 160, 0.025) 0 1px, transparent 1px 3px);
+        }
+
+        #deviceReaderHeader,
+        #deviceReaderFooter {
+            position: absolute;
+            left: var(--reader-margin, 18px);
+            right: var(--reader-margin, 18px);
+            z-index: 2;
+            overflow: hidden;
+            color: #625f56;
+            font-family: Arial, sans-serif;
+            font-size: var(--reader-chrome-size, 7px);
+            line-height: 1;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        #deviceReaderHeader {
+            top: var(--reader-chrome-offset, 9px);
+            text-align: center;
+        }
+
+        #deviceReaderFooter {
+            bottom: var(--reader-chrome-offset, 9px);
+            text-align: center;
+        }
+
+        #deviceBookViewport {
+            position: absolute;
+            top: var(--reader-content-top, 20px);
+            right: var(--reader-margin, 18px);
+            bottom: var(--reader-content-bottom, 20px);
+            left: var(--reader-margin, 18px);
+            overflow: hidden;
+        }
+
+        #deviceBookContent {
+            height: 100%;
+            width: 100%;
+            color: #111;
+            font-family: Georgia, "Times New Roman", Times, serif;
+            line-height: var(--reader-line-height, 1.5);
+            column-fill: auto;
+            column-gap: 0;
+            overflow: visible;
+            transform: translate3d(0, 0, 0);
+            transition: transform 0.14s ease-out;
+            -webkit-hyphens: auto;
+            hyphens: auto;
+        }
+
+        #deviceBookContent > :first-child {
+            margin-top: 0;
+        }
+
+        #deviceBookContent p {
+            margin: 0 0 0.82em;
+            line-height: inherit;
+            text-align: justify;
+        }
+
+        #deviceBookContent p.preserve-structure {
+            white-space: normal;
+            text-align: left;
+        }
+
+        #deviceBookContent h1,
+        #deviceBookContent h2,
+        #deviceBookContent h3,
+        #deviceBookContent h4 {
+            margin: 1.15em 0 0.52em;
+            color: #111;
+            font-family: Georgia, "Times New Roman", Times, serif;
+            font-weight: 700;
+            line-height: 1.22;
+            break-inside: auto;
+        }
+
+        #deviceBookContent h1 { font-size: 1.45em; }
+        #deviceBookContent h2 { font-size: 1.22em; }
+        #deviceBookContent h3 { font-size: 1.08em; }
+
+        #deviceBookContent ul,
+        #deviceBookContent ol {
+            margin: 0 0 1em 1.15em;
+            padding-left: 0.4em;
+        }
+
+        #deviceBookContent li {
+            margin: 0.24em 0;
+        }
+
+        #deviceBookContent blockquote {
+            margin: 0 0 1em;
+            padding-left: 0.9em;
+            border-left: 0.22em solid #888;
+            color: #333;
+        }
+
+        #deviceBookContent table {
+            width: 100%;
+            margin: 0.9em 0;
+            border-collapse: collapse;
+            font-size: 0.82em;
+            break-inside: auto;
+        }
+
+        #deviceBookContent th,
+        #deviceBookContent td {
+            padding: 0.3em 0.4em;
+            border: 1px solid #555;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        #deviceBookContent img {
+            max-width: 100%;
+            max-height: 95%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        #devicePagePrev,
+        #devicePageNext {
+            min-width: 7rem;
+        }
+
+        .device-spec-pill {
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        /* Standalone image converter */
+        #imageDropzone.is-active {
+            border-color: rgba(201, 162, 39, 0.72);
+            background: rgba(201, 162, 39, 0.08);
+        }
+
+        #imageDropzone.has-image {
+            border-style: solid;
+            border-color: rgba(52, 211, 153, 0.42);
+            background: rgba(16, 185, 129, 0.07);
+        }
+
+        .image-preview-shell {
+            min-height: 540px;
+            display: grid;
+            place-items: center;
+            padding: clamp(1rem, 3vw, 2.5rem);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.5rem;
+            background:
+                linear-gradient(45deg, rgba(255, 255, 255, 0.018) 25%, transparent 25% 75%, rgba(255, 255, 255, 0.018) 75%),
+                rgba(2, 6, 23, 0.45);
+            background-size: 22px 22px;
+        }
+
+        #imageOutputCanvas:not(.hidden) {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 650px;
+            border: 8px solid #252525;
+            background: #f4f1e8;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+            image-rendering: auto;
+        }
+
+        #imageOutputCanvas.hidden {
+            display: none;
+        }
+
+        #imageOutputCanvas.is-dithered {
+            image-rendering: pixelated;
+        }
+
+        @media (max-width: 767px) {
+            .device-stage {
+                min-height: 500px;
+                padding-inline: 0.65rem;
+            }
+
+            #deviceFrame::after {
+                font-size: 7px;
+            }
+
+            #devicePagePrev,
+            #devicePageNext {
+                min-width: 0;
+            }
+
+            .image-preview-shell {
+                min-height: 390px;
+            }
         }
 
         /* Inline styles (match Kobo EPUB CSS) */
@@ -496,6 +783,27 @@
         .diag-ok {
             border-left: 3px solid rgba(52, 211, 153, 0.7);
         }
+
+        @media (min-width: 1280px) {
+            #epubWorkspace {
+                grid-template-areas:
+                    "import preview"
+                    "status status";
+                align-items: start;
+            }
+
+            #epubWorkspace > .workspace-column {
+                display: contents;
+            }
+
+            #epubWorkspace > .workspace-column > * {
+                margin-top: 0 !important;
+            }
+
+            .workspace-import { grid-area: import; }
+            .workspace-status { grid-area: status; }
+            .workspace-preview { grid-area: preview; }
+        }
     </style>
 
     <style>
@@ -507,7 +815,7 @@
 </head>
 <body class="text-slate-50 antialiased">
     <nav class="border-b border-white/10 bg-[#0A0F1C]/95 backdrop-blur">
-        <div class="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-6">
+        <div class="mx-auto flex h-14 max-w-[1500px] items-center justify-between gap-4 px-6">
             <div class="flex min-w-0 items-center gap-3">
                 <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#C9A227] to-[#8F7417] text-sm font-semibold text-slate-950">A</div>
                 <a href="../index.html" class="font-semibold tracking-tight transition hover:text-[#C9A227]">Alphaeus Ng</a>
@@ -516,7 +824,7 @@
             <a href="../index.html#craft" class="shrink-0 text-sm text-slate-400 transition hover:text-white">← Craft</a>
         </div>
         <div class="border-t border-white/5">
-            <div class="mx-auto flex max-w-6xl items-center gap-1.5 overflow-x-auto px-6 py-2" aria-label="Project quick links">
+            <div class="mx-auto flex max-w-[1500px] items-center gap-1.5 overflow-x-auto px-6 py-2" aria-label="Project quick links">
                 <span class="mr-1 shrink-0 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Projects</span>
                 <a href="kobo-forge.html" class="shrink-0 rounded-full border border-[#C9A227]/50 bg-[#C9A227]/15 px-3 py-1 text-xs font-semibold text-[#f5d36d]" aria-current="page">KoboForge</a>
                 <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-300 transition hover:border-[#C9A227]/40 hover:text-white">AlpArcade</a>
@@ -529,23 +837,24 @@
         </div>
     </nav>
 
-    <header class="mx-auto max-w-6xl px-6 pb-14 pt-16">
+    <header class="mx-auto max-w-[1500px] px-6 pb-14 pt-16">
         <div class="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#C9A227]">Client-side Processing</div>
         <h1 class="heading-serif max-w-4xl text-6xl leading-none text-slate-50 md:text-7xl">KoboForge</h1>
-        <p class="mt-6 max-w-3xl text-2xl leading-tight text-slate-200">
-            Convert → spot-check → edit → export. A private EPUB builder for Kobo that keeps structure intact and lets you fix the result before sideload.
+        <p class="mt-6 max-w-4xl text-2xl leading-relaxed text-slate-200">
+            Convert → edit → preview on a real Kobo screen profile → export. Build private EPUBs and device-sized images without uploading your files.
         </p>
         <div class="mt-8 flex flex-wrap gap-3 text-sm text-slate-300">
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Runs fully in your browser</div>
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">DOCX + PDF + TXT + Markdown</div>
             <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Edit body before export</div>
-            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Edit + Kobo device view</div>
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Paginated Kobo device profiles</div>
+            <div class="rounded-full border border-white/10 bg-white/5 px-4 py-1.5">Image → screen-ready PNG/JPEG</div>
         </div>
     </header>
 
-    <section class="mx-auto grid max-w-6xl gap-8 px-6 pb-16 lg:grid-cols-[0.95fr_1.05fr]">
-        <div class="space-y-6">
-            <div class="glass-card rounded-[2rem] p-7">
+    <section id="epubWorkspace" class="mx-auto grid max-w-[1500px] gap-10 px-6 pb-20 xl:grid-cols-[minmax(360px,0.72fr)_minmax(680px,1.28fr)]">
+        <div class="workspace-column space-y-6">
+            <div class="workspace-import glass-card rounded-[2rem] p-7">
                 <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">1. Import</div>
                 <div id="dropzone" class="mt-5 rounded-[1.75rem] border-2 border-dashed border-white/15 bg-slate-950/30 px-6 py-10 text-center transition" data-state="idle">
                     <!-- Empty: waiting for a file -->
@@ -618,12 +927,12 @@
                         <li>Scan status, diagnostics, and chapter outline.</li>
                         <li>Fix structure in <strong class="text-slate-100">Edit</strong> (opens by default) or <strong class="text-slate-100">HTML</strong>.</li>
                         <li>Use <strong class="text-slate-100">Diff</strong> for full-document track changes; jump from the change index.</li>
-                        <li>Switch to <strong class="text-slate-100">View</strong> for a plain Kobo-like device preview, then download the EPUB.</li>
+                        <li>Switch to <strong class="text-slate-100">Device</strong>, choose your Kobo and reading settings, then page through the converted output.</li>
                     </ol>
                 </div>
             </div>
 
-            <div class="glass-card rounded-[2rem] p-7">
+            <div class="workspace-status glass-card rounded-[2rem] p-7">
                 <div>
                     <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">2. Status</div>
                     <h2 class="mt-2 text-2xl font-semibold tracking-tight">Client-side output</h2>
@@ -640,7 +949,7 @@
                         <div id="progressBar" class="h-full w-0 rounded-full bg-[#C9A227] transition-[width] duration-200"></div>
                     </div>
                 </div>
-                <div id="stats" class="mt-5 grid hidden gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div id="stats" class="mt-5 grid hidden gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                     <div class="rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-4">
                         <div class="text-[11px] uppercase tracking-[0.18em] text-slate-500">Format</div>
                         <div id="statFormat" class="mt-2 text-lg font-semibold text-slate-100">—</div>
@@ -674,7 +983,7 @@
             </div>
         </div>
 
-        <div class="glass-card rounded-[2rem] p-7">
+        <div class="workspace-preview glass-card self-start rounded-[2rem] p-7">
             <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div>
@@ -683,7 +992,7 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <div class="flex rounded-2xl border border-white/10 bg-slate-950/40 p-1" role="group" aria-label="Preview mode">
-                            <button type="button" data-mode="view" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Plain Kobo-like device preview (export body only)">View</button>
+                            <button type="button" data-mode="view" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Paginated preview on a selected Kobo screen">Device</button>
                             <button type="button" data-mode="edit" class="mode-btn active rounded-xl px-3 py-1.5 text-xs font-medium text-slate-300 transition" title="Edit body structure (opens after import)">Edit</button>
                             <button type="button" data-mode="diff" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Track changes (red/green) and edit in place; jump list below">Diff</button>
                             <button type="button" data-mode="html" class="mode-btn rounded-xl px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-slate-200" title="Raw HTML source for precise fixes">HTML</button>
@@ -692,7 +1001,7 @@
                 </div>
                 <p class="text-xs leading-5 text-slate-500">
                     <strong class="font-medium text-slate-400">Edit</strong> opens after import.
-                    <strong class="font-medium text-slate-400">View</strong> = Kobo-like device preview.
+                    <strong class="font-medium text-slate-400">Device</strong> = paginated output on the selected Kobo profile.
                     <strong class="font-medium text-slate-400">Diff</strong> = full document with Google Docs–style track changes (red strikeout / green add); the list below jumps to each change.
                 </p>
             </div>
@@ -706,8 +1015,75 @@
             </div>
 
             <div id="previewWrap" class="mt-4 mode-edit">
+                <div id="devicePreview" class="hidden" tabindex="0" aria-label="Paginated Kobo device preview">
+                    <div class="border-b border-white/10 p-5">
+                        <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                            <label class="device-control block xl:col-span-2">
+                                <span class="mb-2 block text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">Kobo target</span>
+                                <select id="deviceSelect" class="rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[#C9A227]">
+                                    <option value="clara-bw">Kobo Clara BW · 6″ B&amp;W</option>
+                                    <option value="clara-colour">Kobo Clara Colour · 6″ colour</option>
+                                    <option value="libra-colour">Kobo Libra Colour · 7″ colour</option>
+                                    <option value="sage">Kobo Sage · 8″ B&amp;W</option>
+                                    <option value="elipsa-2e">Kobo Elipsa 2E · 10.3″ B&amp;W</option>
+                                </select>
+                            </label>
+                            <label class="device-control block">
+                                <span class="mb-2 block text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">Orientation</span>
+                                <select id="deviceOrientation" class="rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[#C9A227]">
+                                    <option value="portrait">Portrait</option>
+                                    <option value="landscape">Landscape</option>
+                                </select>
+                            </label>
+                            <label class="device-control block">
+                                <span class="mb-2 flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">
+                                    <span>Text size</span>
+                                    <span id="deviceFontValue" class="normal-case tracking-normal text-slate-300">12 pt</span>
+                                </span>
+                                <input id="deviceFontSize" type="range" min="2.6" max="4.8" step="0.2" value="3.6" class="accent-[#C9A227]">
+                            </label>
+                            <label class="device-control block">
+                                <span class="mb-2 flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">
+                                    <span>Margin</span>
+                                    <span id="deviceMarginValue" class="normal-case tracking-normal text-slate-300">8 mm</span>
+                                </span>
+                                <input id="deviceMargin" type="range" min="3" max="16" step="1" value="8" class="accent-[#C9A227]">
+                            </label>
+                        </div>
+                        <div class="mt-4 flex flex-wrap items-center gap-2">
+                            <span id="deviceSpec" class="device-spec-pill rounded-full px-3 py-1.5 text-xs text-slate-300">—</span>
+                            <span id="devicePhysicalSpec" class="device-spec-pill rounded-full px-3 py-1.5 text-xs text-slate-400">—</span>
+                            <label class="device-spec-pill flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-xs text-slate-300">
+                                <input id="deviceChrome" type="checkbox" checked class="rounded border-white/20 bg-slate-900 text-[#C9A227] focus:ring-[#C9A227]">
+                                Reader header + footer
+                            </label>
+                        </div>
+                        <p class="mt-3 max-w-4xl text-xs leading-5 text-slate-500">
+                            Screen resolution, diagonal, and body proportions use Kobo’s published specifications. These reading controls affect the preview only; the EPUB remains reflowable. Exact line breaks can still differ with Kobo firmware, font choice, and reader settings.
+                        </p>
+                    </div>
+
+                    <div class="device-stage">
+                        <div id="deviceFrame" role="img" aria-label="Kobo device frame">
+                            <div id="deviceScreen">
+                                <div id="deviceReaderHeader">KoboForge preview</div>
+                                <div id="deviceBookViewport">
+                                    <div id="deviceBookContent" lang="en"></div>
+                                </div>
+                                <div id="deviceReaderFooter">Page 1 of 1</div>
+                            </div>
+                            <div id="deviceButtonOne" class="absolute hidden rounded-full bg-black/60 shadow-inner"></div>
+                            <div id="deviceButtonTwo" class="absolute hidden rounded-full bg-black/60 shadow-inner"></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-3 border-t border-white/10 px-5 py-4">
+                        <button type="button" id="devicePagePrev" class="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-[#C9A227]/40 disabled:opacity-35" disabled>← Previous</button>
+                        <span id="devicePageStatus" class="min-w-28 text-center text-sm text-slate-300">Page 1 of 1</span>
+                        <button type="button" id="devicePageNext" class="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-[#C9A227]/40 disabled:opacity-35" disabled>Next →</button>
+                    </div>
+                </div>
                 <div id="preview" class="max-h-[62vh] min-h-[480px] overflow-y-auto px-[4%] py-[3%]" tabindex="0">
-                    <p class="kf-empty-hint">Load a document to edit structure, then switch to View to see a Kobo-like device preview.</p>
+                    <p class="kf-empty-hint">Load a document to edit structure, then switch to Device for a paginated Kobo preview.</p>
                 </div>
                 <textarea id="bodyHtmlSource" class="mt-0 hidden max-h-[62vh] min-h-[480px] w-full resize-y rounded-[1.75rem] border border-white/10 bg-slate-950/50 px-4 py-4 text-slate-200 outline-none focus:border-[#C9A227]" spellcheck="false" aria-label="Body HTML source"></textarea>
                 <div id="editToolbar" class="mt-3 hidden flex flex-col" role="toolbar" aria-label="Text formatting">
@@ -754,11 +1130,108 @@
         </div>
     </section>
 
-    <section class="mx-auto max-w-6xl px-6 pb-16" aria-labelledby="export-heading">
+    <section class="mx-auto max-w-[1500px] px-6 pb-20" aria-labelledby="image-heading">
+        <div class="glass-card rounded-[2rem] p-7 md:p-9">
+            <div class="max-w-4xl">
+                <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">4. Image converter</div>
+                <h2 id="image-heading" class="mt-2 text-3xl font-semibold tracking-tight">Make a Kobo screen-ready image</h2>
+                <p class="mt-3 text-sm leading-7 text-slate-400">
+                    Resize, fit, and tone-map a local image to the selected Kobo’s exact portrait or landscape pixel dimensions. Use contain for uncropped artwork, cover for full-screen wallpapers, or dither for crisp black-and-white E Ink.
+                </p>
+            </div>
+
+            <div class="mt-8 grid gap-10 xl:grid-cols-[minmax(320px,0.72fr)_minmax(560px,1.28fr)]">
+                <div class="space-y-6">
+                    <div id="imageDropzone" class="rounded-3xl border-2 border-dashed border-white/15 bg-slate-950/30 px-5 py-8 text-center transition">
+                        <div class="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5 text-[#C9A227]">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14.8M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="mt-3 text-lg font-semibold">Drop an image</h3>
+                        <p id="imageFileStatus" class="mt-2 text-xs leading-5 text-slate-500">PNG, JPEG, WebP, GIF, or browser-supported bitmap. Nothing is uploaded.</p>
+                        <button type="button" id="imagePickBtn" class="mt-5 rounded-xl bg-[#C9A227] px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844]">Choose image</button>
+                        <input id="imageFileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" class="hidden">
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <label class="block sm:col-span-2">
+                            <span class="mb-2 block text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">Kobo target</span>
+                            <select id="imageDeviceSelect" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[#C9A227]">
+                                <option value="clara-bw">Kobo Clara BW · 1072×1448</option>
+                                <option value="clara-colour">Kobo Clara Colour · 1072×1448</option>
+                                <option value="libra-colour">Kobo Libra Colour · 1264×1680</option>
+                                <option value="sage">Kobo Sage · 1440×1920</option>
+                                <option value="elipsa-2e">Kobo Elipsa 2E · 1404×1872</option>
+                            </select>
+                        </label>
+                        <label class="block">
+                            <span class="mb-2 block text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">Orientation</span>
+                            <select id="imageOrientation" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[#C9A227]">
+                                <option value="portrait">Portrait</option>
+                                <option value="landscape">Landscape</option>
+                            </select>
+                        </label>
+                        <label class="block">
+                            <span class="mb-2 block text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">Fit</span>
+                            <select id="imageFit" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[#C9A227]">
+                                <option value="contain">Contain · no crop</option>
+                                <option value="cover">Cover · fill screen</option>
+                            </select>
+                        </label>
+                        <label class="block">
+                            <span class="mb-2 block text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">E Ink treatment</span>
+                            <select id="imageTone" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[#C9A227]">
+                                <option value="auto">Auto for device</option>
+                                <option value="colour">Keep colour</option>
+                                <option value="grayscale">16-level grayscale</option>
+                                <option value="dither">B&amp;W Floyd–Steinberg</option>
+                            </select>
+                        </label>
+                        <label class="block">
+                            <span class="mb-2 block text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">Output</span>
+                            <select id="imageFormat" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[#C9A227]">
+                                <option value="image/png">PNG · lossless</option>
+                                <option value="image/jpeg">JPEG · smaller</option>
+                            </select>
+                        </label>
+                        <label class="block sm:col-span-2">
+                            <span class="mb-2 flex items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">
+                                <span>Contrast</span>
+                                <span id="imageContrastValue" class="normal-case tracking-normal text-slate-300">110%</span>
+                            </span>
+                            <input id="imageContrast" type="range" min="70" max="170" step="5" value="110" class="w-full accent-[#C9A227]">
+                        </label>
+                        <label class="block sm:col-span-2">
+                            <span class="mb-2 block text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">Letterbox colour</span>
+                            <span class="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2">
+                                <input id="imageBackground" type="color" value="#f4f1e8" class="h-8 w-10 cursor-pointer border-0 bg-transparent p-0">
+                                <span class="text-xs text-slate-400">Used by “Contain” and JPEG transparency</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="rounded-2xl border border-white/10 bg-slate-950/35 p-4">
+                        <div class="text-[10px] font-semibold uppercase tracking-[0.17em] text-slate-500">Conversion result</div>
+                        <p id="imageOutputMeta" class="mt-2 text-sm leading-6 text-slate-300">Choose an image to begin.</p>
+                    </div>
+
+                    <button id="imageDownloadBtn" type="button" class="w-full rounded-2xl bg-[#C9A227] px-5 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-40" disabled>Download converted image</button>
+                </div>
+
+                <div class="image-preview-shell">
+                    <div id="imagePreviewEmpty" class="max-w-sm text-center text-sm leading-7 text-slate-500">Your exact-resolution converted bitmap will appear here.</div>
+                    <canvas id="imageOutputCanvas" class="hidden" width="1072" height="1448" aria-label="Converted image preview"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mx-auto max-w-[1500px] px-6 pb-16" aria-labelledby="export-heading">
         <div class="glass-card rounded-[2rem] p-7">
             <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div class="max-w-xl">
-                    <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">4. Export</div>
+                    <div class="text-xs font-semibold uppercase tracking-[0.22em] text-[#C9A227]">5. EPUB export</div>
                     <h2 id="export-heading" class="mt-2 text-2xl font-semibold tracking-tight">Download EPUB</h2>
                     <p class="mt-2 text-sm leading-6 text-slate-400">
                         Download always pulls the latest Edit/HTML body first, then builds the EPUB. Open the <strong class="font-medium text-slate-300">Diff</strong> tab to review track changes in the full document.
@@ -771,6 +1244,21 @@
                     <button id="downloadBtn" class="rounded-2xl bg-[#C9A227] px-6 py-3.5 text-sm font-semibold text-slate-950 transition hover:bg-[#d9b844] disabled:cursor-not-allowed disabled:opacity-50" disabled title="Sync edits, then build and download EPUB">Download EPUB</button>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section class="mx-auto max-w-[1500px] px-6 pb-16" aria-labelledby="spec-source-heading">
+        <div class="rounded-3xl border border-white/10 bg-slate-950/25 px-6 py-5">
+            <h2 id="spec-source-heading" class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Device specification sources</h2>
+            <p class="mt-3 text-xs leading-6 text-slate-500">
+                Profiles use Rakuten Kobo’s published technical specifications for
+                <a href="https://ereader.kobo.com/en-nz/products/kobo-clara-bw" target="_blank" rel="noopener noreferrer">Clara BW</a>,
+                <a href="https://ereader.kobo.com/en-nz/products/kobo-clara-colour" target="_blank" rel="noopener noreferrer">Clara Colour</a>,
+                <a href="https://ereader.kobo.com/en-nz/products/kobo-libra-colour" target="_blank" rel="noopener noreferrer">Libra Colour</a>,
+                <a href="https://ereader.kobo.com/en-nz/products/kobo-sage" target="_blank" rel="noopener noreferrer">Sage</a>, and
+                <a href="https://ereader.kobo.com/en-nz/products/kobo-elipsa-2e" target="_blank" rel="noopener noreferrer">Elipsa 2E</a>.
+                Screen placement inside the bezel is estimated because Kobo publishes body and display dimensions, not bezel offsets.
+            </p>
         </div>
     </section>
 
@@ -845,13 +1333,130 @@
         const progressPct = document.getElementById('progressPct');
         const progressLabel = document.getElementById('progressLabel');
         const modeButtons = document.querySelectorAll('.mode-btn');
+        const devicePreview = document.getElementById('devicePreview');
+        const deviceSelect = document.getElementById('deviceSelect');
+        const deviceOrientation = document.getElementById('deviceOrientation');
+        const deviceFontSize = document.getElementById('deviceFontSize');
+        const deviceFontValue = document.getElementById('deviceFontValue');
+        const deviceMargin = document.getElementById('deviceMargin');
+        const deviceMarginValue = document.getElementById('deviceMarginValue');
+        const deviceChrome = document.getElementById('deviceChrome');
+        const deviceSpec = document.getElementById('deviceSpec');
+        const devicePhysicalSpec = document.getElementById('devicePhysicalSpec');
+        const deviceFrame = document.getElementById('deviceFrame');
+        const deviceScreen = document.getElementById('deviceScreen');
+        const deviceReaderHeader = document.getElementById('deviceReaderHeader');
+        const deviceReaderFooter = document.getElementById('deviceReaderFooter');
+        const deviceBookViewport = document.getElementById('deviceBookViewport');
+        const deviceBookContent = document.getElementById('deviceBookContent');
+        const devicePagePrev = document.getElementById('devicePagePrev');
+        const devicePageNext = document.getElementById('devicePageNext');
+        const devicePageStatus = document.getElementById('devicePageStatus');
+        const deviceButtonOne = document.getElementById('deviceButtonOne');
+        const deviceButtonTwo = document.getElementById('deviceButtonTwo');
+
+        const imageDropzone = document.getElementById('imageDropzone');
+        const imageFileInput = document.getElementById('imageFileInput');
+        const imagePickBtn = document.getElementById('imagePickBtn');
+        const imageFileStatus = document.getElementById('imageFileStatus');
+        const imageDeviceSelect = document.getElementById('imageDeviceSelect');
+        const imageOrientation = document.getElementById('imageOrientation');
+        const imageFit = document.getElementById('imageFit');
+        const imageTone = document.getElementById('imageTone');
+        const imageFormat = document.getElementById('imageFormat');
+        const imageContrast = document.getElementById('imageContrast');
+        const imageContrastValue = document.getElementById('imageContrastValue');
+        const imageBackground = document.getElementById('imageBackground');
+        const imageOutputMeta = document.getElementById('imageOutputMeta');
+        const imageDownloadBtn = document.getElementById('imageDownloadBtn');
+        const imagePreviewEmpty = document.getElementById('imagePreviewEmpty');
+        const imageOutputCanvas = document.getElementById('imageOutputCanvas');
+
+        /*
+         * Portrait screen pixel sizes, PPI, and body dimensions below are from
+         * Rakuten Kobo's published technical specifications (linked on-page).
+         * screenLeftMm is the only estimated value: Kobo does not publish bezel offsets.
+         */
+        const KOBO_DEVICE_PROFILES = Object.freeze({
+            'clara-bw': Object.freeze({
+                name: 'Kobo Clara BW',
+                diagonal: 6,
+                screenWidth: 1072,
+                screenHeight: 1448,
+                ppi: 300,
+                bodyWidth: 112,
+                bodyHeight: 160,
+                depth: 9.2,
+                isColour: false,
+                hasGrip: false
+            }),
+            'clara-colour': Object.freeze({
+                name: 'Kobo Clara Colour',
+                diagonal: 6,
+                screenWidth: 1072,
+                screenHeight: 1448,
+                ppi: 300,
+                colourPpi: 150,
+                bodyWidth: 112,
+                bodyHeight: 160,
+                depth: 9.2,
+                isColour: true,
+                hasGrip: false
+            }),
+            'libra-colour': Object.freeze({
+                name: 'Kobo Libra Colour',
+                diagonal: 7,
+                screenWidth: 1264,
+                screenHeight: 1680,
+                ppi: 300,
+                colourPpi: 150,
+                bodyWidth: 144.6,
+                bodyHeight: 161,
+                depth: 8.3,
+                isColour: true,
+                hasGrip: true,
+                screenLeftMm: 8.5
+            }),
+            sage: Object.freeze({
+                name: 'Kobo Sage',
+                diagonal: 8,
+                screenWidth: 1440,
+                screenHeight: 1920,
+                ppi: 300,
+                bodyWidth: 160.5,
+                bodyHeight: 181.4,
+                depth: 7.6,
+                isColour: false,
+                hasGrip: true,
+                screenLeftMm: 8.5
+            }),
+            'elipsa-2e': Object.freeze({
+                name: 'Kobo Elipsa 2E',
+                diagonal: 10.3,
+                screenWidth: 1404,
+                screenHeight: 1872,
+                ppi: 227,
+                bodyWidth: 193,
+                bodyHeight: 227,
+                depth: 7.5,
+                isColour: false,
+                hasGrip: true,
+                screenLeftMm: 8.5
+            })
+        });
 
         let currentOutput = null;
         let currentFile = null;
         let bodyEdited = false;
-        let editMode = 'edit'; // view | edit | html — spot-check defaults to Edit
+        let editMode = 'edit'; // view | edit | diff | html — spot-check defaults to Edit
         let commitTimer = null;
         let diffOpen = false;
+        let devicePageIndex = 0;
+        let devicePageCount = 1;
+        let deviceLayoutTimer = null;
+        let currentImage = null;
+        let currentImageFile = null;
+        let imageRenderFrame = null;
 
         // —— Preferences ——
         function loadPrefs() {
@@ -863,6 +1468,12 @@
                 if (typeof p.splitChapters === 'boolean' && splitChaptersEl) splitChaptersEl.checked = p.splitChapters;
                 if (p.author && bookAuthorInput && !bookAuthorInput.value) bookAuthorInput.value = p.author;
                 if (p.lang && bookLangInput) bookLangInput.value = p.lang;
+                if (p.device && KOBO_DEVICE_PROFILES[p.device] && deviceSelect) deviceSelect.value = p.device;
+                if (p.deviceOrientation && deviceOrientation) deviceOrientation.value = p.deviceOrientation;
+                if (Number.isFinite(Number(p.deviceFontSize)) && deviceFontSize) deviceFontSize.value = p.deviceFontSize;
+                if (Number.isFinite(Number(p.deviceMargin)) && deviceMargin) deviceMargin.value = p.deviceMargin;
+                if (typeof p.deviceChrome === 'boolean' && deviceChrome) deviceChrome.checked = p.deviceChrome;
+                if (p.imageDevice && KOBO_DEVICE_PROFILES[p.imageDevice] && imageDeviceSelect) imageDeviceSelect.value = p.imageDevice;
             } catch (_) { /* ignore */ }
         }
 
@@ -872,7 +1483,13 @@
                     preserveTables: !!preserveTablesEl?.checked,
                     splitChapters: !!splitChaptersEl?.checked,
                     author: bookAuthorInput?.value?.trim() || '',
-                    lang: bookLangInput?.value?.trim() || 'en'
+                    lang: bookLangInput?.value?.trim() || 'en',
+                    device: deviceSelect?.value || 'clara-bw',
+                    deviceOrientation: deviceOrientation?.value || 'portrait',
+                    deviceFontSize: Number(deviceFontSize?.value || 3.6),
+                    deviceMargin: Number(deviceMargin?.value || 8),
+                    deviceChrome: !!deviceChrome?.checked,
+                    imageDevice: imageDeviceSelect?.value || 'clara-bw'
                 }));
             } catch (_) { /* ignore */ }
         }
@@ -940,10 +1557,12 @@
             const isHtml = mode === 'html';
             const isEdit = mode === 'edit';
             const isDiff = mode === 'diff';
+            const isView = mode === 'view';
             // Edit + Diff are both contenteditable surfaces
             const canType = isEdit || isDiff;
 
-            previewEl.classList.toggle('hidden', isHtml);
+            previewEl.classList.toggle('hidden', isHtml || isView);
+            devicePreview?.classList.toggle('hidden', !isView);
             bodyHtmlSource.classList.toggle('hidden', !isHtml);
             htmlToolbar?.classList.toggle('hidden', !isHtml);
             // Heading toolbar works in Edit and Diff
@@ -963,7 +1582,7 @@
                 previewEl.setAttribute('aria-label', 'Editable document body (Kobo-like surface)');
                 previewEl.focus();
             } else if (mode === 'view') {
-                previewEl.setAttribute('aria-label', 'Kobo device preview — export body only');
+                previewEl.removeAttribute('aria-label');
             } else if (mode === 'diff') {
                 previewEl.setAttribute('aria-label', 'Editable track-changes view — red removed, green added; type to edit');
                 previewEl.focus();
@@ -974,13 +1593,246 @@
             if (isHtml && currentOutput) {
                 bodyHtmlSource.value = prettyPrintHtml(currentOutput.bodyHtml);
             }
-            if (!isHtml) {
+            if (isView) {
+                devicePageIndex = 0;
+                renderDevicePreview({ resetPage: true });
+            } else if (!isHtml) {
                 paintPreview({ force: true });
             }
             if (isDiff) renderDiffPanel();
             if (showDiffBtn) showDiffBtn.textContent = isDiff ? 'Diff open' : 'Open Diff';
             updateEditChrome();
         }
+
+        function selectedDeviceProfile(selectEl = deviceSelect) {
+            return KOBO_DEVICE_PROFILES[selectEl?.value] || KOBO_DEVICE_PROFILES['clara-bw'];
+        }
+
+        function deviceGeometry(profile, orientation = 'portrait') {
+            const portraitScreenWidthMm = (profile.screenWidth / profile.ppi) * 25.4;
+            const portraitScreenHeightMm = (profile.screenHeight / profile.ppi) * 25.4;
+            const portraitLeftMm = Number.isFinite(profile.screenLeftMm)
+                ? profile.screenLeftMm
+                : (profile.bodyWidth - portraitScreenWidthMm) / 2;
+            const portraitTopMm = (profile.bodyHeight - portraitScreenHeightMm) / 2;
+
+            if (orientation === 'landscape') {
+                return {
+                    bodyWidthMm: profile.bodyHeight,
+                    bodyHeightMm: profile.bodyWidth,
+                    screenWidthMm: portraitScreenHeightMm,
+                    screenHeightMm: portraitScreenWidthMm,
+                    // Physical clockwise rotation of the published portrait body.
+                    screenLeftMm: profile.bodyHeight - portraitTopMm - portraitScreenHeightMm,
+                    screenTopMm: portraitLeftMm,
+                    screenWidthPx: profile.screenHeight,
+                    screenHeightPx: profile.screenWidth
+                };
+            }
+            return {
+                bodyWidthMm: profile.bodyWidth,
+                bodyHeightMm: profile.bodyHeight,
+                screenWidthMm: portraitScreenWidthMm,
+                screenHeightMm: portraitScreenHeightMm,
+                screenLeftMm: portraitLeftMm,
+                screenTopMm: portraitTopMm,
+                screenWidthPx: profile.screenWidth,
+                screenHeightPx: profile.screenHeight
+            };
+        }
+
+        function applyDeviceGeometry() {
+            if (!deviceFrame || !deviceScreen) return null;
+            const profile = selectedDeviceProfile();
+            const orientation = deviceOrientation?.value || 'portrait';
+            const geometry = deviceGeometry(profile, orientation);
+            const bodyW = geometry.bodyWidthMm;
+            const bodyH = geometry.bodyHeightMm;
+            const cssPxPerMm = 3.2;
+
+            deviceFrame.style.aspectRatio = `${bodyW} / ${bodyH}`;
+            deviceFrame.style.setProperty('--device-css-width', `${bodyW * cssPxPerMm}px`);
+            deviceFrame.style.setProperty('--device-radius', `${Math.max(8, bodyW * 0.065)}px`);
+            deviceFrame.classList.toggle('has-grip', profile.hasGrip);
+            deviceFrame.classList.toggle('is-colour', profile.isColour);
+            deviceFrame.classList.toggle('orientation-landscape', orientation === 'landscape');
+
+            deviceScreen.style.left = `${(geometry.screenLeftMm / bodyW) * 100}%`;
+            deviceScreen.style.top = `${(geometry.screenTopMm / bodyH) * 100}%`;
+            deviceScreen.style.width = `${(geometry.screenWidthMm / bodyW) * 100}%`;
+            deviceScreen.style.height = `${(geometry.screenHeightMm / bodyH) * 100}%`;
+
+            const showButtons = !!profile.hasGrip;
+            [deviceButtonOne, deviceButtonTwo].forEach((button) => {
+                button?.classList.toggle('hidden', !showButtons);
+            });
+            if (showButtons) {
+                if (orientation === 'landscape') {
+                    Object.assign(deviceButtonOne.style, {
+                        width: '11%', height: '3.5%', left: '35%', top: 'auto', right: 'auto', bottom: '4%'
+                    });
+                    Object.assign(deviceButtonTwo.style, {
+                        width: '11%', height: '3.5%', left: '53%', top: 'auto', right: 'auto', bottom: '4%'
+                    });
+                } else {
+                    Object.assign(deviceButtonOne.style, {
+                        width: '3.5%', height: '11%', left: 'auto', top: '35%', right: '7%', bottom: 'auto'
+                    });
+                    Object.assign(deviceButtonTwo.style, {
+                        width: '3.5%', height: '11%', left: 'auto', top: '53%', right: '7%', bottom: 'auto'
+                    });
+                }
+            }
+
+            const colourBit = profile.isColour
+                ? ` · ${profile.colourPpi} ppi colour`
+                : ' · B&W';
+            if (deviceSpec) {
+                deviceSpec.textContent = `${profile.diagonal}″ · ${geometry.screenWidthPx}×${geometry.screenHeightPx} · ${profile.ppi} ppi${colourBit}`;
+            }
+            if (devicePhysicalSpec) {
+                devicePhysicalSpec.textContent = `${bodyW.toFixed(bodyW % 1 ? 1 : 0)}×${bodyH.toFixed(bodyH % 1 ? 1 : 0)} mm body · ${orientation}`;
+            }
+            deviceFrame.setAttribute(
+                'aria-label',
+                `${profile.name}, ${orientation}, ${geometry.screenWidthPx} by ${geometry.screenHeightPx} screen`
+            );
+            return { profile, geometry };
+        }
+
+        function updateDeviceControlLabels() {
+            const fontMm = Number(deviceFontSize?.value || 3.6);
+            const marginMm = Number(deviceMargin?.value || 8);
+            if (deviceFontValue) deviceFontValue.textContent = `${(fontMm * 2.83465).toFixed(0)} pt`;
+            if (deviceMarginValue) deviceMarginValue.textContent = `${marginMm.toFixed(0)} mm`;
+        }
+
+        function renderDevicePreview({ resetPage = false } = {}) {
+            if (!devicePreview || !deviceBookContent) return;
+            if (resetPage) devicePageIndex = 0;
+            updateDeviceControlLabels();
+            const applied = applyDeviceGeometry();
+            if (!applied) return;
+
+            const title = bookTitleInput?.value?.trim() || currentOutput?.title || 'KoboForge preview';
+            const lang = bookLangInput?.value?.trim() || 'en';
+            const exportBody = currentOutput
+                ? prepareHtmlForEpub(canonicalizeBody(currentOutput.bodyHtml, { forExport: true }))
+                : '<h1>KoboForge</h1><p>Load a document to preview its converted EPUB body on this device.</p>';
+            deviceReaderHeader.textContent = title;
+            deviceBookContent.lang = lang;
+            deviceBookContent.innerHTML = exportBody || '<p>(Empty document)</p>';
+            deviceBookContent.querySelectorAll('img').forEach((img) => {
+                if (!img.complete) img.addEventListener('load', () => scheduleDevicePagination(), { once: true });
+            });
+            scheduleDevicePagination();
+            savePrefs();
+        }
+
+        function scheduleDevicePagination() {
+            clearTimeout(deviceLayoutTimer);
+            deviceLayoutTimer = setTimeout(layoutDevicePages, 30);
+        }
+
+        function layoutDevicePages() {
+            if (!deviceBookViewport || !deviceBookContent || !deviceScreen) return;
+            if (devicePreview?.classList.contains('hidden')) return;
+            const applied = applyDeviceGeometry();
+            if (!applied) return;
+
+            const screenWidth = deviceScreen.clientWidth;
+            const geometry = applied.geometry;
+            if (!screenWidth || !geometry.screenWidthMm) {
+                scheduleDevicePagination();
+                return;
+            }
+            const cssPxPerMm = screenWidth / geometry.screenWidthMm;
+            const fontMm = Number(deviceFontSize?.value || 3.6);
+            const marginMm = Number(deviceMargin?.value || 8);
+            const showChrome = !!deviceChrome?.checked;
+            const contentEdgeMm = showChrome ? 7 : 3.5;
+            const chromeOffsetMm = 2.5;
+
+            deviceScreen.style.setProperty('--reader-margin', `${marginMm * cssPxPerMm}px`);
+            deviceScreen.style.setProperty('--reader-content-top', `${contentEdgeMm * cssPxPerMm}px`);
+            deviceScreen.style.setProperty('--reader-content-bottom', `${contentEdgeMm * cssPxPerMm}px`);
+            deviceScreen.style.setProperty('--reader-chrome-offset', `${chromeOffsetMm * cssPxPerMm}px`);
+            deviceScreen.style.setProperty('--reader-chrome-size', `${1.9 * cssPxPerMm}px`);
+            deviceReaderHeader.classList.toggle('hidden', !showChrome);
+            deviceReaderFooter.classList.toggle('hidden', !showChrome);
+            deviceBookContent.style.fontSize = `${fontMm * cssPxPerMm}px`;
+            deviceBookContent.style.setProperty('--reader-line-height', '1.52');
+
+            // Let the absolute insets settle before reading the content viewport.
+            requestAnimationFrame(() => {
+                const pageWidth = Math.max(1, Math.floor(deviceBookViewport.clientWidth));
+                const pageHeight = Math.max(1, Math.floor(deviceBookViewport.clientHeight));
+                deviceBookContent.style.transition = 'none';
+                deviceBookContent.style.transform = 'translate3d(0,0,0)';
+                deviceBookContent.style.width = `${pageWidth}px`;
+                deviceBookContent.style.height = `${pageHeight}px`;
+                deviceBookContent.style.columnWidth = `${pageWidth}px`;
+                deviceBookContent.style.columnGap = '0px';
+
+                requestAnimationFrame(() => {
+                    const fullWidth = Math.max(pageWidth, deviceBookContent.scrollWidth);
+                    devicePageCount = Math.max(1, Math.ceil((fullWidth - 0.5) / pageWidth));
+                    devicePageIndex = Math.max(0, Math.min(devicePageIndex, devicePageCount - 1));
+                    deviceBookContent.dataset.pageWidth = String(pageWidth);
+                    deviceBookContent.style.transition = '';
+                    updateDevicePage();
+                });
+            });
+        }
+
+        function updateDevicePage() {
+            const pageWidth = Number(deviceBookContent?.dataset.pageWidth || 0);
+            devicePageIndex = Math.max(0, Math.min(devicePageIndex, Math.max(0, devicePageCount - 1)));
+            if (deviceBookContent && pageWidth) {
+                deviceBookContent.style.transform = `translate3d(${-devicePageIndex * pageWidth}px,0,0)`;
+            }
+            const label = `Page ${devicePageIndex + 1} of ${devicePageCount}`;
+            if (devicePageStatus) devicePageStatus.textContent = label;
+            if (deviceReaderFooter) deviceReaderFooter.textContent = label;
+            if (devicePagePrev) devicePagePrev.disabled = devicePageIndex <= 0;
+            if (devicePageNext) devicePageNext.disabled = devicePageIndex >= devicePageCount - 1;
+        }
+
+        [deviceSelect, deviceOrientation, deviceChrome].forEach((control) => {
+            control?.addEventListener('change', () => renderDevicePreview({ resetPage: true }));
+        });
+        [deviceFontSize, deviceMargin].forEach((control) => {
+            control?.addEventListener('input', () => {
+                updateDeviceControlLabels();
+                devicePageIndex = 0;
+                scheduleDevicePagination();
+                savePrefs();
+            });
+        });
+        devicePagePrev?.addEventListener('click', () => {
+            devicePageIndex -= 1;
+            updateDevicePage();
+        });
+        devicePageNext?.addEventListener('click', () => {
+            devicePageIndex += 1;
+            updateDevicePage();
+        });
+        devicePreview?.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+                event.preventDefault();
+                devicePageIndex -= 1;
+                updateDevicePage();
+            } else if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+                event.preventDefault();
+                devicePageIndex += 1;
+                updateDevicePage();
+            }
+        });
+        window.addEventListener('resize', () => {
+            if (editMode === 'view') scheduleDevicePagination();
+        });
+        updateDeviceControlLabels();
+        applyDeviceGeometry();
 
         function canFormatNow() {
             return (editMode === 'edit' || editMode === 'diff') && !!currentOutput && previewEl?.isContentEditable;
@@ -1920,7 +2772,7 @@
 
         function paintPreview({ force = false } = {}) {
             if (!currentOutput) {
-                previewEl.innerHTML = '<p class="kf-empty-hint">Load a document to edit structure, then switch to View for a Kobo-like device preview.</p>';
+                previewEl.innerHTML = '<p class="kf-empty-hint">Load a document to edit structure, then switch to Device for a paginated Kobo preview.</p>';
                 return;
             }
             // Never wipe the contenteditable surface while the user is mid-edit unless forced
@@ -1953,10 +2805,7 @@
 
             // View: export-faithful body only (what the device sees — no page/chapter chrome)
             if (editMode === 'view') {
-                const exportBody = prepareHtmlForEpub(
-                    canonicalizeBody(currentOutput.bodyHtml, { forExport: true })
-                );
-                previewEl.innerHTML = exportBody || '<p class="kf-empty-hint">(Empty body)</p>';
+                renderDevicePreview();
                 return;
             }
             // Edit: full body + soft markers for jumping PDF pages / chapters
@@ -2230,7 +3079,7 @@
             currentOutput = null;
             clearEditedFlag();
             editMode = 'edit';
-            previewWrap?.classList.remove('mode-view', 'mode-edit', 'mode-html');
+            previewWrap?.classList.remove('mode-view', 'mode-edit', 'mode-html', 'mode-diff');
             previewWrap?.classList.add('mode-edit');
             modeButtons.forEach((b) => {
                 const active = b.dataset.mode === 'edit';
@@ -2252,9 +3101,13 @@
             pageChipsInner.innerHTML = '';
             chapterOutlineWrap.classList.add('hidden');
             chapterOutline.innerHTML = '';
-            previewEl.innerHTML = '<p class="kf-empty-hint">Load a document to edit structure, then switch to View for a Kobo-like device preview.</p>';
+            previewEl.innerHTML = '<p class="kf-empty-hint">Load a document to edit structure, then switch to Device for a paginated Kobo preview.</p>';
             previewEl.contentEditable = 'false';
             previewEl.classList.remove('kf-editing', 'hidden');
+            devicePreview?.classList.add('hidden');
+            devicePageIndex = 0;
+            devicePageCount = 1;
+            updateDevicePage();
             bodyHtmlSource.classList.add('hidden');
             htmlToolbar.classList.add('hidden');
             editToolbar?.classList.add('hidden');
@@ -2599,7 +3452,7 @@
                 });
             }
             if (!items.length) {
-                items.push({ level: 'ok', text: 'No issues flagged. Use View for a Kobo-like device check, then download.' });
+                items.push({ level: 'ok', text: 'No issues flagged. Use Device to page through the selected Kobo profile, then download.' });
             }
 
             diagnosticsEl.innerHTML = items.map((item) => {
@@ -3641,6 +4494,240 @@ ${spineItems}
             return zip.generateAsync({ type: 'blob', mimeType: 'application/epub+zip' });
         }
 
+        function imageTargetDimensions() {
+            const profile = selectedDeviceProfile(imageDeviceSelect);
+            const landscape = imageOrientation?.value === 'landscape';
+            return {
+                profile,
+                width: landscape ? profile.screenHeight : profile.screenWidth,
+                height: landscape ? profile.screenWidth : profile.screenHeight,
+                orientation: landscape ? 'landscape' : 'portrait'
+            };
+        }
+
+        function calculateImagePlacement(sourceWidth, sourceHeight, targetWidth, targetHeight, fit = 'contain') {
+            const safeSourceWidth = Math.max(1, Number(sourceWidth) || 1);
+            const safeSourceHeight = Math.max(1, Number(sourceHeight) || 1);
+            const scale = fit === 'cover'
+                ? Math.max(targetWidth / safeSourceWidth, targetHeight / safeSourceHeight)
+                : Math.min(targetWidth / safeSourceWidth, targetHeight / safeSourceHeight);
+            const width = safeSourceWidth * scale;
+            const height = safeSourceHeight * scale;
+            return {
+                x: (targetWidth - width) / 2,
+                y: (targetHeight - height) / 2,
+                width,
+                height
+            };
+        }
+
+        function resolvedImageTone(profile) {
+            const selected = imageTone?.value || 'auto';
+            if (selected !== 'auto') return selected;
+            return profile.isColour ? 'colour' : 'dither';
+        }
+
+        function contrastChannel(value, contrast) {
+            return Math.max(0, Math.min(255, (value - 128) * contrast + 128));
+        }
+
+        function applyEinkTreatment(context, width, height, tone, contrastPercent) {
+            if (tone === 'colour' && Number(contrastPercent) === 100) return;
+            const imageData = context.getImageData(0, 0, width, height);
+            const pixels = imageData.data;
+            const contrast = Math.max(0.2, Number(contrastPercent || 100) / 100);
+
+            if (tone === 'colour') {
+                for (let i = 0; i < pixels.length; i += 4) {
+                    pixels[i] = contrastChannel(pixels[i], contrast);
+                    pixels[i + 1] = contrastChannel(pixels[i + 1], contrast);
+                    pixels[i + 2] = contrastChannel(pixels[i + 2], contrast);
+                }
+                context.putImageData(imageData, 0, 0);
+                return;
+            }
+
+            if (tone === 'grayscale') {
+                for (let i = 0; i < pixels.length; i += 4) {
+                    const luminance = contrastChannel(
+                        (pixels[i] * 0.2126) + (pixels[i + 1] * 0.7152) + (pixels[i + 2] * 0.0722),
+                        contrast
+                    );
+                    // E Ink-friendly 16-level quantization.
+                    const gray = Math.round(luminance / 17) * 17;
+                    pixels[i] = gray;
+                    pixels[i + 1] = gray;
+                    pixels[i + 2] = gray;
+                }
+                context.putImageData(imageData, 0, 0);
+                return;
+            }
+
+            // Floyd–Steinberg error diffusion at the device's native pixel grid.
+            const luminance = new Float32Array(width * height);
+            for (let i = 0, p = 0; i < pixels.length; i += 4, p += 1) {
+                luminance[p] = contrastChannel(
+                    (pixels[i] * 0.2126) + (pixels[i + 1] * 0.7152) + (pixels[i + 2] * 0.0722),
+                    contrast
+                );
+            }
+            for (let y = 0; y < height; y += 1) {
+                for (let x = 0; x < width; x += 1) {
+                    const p = (y * width) + x;
+                    const oldValue = luminance[p];
+                    const newValue = oldValue < 128 ? 0 : 255;
+                    const error = oldValue - newValue;
+                    luminance[p] = newValue;
+                    if (x + 1 < width) luminance[p + 1] += error * (7 / 16);
+                    if (y + 1 < height) {
+                        if (x > 0) luminance[p + width - 1] += error * (3 / 16);
+                        luminance[p + width] += error * (5 / 16);
+                        if (x + 1 < width) luminance[p + width + 1] += error * (1 / 16);
+                    }
+                }
+            }
+            for (let p = 0, i = 0; p < luminance.length; p += 1, i += 4) {
+                const gray = luminance[p] < 128 ? 0 : 255;
+                pixels[i] = gray;
+                pixels[i + 1] = gray;
+                pixels[i + 2] = gray;
+            }
+            context.putImageData(imageData, 0, 0);
+        }
+
+        function scheduleImageConversion() {
+            if (imageRenderFrame) cancelAnimationFrame(imageRenderFrame);
+            imageRenderFrame = requestAnimationFrame(() => {
+                imageRenderFrame = null;
+                renderImageConversion();
+            });
+        }
+
+        function renderImageConversion() {
+            const target = imageTargetDimensions();
+            const contrast = Number(imageContrast?.value || 110);
+            if (imageContrastValue) imageContrastValue.textContent = `${contrast}%`;
+            savePrefs();
+
+            if (!currentImage || !imageOutputCanvas) {
+                if (imageOutputMeta) {
+                    imageOutputMeta.textContent = `${target.profile.name}: ${target.width}×${target.height}px ${target.orientation}. Choose an image to convert.`;
+                }
+                return;
+            }
+
+            imageOutputCanvas.width = target.width;
+            imageOutputCanvas.height = target.height;
+            const context = imageOutputCanvas.getContext('2d', { willReadFrequently: true });
+            if (!context) {
+                imageOutputMeta.textContent = 'Canvas is unavailable in this browser.';
+                return;
+            }
+            context.save();
+            context.fillStyle = imageBackground?.value || '#f4f1e8';
+            context.fillRect(0, 0, target.width, target.height);
+            context.imageSmoothingEnabled = true;
+            context.imageSmoothingQuality = 'high';
+            const placement = calculateImagePlacement(
+                currentImage.naturalWidth,
+                currentImage.naturalHeight,
+                target.width,
+                target.height,
+                imageFit?.value || 'contain'
+            );
+            context.drawImage(currentImage, placement.x, placement.y, placement.width, placement.height);
+            context.restore();
+
+            const tone = resolvedImageTone(target.profile);
+            applyEinkTreatment(context, target.width, target.height, tone, contrast);
+            imageOutputCanvas.classList.remove('hidden');
+            imageOutputCanvas.classList.toggle('is-dithered', tone === 'dither');
+            imagePreviewEmpty?.classList.add('hidden');
+            imageDownloadBtn.disabled = false;
+
+            const toneLabel = tone === 'dither'
+                ? '1-bit dither'
+                : tone === 'grayscale'
+                    ? '16-level grayscale'
+                    : 'colour';
+            const formatLabel = imageFormat?.value === 'image/jpeg' ? 'JPEG' : 'PNG';
+            const fitLabel = imageFit?.value === 'cover' ? 'cover / cropped' : 'contain / uncropped';
+            imageOutputMeta.textContent = `${target.profile.name} · ${target.width}×${target.height}px · ${toneLabel} · ${fitLabel} · ${formatLabel}`;
+        }
+
+        function loadImageFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                if (imageFileStatus) imageFileStatus.textContent = 'That file is not a browser-supported image.';
+                return;
+            }
+            const url = URL.createObjectURL(file);
+            const image = new Image();
+            image.onload = () => {
+                URL.revokeObjectURL(url);
+                currentImage = image;
+                currentImageFile = file;
+                imageDropzone?.classList.add('has-image');
+                if (imageFileStatus) {
+                    imageFileStatus.textContent = `${file.name} · ${image.naturalWidth}×${image.naturalHeight}px · ${formatFileSize(file.size)}`;
+                }
+                scheduleImageConversion();
+            };
+            image.onerror = () => {
+                URL.revokeObjectURL(url);
+                if (imageFileStatus) imageFileStatus.textContent = 'This browser could not decode that image.';
+            };
+            image.src = url;
+        }
+
+        imagePickBtn?.addEventListener('click', () => imageFileInput?.click());
+        imageFileInput?.addEventListener('change', (event) => {
+            const file = event.target.files?.[0];
+            if (file) loadImageFile(file);
+        });
+        ['dragenter', 'dragover'].forEach((eventName) => {
+            imageDropzone?.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                imageDropzone.classList.add('is-active');
+            });
+        });
+        ['dragleave', 'drop'].forEach((eventName) => {
+            imageDropzone?.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                imageDropzone.classList.remove('is-active');
+            });
+        });
+        imageDropzone?.addEventListener('drop', (event) => {
+            const file = event.dataTransfer?.files?.[0];
+            if (file) loadImageFile(file);
+        });
+
+        [imageDeviceSelect, imageOrientation, imageFit, imageTone, imageFormat, imageBackground]
+            .forEach((control) => control?.addEventListener('change', scheduleImageConversion));
+        imageContrast?.addEventListener('input', scheduleImageConversion);
+
+        imageDownloadBtn?.addEventListener('click', () => {
+            if (!currentImage || !imageOutputCanvas) return;
+            const target = imageTargetDimensions();
+            const mimeType = imageFormat?.value === 'image/jpeg' ? 'image/jpeg' : 'image/png';
+            const extension = mimeType === 'image/jpeg' ? 'jpg' : 'png';
+            imageOutputCanvas.toBlob((blob) => {
+                if (!blob) {
+                    imageOutputMeta.textContent = 'Could not encode the converted image.';
+                    return;
+                }
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const sourceName = currentImageFile?.name?.replace(/\.[^.]+$/, '') || 'image';
+                link.href = url;
+                link.download = `${slugify(sourceName) || 'image'}-${slugify(target.profile.name)}-${target.width}x${target.height}.${extension}`;
+                link.click();
+                setTimeout(() => URL.revokeObjectURL(url), 0);
+                imageOutputMeta.textContent = `${target.profile.name} · ${target.width}×${target.height}px · ${formatFileSize(blob.size)} ${extension.toUpperCase()} downloaded`;
+            }, mimeType, mimeType === 'image/jpeg' ? 0.9 : undefined);
+        });
+
+        renderImageConversion();
+
         function slugify(input) {
             return input.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
         }
@@ -3658,7 +4745,10 @@ ${spineItems}
 
         // Keep outline in sync when title changes
         bookTitleInput?.addEventListener('change', () => {
-            if (currentOutput) refreshOutlineAndStats();
+            if (currentOutput) {
+                refreshOutlineAndStats();
+                if (editMode === 'view') renderDevicePreview();
+            }
         });
     </script>
 </body>

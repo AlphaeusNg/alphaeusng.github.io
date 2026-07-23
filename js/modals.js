@@ -53,7 +53,7 @@ const PROJECT_MODAL_DATA = {
     title: 'KoboForge',
     badges: ['AI TOOLING', 'LOCAL-FIRST'],
     contextLine: 'Private EPUB workflow for Kobo readers',
-    introParagraph: 'KoboForge is a browser-based EPUB builder for Kobo readers. It keeps private files local and aims to preserve paragraph structure and readability more faithfully than many document converters.',
+    introParagraph: 'KoboForge is a browser-based EPUB and image converter for Kobo readers. It keeps private files local, preserves document structure, and previews converted pages against published Kobo screen profiles.',
     sections: [
       {
         heading: 'The Problem',
@@ -61,8 +61,8 @@ const PROJECT_MODAL_DATA = {
       },
       {
         heading: 'The Approach',
-        content: 'The public page runs fully client-side. DOCX, PDF, TXT, and Markdown go through the browser; you get diagnostics, a chapter outline, PDF page jumps, e-ink preview, and View/Edit/HTML modes so you can fix structure before export. PDF handling reconstructs spaces, paragraphs, tables, and heading guesses from page coordinates. EPUB ships with nav + NCX for Kobo TOC.',
-        techNote: 'Tech: static HTML, JSZip, Mammoth, PDF.js, contenteditable + HTML source edit, client-side EPUB3 packaging (nav + NCX).'
+        content: 'The public page runs fully client-side. DOCX, PDF, TXT, and Markdown go through the browser; you get diagnostics, editing, and paginated previews for Clara, Libra, Sage, and Elipsa screen profiles before EPUB export. A separate canvas workflow fits, crops, tone-maps, or dithers images to exact device pixels. PDF handling reconstructs spaces, paragraphs, tables, and heading guesses from page coordinates. EPUB ships with nav + NCX for Kobo TOC.',
+        techNote: 'Tech: static HTML, JSZip, Mammoth, PDF.js, Canvas, contenteditable + HTML source edit, client-side EPUB3 packaging (nav + NCX).'
       }
     ],
     intersection: {
@@ -74,7 +74,7 @@ const PROJECT_MODAL_DATA = {
     },
     currentState: {
       heading: 'Current State',
-      content: 'Fully client-side: import, diagnostics, preview/edit, e-ink check, and EPUB download — nothing leaves the browser.'
+      content: 'Fully client-side: import, diagnostics, preview/edit, device pagination, EPUB download, and exact-resolution image conversion — nothing leaves the browser.'
     },
     actions: {
       primary: {

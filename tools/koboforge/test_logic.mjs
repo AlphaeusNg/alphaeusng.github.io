@@ -29,6 +29,11 @@ const features = [
     ['heading heuristic', 'lineLooksLikeHeading'],
     ['list markdown', 'listBlockToHtml'],
     ['confirm discard', 'Re-extracting will discard'],
+    ['Kobo device profiles', 'KOBO_DEVICE_PROFILES'],
+    ['paginated device surface', 'function layoutDevicePages'],
+    ['device page controls', 'devicePageNext'],
+    ['image converter', 'function renderImageConversion'],
+    ['Floyd–Steinberg dithering', 'Floyd–Steinberg'],
 ];
 for (const [label, needle] of features) assertIncludes(label, needle);
 
@@ -126,6 +131,48 @@ assert.equal(joinHyphen('hello', 'world'), null);
 
 // Escape
 assert.equal(escapeHtml('a < b & c'), 'a &lt; b &amp; c');
+
+// Published Kobo profile contract
+const deviceSpecs = [
+    ['Clara screen', 'screenWidth: 1072'],
+    ['Clara screen height', 'screenHeight: 1448'],
+    ['Libra screen', 'screenWidth: 1264'],
+    ['Libra screen height', 'screenHeight: 1680'],
+    ['Sage screen', 'screenWidth: 1440'],
+    ['Sage screen height', 'screenHeight: 1920'],
+    ['Elipsa screen', 'screenWidth: 1404'],
+    ['Elipsa screen height', 'screenHeight: 1872'],
+    ['Elipsa density', 'ppi: 227'],
+    ['Clara body width', 'bodyWidth: 112'],
+    ['Elipsa body width', 'bodyWidth: 193'],
+];
+for (const [label, needle] of deviceSpecs) assertIncludes(label, needle);
+
+function calculateImagePlacement(sourceWidth, sourceHeight, targetWidth, targetHeight, fit = 'contain') {
+    const scale = fit === 'cover'
+        ? Math.max(targetWidth / sourceWidth, targetHeight / sourceHeight)
+        : Math.min(targetWidth / sourceWidth, targetHeight / sourceHeight);
+    const width = sourceWidth * scale;
+    const height = sourceHeight * scale;
+    return {
+        x: (targetWidth - width) / 2,
+        y: (targetHeight - height) / 2,
+        width,
+        height,
+    };
+}
+
+const contain = calculateImagePlacement(2000, 1000, 1072, 1448, 'contain');
+assert.equal(contain.width, 1072);
+assert.equal(contain.height, 536);
+assert.equal(contain.x, 0);
+assert.equal(contain.y, 456);
+
+const cover = calculateImagePlacement(2000, 1000, 1072, 1448, 'cover');
+assert.equal(cover.height, 1448);
+assert.equal(cover.width, 2896);
+assert.equal(cover.y, 0);
+assert.equal(cover.x, -912);
 
 // ensureChapterTitle behavior (mirror)
 function ensureChapterTitle(html, title) {

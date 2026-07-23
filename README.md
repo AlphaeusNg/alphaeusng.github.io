@@ -18,7 +18,7 @@ The design should remain restrained, professional, and easy to share. It should 
 - `index.html`: main portfolio page served from the GitHub Pages root.
 - `pages/`: secondary public pages.
   - `pages/conviction.html`: conviction page.
-  - `pages/kobo-forge.html`: KoboForge page.
+  - `pages/kobo-forge.html`: KoboForge EPUB/device-preview/image-converter page.
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.
 - `data/`: root-level public data payloads.
   - `data/conviction_tsla_history.json`: TSLA transaction history plus the benchmark comparison used by `pages/conviction.html`.
