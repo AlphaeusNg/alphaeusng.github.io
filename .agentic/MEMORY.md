@@ -11,7 +11,7 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `js/main.js`: navbar, mobile menu, smooth scroll, active section highlighting, accessibility behavior.
 - `js/modals.js`: rich project case-study modal data and rendering.
 - `conviction.html`: standalone TSLA conviction page rendered from imported IBKR transaction history.
-- `kobo-forge.html`: standalone client-side EPUB builder page.
+- `kobo-forge.html`: standalone client-side EPUB and Kobo-sized image converter with published device profiles and paginated previews.
 - `pages/`: secondary public pages.
 - `pages/seeking-biblical-truth/index.html`: data-driven interactive viewer for the Biblical Truth knowledge-base project.
 - `pages/seeking-biblical-truth/vault-data.json`: generated from `/home/alph/projects/Seeking-Biblical-Truth` Markdown notes and `Big Picture.canvas`.
