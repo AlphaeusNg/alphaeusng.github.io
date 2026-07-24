@@ -191,21 +191,21 @@ body {
 }
 
 .support-card-widget {
-    min-width: 10rem;
+    min-width: 0;
     justify-self: end;
     text-align: right;
 }
 
 body .support-card-fallback {
     display: inline-flex;
-    min-height: 2.75rem;
+    min-height: 1.875rem;
     align-items: center;
     justify-content: center;
-    padding: 0.7rem 1rem;
-    border-radius: 0.45rem;
+    padding: 0.38rem 0.65rem;
+    border-radius: 0.375rem;
     background: #72A4F2;
     color: #FFFFFF !important;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-decoration: none !important;
 }

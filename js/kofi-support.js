@@ -37,12 +37,20 @@
       "text-align:center}" +
       ".alphaeus-kofi-support__message{color:#94a3b8;font-size:.78rem;line-height:1.45}" +
       ".alphaeus-kofi-support__message strong{color:#e2e8f0;font-weight:600}" +
-      ".alphaeus-kofi-support__button{min-width:10rem}" +
+      ".alphaeus-kofi-support__button{min-width:0}" +
       ".alphaeus-kofi-support__fallback{box-sizing:border-box;display:inline-flex;" +
-      "min-height:40px;align-items:center;justify-content:center;padding:.55rem .9rem;" +
-      "border-radius:7px;background:#72a4f2;color:#fff!important;font-size:.8rem;" +
+      "min-height:30px;align-items:center;justify-content:center;padding:.38rem .65rem;" +
+      "border-radius:6px;background:#72a4f2;color:#fff!important;font-size:.7rem;" +
       "font-weight:700;line-height:1;text-decoration:none!important}" +
       ".alphaeus-kofi-support__fallback:focus-visible{outline:2px solid #f8fafc;outline-offset:3px}" +
+      ".alphaeus-kofi-support .btn-container,.support-card-widget .btn-container{" +
+      "min-width:0!important}" +
+      ".alphaeus-kofi-support a.kofi-button,.support-card-widget a.kofi-button{" +
+      "min-width:0!important;line-height:28px!important;padding:0 8px!important;" +
+      "border-radius:6px!important;font-size:11px!important}" +
+      ".alphaeus-kofi-support .kofitext img.kofiimg," +
+      ".support-card-widget .kofitext img.kofiimg{" +
+      "width:17px!important;height:12px!important;margin-right:4px!important}" +
       "@media(max-width:520px){.alphaeus-kofi-support{gap:.55rem;padding-bottom:.9rem}" +
       ".alphaeus-kofi-support__message{flex-basis:100%}}";
     global.document.head.appendChild(style);
@@ -137,11 +145,9 @@
     var lead = global.document.createElement("strong");
     lead.textContent = "Found this project helpful?";
     copy.appendChild(lead);
-    copy.appendChild(
-      global.document.createTextNode(
-        " " + (message || "Support more open work on Ko-fi.")
-      )
-    );
+    if (message) {
+      copy.appendChild(global.document.createTextNode(" " + message));
+    }
 
     var buttonHost = global.document.createElement("div");
     buttonHost.className = "alphaeus-kofi-support__button";
