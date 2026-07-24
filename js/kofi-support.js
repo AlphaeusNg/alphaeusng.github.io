@@ -121,6 +121,7 @@
 
     addSharedStyles();
     host.dataset.alphaeusKofiMounted = "true";
+    host.classList.add("alphaeus-kofi-support__button");
     host.innerHTML = fallbackMarkup() + feedbackMarkup();
   }
 
