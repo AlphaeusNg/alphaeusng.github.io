@@ -14,12 +14,8 @@
 
   var KOFI_ID = "K1V623R7BV";
   var KOFI_URL = "https://ko-fi.com/" + KOFI_ID;
-  var KOFI_WIDGET_URL =
-    "https://storage.ko-fi.com/cdn/widget/Widget_2.js";
-  var KOFI_COLOR = "#72a4f2";
-  var KOFI_LABEL = "Support me on Ko-fi";
+  var KOFI_LABEL = "Support on Ko-fi";
   var scriptElement = global.document.currentScript;
-  var widgetPromise;
 
   function addSharedStyles() {
     if (global.document.getElementById("alphaeus-kofi-support-styles")) {
@@ -39,56 +35,13 @@
       ".alphaeus-kofi-support__message strong{color:#e2e8f0;font-weight:600}" +
       ".alphaeus-kofi-support__button{min-width:0}" +
       ".alphaeus-kofi-support__fallback{box-sizing:border-box;display:inline-flex;" +
-      "min-height:30px;align-items:center;justify-content:center;padding:.38rem .65rem;" +
-      "border-radius:6px;background:#72a4f2;color:#fff!important;font-size:.7rem;" +
+      "min-height:26px;align-items:center;justify-content:center;padding:.3rem .55rem;" +
+      "border-radius:5px;background:#72a4f2;color:#fff!important;font-size:.65rem;" +
       "font-weight:700;line-height:1;text-decoration:none!important}" +
       ".alphaeus-kofi-support__fallback:focus-visible{outline:2px solid #f8fafc;outline-offset:3px}" +
-      ".alphaeus-kofi-support .btn-container,.support-card-widget .btn-container{" +
-      "min-width:0!important}" +
-      ".alphaeus-kofi-support a.kofi-button,.support-card-widget a.kofi-button{" +
-      "min-width:0!important;line-height:28px!important;padding:0 8px!important;" +
-      "border-radius:6px!important;font-size:11px!important}" +
-      ".alphaeus-kofi-support .kofitext img.kofiimg," +
-      ".support-card-widget .kofitext img.kofiimg{" +
-      "width:17px!important;height:12px!important;margin-right:4px!important}" +
       "@media(max-width:520px){.alphaeus-kofi-support{gap:.55rem;padding-bottom:.9rem}" +
       ".alphaeus-kofi-support__message{flex-basis:100%}}";
     global.document.head.appendChild(style);
-  }
-
-  function loadOfficialWidget() {
-    if (
-      global.kofiwidget2 &&
-      typeof global.kofiwidget2.getHTML === "function"
-    ) {
-      return Promise.resolve(global.kofiwidget2);
-    }
-
-    if (widgetPromise) {
-      return widgetPromise;
-    }
-
-    widgetPromise = new Promise(function (resolve, reject) {
-      var script = global.document.createElement("script");
-      script.src = KOFI_WIDGET_URL;
-      script.async = true;
-      script.onload = function () {
-        if (
-          global.kofiwidget2 &&
-          typeof global.kofiwidget2.getHTML === "function"
-        ) {
-          resolve(global.kofiwidget2);
-        } else {
-          reject(new Error("Ko-fi widget did not initialize"));
-        }
-      };
-      script.onerror = function () {
-        reject(new Error("Ko-fi widget could not be loaded"));
-      };
-      global.document.head.appendChild(script);
-    });
-
-    return widgetPromise;
   }
 
   function fallbackMarkup() {
@@ -109,24 +62,6 @@
     addSharedStyles();
     host.dataset.alphaeusKofiMounted = "true";
     host.innerHTML = fallbackMarkup();
-
-    loadOfficialWidget()
-      .then(function (widget) {
-        widget.init(KOFI_LABEL, KOFI_COLOR, KOFI_ID);
-        host.innerHTML = widget.getHTML();
-
-        var link = host.querySelector(".kofi-button");
-        if (link) {
-          link.setAttribute("rel", "me noopener noreferrer");
-          link.setAttribute(
-            "aria-label",
-            "Support Alphaeus on Ko-fi (opens in a new tab)"
-          );
-        }
-      })
-      .catch(function () {
-        // The direct Ko-fi link remains usable when the vendor CDN is blocked.
-      });
   }
 
   function mountInFooter(footer, message) {
