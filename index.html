@@ -830,6 +830,28 @@
                 </div>
             </div>
 
+            <!-- Optional support — hosted checkout keeps payment details off this site -->
+            <div class="support-card mt-10 mx-auto max-w-xl w-full">
+                <div class="support-card-icon" aria-hidden="true">☕</div>
+                <div class="support-card-copy">
+                    <div class="support-card-eyebrow">SUPPORT MY OPEN PROJECTS</div>
+                    <h3>Found something helpful?</h3>
+                    <p>
+                        If one of my projects saved you time, or you would simply like to
+                        support more open work, you can buy me a coffee. No pressure —
+                        everything here stays free to use.
+                    </p>
+                </div>
+                <div id="kofi-support-widget" class="support-card-widget">
+                    <a href="https://ko-fi.com/K1V623R7BV"
+                       target="_blank"
+                       rel="me noopener noreferrer"
+                       class="support-card-fallback">
+                        Support me on Ko-fi ↗
+                    </a>
+                </div>
+            </div>
+
             <!-- Fun side link — deliberately separate from professional contact -->
             <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer"
                class="mt-10 mx-auto max-w-md w-full group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-left hover:border-[#C9A227]/45 hover:bg-[#C9A227]/8 transition-all">
@@ -853,6 +875,8 @@
         © Alphaeus Ng. All rights reserved.
         <span class="mx-2 opacity-40">·</span>
         <a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer">Source</a>
+        <span class="mx-2 opacity-40">·</span>
+        <a href="https://ko-fi.com/K1V623R7BV" target="_blank" rel="me noopener noreferrer">Support on Ko-fi</a>
         <span class="mx-2 opacity-40">·</span>
         <a href="pages/conviction.html" class="transition">Conviction</a>
         <span class="mx-2 opacity-40">·</span>
@@ -954,6 +978,8 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
+    <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js" defer></script>
+    <script src="js/kofi.js" defer></script>
     <script src="js/main.js" defer></script>
     <script src="js/modals.js" defer></script>
 </body>

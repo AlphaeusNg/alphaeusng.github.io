@@ -106,6 +106,13 @@ cp pages/vault-data.json /home/alph/projects/alphaeusng.github.io/pages/seeking-
 
 GitHub Pages from **`main` / repository root**.
 
+User requests to add, change, fix, or remove portfolio functionality authorize
+the complete standard deployment flow: validate, bump the site version, commit,
+and push to `main` without waiting for a separate green signal. Only keep work
+local or stop before pushing when the user explicitly asks for that. This does
+not authorize force-pushes, history rewrites, unrelated changes, or bypassing
+failed validation.
+
 ```bash
 # after validation
 git add -A && git status
