@@ -16,7 +16,8 @@
   var KOFI_URL = "https://ko-fi.com/" + KOFI_ID;
   var KOFI_ICON_URL = "https://storage.ko-fi.com/cdn/cup-border.png";
   var KOFI_LABEL = "Support me on Ko-fi";
-  var FEEDBACK_EMAIL = "alphaolivegreen@gmail.com";
+  var FEEDBACK_PAGE_URL =
+    "https://alphaeusng.github.io/pages/feedback/";
   var scriptElement = global.document.currentScript;
 
   function projectName() {
@@ -38,19 +39,12 @@
       (scriptElement && scriptElement.getAttribute("data-project")) ||
       projectName();
     var page = global.location.origin + global.location.pathname;
-    var subject = "Feedback — " + name;
-    var body =
-      "Hi Alphaeus,\n\nI have feedback about " +
-      name +
-      ":\n\n\nPage: " +
-      page;
     return (
-      "mailto:" +
-      FEEDBACK_EMAIL +
-      "?subject=" +
-      encodeURIComponent(subject) +
-      "&body=" +
-      encodeURIComponent(body)
+      FEEDBACK_PAGE_URL +
+      "?project=" +
+      encodeURIComponent(name) +
+      "&from=" +
+      encodeURIComponent(page)
     );
   }
 

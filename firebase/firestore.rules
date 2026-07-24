@@ -1,5 +1,5 @@
 rules_version = '2';
-// Combined rules: AlpArcade (scores/players) + Seeking Biblical Truth (vaultNotes).
+// Combined rules: AlpArcade, Seeking Biblical Truth, and the shared feedback inbox.
 // Deploy from portfolio root:
 //   npx firebase-tools deploy --only firestore:rules
 //
@@ -25,6 +25,66 @@ service cloud.firestore {
 
     function validGame(g) {
       return g in ['tictactoe', 'shooter', 'snake', 'reaction', 'memory', 'tapper', 'jubeat', 'breaker'];
+    }
+
+    function validFeedbackProject(project) {
+      return project in [
+        'Portfolio',
+        'Conviction',
+        'Seeking Biblical Truth',
+        'KoboForge',
+        'AlpArcade',
+        'VerseKeep',
+        'ChristoDay',
+        'CardFitSG'
+      ];
+    }
+
+    function validFeedbackType(feedbackType) {
+      return feedbackType in ['Bug', 'Suggestion', 'Design', 'Content', 'Accessibility', 'Other'];
+    }
+
+    function validFeedbackCreate() {
+      let d = request.resource.data;
+      return d.keys().hasAll([
+          'schema',
+          'project',
+          'type',
+          'rating',
+          'message',
+          'contact',
+          'sourceUrl',
+          'submittedAt'
+        ])
+        && d.keys().hasOnly([
+          'schema',
+          'project',
+          'type',
+          'rating',
+          'message',
+          'contact',
+          'sourceUrl',
+          'submittedAt'
+        ])
+        && d.schema is int
+        && d.schema == 1
+        && d.project is string
+        && validFeedbackProject(d.project)
+        && d.type is string
+        && validFeedbackType(d.type)
+        && d.rating is int
+        && d.rating >= 0
+        && d.rating <= 5
+        && d.message is string
+        && d.message.size() >= 10
+        && d.message.size() <= 4000
+        && d.contact is string
+        && d.contact.size() <= 254
+        && d.sourceUrl is string
+        && d.sourceUrl.size() >= 1
+        && d.sourceUrl.size() <= 1000
+        && d.submittedAt is timestamp
+        && d.submittedAt == request.time;
     }
 
     function validScoreWrite(scoreId) {
@@ -93,6 +153,13 @@ service cloud.firestore {
         && request.resource.data.updatedByUid == request.auth.uid;
 
       allow delete: if isVaultEditor();
+    }
+
+    // Anyone may submit a tightly validated entry. Only the owner can review
+    // or change inbox contents from an authenticated client.
+    match /feedback/{feedbackId} {
+      allow create: if validFeedbackCreate();
+      allow read, update, delete: if isVaultEditor();
     }
   }
 }

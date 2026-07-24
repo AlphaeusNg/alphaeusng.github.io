@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project feedback · Alphaeus Ng</title>
+  <meta name="description" content="Share feedback about one of Alphaeus Ng's projects.">
+  <meta name="theme-color" content="#0a0f1c">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://alphaeusng.github.io/pages/feedback/">
+  <link rel="icon" href="../../assets/alphaeus-portrait.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="css/main.css?v=2026.07.24.1">
+</head>
+<body>
+  <main class="feedback-shell">
+    <a class="back-link" id="back-link" href="../../">← Back to the project</a>
+
+    <section class="feedback-card" aria-labelledby="feedback-title">
+      <div class="feedback-intro">
+        <p class="eyebrow">Project feedback</p>
+        <h1 id="feedback-title">Share feedback</h1>
+        <p id="feedback-copy">Tell me what worked, what did not, or what would make the project more useful.</p>
+        <p class="source-note">
+          From <a id="source-link" href="../../">Alphaeus Ng's portfolio</a>
+        </p>
+      </div>
+
+      <form id="feedback-form" novalidate>
+        <div class="field">
+          <label for="project">Project category</label>
+          <select id="project" name="project" required>
+            <option value="Portfolio">Portfolio</option>
+            <option value="Conviction">Conviction</option>
+            <option value="Seeking Biblical Truth">Seeking Biblical Truth</option>
+            <option value="KoboForge">KoboForge</option>
+            <option value="AlpArcade">AlpArcade</option>
+            <option value="VerseKeep">VerseKeep</option>
+            <option value="ChristoDay">ChristoDay</option>
+            <option value="CardFitSG">CardFitSG</option>
+          </select>
+          <p class="field-hint">Preselected from the page you were viewing.</p>
+        </div>
+
+        <div class="field">
+          <label for="feedback-type">What is this about?</label>
+          <select id="feedback-type" name="feedbackType" required>
+            <option value="Suggestion">Suggestion or idea</option>
+            <option value="Bug">Something is not working</option>
+            <option value="Design">Design or usability</option>
+            <option value="Content">Content or accuracy</option>
+            <option value="Accessibility">Accessibility</option>
+            <option value="Other">Something else</option>
+          </select>
+        </div>
+
+        <fieldset class="rating-field">
+          <legend>How useful was it? <span>Optional</span></legend>
+          <div class="rating-options">
+            <input id="rating-1" type="radio" name="rating" value="1">
+            <label for="rating-1" title="Not useful">1</label>
+            <input id="rating-2" type="radio" name="rating" value="2">
+            <label for="rating-2">2</label>
+            <input id="rating-3" type="radio" name="rating" value="3">
+            <label for="rating-3">3</label>
+            <input id="rating-4" type="radio" name="rating" value="4">
+            <label for="rating-4">4</label>
+            <input id="rating-5" type="radio" name="rating" value="5">
+            <label for="rating-5" title="Very useful">5</label>
+          </div>
+          <div class="rating-scale" aria-hidden="true">
+            <span>Not useful</span>
+            <span>Very useful</span>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="message">Your feedback</label>
+          <textarea id="message" name="message" rows="7" minlength="10" maxlength="4000" required placeholder="What happened, or what would you like to see?"></textarea>
+          <div class="field-meta">
+            <span>At least 10 characters</span>
+            <span id="message-count">0 / 4000</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="contact">Email <span>Optional</span></label>
+          <input id="contact" name="contact" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="Only if you would like a reply">
+          <p class="field-hint">Used only to respond to this feedback.</p>
+        </div>
+
+        <div class="honeypot" aria-hidden="true">
+          <label for="website">Website</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <button id="submit-button" type="submit">Send feedback</button>
+        <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+        <a id="github-fallback" class="github-fallback" href="https://github.com/AlphaeusNg/alphaeusng.github.io/issues/new" target="_blank" rel="noopener noreferrer" hidden>
+          Open a prefilled GitHub feedback draft instead ↗
+        </a>
+      </form>
+    </section>
+
+    <footer>
+      <a href="../../">Alphaeus Ng</a>
+      <span aria-hidden="true">·</span>
+      Feedback is reviewed personally
+    </footer>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="js/app.js?v=2026.07.24.1"></script>
+</body>
+</html>

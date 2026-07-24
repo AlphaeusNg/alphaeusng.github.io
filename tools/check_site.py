@@ -43,6 +43,9 @@ def main() -> None:
         ROOT / "js" / "kobo-forge.js",
         ROOT / "pages" / "conviction.html",
         ROOT / "pages" / "kobo-forge.html",
+        ROOT / "pages" / "feedback" / "index.html",
+        ROOT / "pages" / "feedback" / "css" / "main.css",
+        ROOT / "pages" / "feedback" / "js" / "app.js",
         ROOT / "pages" / "seeking-biblical-truth" / "index.html",
         ROOT / "pages" / "seeking-biblical-truth" / "css" / "main.css",
         ROOT / "pages" / "seeking-biblical-truth" / "js" / "app.js",
@@ -74,6 +77,7 @@ def main() -> None:
         ROOT / "404.html",
         ROOT / "pages" / "conviction.html",
         ROOT / "pages" / "kobo-forge.html",
+        ROOT / "pages" / "feedback" / "index.html",
         ROOT / "pages" / "seeking-biblical-truth" / "index.html",
     ]
     for entry in html_entries:
