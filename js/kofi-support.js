@@ -143,7 +143,7 @@
       )
     );
 
-    var buttonHost = global.document.createElement("span");
+    var buttonHost = global.document.createElement("div");
     buttonHost.className = "alphaeus-kofi-support__button";
 
     wrapper.appendChild(copy);
