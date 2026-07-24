@@ -15,7 +15,7 @@
   var KOFI_ID = "K1V623R7BV";
   var KOFI_URL = "https://ko-fi.com/" + KOFI_ID;
   var KOFI_ICON_URL = "https://storage.ko-fi.com/cdn/cup-border.png";
-  var KOFI_LABEL = "Support on Ko-fi";
+  var KOFI_LABEL = "Support me on Ko-fi";
   var scriptElement = global.document.currentScript;
 
   function addSharedStyles() {
