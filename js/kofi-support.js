@@ -1,5 +1,5 @@
 /**
- * Shared Ko-fi support component for Alphaeus Ng project pages.
+ * Shared support and feedback component for Alphaeus Ng project pages.
  *
  * Usage:
  *   <script src="https://alphaeusng.github.io/js/kofi-support.js"
@@ -16,7 +16,43 @@
   var KOFI_URL = "https://ko-fi.com/" + KOFI_ID;
   var KOFI_ICON_URL = "https://storage.ko-fi.com/cdn/cup-border.png";
   var KOFI_LABEL = "Support me on Ko-fi";
+  var FEEDBACK_EMAIL = "alphaolivegreen@gmail.com";
   var scriptElement = global.document.currentScript;
+
+  function projectName() {
+    var pathname = global.location.pathname.toLowerCase();
+    if (pathname.indexOf("/koboforge") === 0) return "KoboForge";
+    if (pathname.indexOf("/alparcade") === 0) return "AlpArcade";
+    if (pathname.indexOf("/versekeep") === 0) return "VerseKeep";
+    if (pathname.indexOf("/christoday") === 0) return "ChristoDay";
+    if (pathname.indexOf("/cardfitsg") === 0) return "CardFitSG";
+    if (pathname.indexOf("/pages/seeking-biblical-truth") >= 0) {
+      return "Seeking Biblical Truth";
+    }
+    if (pathname.indexOf("/pages/conviction") >= 0) return "Conviction";
+    return "Portfolio";
+  }
+
+  function feedbackUrl() {
+    var name =
+      (scriptElement && scriptElement.getAttribute("data-project")) ||
+      projectName();
+    var page = global.location.origin + global.location.pathname;
+    var subject = "Feedback — " + name;
+    var body =
+      "Hi Alphaeus,\n\nI have feedback about " +
+      name +
+      ":\n\n\nPage: " +
+      page;
+    return (
+      "mailto:" +
+      FEEDBACK_EMAIL +
+      "?subject=" +
+      encodeURIComponent(subject) +
+      "&body=" +
+      encodeURIComponent(body)
+    );
+  }
 
   function addSharedStyles() {
     if (global.document.getElementById("alphaeus-kofi-support-styles")) {
@@ -34,14 +70,24 @@
       "text-align:center}" +
       ".alphaeus-kofi-support__message{color:#94a3b8;font-size:.78rem;line-height:1.45}" +
       ".alphaeus-kofi-support__message strong{color:#e2e8f0;font-weight:600}" +
-      ".alphaeus-kofi-support__button{min-width:0}" +
+      ".alphaeus-kofi-support__button{min-width:0;display:inline-flex;align-items:center;" +
+      "justify-content:center;gap:.4rem;flex-wrap:wrap}" +
       ".alphaeus-kofi-support__fallback{box-sizing:border-box;display:inline-flex;" +
       "min-height:26px;align-items:center;justify-content:center;gap:4px;padding:.3rem .55rem;" +
       "border-radius:5px;background:#72a4f2;color:#fff!important;font-size:.65rem;" +
       "font-weight:700;line-height:1;text-decoration:none!important}" +
+      ".alphaeus-kofi-support__feedback{box-sizing:border-box;display:inline-flex;" +
+      "min-height:26px;align-items:center;justify-content:center;padding:.3rem .58rem;" +
+      "border:1px solid rgba(148,163,184,.38);border-radius:5px;" +
+      "background:rgba(15,23,42,.58);color:#e2e8f0!important;font-size:.65rem;" +
+      "font-weight:700;line-height:1;text-decoration:none!important}" +
+      ".alphaeus-kofi-support__feedback:hover{border-color:rgba(114,164,242,.75);" +
+      "background:rgba(114,164,242,.12);color:#fff!important}" +
       ".alphaeus-kofi-support__icon{display:block;width:14px;height:11px;" +
       "object-fit:contain;flex:0 0 auto}" +
-      ".alphaeus-kofi-support__fallback:focus-visible{outline:2px solid #f8fafc;outline-offset:3px}" +
+      ".alphaeus-kofi-support__fallback:focus-visible," +
+      ".alphaeus-kofi-support__feedback:focus-visible{" +
+      "outline:2px solid #f8fafc;outline-offset:3px}" +
       "@media(max-width:520px){.alphaeus-kofi-support{gap:.55rem;padding-bottom:.9rem}" +
       ".alphaeus-kofi-support__message{flex-basis:100%}}";
     global.document.head.appendChild(style);
@@ -60,6 +106,14 @@
     );
   }
 
+  function feedbackMarkup() {
+    return (
+      '<a class="alphaeus-kofi-support__feedback" href="' +
+      feedbackUrl() +
+      '">Feedback</a>'
+    );
+  }
+
   function renderButton(host) {
     if (!host || host.dataset.alphaeusKofiMounted === "true") {
       return;
@@ -67,7 +121,7 @@
 
     addSharedStyles();
     host.dataset.alphaeusKofiMounted = "true";
-    host.innerHTML = fallbackMarkup();
+    host.innerHTML = fallbackMarkup() + feedbackMarkup();
   }
 
   function mountInFooter(footer, message) {
@@ -79,7 +133,7 @@
 
     var wrapper = global.document.createElement("div");
     wrapper.className = "alphaeus-kofi-support";
-    wrapper.setAttribute("aria-label", "Support these open projects");
+    wrapper.setAttribute("aria-label", "Support and share feedback");
 
     var copy = global.document.createElement("span");
     copy.className = "alphaeus-kofi-support__message";
@@ -119,6 +173,7 @@
   global.AlphaeusKofiSupport = {
     mount: mount,
     pageUrl: KOFI_URL,
+    feedbackUrl: feedbackUrl,
   };
 
   function autoMount() {
