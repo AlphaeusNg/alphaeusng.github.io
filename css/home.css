@@ -201,6 +201,7 @@ body .support-card-fallback {
     min-height: 1.625rem;
     align-items: center;
     justify-content: center;
+    gap: 0.25rem;
     padding: 0.3rem 0.55rem;
     border-radius: 0.3125rem;
     background: #72A4F2;
@@ -208,6 +209,13 @@ body .support-card-fallback {
     font-size: 0.65rem;
     font-weight: 700;
     text-decoration: none !important;
+}
+
+.support-card-fallback-icon {
+    width: 0.875rem;
+    height: 0.6875rem;
+    flex: 0 0 auto;
+    object-fit: contain;
 }
 
 body .support-card-fallback:focus-visible {
