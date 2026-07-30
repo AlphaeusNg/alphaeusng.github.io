@@ -8,16 +8,15 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 
 - `index.html`: main single-page portfolio and modal templates.
 - `css/main.css`: shared portfolio foundations.
-- `css/home.css`, `css/404.css`, `css/conviction.css`, `css/kobo-forge.css`:
-  route-specific styles kept out of HTML entry points.
+- `css/home.css`, `css/404.css`, and `css/conviction.css`: route-specific
+  styles kept out of HTML entry points.
 - `js/main.js`: navbar, mobile menu, smooth scroll, active section highlighting, accessibility behavior.
 - `js/modals.js`: rich project case-study modal data and rendering.
 - `js/conviction.js`: conviction chart and benchmark application.
-- `js/kobo-forge.js`: client-side EPUB and Kobo-sized image converter with
-  published device profiles and paginated previews.
 - `pages/`: secondary public pages.
 - `pages/conviction.html`: standalone TSLA conviction entry point.
-- `pages/kobo-forge.html`: standalone KoboForge entry point.
+- `pages/kobo-forge.html`: compatibility redirect to the separate
+  `AlphaeusNg/KoboForge` project site.
 - `pages/seeking-biblical-truth/index.html`: data-driven interactive viewer for the Biblical Truth knowledge-base project.
 - `pages/seeking-biblical-truth/css/main.css`: viewer-only styles.
 - `pages/seeking-biblical-truth/js/app.js`: graph and note-browser application.
@@ -26,7 +25,6 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `firebase/`: shared Firebase infra (combined Firestore rules + indexes + deploy docs). CLI: root `firebase.json` / `.firebaserc`.
 - `assets/`: images and share assets referenced by public pages.
 - `tools/`: maintenance scripts grouped by domain.
-- `tools/koboforge/`: KoboForge companion tooling.
 - `tools/finance/`: financial data extraction utilities.
 - `data/tsla_transactions.csv`: imported IBKR TSLA transaction history.
 - `data/conviction_tsla_history.json`: split-adjusted monthly dataset consumed by `js/conviction.js`.
@@ -36,6 +34,10 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 ## Deployment
 
 GitHub Pages serves the repository root from `main`. The current site is zero-build static HTML/CSS/JS. `.nojekyll` must be present so GitHub Pages will not run Jekyll processing (restored if missing).
+
+KoboForge is implemented and deployed only from `/home/alph/projects/KoboForge`.
+Portfolio entry points link to `/KoboForge/`; `pages/kobo-forge.html` exists only
+as a compatibility redirect for old bookmarks.
 
 ## Known Issues And Risks
 
@@ -63,7 +65,7 @@ python3 -m http.server 8000
 Then inspect:
 
 - `http://127.0.0.1:8000/`
-- `http://127.0.0.1:8000/pages/kobo-forge.html`
+- `http://127.0.0.1:8000/pages/kobo-forge.html` (compatibility redirect)
 - `http://127.0.0.1:8000/pages/conviction.html`
 - `http://127.0.0.1:8000/pages/seeking-biblical-truth/`
 - `http://127.0.0.1:8000/seeking-biblical-truth/` redirect
@@ -73,7 +75,6 @@ Also run static checks:
 ```bash
 python3 -m compileall tools
 python3 tools/check_site.py
-node tools/koboforge/test_logic.mjs
 while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 find . -maxdepth 3 -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \) -print
 rg -n 'href="#"|Seeking-Biblical-Truth/|src=' index.html js README.md pages

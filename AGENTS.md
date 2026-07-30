@@ -20,11 +20,9 @@ css/
   home.css
   404.css
   conviction.css
-  kobo-forge.css
 js/main.js                 # Nav, mobile menu, scroll, a11y
 js/modals.js               # Project case-study modal content
 js/conviction.js
-js/kobo-forge.js
 js/version.js              # SITE_VERSION — bump every deploy
 firebase/                  # Shared Firebase infra (rules + indexes + docs)
   README.md
@@ -33,7 +31,7 @@ firebase/                  # Shared Firebase infra (rules + indexes + docs)
 firebase.json  .firebaserc # CLI entry (repo root — standard)
 pages/
   conviction.html
-  kobo-forge.html
+  kobo-forge.html          # compatibility redirect to /KoboForge/
   seeking-biblical-truth/  # Public vault viewer (vault-data.json)
     css/main.css
     js/app.js
@@ -45,7 +43,6 @@ assets/                    # Images, resume files
 tools/
   check_site.py
   finance/                 # TSLA/SPY generators (local data helpers)
-  koboforge/
   extract_networth_data.py
 robots.txt  sitemap.xml  .nojekyll
 ```
@@ -54,13 +51,16 @@ robots.txt  sitemap.xml  .nojekyll
 
 | Project | Local path | URL |
 |---|---|---|
+| KoboForge | `/home/alph/projects/KoboForge` | https://alphaeusng.github.io/KoboForge/ |
 | AlpArcade | `/home/alph/projects/AlpArcade` | https://alphaeusng.github.io/AlpArcade/ |
 | VerseKeep | `/home/alph/projects/VerseKeep` | https://alphaeusng.github.io/VerseKeep/ |
 | ChristoDay | `/home/alph/projects/ChristoDay` | https://alphaeusng.github.io/ChristoDay/ |
 | CardFitSG | `/home/alph/projects/CardFitSG` | https://alphaeusng.github.io/CardFitSG/ |
 | Vault source | `/home/alph/projects/Seeking-Biblical-Truth` | (content repo; viewer is under `pages/seeking-biblical-truth/`) |
 
-Do **not** implement arcade, VerseKeep, ChristoDay, or CardFitSG features in this repo — only links and portfolio cards.
+Do **not** implement KoboForge, arcade, VerseKeep, ChristoDay, or CardFitSG
+features in this repo — only links, compatibility redirects, and portfolio
+cards.
 
 ## Commands
 
@@ -69,12 +69,11 @@ cd /home/alph/projects/alphaeusng.github.io
 python3 -m http.server 8000
 # http://127.0.0.1:8000/
 # http://127.0.0.1:8000/pages/conviction.html
-# http://127.0.0.1:8000/pages/kobo-forge.html
+# http://127.0.0.1:8000/pages/kobo-forge.html  # redirect
 # http://127.0.0.1:8000/pages/seeking-biblical-truth/
 
 python3 tools/check_site.py
 python3 -m compileall tools
-node tools/koboforge/test_logic.mjs
 while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 ```
 

@@ -3,7 +3,8 @@
 This folder contains secondary deployable pages for the portfolio.
 
 - `conviction.html`: public conviction page.
-- `kobo-forge.html`: public KoboForge EPUB and Kobo image-converter page.
+- `kobo-forge.html`: compatibility redirect to the standalone `/KoboForge/`
+  project site; no converter implementation lives in this repository.
 - `feedback/`: shared, project-aware feedback form used by all public projects.
 - `seeking-biblical-truth/`: public graph viewer generated from the separate `Seeking-Biblical-Truth` vault repository.
 

@@ -18,20 +18,20 @@ The design should remain restrained, professional, and easy to share. It should 
 - `index.html`: main portfolio page served from the GitHub Pages root.
 - `pages/`: secondary public pages.
   - `pages/conviction.html`: conviction page.
-  - `pages/kobo-forge.html`: KoboForge EPUB/device-preview/image-converter page.
+  - `pages/kobo-forge.html`: compatibility redirect to the standalone
+    [KoboForge repository](https://github.com/AlphaeusNg/KoboForge).
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.
 - `data/`: root-level public data payloads.
   - `data/conviction_tsla_history.json`: TSLA transaction history plus the benchmark comparison used by `pages/conviction.html`.
 - `css/`: grouped site styles (`main.css` shared foundations plus route-specific
-  `home.css`, `404.css`, `conviction.css`, and `kobo-forge.css`).
+  `home.css`, `404.css`, and `conviction.css`).
 - `js/`: grouped site applications (`main.js`, `modals.js`, `conviction.js`,
-  `kobo-forge.js`, and the shared `version.js` deployment stamp).
+  and the shared `version.js` deployment stamp).
 - `pages/seeking-biblical-truth/css/` and `pages/seeking-biblical-truth/js/`:
   feature-local viewer assets, including the documented Firebase runtime files.
 - `assets/`: images and share assets referenced by public pages (prefer compressed JPEG web assets; keep originals only when needed).
 - `robots.txt` / `sitemap.xml`: basic crawl hints for the public site.
 - `tools/`: scripts grouped by domain.
-  - `tools/koboforge/`: KoboForge tests and notes (web converter is under `pages/`).
   - `tools/finance/`: local-only financial data helpers, including the TSLA-versus-SPY benchmark generator, the legacy benchmark snapshot, and the anonymized trade ledger.
 - `.nojekyll`: required so GitHub Pages serves this as static files.
 
@@ -46,7 +46,7 @@ Open:
 
 - http://127.0.0.1:8000/
 - http://127.0.0.1:8000/pages/conviction.html
-- http://127.0.0.1:8000/pages/kobo-forge.html
+- http://127.0.0.1:8000/pages/kobo-forge.html (redirects to the standalone site)
 - http://127.0.0.1:8000/pages/seeking-biblical-truth/
 
 The conviction page reads from `data/conviction_tsla_history.json`, which is committed directly in this repo.
@@ -83,7 +83,6 @@ Run before pushing:
 ```bash
 python3 tools/check_site.py
 python3 -m compileall tools
-node tools/koboforge/test_logic.mjs
 while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 python3 -m http.server 8000
 ```

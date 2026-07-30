@@ -35,12 +35,10 @@ def main() -> None:
         ROOT / "css" / "404.css",
         ROOT / "css" / "conviction.css",
         ROOT / "css" / "home.css",
-        ROOT / "css" / "kobo-forge.css",
         ROOT / "css" / "main.css",
         ROOT / "js" / "main.js",
         ROOT / "js" / "modals.js",
         ROOT / "js" / "conviction.js",
-        ROOT / "js" / "kobo-forge.js",
         ROOT / "pages" / "conviction.html",
         ROOT / "pages" / "kobo-forge.html",
         ROOT / "pages" / "feedback" / "index.html",
@@ -71,6 +69,27 @@ def main() -> None:
     if 'src="js/main.js" defer' not in home or 'src="js/modals.js" defer' not in home:
         fail("home page should defer main.js and modals.js")
     ok("home page defers main.js and modals.js")
+
+    canonical_koboforge = "https://alphaeusng.github.io/KoboForge/"
+    if "pages/kobo-forge.html" in home:
+        fail("portfolio home still links to the legacy KoboForge page")
+    if home.count(canonical_koboforge) < 3:
+        fail("portfolio KoboForge entry points do not all use the standalone site")
+    legacy_koboforge = (ROOT / "pages" / "kobo-forge.html").read_text(encoding="utf-8")
+    if (
+        f'http-equiv="refresh" content="0; url={canonical_koboforge}"'
+        not in legacy_koboforge
+        or f'rel="canonical" href="{canonical_koboforge}"' not in legacy_koboforge
+    ):
+        fail("legacy KoboForge route is not a canonical compatibility redirect")
+    for obsolete in [
+        ROOT / "css" / "kobo-forge.css",
+        ROOT / "js" / "kobo-forge.js",
+        ROOT / "tools" / "koboforge" / "test_logic.mjs",
+    ]:
+        if obsolete.exists():
+            fail(f"obsolete duplicate KoboForge implementation remains: {obsolete.relative_to(ROOT)}")
+    ok("KoboForge routes use the standalone repository only")
 
     html_entries = [
         ROOT / "index.html",

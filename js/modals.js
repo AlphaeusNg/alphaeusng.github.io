@@ -79,7 +79,7 @@ const PROJECT_MODAL_DATA = {
     actions: {
       primary: {
         label: 'Open KoboForge page',
-        url: 'pages/kobo-forge.html',
+        url: 'https://alphaeusng.github.io/KoboForge/',
         icon: 'external-link'
       }
     }
