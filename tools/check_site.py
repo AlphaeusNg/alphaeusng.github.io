@@ -70,6 +70,20 @@ def main() -> None:
         fail("home page should defer main.js and modals.js")
     ok("home page defers main.js and modals.js")
 
+    main_css = (ROOT / "css" / "main.css").read_text(encoding="utf-8")
+    main_js = (ROOT / "js" / "main.js").read_text(encoding="utf-8")
+    if (
+        'id="mobile-menu-scrim"' not in home
+        or 'aria-controls="mobile-menu"' not in home
+        or ".site-nav.mobile-menu-open" not in main_css
+        or ".mobile-menu-scrim" not in main_css
+        or "body.mobile-menu-open" not in main_css
+        or "function setMobileMenuOpen" not in main_js
+        or "scrim.hidden = !isOpen" not in main_js
+    ):
+        fail("mobile navigation must immediately dim and isolate the page behind it")
+    ok("mobile navigation uses an immediate page scrim and opaque header state")
+
     canonical_koboforge = "https://alphaeusng.github.io/KoboForge/"
     if "pages/kobo-forge.html" in home:
         fail("portfolio home still links to the legacy KoboForge page")

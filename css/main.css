@@ -336,6 +336,21 @@ button.linkish:focus-visible {
     box-shadow: 0 10px 30px rgba(2, 6, 23, 0.28);
 }
 
+.mobile-menu-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    border: 0;
+    background: rgba(2, 6, 16, 0.84);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    cursor: pointer;
+}
+
+.mobile-menu-scrim[hidden] {
+    display: none;
+}
+
 .proof-chip {
     display: inline-flex;
     align-items: center;
@@ -1240,10 +1255,35 @@ button.portrait-phone-status:focus-visible {
 }
 
 @media (max-width: 767px) {
+    body.mobile-menu-open {
+        overflow: hidden;
+    }
+
+    .site-nav.mobile-menu-open {
+        background-color: rgba(10, 15, 28, 0.99);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom-color: var(--nav-border-hover);
+        box-shadow: 0 16px 40px rgba(2, 6, 23, 0.5);
+    }
+
+    .site-nav.mobile-menu-open #mobile-menu {
+        max-height: calc(100dvh - 5rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .nav-pill {
         min-width: 0;
     }
 
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-scrim {
+        display: none;
+    }
 }
 
 /* —— Project quick-link tabs (under primary nav) —— */

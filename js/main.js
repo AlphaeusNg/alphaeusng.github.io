@@ -27,8 +27,21 @@ function initNavbar() {
 function initMobileMenu() {
     const btn = document.getElementById('mobile-menu-btn');
     const menu = document.getElementById('mobile-menu');
+    const nav = document.getElementById('nav');
+    const scrim = document.getElementById('mobile-menu-scrim');
     
-    if (!btn || !menu) return;
+    if (!btn || !menu || !nav || !scrim) return;
+
+    const menuIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    `;
+    const closeIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    `;
 
     function resetMobileNavPanels() {
         document.querySelectorAll('.mobile-nav-toggle').forEach(toggle => {
@@ -38,37 +51,39 @@ function initMobileMenu() {
         });
     }
 
+    function setMobileMenuOpen(isOpen, { resetPanels = !isOpen } = {}) {
+        menu.classList.toggle('hidden', !isOpen);
+        nav.classList.toggle('mobile-menu-open', isOpen);
+        document.body.classList.toggle('mobile-menu-open', isOpen);
+        scrim.hidden = !isOpen;
+        scrim.setAttribute('aria-hidden', String(!isOpen));
+        btn.setAttribute('aria-expanded', String(isOpen));
+        btn.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+        btn.innerHTML = isOpen ? closeIcon : menuIcon;
+        if (resetPanels) resetMobileNavPanels();
+    }
+
+    function closeMobileMenu({ restoreFocus = false } = {}) {
+        if (menu.classList.contains('hidden')) return;
+        setMobileMenuOpen(false);
+        if (restoreFocus) btn.focus({ preventScroll: true });
+    }
+
     btn.addEventListener('click', () => {
-        const isHidden = menu.classList.contains('hidden');
-        menu.classList.toggle('hidden');
-        
-        if (isHidden) {
-            btn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            `;
-        } else {
-            resetMobileNavPanels();
-            btn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            `;
-        }
+        setMobileMenuOpen(menu.classList.contains('hidden'));
+    });
+    scrim.addEventListener('click', () => closeMobileMenu({ restoreFocus: true }));
+    document.addEventListener('portfolio:close-mobile-menu', () => {
+        closeMobileMenu({ restoreFocus: true });
     });
 
     // Close menu when clicking a link
     document.querySelectorAll('.mobile-link').forEach(link => {
-        link.addEventListener('click', () => {
-            menu.classList.add('hidden');
-            resetMobileNavPanels();
-            btn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            `;
-        });
+        link.addEventListener('click', () => closeMobileMenu());
+    });
+
+    window.matchMedia('(min-width: 768px)').addEventListener?.('change', event => {
+        if (event.matches) closeMobileMenu();
     });
 }
 
@@ -1478,21 +1493,8 @@ function initAccessibility() {
                 }
             } else {
                 const menu = document.getElementById('mobile-menu');
-                const btn = document.getElementById('mobile-menu-btn');
                 if (menu && !menu.classList.contains('hidden')) {
-                    menu.classList.add('hidden');
-                    document.querySelectorAll('.mobile-nav-toggle').forEach(toggle => {
-                        const panel = document.getElementById(toggle.getAttribute('aria-controls'));
-                        panel?.classList.add('hidden');
-                        toggle.setAttribute('aria-expanded', 'false');
-                    });
-                    if (btn) {
-                        btn.innerHTML = `
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        `;
-                    }
+                    document.dispatchEvent(new CustomEvent('portfolio:close-mobile-menu'));
                 }
                 document.querySelectorAll('[data-nav-menu]').forEach(menuGroup => {
                     const panel = menuGroup.querySelector('.nav-submenu');
