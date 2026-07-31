@@ -1,5 +1,18 @@
 body { font-family: Inter, system-ui, sans-serif; }
 .vault-title { font-family: Georgia, serif; }
+.vault-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding: 1rem 0;
+  background: rgba(10, 15, 28, .94);
+  backdrop-filter: blur(14px);
+  transition: transform .22s ease, opacity .22s ease;
+  will-change: transform;
+}
+.vault-header.is-scroll-hidden { transform: translateY(calc(-100% - 1px)); opacity: 0; pointer-events: none; }
+.vault-header:focus-within { transform: translateY(0); opacity: 1; pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) { .vault-header { transition: none; } }
 .graph-label { pointer-events: none; fill: #E5E7EB; font-size: 11px; paint-order: stroke; stroke: #0A0F1C; stroke-width: 3px; }
 .note-body h1, .note-body h2, .note-body h3, .note-body h4 { color: #F8FAFC; font-weight: 650; margin: 1rem 0 .45rem; line-height: 1.2; }
 .note-body p { margin: .65rem 0; }

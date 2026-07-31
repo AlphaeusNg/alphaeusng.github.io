@@ -10,16 +10,38 @@ function initTailwind() {
 function initNavbar() {
     const nav = document.getElementById('nav');
     if (!nav) return;
-    
+
+    let lastScrollY = Math.max(0, window.scrollY);
+    let ticking = false;
+
     function handleScroll() {
-        if (window.scrollY > 20) {
+        const scrollY = Math.max(0, window.scrollY);
+        const delta = scrollY - lastScrollY;
+
+        if (scrollY > 20) {
             nav.classList.add('nav-scrolled', 'shadow-xl');
         } else {
             nav.classList.remove('nav-scrolled', 'shadow-xl');
         }
+
+        if (scrollY <= 16 || delta < 0 || nav.matches(':focus-within') || nav.classList.contains('mobile-menu-open')) {
+            nav.classList.remove('is-scroll-hidden');
+        } else if (delta > 0 && scrollY > nav.offsetHeight) {
+            nav.classList.add('is-scroll-hidden');
+        }
+
+        lastScrollY = scrollY;
+        ticking = false;
     }
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    function queueUpdate() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(handleScroll);
+    }
+
+    nav.addEventListener('focusin', () => nav.classList.remove('is-scroll-hidden'));
+    window.addEventListener('scroll', queueUpdate, { passive: true });
     handleScroll();
 }
 

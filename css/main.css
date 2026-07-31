@@ -327,6 +327,19 @@ button.linkish:focus-visible {
 .site-nav {
     border-bottom: 1px solid var(--nav-border);
     background: transparent;
+    transition: transform 0.22s ease, background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+    will-change: transform;
+}
+
+.site-nav.is-scroll-hidden {
+    transform: translateY(calc(-100% - 1px));
+    pointer-events: none;
+}
+
+.site-nav:focus-within,
+.site-nav.mobile-menu-open {
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .site-nav.nav-scrolled {
@@ -334,6 +347,12 @@ button.linkish:focus-visible {
     backdrop-filter: blur(14px);
     border-bottom-color: var(--nav-border-hover);
     box-shadow: 0 10px 30px rgba(2, 6, 23, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-nav {
+        transition: none;
+    }
 }
 
 .mobile-menu-scrim {

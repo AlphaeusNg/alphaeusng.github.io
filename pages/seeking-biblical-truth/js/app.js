@@ -25,6 +25,32 @@ const markdown = window.markdownit
 
 const esc = (s = '') => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
+function bindAutoHideHeader() {
+  const header = document.querySelector('.vault-header');
+  if (!header) return;
+  let lastY = Math.max(0, window.scrollY);
+  let ticking = false;
+
+  function update() {
+    const y = Math.max(0, window.scrollY);
+    const delta = y - lastY;
+    if (y <= 16 || delta < 0 || header.matches(':focus-within')) {
+      header.classList.remove('is-scroll-hidden');
+    } else if (delta > 0 && y > header.offsetHeight) {
+      header.classList.add('is-scroll-hidden');
+    }
+    lastY = y;
+    ticking = false;
+  }
+
+  header.addEventListener('focusin', () => header.classList.remove('is-scroll-hidden'));
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }, { passive: true });
+}
+
 function normalizeLookupKey(value = '') {
   return decodeURIComponent(value)
     .replace(/\\/g, '/')
@@ -723,6 +749,7 @@ document.getElementById('btn-google-signout')?.addEventListener('click', async (
 });
 
 // Boot cloud + vault
+bindAutoHideHeader();
 paintAuthBar();
 if (window.VaultCloud) {
   window.VaultCloud.onChange(() => {
