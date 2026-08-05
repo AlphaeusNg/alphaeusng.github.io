@@ -108,32 +108,47 @@
     );
   }
 
-  function renderButton(host) {
+  function renderButton(host, options) {
     if (!host || host.dataset.alphaeusKofiMounted === "true") {
       return;
     }
 
+    var settings = options || {};
+    var includeKofi = settings.includeKofi !== false;
+    var includeFeedback = settings.includeFeedback !== false;
+
     addSharedStyles();
     host.dataset.alphaeusKofiMounted = "true";
     host.classList.add("alphaeus-kofi-support__button");
-    host.innerHTML = fallbackMarkup() + feedbackMarkup();
+    host.innerHTML =
+      (includeKofi ? fallbackMarkup() : "") +
+      (includeFeedback ? feedbackMarkup() : "");
   }
 
-  function mountInFooter(footer, message) {
+  function mountInFooter(footer, message, options) {
     if (!footer || footer.querySelector(".alphaeus-kofi-support")) {
       return;
     }
 
+    var settings = options || {};
     addSharedStyles();
 
     var wrapper = global.document.createElement("div");
     wrapper.className = "alphaeus-kofi-support";
-    wrapper.setAttribute("aria-label", "Support and share feedback");
+    wrapper.setAttribute(
+      "aria-label",
+      settings.includeKofi === false
+        ? "Share feedback"
+        : "Support and share feedback"
+    );
 
     var copy = global.document.createElement("span");
     copy.className = "alphaeus-kofi-support__message";
     var lead = global.document.createElement("strong");
-    lead.textContent = "Found this project helpful?";
+    lead.textContent =
+      settings.includeKofi === false
+        ? "Have feedback?"
+        : "Found this project helpful?";
     copy.appendChild(lead);
     if (message) {
       copy.appendChild(global.document.createTextNode(" " + message));
@@ -145,7 +160,7 @@
     wrapper.appendChild(copy);
     wrapper.appendChild(buttonHost);
     footer.insertBefore(wrapper, footer.firstChild);
-    renderButton(buttonHost);
+    renderButton(buttonHost, settings);
   }
 
   function mount(options) {
@@ -155,13 +170,14 @@
         typeof settings.target === "string"
           ? global.document.querySelector(settings.target)
           : settings.target;
-      renderButton(target);
+      renderButton(target, settings);
       return;
     }
 
     mountInFooter(
       settings.footer || global.document.querySelector("footer"),
-      settings.message
+      settings.message,
+      settings
     );
   }
 
@@ -176,12 +192,25 @@
       return;
     }
 
+    var includeFeedback =
+      scriptElement.getAttribute("data-feedback") !== "false";
+    var includeKofi = scriptElement.getAttribute("data-kofi") !== "false";
     var target = scriptElement.getAttribute("data-target");
     if (target) {
-      mount({ target: target });
-    } else if (scriptElement.hasAttribute("data-auto-footer")) {
+      mount({
+        target: target,
+        includeFeedback: includeFeedback,
+        includeKofi: includeKofi,
+      });
+    }
+    // Allow both a targeted Ko-fi host and a footer feedback strip on one page.
+    if (scriptElement.hasAttribute("data-auto-footer")) {
       mount({
         message: scriptElement.getAttribute("data-message") || "",
+        includeFeedback: includeFeedback,
+        includeKofi: scriptElement.hasAttribute("data-target")
+          ? false
+          : includeKofi,
       });
     }
   }

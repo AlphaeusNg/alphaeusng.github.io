@@ -238,6 +238,45 @@ body .support-card-fallback:focus-visible {
     }
 }
 
+/* Email copy controls (connect CTA + nav) */
+.email-copy-btn {
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    appearance: none;
+}
+
+.email-copy-btn.is-copied {
+    border-color: rgba(201, 162, 39, 0.55) !important;
+    color: #f8fafc;
+}
+
+.email-copy-btn.is-copied .email-copy-label {
+    color: #c9a227;
+}
+
+button.nav-submenu-link.email-copy-btn,
+button.mobile-link.email-copy-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background: transparent;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* Project case study modal — restrained, native to the design system */
 .modal {
     animation: modalEnter 0.22s cubic-bezier(0.4, 0, 0.2, 1) backwards;

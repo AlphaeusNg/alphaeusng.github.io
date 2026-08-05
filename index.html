@@ -89,7 +89,7 @@
                             <span class="nav-pill-meta">Email · social</span>
                         </a>
                         <div id="nav-submenu-connect" class="nav-submenu" role="menu" aria-hidden="true">
-                            <a href="mailto:alphaolivegreen@gmail.com" class="nav-submenu-link" role="menuitem">Email</a>
+                            <button type="button" class="nav-submenu-link email-copy-btn" role="menuitem" data-email="alphaolivegreen@gmail.com" data-email-label="Email">Email</button>
                             <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">GitHub</a>
                             <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="nav-submenu-link" role="menuitem">LinkedIn</a>
                         </div>
@@ -172,7 +172,7 @@
                         <span class="block text-[11px] uppercase tracking-[1.8px] text-[#94A3B8] mt-1">Email + social</span>
                     </button>
                     <div id="mobile-connect-links" class="mobile-nav-panel hidden mt-3">
-                        <a href="mailto:alphaolivegreen@gmail.com" class="mobile-link mobile-submenu-link">Email</a>
+                        <button type="button" class="mobile-link mobile-submenu-link email-copy-btn" data-email="alphaolivegreen@gmail.com" data-email-label="Email">Email</button>
                         <a href="https://github.com/AlphaeusNg" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">GitHub</a>
                         <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">LinkedIn</a>
                     </div>
@@ -818,13 +818,16 @@
             </div>
 
             <div class="mt-8 flex flex-col items-center gap-y-4">
-                <a href="mailto:alphaolivegreen@gmail.com?subject=Hello%20from%20your%20portfolio%20%E2%80%94%20Alphaeus%20Ng"
-                   class="group flex w-full max-w-md items-center justify-center gap-x-3 rounded-2xl border border-white/15 px-8 py-4 text-base sm:text-lg font-medium hover:bg-white transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button type="button"
+                   class="email-copy-btn group flex w-full max-w-md items-center justify-center gap-x-3 rounded-2xl border border-white/15 px-8 py-4 text-base sm:text-lg font-medium hover:bg-white transition-all"
+                   data-email="alphaolivegreen@gmail.com"
+                   data-email-label="alphaolivegreen@gmail.com"
+                   aria-label="Copy email address alphaolivegreen@gmail.com">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2.01 2.01 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    <span class="break-all">alphaolivegreen@gmail.com</span>
-                </a>
+                    <span class="email-copy-label break-all">alphaolivegreen@gmail.com</span>
+                </button>
 
                 <div class="flex flex-wrap justify-center gap-3 pt-1 text-sm">
                     <a href="https://www.linkedin.com/in/alphaeus-ng" target="_blank" rel="me noopener noreferrer" class="px-6 py-2.5 rounded-full border border-white/10 hover:border-[#C9A227]/50 transition">
@@ -832,35 +835,6 @@
                     </a>
                     <a href="https://github.com/AlphaeusNg" target="_blank" rel="me noopener noreferrer" class="px-6 py-2.5 rounded-full border border-white/10 hover:border-[#C9A227]/50 transition">
                         GitHub
-                    </a>
-                    <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="px-6 py-2.5 rounded-full border border-white/10 hover:border-[#C9A227]/50 transition">
-                        Arcade
-                    </a>
-                </div>
-            </div>
-
-            <!-- Optional support — hosted checkout keeps payment details off this site -->
-            <div class="support-card mt-10 mx-auto max-w-xl w-full">
-                <div class="support-card-icon" aria-hidden="true">☕</div>
-                <div class="support-card-copy">
-                    <div class="support-card-eyebrow">SUPPORT MY OPEN PROJECTS</div>
-                    <h3>Found something helpful?</h3>
-                    <p>
-                        If one of my projects saved you time, or you would simply like to
-                        support more open work, you can buy me a coffee. No pressure —
-                        everything here stays free to use.
-                    </p>
-                </div>
-                <div id="kofi-support-widget" class="support-card-widget">
-                    <a href="https://ko-fi.com/K1V623R7BV"
-                       target="_blank"
-                       rel="me noopener noreferrer"
-                       class="support-card-fallback">
-                        <img src="https://storage.ko-fi.com/cdn/cup-border.png"
-                             alt=""
-                             aria-hidden="true"
-                             class="support-card-fallback-icon">
-                        Support me on Ko-fi ↗
                     </a>
                 </div>
             </div>
@@ -882,6 +856,34 @@
             </div>
         </div>
     </section>
+
+    <!-- Support lives outside connect; Feedback mounts in the page footer -->
+    <div class="border-t border-white/10 bg-[#0B1220] py-12">
+        <div class="support-card mx-auto max-w-xl w-full px-6 sm:px-0">
+            <div class="support-card-icon" aria-hidden="true">☕</div>
+            <div class="support-card-copy">
+                <div class="support-card-eyebrow">SUPPORT MY OPEN PROJECTS</div>
+                <h3>Found something helpful?</h3>
+                <p>
+                    If one of my projects saved you time, or you would simply like to
+                    support more open work, you can buy me a coffee. No pressure —
+                    everything here stays free to use.
+                </p>
+            </div>
+            <div id="kofi-support-widget" class="support-card-widget">
+                <a href="https://ko-fi.com/K1V623R7BV"
+                   target="_blank"
+                   rel="me noopener noreferrer"
+                   class="support-card-fallback">
+                    <img src="https://storage.ko-fi.com/cdn/cup-border.png"
+                         alt=""
+                         aria-hidden="true"
+                         class="support-card-fallback-icon">
+                    Support me on Ko-fi ↗
+                </a>
+            </div>
+        </div>
+    </div>
 
     <footer class="py-10 text-center text-xs text-[#475569] border-t border-white/5">
         <p class="mb-2 text-[11px] tracking-[0.08em] text-[#64748B]">The created creating, pursuing the Uncaused Cause.</p>
@@ -991,7 +993,11 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.07.24.10" data-target="#kofi-support-widget" defer></script>
+    <script src="js/kofi-support.js?v=2026.08.06.1"
+            data-target="#kofi-support-widget"
+            data-feedback="false"
+            data-auto-footer
+            defer></script>
     <script src="js/main.js" defer></script>
     <script src="js/modals.js" defer></script>
 </body>

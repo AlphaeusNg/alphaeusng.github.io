@@ -1565,6 +1565,80 @@ function initArcadePrefetch() {
     });
 }
 
+const EMAIL_COPY_DEFAULT = 'alphaolivegreen@gmail.com';
+
+async function copyTextToClipboard(text) {
+    const value = String(text || '');
+    if (!value) return false;
+    if (navigator.clipboard?.writeText) {
+        try {
+            await navigator.clipboard.writeText(value);
+            return true;
+        } catch (_) {
+            // Fall through to execCommand path.
+        }
+    }
+    try {
+        const area = document.createElement('textarea');
+        area.value = value;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.left = '-9999px';
+        area.style.top = '0';
+        document.body.appendChild(area);
+        area.select();
+        const ok = document.execCommand('copy');
+        area.remove();
+        return ok;
+    } catch (_) {
+        return false;
+    }
+}
+
+function initEmailCopy() {
+    const buttons = document.querySelectorAll('.email-copy-btn[data-email]');
+    if (!buttons.length) return;
+
+    let live = document.getElementById('email-copy-live');
+    if (!live) {
+        live = document.createElement('div');
+        live.id = 'email-copy-live';
+        live.className = 'sr-only';
+        live.setAttribute('aria-live', 'polite');
+        document.body.appendChild(live);
+    }
+
+    buttons.forEach((btn) => {
+        btn.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const email = btn.getAttribute('data-email') || EMAIL_COPY_DEFAULT;
+            const defaultLabel =
+                btn.getAttribute('data-email-label')
+                || btn.querySelector('.email-copy-label')?.textContent?.trim()
+                || 'Email';
+            const ok = await copyTextToClipboard(email);
+            const labelEl = btn.querySelector('.email-copy-label');
+            const prompt = ok ? 'Copied!' : 'Copy failed';
+            if (labelEl) {
+                labelEl.textContent = prompt;
+            } else {
+                btn.dataset.originalText = btn.dataset.originalText || btn.textContent.trim();
+                btn.textContent = prompt;
+            }
+            btn.classList.toggle('is-copied', ok);
+            live.textContent = ok
+                ? `${email} copied to clipboard`
+                : 'Could not copy email address';
+            window.clearTimeout(btn._emailCopyTimer);
+            btn._emailCopyTimer = window.setTimeout(() => {
+                if (labelEl) labelEl.textContent = defaultLabel;
+                else if (btn.dataset.originalText) btn.textContent = btn.dataset.originalText;
+                btn.classList.remove('is-copied');
+            }, 1800);
+        });
+    });
+}
+
 // Boot everything
 function init() {
     initTailwind();
@@ -1578,6 +1652,7 @@ function init() {
     initPortraitComparison();
     initAccessibility();
     initArcadePrefetch();
+    initEmailCopy();
 }
 
 if (document.readyState === 'loading') {
