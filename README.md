@@ -87,6 +87,10 @@ while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' 
 python3 -m http.server 8000
 ```
 
+The same site contracts, Python compilation, and JavaScript syntax checks run
+in least-privilege GitHub Actions on every `main` push and pull request. The
+workflow policy is validated by `tools/check_site.py` alongside the site.
+
 Then check:
 
 ```bash

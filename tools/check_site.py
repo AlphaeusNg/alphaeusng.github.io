@@ -28,6 +28,7 @@ def ok(msg: str) -> None:
 def main() -> None:
     required = [
         ROOT / "index.html",
+        ROOT / ".github" / "workflows" / "ci.yml",
         ROOT / ".nojekyll",
         ROOT / "robots.txt",
         ROOT / "sitemap.xml",
@@ -56,6 +57,34 @@ def main() -> None:
         if not path.is_file():
             fail(f"missing required file: {path.relative_to(ROOT)}")
     ok(f"{len(required)} required files present")
+
+    workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    workflow_contracts = {
+        "stable workflow name": re.search(r"(?m)^name:\s*ci\s*$", workflow),
+        "main push trigger": re.search(r"push:\s*\n\s+branches:\s*\[main\]", workflow),
+        "pull request trigger": re.search(r"(?m)^\s{2}pull_request:\s*$", workflow),
+        "read-only contents permission": re.search(
+            r"permissions:\s*\n\s+contents:\s*read", workflow
+        ),
+        "stale run cancellation": re.search(
+            r"concurrency:[\s\S]*cancel-in-progress:\s*true", workflow
+        ),
+        "bounded job timeout": "timeout-minutes: 10" in workflow,
+        "supported checkout action": "actions/checkout@v7" in workflow,
+        "supported Python action": "actions/setup-python@v5" in workflow,
+        "Python 3.12 baseline": re.search(r"python-version:\s*[\"']?3\.12", workflow),
+        "supported Node action": "actions/setup-node@v7" in workflow,
+        "Node 24 baseline": re.search(r"node-version:\s*[\"']?24", workflow),
+        "complete site check": "python3 tools/check_site.py" in workflow,
+        "Python compilation": "python3 -m compileall -q tools" in workflow,
+        "JavaScript syntax check": "node --check" in workflow,
+    }
+    missing_workflow_contracts = [
+        label for label, present in workflow_contracts.items() if not present
+    ]
+    if missing_workflow_contracts:
+        fail("CI workflow policy missing: " + ", ".join(missing_workflow_contracts))
+    ok(f"GitHub Actions policy: {len(workflow_contracts)} contracts")
 
     home = (ROOT / "index.html").read_text(encoding="utf-8")
     if "d3js.org" in home or "html2canvas" in home:
