@@ -1,6 +1,21 @@
 import { expect, test } from '@playwright/test';
 
 const HIDDEN_CLASS = /(^|\s)hidden(\s|$)/;
+const runtimeErrors = new WeakMap();
+
+test.beforeEach(async ({ page }) => {
+  const errors = [];
+  runtimeErrors.set(page, errors);
+  page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
+  page.on('console', message => {
+    if (message.type() === 'error') errors.push(`console: ${message.text()}`);
+  });
+});
+
+test.afterEach(async ({ page }) => {
+  await page.waitForTimeout(50);
+  expect(runtimeErrors.get(page), 'unexpected browser runtime errors').toEqual([]);
+});
 
 test('mobile menu exposes state and restores focus on Escape', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

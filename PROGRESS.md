@@ -1,53 +1,49 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-10 (Cycle 67 across the projects workspace)
+Last updated: 2026-08-10 (Cycle 68 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.10.7`.
-- Local verification: sixteen mutation/fixture/freshness tests, a non-writing conviction generator check, three Chromium interaction tests, `tools/check_site.py`, Python compilation, and syntax checks for every first-party JavaScript file.
+- Deployment version: `2026.08.10.8`.
+- Local verification: sixteen mutation/fixture/freshness tests, a non-writing conviction generator check, three Chromium interaction tests with shared runtime-error monitoring, `tools/check_site.py`, Python compilation, and syntax checks for every first-party JavaScript file.
 - Automated verification: least-privilege GitHub Actions runs cheap data/site gates before installing Chromium, then runs the browser, Python, and first-party JavaScript gates on Python 3.12 and Node 24.
 
-## Latest cycle: make hash navigation sticky-header-safe
+## Latest cycle: fail browser smokes on runtime errors
 
 ### Why this was selected
 
-Direct section links and mobile-menu navigation were not browser-tested. Measurement exposed three related UX/accessibility defects: desktop targets landed 38px beneath the fixed navigation chrome, smooth scrolling suppressed the browser's default hash update without replacing it, and mobile navigation left keyboard focus inside the hidden menu after moving the viewport.
+The three browser flows asserted their intended outputs but could still pass while unrelated JavaScript threw an uncaught exception or emitted a console error. That left a gap between known interaction contracts and broad runtime health.
 
 ### Changes
 
-- Added a third Chromium interaction test covering direct desktop hash landing geometry and the complete mobile Work → Story navigation flow.
-- Corrected desktop target clearance to account for both the 80px main header and project-tab bar, while retaining the compact 80px mobile offset.
-- Applied the shared header offset to every public section/subsection hash target, including CV downloads.
-- Restored standard anchor semantics by pushing the selected hash into browser history before smooth scrolling.
-- Moved focus from a closing mobile menu to its destination, using a temporary `tabindex="-1"` that is removed on blur.
-- Bumped the deployment version to `2026.08.10.7`.
+- Added per-page Playwright monitoring for uncaught `pageerror` events and console messages at error severity.
+- Added a shared post-test assertion so every current and future browser flow inherits the runtime gate automatically.
+- Allowed a short post-interaction drain window for asynchronous errors without slowing the suite materially.
+- Kept the gate fail-closed with no third-party suppression because all current flows have a clean error stream.
+- Bumped the deployment version to `2026.08.10.8`.
 
 ### Verification and scores
 
-- Test-first evidence: the direct `#craft` target initially landed at 80.4px while the visible desktop navigation ended at 119.0px.
-- Iteration evidence: the first 124px correction remained 5.7px short of the rendered navigation; the corrected 132px design offset cleared it.
-- Semantic evidence: once geometry passed, the same test exposed that clicking `#story` left the URL at `/`; restoring history updates made the complete flow pass.
-- Focus evidence: after the mobile link closes the menu, `#story` is the active element, menu/body state is closed, the toggle reports `aria-expanded="false"`, and the target clears the mobile header.
+- Baseline evidence: all three real interaction flows completed with zero console errors and zero uncaught page exceptions, so no noise filter was introduced.
+- Mutation evidence: a temporary asynchronous `throw new Error('runtime gate probe')` failed the shared assertion with `pageerror: runtime gate probe`.
+- Mutation evidence: a temporary `console.error('console gate probe')` independently failed it with `console: console gate probe`; both probes were removed after verification.
 - `python3 -m unittest discover -s tools -p 'test_*.py'`: all sixteen tests passed.
 - `python3 tools/finance/generate_conviction_history.py --check`: passed.
 - `python3 tools/check_site.py`: 35 required files, 19 workflow policies, nine canonical crawler routes, and all existing site/data contracts passed.
 - All three Chromium interactions passed in about three seconds; Python compilation, every first-party JavaScript syntax check, and `git diff --check` passed.
-- Correctness/reliability: 9/10 (hash URLs, smooth-scroll destinations, and visible geometry now agree).
-- Verifiability: 10/10 (desktop/mobile geometry, state, URL, and focus are browser-measured on every push).
-- Accessibility: 10/10 (focus is no longer stranded in hidden navigation, and destinations remain keyboard-focusable only as long as needed).
-- Maintainability: 9/10 (one CSS variable drives all public target offsets; one mobile handler owns focus transfer).
-- Performance: 10/10 (no additional runtime work outside user navigation; one browser test adds roughly one second).
-- Security/robustness: 9/10 (only same-document targets receive focus/history handling, and missing targets safely no-op).
+- Correctness/reliability: 9/10 (silent runtime failures now invalidate the same deployment gate as behavioral failures).
+- Observability/verifiability: 10/10 (both browser error channels are captured, mutation-proven, and reported with their messages).
+- Maintainability: 10/10 (two shared hooks cover every test without duplicated listeners/assertions).
+- Performance: 9/10 (deployed runtime is unchanged; the error drain adds 50ms per browser flow).
+- Security/robustness: 9/10 (the gate fails closed and currently contains no broad exception patterns).
 
 ### Lessons and process improvements
 
-- Measure target geometry against the rendered fixed header, not an assumed utility-class value; the project-tab bar contributes real height.
-- Calling `preventDefault()` on an anchor assumes responsibility for URL/history semantics as well as scrolling.
-- Closing a disclosure is not enough when it contains focus; transfer focus to the revealed destination before making the old control subtree unavailable.
-- Layer browser assertions so each repaired failure reveals the next behavioral contract instead of masking it behind one coarse check.
+- Attach broad runtime health checks at the test-fixture boundary so adding a new interaction automatically adds observability.
+- Do not preemptively suppress third-party messages; observe the real baseline first and add only exact, evidenced exceptions.
+- Mutation-test observability itself. A green baseline proves current health, while deliberate page and console failures prove the detector.
 
 ## Previous cross-repository update: deploy vault link diagnostics
 
@@ -103,7 +99,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Recent project evolution
 
-- Cycle 67: repaired and browser-verified sticky-header hash geometry, URL history, and mobile destination focus.
+- Cycle 68: promoted console errors and uncaught browser exceptions to shared interaction-test failures.
+- Cycle 67 (`1cc038e`): repaired and browser-verified sticky-header hash geometry, URL history, and mobile destination focus.
 - Cycle 66 (`beeb86d`): added deterministic conviction payload freshness checks and CI fail-fast ordering.
 - Cycle 65 (`8046cdf`): added CI-gated Chromium interaction coverage and repaired project-modal focus/ARIA behavior.
 - Cycle 64 (`03f0c27`, state follow-up `e46cf7c`): enforced the complete nine-route crawler discovery contract.
@@ -115,10 +112,10 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Report browser console/page errors during interaction smokes | Observability / reliability | Low-medium | Small / low | Assertions catch known behavior, but unexpected runtime exceptions are not yet promoted to test failures |
-| 2 | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | The route inventory is complete, but crawlers receive only coarse change-frequency hints |
-| 3 | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | The browser gate proves the current 132px design; future header-height changes would fail before deployment but still need a CSS edit |
+| 1 | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | The route inventory is complete, but crawlers receive only coarse change-frequency hints |
+| 2 | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | The browser gate proves the current 132px design; future header-height changes would fail before deployment but still need a CSS edit |
+| 3 | Add request-failure diagnostics to browser smokes | Observability / reliability | Low | Small / medium | Runtime errors fail closed, while failed local subresource requests are visible only in server output; third-party blocking needs careful filtering |
 
 ## Next cycle
 
-Promote unexpected browser page errors and console errors to interaction-test failures while filtering known third-party network noise explicitly.
+Add accurate sitemap `<lastmod>` metadata from tracked deploy inputs without inventing dates for cross-repository project routes.
