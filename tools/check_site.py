@@ -71,7 +71,7 @@ def main() -> None:
         ),
         "bounded job timeout": "timeout-minutes: 10" in workflow,
         "supported checkout action": "actions/checkout@v7" in workflow,
-        "supported Python action": "actions/setup-python@v5" in workflow,
+        "supported Python action": "actions/setup-python@v6" in workflow,
         "Python 3.12 baseline": re.search(r"python-version:\s*[\"']?3\.12", workflow),
         "supported Node action": "actions/setup-node@v7" in workflow,
         "Node 24 baseline": re.search(r"node-version:\s*[\"']?24", workflow),
