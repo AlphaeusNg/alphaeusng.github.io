@@ -6,7 +6,7 @@ Last updated: 2026-08-10 (Cycle 64 across the projects workspace)
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.10.3`.
+- Deployment version: `2026.08.10.4`.
 - Local verification: thirteen mutation/fixture tests, `tools/check_site.py`, Python compilation, and syntax checks for every JavaScript file.
 - Automated verification: least-privilege GitHub Actions discovers all Python contract tests and runs the same site/Python/JavaScript checks on Python 3.12 and Node 24.
 
@@ -22,7 +22,7 @@ The sitemap listed the original portfolio, conviction, vault, KoboForge, and Alp
 - Added a reusable XML/robots/canonical validator with an HTML parser that tolerates attribute ordering and normal/self-closing link tags.
 - Added four fixture tests covering the valid contract plus missing, duplicate, non-canonical, unexpected, root-blocking, wrong-sitemap, missing-file, and canonical-mismatch failures.
 - Integrated crawler validation into `tools/check_site.py` and expanded `sitemap.xml` with AIly, VerseKeep, ChristoDay, and CardFitSG.
-- Bumped the deployment version to `2026.08.10.3`.
+- Bumped the crawler deployment to `2026.08.10.3` and the final recovery/state deployment to `2026.08.10.4`.
 
 ### Verification and scores
 
@@ -32,6 +32,7 @@ The sitemap listed the original portfolio, conviction, vault, KoboForge, and Alp
 - `python3 tools/check_site.py`: 27 required files, 15 workflow policies, nine canonical crawler routes, and all existing site/data contracts passed.
 - All nine sitemap URLs returned HTTP 200, including the four newly listed project sites.
 - Local HTTP smoke: `/sitemap.xml` and `/robots.txt` returned 200, and the served sitemap parsed with exactly nine URLs.
+- Deployment recovery: the first managed Pages build raced the push, attempted prior SHA `e8932bb`, and failed before a runner started. After the stale build reached its terminal error, a Pages API rebuild selected current SHA `03f0c27`; managed run `31327676498` succeeded and live version/routes passed.
 - `python3 -m compileall -q tools`, all JavaScript syntax checks, and `git diff --check`: passed.
 - Correctness/reliability: 9/10 (crawler discovery now matches the authoritative shipped-site map).
 - Verifiability: 10/10 (XML, robots, canonical HTML, local files, duplicates, and live destinations all have evidence).
@@ -45,6 +46,7 @@ The sitemap listed the original portfolio, conviction, vault, KoboForge, and Alp
 - Model cross-repository Pages routes explicitly instead of pretending their files exist in the portfolio working tree.
 - Test canonical tags through an HTML parser so attribute ordering and self-closing syntax do not create brittle checks.
 - Pair structural crawler validation with reachability evidence for every published URL.
+- Verify the SHA selected by legacy Pages, not just workflow completion; if ref propagation races, wait for the stale build to terminate before requesting one latest-`main` rebuild.
 
 ## Previous cross-repository update: deploy vault link diagnostics
 
