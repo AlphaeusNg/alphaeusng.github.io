@@ -48,6 +48,10 @@ def load_imported_transactions():
 
     period_row = next(row for row in rows if row[:3] == ["Statement", "Data", "Period"])
     report_start, report_end = parse_period_window(period_row[3])
+    base_currency_row = next(
+        row for row in rows if row[:3] == ["Summary", "Data", "Base Currency"]
+    )
+    base_currency = base_currency_row[3]
 
     imported = []
     for row in rows:
@@ -55,6 +59,8 @@ def load_imported_transactions():
             continue
         if row[5] not in {"Buy", "Sell"} or row[6] != "TSLA":
             continue
+        if row[9] != "USD":
+            raise ValueError(f"expected USD TSLA price currency, found {row[9]}")
 
         trade_date = datetime.strptime(row[2], "%Y-%m-%d").date()
         raw_shares = abs(float(row[7]))
@@ -66,6 +72,10 @@ def load_imported_transactions():
             shares = raw_shares
             price = raw_price
 
+        net_amount = float(row[12])
+        cash_flow_usd = (
+            net_amount if base_currency == "USD" else net_amount / float(row[13])
+        )
         imported.append(
             {
                 "date": trade_date,
@@ -74,7 +84,7 @@ def load_imported_transactions():
                 "type": row[5],
                 "shares": round(shares, 4),
                 "priceUsd": round(price, 6),
-                "cashFlowUsd": round(float(row[12]), 6),
+                "cashFlowUsd": round(cash_flow_usd, 6),
                 "source": "imported",
             }
         )

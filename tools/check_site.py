@@ -9,9 +9,12 @@ Run from the repo root:
 from __future__ import annotations
 
 import json
+import math
 import re
 import sys
+from collections import defaultdict
 from dataclasses import dataclass
+from datetime import date
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -100,6 +103,308 @@ def find_local_reference_issues(
     return issues
 
 
+def validate_conviction_payload(payload: object) -> list[str]:
+    issues: list[str] = []
+
+    def record(value: object) -> bool:
+        return isinstance(value, dict)
+
+    def finite(value: object) -> bool:
+        return (
+            isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and math.isfinite(value)
+        )
+
+    def close(actual: object, expected: float, digits: int) -> bool:
+        return finite(actual) and abs(float(actual) - expected) <= (0.5 * 10**-digits + 1e-9)
+
+    def expect_close(label: str, actual: object, expected: float, digits: int) -> None:
+        if not close(actual, round(expected, digits), digits):
+            issues.append(f"{label} does not match transactions")
+
+    def iso_day(value: object) -> date | None:
+        if not isinstance(value, str):
+            return None
+        try:
+            return date.fromisoformat(value)
+        except ValueError:
+            return None
+
+    def next_month(period: str) -> str:
+        year, month = map(int, period.split("-"))
+        return f"{year + (month == 12):04d}-{1 if month == 12 else month + 1:02d}"
+
+    if not record(payload):
+        return ["conviction payload must be an object"]
+    if payload.get("symbol") != "TSLA":
+        issues.append("conviction symbol must be TSLA")
+    for field in ("sourceFile", "sourceSheet"):
+        if not isinstance(payload.get(field), str) or not payload[field].strip():
+            issues.append(f"{field} must be non-empty")
+    generated_at = payload.get("generatedAt")
+    if not isinstance(generated_at, str) or not re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", generated_at
+    ):
+        issues.append("generatedAt must be a UTC timestamp")
+
+    summary = payload.get("summary")
+    transactions = payload.get("transactions")
+    monthly = payload.get("monthlySeries")
+    benchmark = payload.get("benchmarkComparison")
+    if not record(summary):
+        issues.append("summary must be an object")
+        summary = {}
+    if not isinstance(transactions, list) or not transactions:
+        issues.append("transactions must be a non-empty array")
+        transactions = []
+    if not isinstance(monthly, list) or not monthly:
+        issues.append("monthlySeries must be a non-empty array")
+        monthly = []
+    if not record(benchmark):
+        issues.append("benchmarkComparison must be an object")
+        benchmark = {}
+
+    valid_transactions: list[dict] = []
+    transaction_dates: list[date] = []
+    for index, entry in enumerate(transactions):
+        label = f"transactions[{index}]"
+        if not record(entry):
+            issues.append(f"{label} must be an object")
+            continue
+        parsed_date = iso_day(entry.get("date"))
+        if parsed_date is None:
+            issues.append(f"{label}.date must be ISO YYYY-MM-DD")
+        period = entry.get("period")
+        if not isinstance(period, str) or not re.fullmatch(r"\d{4}-\d{2}", period):
+            issues.append(f"{label}.period must be YYYY-MM")
+        elif parsed_date and period != entry["date"][:7]:
+            issues.append(f"{label}.period does not match date")
+        if entry.get("type") not in {"Buy", "Sell"}:
+            issues.append(f"{label}.type must be Buy or Sell")
+        if not isinstance(entry.get("account"), str) or not entry["account"].strip():
+            issues.append(f"{label}.account must be non-empty")
+        if not finite(entry.get("shares")) or entry["shares"] <= 0:
+            issues.append(f"{label}.shares must be finite and positive")
+        if not finite(entry.get("priceUsd")) or entry["priceUsd"] <= 0:
+            issues.append(f"{label}.priceUsd must be finite and positive")
+        cash_flow = entry.get("cashFlowUsd")
+        if not finite(cash_flow):
+            issues.append(f"{label}.cashFlowUsd must be finite")
+        elif entry.get("type") == "Buy" and cash_flow >= 0:
+            issues.append(f"{label}.cashFlowUsd must be negative for buys")
+        elif entry.get("type") == "Sell" and cash_flow <= 0:
+            issues.append(f"{label}.cashFlowUsd must be positive for sells")
+        if (
+            finite(entry.get("shares"))
+            and finite(entry.get("priceUsd"))
+            and finite(cash_flow)
+        ):
+            trade_notional = entry["shares"] * entry["priceUsd"]
+            tolerance = max(2.0, trade_notional * 0.005)
+            if abs(abs(cash_flow) - trade_notional) > tolerance:
+                issues.append(
+                    f"{label}.cashFlowUsd does not match USD trade notional"
+                )
+        if (
+            parsed_date
+            and isinstance(period, str)
+            and entry.get("type") in {"Buy", "Sell"}
+            and isinstance(entry.get("account"), str)
+            and finite(entry.get("shares"))
+            and entry["shares"] > 0
+            and finite(entry.get("priceUsd"))
+            and entry["priceUsd"] > 0
+            and finite(cash_flow)
+        ):
+            valid_transactions.append(entry)
+            transaction_dates.append(parsed_date)
+
+    if transaction_dates != sorted(transaction_dates):
+        issues.append("transactions must be ordered by date")
+
+    buys = [entry for entry in valid_transactions if entry["type"] == "Buy"]
+    sells = [entry for entry in valid_transactions if entry["type"] == "Sell"]
+    expected_counts = {
+        "buyTransactions": len(buys),
+        "sellTransactions": len(sells),
+        "totalTransactions": len(valid_transactions),
+    }
+    for field, expected in expected_counts.items():
+        if summary.get(field) != expected:
+            issues.append(f"summary.{field} does not match transactions")
+    if transaction_dates:
+        if summary.get("firstTransactionDate") != transaction_dates[0].isoformat():
+            issues.append("summary.firstTransactionDate does not match transactions")
+        if summary.get("latestTransactionDate") != transaction_dates[-1].isoformat():
+            issues.append("summary.latestTransactionDate does not match transactions")
+    gross_bought = sum(entry["shares"] for entry in buys)
+    gross_sold = sum(entry["shares"] for entry in sells)
+    expect_close("summary.grossBoughtShares", summary.get("grossBoughtShares"), gross_bought, 4)
+    expect_close("summary.grossSoldShares", summary.get("grossSoldShares"), gross_sold, 4)
+    expect_close(
+        "summary.currentShares", summary.get("currentShares"), gross_bought - gross_sold, 4
+    )
+    expect_close(
+        "summary.capitalDeployedUsd",
+        summary.get("capitalDeployedUsd"),
+        sum(-entry["cashFlowUsd"] for entry in buys),
+        2,
+    )
+    expect_close(
+        "summary.saleProceedsUsd",
+        summary.get("saleProceedsUsd"),
+        sum(entry["cashFlowUsd"] for entry in sells),
+        2,
+    )
+    expected_accounts = sorted({entry["account"] for entry in valid_transactions})
+    if summary.get("accounts") != expected_accounts:
+        issues.append("summary.accounts does not match transactions")
+
+    by_period: dict[str, list[dict]] = defaultdict(list)
+    for entry in valid_transactions:
+        by_period[entry["period"]].append(entry)
+    periods = [entry.get("period") for entry in monthly if record(entry)]
+    valid_periods = [
+        period
+        for period in periods
+        if isinstance(period, str) and re.fullmatch(r"\d{4}-\d{2}", period)
+    ]
+    if len(valid_periods) != len(periods):
+        issues.append("monthlySeries periods must use YYYY-MM")
+    if len(valid_periods) == len(periods) and periods != sorted(set(periods)):
+        issues.append("monthlySeries periods must be unique and increasing")
+    if valid_periods != sorted(by_period):
+        issues.append("monthlySeries periods do not match transaction months")
+    cumulative = 0.0
+    for index, entry in enumerate(monthly):
+        label = f"monthlySeries[{index}]"
+        if not record(entry):
+            issues.append(f"{label} must be an object")
+            continue
+        rows = by_period.get(entry.get("period"), [])
+        buy_shares = sum(row["shares"] for row in rows if row["type"] == "Buy")
+        sell_shares = sum(row["shares"] for row in rows if row["type"] == "Sell")
+        net_shares = buy_shares - sell_shares
+        cumulative += net_shares
+        expect_close(f"{label}.buyShares", entry.get("buyShares"), buy_shares, 4)
+        expect_close(f"{label}.sellShares", entry.get("sellShares"), sell_shares, 4)
+        expect_close(f"{label}.netShares", entry.get("netShares"), net_shares, 4)
+        expect_close(f"{label}.cumulativeShares", entry.get("cumulativeShares"), cumulative, 4)
+        if entry.get("transactions") != len(rows):
+            issues.append(f"{label}.transactions does not match transactions")
+        expect_close(
+            f"{label}.capitalDeployedUsd",
+            entry.get("capitalDeployedUsd"),
+            sum(-row["cashFlowUsd"] for row in rows if row["type"] == "Buy"),
+            2,
+        )
+        expect_close(
+            f"{label}.saleProceedsUsd",
+            entry.get("saleProceedsUsd"),
+            sum(row["cashFlowUsd"] for row in rows if row["type"] == "Sell"),
+            2,
+        )
+
+    meta = benchmark.get("meta") if record(benchmark.get("meta")) else {}
+    benchmark_summary = (
+        benchmark.get("summary") if record(benchmark.get("summary")) else {}
+    )
+    points = benchmark.get("points")
+    if not isinstance(points, list) or not points:
+        issues.append("benchmark points must be a non-empty array")
+        points = []
+    if meta.get("tslaSymbol") != "TSLA" or meta.get("benchmarkSymbol") != "SPY":
+        issues.append("benchmark meta symbols must be TSLA and SPY")
+    if meta.get("baseCurrency") != "USD":
+        issues.append("benchmark base currency must be USD")
+    if meta.get("firstTransactionDate") != summary.get("firstTransactionDate"):
+        issues.append("benchmark meta first transaction date does not match summary")
+    if meta.get("lastTransactionDate") != summary.get("latestTransactionDate"):
+        issues.append("benchmark meta last transaction date does not match summary")
+
+    point_months = [point.get("month") for point in points if record(point)]
+    point_periods = [
+        month[:7]
+        for month in point_months
+        if isinstance(month, str) and iso_day(month) and month.endswith("-01")
+    ]
+    if point_periods and len(point_periods) == len(point_months):
+        expected_periods = [point_periods[0]]
+        for _ in point_periods[1:]:
+            expected_periods.append(next_month(expected_periods[-1]))
+        if point_periods != expected_periods:
+            issues.append("benchmark point months must be continuous and increasing")
+        if transaction_dates and point_periods[0] != transaction_dates[0].strftime("%Y-%m"):
+            issues.append("benchmark points must start in the first transaction month")
+    tsla_shares = 0.0
+    spy_units = 0.0
+    net_invested = 0.0
+    for index, point in enumerate(points):
+        label = f"benchmark points[{index}]"
+        if not record(point):
+            issues.append(f"{label} must be an object")
+            continue
+        month = point.get("month")
+        if not isinstance(month, str) or iso_day(month) is None or not month.endswith("-01"):
+            issues.append(f"{label}.month must be a month-start date")
+            continue
+        period = month[:7]
+        rows = by_period.get(period, [])
+        share_delta = sum(
+            row["shares"] if row["type"] == "Buy" else -row["shares"] for row in rows
+        )
+        capital_flow = sum(-row["cashFlowUsd"] for row in rows)
+        tsla_shares += share_delta
+        net_invested += capital_flow
+        spy_close = point.get("spyCloseUsd")
+        tsla_close = point.get("tslaCloseUsd")
+        if not finite(spy_close) or spy_close <= 0:
+            issues.append(f"{label}.spyCloseUsd must be finite and positive")
+            continue
+        if not finite(tsla_close) or tsla_close <= 0:
+            issues.append(f"{label}.tslaCloseUsd must be finite and positive")
+            continue
+        spy_units += capital_flow / spy_close
+        tsla_value = tsla_shares * tsla_close
+        spy_value = spy_units * spy_close
+        expected = {
+            "tslaShares": (tsla_shares, 4),
+            "spyUnits": (spy_units, 6),
+            "netInvestedCapitalUsd": (net_invested, 2),
+            "monthlyTslaShareDelta": (share_delta, 4),
+            "monthlyCapitalFlowUsd": (capital_flow, 2),
+            "tslaValueUsd": (tsla_value, 2),
+            "spyValueUsd": (spy_value, 2),
+            "differenceUsd": (tsla_value - spy_value, 2),
+        }
+        for field, (value, digits) in expected.items():
+            if not close(point.get(field), round(value, digits), digits):
+                issues.append(f"{label} {field} does not match transaction benchmark")
+        if point.get("tradeCount") != len(rows):
+            issues.append(f"{label}.tradeCount does not match transactions")
+
+    if points and record(points[-1]):
+        final_point = points[-1]
+        summary_fields = {
+            "currentHoldingsShares": "tslaShares",
+            "netInvestedCapitalUsd": "netInvestedCapitalUsd",
+            "finalTslaValueUsd": "tslaValueUsd",
+            "finalSpyValueUsd": "spyValueUsd",
+            "finalDifferenceUsd": "differenceUsd",
+            "valuationMonth": "month",
+        }
+        for summary_field, point_field in summary_fields.items():
+            if benchmark_summary.get(summary_field) != final_point.get(point_field):
+                issues.append(
+                    f"benchmark summary.{summary_field} does not match final point"
+                )
+        if summary.get("currentShares") != final_point.get("tslaShares"):
+            issues.append("benchmark final holdings do not match conviction summary")
+
+    return issues
+
+
 def fail(msg: str) -> None:
     print(f"FAIL  {msg}")
     raise SystemExit(1)
@@ -134,6 +439,7 @@ def main() -> None:
         ROOT / "pages" / "seeking-biblical-truth" / "css" / "main.css",
         ROOT / "pages" / "seeking-biblical-truth" / "js" / "app.js",
         ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json",
+        ROOT / "data" / "conviction_tsla_history.json",
         ROOT / "assets" / "alphaeus-portrait.jpg",
         ROOT / "assets" / "xray-baggage-sample.jpg",
         ROOT / "LICENSE",
@@ -160,7 +466,9 @@ def main() -> None:
         "Python 3.12 baseline": re.search(r"python-version:\s*[\"']?3\.12", workflow),
         "supported Node action": "actions/setup-node@v7" in workflow,
         "Node 24 baseline": re.search(r"node-version:\s*[\"']?24", workflow),
-        "checker unit tests": "python3 -m unittest tools/test_check_site.py" in workflow,
+        "contract unit tests": (
+            "python3 -m unittest discover -s tools -p 'test_*.py'" in workflow
+        ),
         "complete site check": "python3 tools/check_site.py" in workflow,
         "Python compilation": "python3 -m compileall -q tools" in workflow,
         "JavaScript syntax check": "node --check" in workflow,
@@ -260,6 +568,19 @@ def main() -> None:
         )
         fail("invalid local HTML references: " + details)
     ok("all local HTML href/src targets resolve case-sensitively")
+
+    conviction = json.loads(
+        (ROOT / "data" / "conviction_tsla_history.json").read_text(encoding="utf-8")
+    )
+    conviction_issues = validate_conviction_payload(conviction)
+    if conviction_issues:
+        fail("invalid conviction dataset: " + "; ".join(conviction_issues))
+    ok(
+        "conviction dataset: "
+        f"{len(conviction['transactions'])} transactions, "
+        f"{len(conviction['monthlySeries'])} active months, "
+        f"{len(conviction['benchmarkComparison']['points'])} benchmark months"
+    )
 
     vault = json.loads((ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json").read_text(encoding="utf-8"))
     if not isinstance(vault.get("nodes"), list) or not vault["nodes"]:

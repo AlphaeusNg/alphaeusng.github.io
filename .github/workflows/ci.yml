@@ -27,8 +27,8 @@ jobs:
         uses: actions/setup-node@v7
         with:
           node-version: 24
-      - name: Test site checker
-        run: python3 -m unittest tools/test_check_site.py
+      - name: Test site contracts
+        run: python3 -m unittest discover -s tools -p 'test_*.py'
       - name: Check site contracts
         run: python3 tools/check_site.py
       - name: Compile Python tools

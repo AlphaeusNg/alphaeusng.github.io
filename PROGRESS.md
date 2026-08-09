@@ -1,63 +1,69 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-09 (Cycle 58 across the projects workspace)
+Last updated: 2026-08-09 (Cycle 59 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.09.4`.
-- Local verification: `tools/check_site.py`, Python compilation, and syntax checks for every JavaScript file.
-- Automated verification: least-privilege GitHub Actions runs checker fixtures plus the same site/Python/JavaScript checks on Python 3.12 and Node 24.
+- Deployment version: `2026.08.09.5`.
+- Local verification: nine mutation/fixture tests, `tools/check_site.py`, Python compilation, and syntax checks for every JavaScript file.
+- Automated verification: least-privilege GitHub Actions discovers all Python contract tests and runs the same site/Python/JavaScript checks on Python 3.12 and Node 24.
 
-## Latest cycle: restore the Biblical Truth compatibility route
+## Latest cycle: validate and repair the conviction finance dataset
 
 ### Why this was selected
 
-Project memory and validation instructions promised `/seeking-biblical-truth/` as an old-bookmark redirect to the canonical viewer. Git history showed `d68898e` deleted its `index.html` during the move under `pages/`, leaving the documented compatibility URL to fall through to the 404 page.
+`js/conviction.js` directly consumes a large committed JSON file whose metadata, transaction ledger, monthly aggregates, and benchmark series were not validated. Independent recomputation then exposed a unit error: the IBKR statement is based in SGD, but its net amounts were labeled and processed as USD, materially overstating deployed capital and the hypothetical SPY position.
 
 ### Changes
 
-- Restored `seeking-biblical-truth/index.html` from its final historical redirect form.
-- Redirected immediately to `../pages/seeking-biblical-truth/`, declared the absolute canonical viewer URL, and retained a normal anchor fallback.
-- Added the legacy entry point to required deployment structure and enforced exact refresh/canonical/fallback semantics in `tools/check_site.py`.
-- Documented the compatibility route and bumped the deployment version to `2026.08.09.4`.
+- Added a complete conviction payload validator covering provenance, finite/sign-correct transactions, USD trade notionals, ordered dates, summary accounting, active-month aggregation, continuous benchmark coverage, unrounded benchmark recomputation, and final-summary consistency.
+- Added nine total unit tests, including conviction mutation cases for transaction, currency, summary, monthly-series, benchmark, and provenance corruption.
+- Corrected imported `cashFlowUsd` generation by converting the statement's base-currency net amount through each trade's exchange rate; USD-priced trades in a USD statement remain unchanged.
+- Regenerated the 64-transaction dataset and all 43 monthly aggregates plus 67 benchmark months from the corrected USD ledger.
+- Made the site checker require and validate the dataset, changed CI to discover every `test_*.py` contract, documented the unified test command, and bumped the deployment version to `2026.08.09.5`.
 
 ### Verification and scores
 
-- Test-first route requirement: `tools/check_site.py` failed on missing `seeking-biblical-truth/index.html` before restoration.
-- `python3 tools/check_site.py`: 26 required files plus exact legacy redirect, 15 workflow-policy, full local-reference, and existing site contracts passed.
-- Local HTTP verification: `/seeking-biblical-truth/` returned the required refresh/canonical/fallback markup and `/pages/seeking-biblical-truth/` returned HTTP 200.
-- `python3 -m unittest tools/test_check_site.py`: all three resolver fixtures passed.
+- Test-first contract: the new tests initially failed to import the absent validator; after adding the validator, the committed payload failed with 61 USD-notional mismatches.
+- Source reconciliation: the newest raw trade's SGD `-1777.082616` net amount at `1.269` now becomes USD `-1400.380312`, consistent with 3.4193 shares at USD 409.439878 plus fees.
+- Corrected metrics: deployed capital fell from USD 77,255.22 to 60,958.51; sale proceeds from USD 22,690.48 to 16,570.11; net invested capital from USD 54,564.73 to 44,388.40.
+- Corrected benchmark: final TSLA value remains USD 70,136.48, while the like-for-like SPY value changes from USD 85,553.54 to 70,954.86 and the differential from USD -15,417.06 to -818.38.
+- `python3 -m unittest discover -s tools -p 'test_*.py'`: all nine fixtures and mutation tests passed.
+- `python3 tools/check_site.py`: 27 required files, 15 workflow policies, the 64-transaction/43-active-month/67-benchmark-month finance contract, and all existing site contracts passed.
+- Local HTTP smoke: `/`, `/pages/conviction.html`, and `/data/conviction_tsla_history.json` each returned HTTP 200.
 - `python3 -m compileall -q tools`: passed.
 - `find . -type f -name '*.js' ... node --check`: passed for every JavaScript file.
 - `git diff --check`: passed.
-- Correctness/reliability: 9/10 (the promised old-bookmark URL resolves to the live canonical viewer again).
-- Verifiability: 9/10 (both file semantics and served route behavior are checked).
-- Maintainability: 9/10 (the compatibility contract is explicit and cannot disappear silently).
-- Performance: 9/10 (one 13-line static redirect adds negligible serving cost).
-- Security/robustness: 9/10 (canonical destination and local fallback target are fixed and reference-validated).
+- Correctness/reliability: 10/10 (a material cross-currency calculation error was fixed at its source and all derived values regenerated).
+- Verifiability: 10/10 (independent relationships and targeted corruption cases now gate every push).
+- Maintainability: 9/10 (one reusable validator defines the browser-facing data contract; CI automatically discovers future tests).
+- Performance: 9/10 (validation completes with nine tests and the full site check in under a quarter second locally).
+- Security/robustness: 9/10 (non-finite values, wrong signs, bad ordering, missing coverage, and inconsistent derived values fail closed).
 
 ### Lessons and process improvements
 
-- Treat project memory/validation URLs as product contracts and compare them against the actual served filesystem, not just current navigation links.
-- Recover minimal compatibility behavior from the last known historical file rather than recreating a new redirect style.
-- Validate the browser fallback anchor alongside meta refresh so the route remains usable when automatic refresh is disabled.
+- Internal consistency is insufficient when every derived figure shares the same wrong unit; reconcile one independent physical invariant such as shares × USD price before trusting aggregates.
+- Preserve unrounded cumulative state while validating rounded time-series outputs, matching the generator's accounting rather than accumulating display-rounding drift.
+- Mutation tests make data contracts credible: each major corruption class must demonstrably trip the deployment gate.
+- CI test discovery compounds better than naming individual files because new contract suites become mandatory without another workflow edit.
+- Start local HTTP smoke tests with a bounded readiness probe; the first immediate request raced server startup, while the readiness-gated rerun passed all three routes.
 
 ## Recent project evolution
 
+- Cycle 58 (`3edc124`): restored and contract-checked the Biblical Truth compatibility route.
 - Cycle 57 (`f8df394`): added fixture-backed exhaustive case-sensitive local reference validation.
 - Cycle 56 (`ce57e80`): upgraded setup-python to v6 and removed the hosted Node-20 annotation.
-- Cycle 55 (`69a9cab`): added least-privilege Python/Node CI with fourteen locally enforced policies.
 
 ## Prioritized opportunities
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Validate conviction JSON schema and referenced series | Correctness / verification | Medium-high | Small-medium / low | `js/conviction.js` fetches committed finance JSON whose shape is not checked by the site validator |
+| 1 | Validate sitemap/robots canonical routes | Reliability / SEO | Medium | Small / low | Local links are checked, but crawler files are not cross-checked against existing canonical entry points |
 | 2 | Add browser smoke coverage for home navigation/modals | Verification / accessibility | High | Large / medium | Structural checks do not execute mobile menu, modal focus, or anchor behavior in a browser DOM |
-| 3 | Validate sitemap/robots canonical routes | Reliability / SEO | Medium | Small / low | Local links are checked, but crawler files are not cross-checked against existing canonical entry points |
+| 3 | Add deterministic generator golden checks excluding timestamps | Verification / maintainability | Medium | Medium / low | Payload relationships are checked, but source inputs could change without an explicit generated-output freshness gate |
 
 ## Next cycle
 
-Define and test the committed conviction dataset contract used by `js/conviction.js`: metadata, aligned monthly series, finite values, monotonic dates, benchmark coverage, and summary consistency. Integrate it into `tools/check_site.py` before changing any discovered invalid data.
+Cross-check `sitemap.xml` and `robots.txt` against the canonical deployed routes, with mutation fixtures for missing, duplicate, non-canonical, and nonexistent entries.

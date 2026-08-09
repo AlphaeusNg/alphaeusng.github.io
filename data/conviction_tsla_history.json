@@ -2,7 +2,7 @@
   "symbol": "TSLA",
   "sourceFile": "data/tsla_transactions.csv + tools/finance/tsla_trades_anonymized.csv",
   "sourceSheet": "IBKR transaction export reconciled with recovered in-period Nov 2020 to Feb 2021 TSLA buys",
-  "generatedAt": "2026-05-29T10:06:06Z",
+  "generatedAt": "2026-08-09T05:35:24Z",
   "summary": {
     "firstTransactionDate": "2020-11-19",
     "latestTransactionDate": "2026-05-07",
@@ -12,8 +12,8 @@
     "currentShares": 159.4192,
     "grossBoughtShares": 240.4192,
     "grossSoldShares": 81.0,
-    "capitalDeployedUsd": 77255.22,
-    "saleProceedsUsd": 22690.48,
+    "capitalDeployedUsd": 60958.51,
+    "saleProceedsUsd": 16570.11,
     "accounts": [
       "U***7895"
     ]
@@ -46,7 +46,7 @@
       "netShares": 4.6437,
       "cumulativeShares": 76.6437,
       "transactions": 2,
-      "capitalDeployedUsd": 1323.91,
+      "capitalDeployedUsd": 984.02,
       "saleProceedsUsd": 0.0
     },
     {
@@ -56,7 +56,7 @@
       "netShares": 0.7158,
       "cumulativeShares": 77.3595,
       "transactions": 1,
-      "capitalDeployedUsd": 187.93,
+      "capitalDeployedUsd": 141.04,
       "saleProceedsUsd": 0.0
     },
     {
@@ -66,7 +66,7 @@
       "netShares": 3.0,
       "cumulativeShares": 80.3595,
       "transactions": 1,
-      "capitalDeployedUsd": 1368.12,
+      "capitalDeployedUsd": 1011.1,
       "saleProceedsUsd": 0.0
     },
     {
@@ -76,7 +76,7 @@
       "netShares": 6.6519,
       "cumulativeShares": 87.0114,
       "transactions": 2,
-      "capitalDeployedUsd": 2729.78,
+      "capitalDeployedUsd": 2001.01,
       "saleProceedsUsd": 0.0
     },
     {
@@ -86,7 +86,7 @@
       "netShares": 20.9886,
       "cumulativeShares": 108.0,
       "transactions": 4,
-      "capitalDeployedUsd": 8798.78,
+      "capitalDeployedUsd": 6541.01,
       "saleProceedsUsd": 0.0
     },
     {
@@ -96,7 +96,7 @@
       "netShares": 6.0,
       "cumulativeShares": 114.0,
       "transactions": 1,
-      "capitalDeployedUsd": 2491.48,
+      "capitalDeployedUsd": 1847.87,
       "saleProceedsUsd": 0.0
     },
     {
@@ -107,7 +107,7 @@
       "cumulativeShares": 105.0,
       "transactions": 1,
       "capitalDeployedUsd": 0.0,
-      "saleProceedsUsd": 3216.78
+      "saleProceedsUsd": 2353.17
     },
     {
       "period": "2022-05",
@@ -116,8 +116,8 @@
       "netShares": 18.0,
       "cumulativeShares": 123.0,
       "transactions": 4,
-      "capitalDeployedUsd": 9074.23,
-      "saleProceedsUsd": 3145.74
+      "capitalDeployedUsd": 6548.49,
+      "saleProceedsUsd": 2295.83
     },
     {
       "period": "2022-06",
@@ -127,7 +127,7 @@
       "cumulativeShares": 114.0,
       "transactions": 1,
       "capitalDeployedUsd": 0.0,
-      "saleProceedsUsd": 2994.81
+      "saleProceedsUsd": 2161.07
     },
     {
       "period": "2022-07",
@@ -137,7 +137,7 @@
       "cumulativeShares": 105.0,
       "transactions": 1,
       "capitalDeployedUsd": 0.0,
-      "saleProceedsUsd": 3164.94
+      "saleProceedsUsd": 2264.72
     },
     {
       "period": "2022-09",
@@ -146,7 +146,7 @@
       "netShares": 10.0,
       "cumulativeShares": 115.0,
       "transactions": 2,
-      "capitalDeployedUsd": 3986.85,
+      "capitalDeployedUsd": 2780.94,
       "saleProceedsUsd": 0.0
     },
     {
@@ -156,8 +156,8 @@
       "netShares": 9.0,
       "cumulativeShares": 124.0,
       "transactions": 5,
-      "capitalDeployedUsd": 3817.89,
-      "saleProceedsUsd": 950.62
+      "capitalDeployedUsd": 2682.02,
+      "saleProceedsUsd": 673.91
     },
     {
       "period": "2022-11",
@@ -166,8 +166,8 @@
       "netShares": 2.0,
       "cumulativeShares": 126.0,
       "transactions": 3,
-      "capitalDeployedUsd": 2103.87,
-      "saleProceedsUsd": 1937.32
+      "capitalDeployedUsd": 1513.79,
+      "saleProceedsUsd": 1368.94
     },
     {
       "period": "2022-12",
@@ -177,7 +177,7 @@
       "cumulativeShares": 106.0,
       "transactions": 2,
       "capitalDeployedUsd": 0.0,
-      "saleProceedsUsd": 3111.34
+      "saleProceedsUsd": 2310.71
     },
     {
       "period": "2023-02",
@@ -187,7 +187,7 @@
       "cumulativeShares": 90.0,
       "transactions": 2,
       "capitalDeployedUsd": 0.0,
-      "saleProceedsUsd": 4168.92
+      "saleProceedsUsd": 3141.77
     },
     {
       "period": "2023-03",
@@ -196,7 +196,7 @@
       "netShares": 4.0,
       "cumulativeShares": 94.0,
       "transactions": 1,
-      "capitalDeployedUsd": 989.15,
+      "capitalDeployedUsd": 739.94,
       "saleProceedsUsd": 0.0
     },
     {
@@ -206,7 +206,7 @@
       "netShares": 10.0,
       "cumulativeShares": 104.0,
       "transactions": 1,
-      "capitalDeployedUsd": 2196.0,
+      "capitalDeployedUsd": 1646.79,
       "saleProceedsUsd": 0.0
     },
     {
@@ -216,7 +216,7 @@
       "netShares": 3.0,
       "cumulativeShares": 107.0,
       "transactions": 1,
-      "capitalDeployedUsd": 837.92,
+      "capitalDeployedUsd": 612.47,
       "saleProceedsUsd": 0.0
     },
     {
@@ -226,7 +226,7 @@
       "netShares": 1.0,
       "cumulativeShares": 108.0,
       "transactions": 1,
-      "capitalDeployedUsd": 252.25,
+      "capitalDeployedUsd": 188.26,
       "saleProceedsUsd": 0.0
     },
     {
@@ -236,7 +236,7 @@
       "netShares": 1.0,
       "cumulativeShares": 109.0,
       "transactions": 1,
-      "capitalDeployedUsd": 243.01,
+      "capitalDeployedUsd": 180.38,
       "saleProceedsUsd": 0.0
     },
     {
@@ -246,7 +246,7 @@
       "netShares": 2.0954,
       "cumulativeShares": 111.0954,
       "transactions": 1,
-      "capitalDeployedUsd": 594.63,
+      "capitalDeployedUsd": 455.38,
       "saleProceedsUsd": 0.0
     },
     {
@@ -256,7 +256,7 @@
       "netShares": 1.8598,
       "cumulativeShares": 112.9552,
       "transactions": 1,
-      "capitalDeployedUsd": 595.32,
+      "capitalDeployedUsd": 455.38,
       "saleProceedsUsd": 0.0
     },
     {
@@ -266,7 +266,7 @@
       "netShares": 1.4657,
       "cumulativeShares": 114.4209,
       "transactions": 1,
-      "capitalDeployedUsd": 603.97,
+      "capitalDeployedUsd": 455.38,
       "saleProceedsUsd": 0.0
     },
     {
@@ -276,7 +276,7 @@
       "netShares": 1.1356,
       "cumulativeShares": 115.5565,
       "transactions": 1,
-      "capitalDeployedUsd": 611.06,
+      "capitalDeployedUsd": 455.37,
       "saleProceedsUsd": 0.0
     },
     {
@@ -286,7 +286,7 @@
       "netShares": 3.1166,
       "cumulativeShares": 118.6731,
       "transactions": 2,
-      "capitalDeployedUsd": 1668.5,
+      "capitalDeployedUsd": 1216.46,
       "saleProceedsUsd": 0.0
     },
     {
@@ -296,7 +296,7 @@
       "netShares": 1.2374,
       "cumulativeShares": 119.9105,
       "transactions": 1,
-      "capitalDeployedUsd": 599.53,
+      "capitalDeployedUsd": 442.36,
       "saleProceedsUsd": 0.0
     },
     {
@@ -306,7 +306,7 @@
       "netShares": 1.851,
       "cumulativeShares": 121.7615,
       "transactions": 1,
-      "capitalDeployedUsd": 590.22,
+      "capitalDeployedUsd": 442.38,
       "saleProceedsUsd": 0.0
     },
     {
@@ -316,7 +316,7 @@
       "netShares": 1.8392,
       "cumulativeShares": 123.6007,
       "transactions": 1,
-      "capitalDeployedUsd": 598.78,
+      "capitalDeployedUsd": 442.36,
       "saleProceedsUsd": 0.0
     },
     {
@@ -326,7 +326,7 @@
       "netShares": 1.5765,
       "cumulativeShares": 125.1772,
       "transactions": 1,
-      "capitalDeployedUsd": 585.88,
+      "capitalDeployedUsd": 450.37,
       "saleProceedsUsd": 0.0
     },
     {
@@ -336,7 +336,7 @@
       "netShares": 2.0215,
       "cumulativeShares": 127.1987,
       "transactions": 1,
-      "capitalDeployedUsd": 772.19,
+      "capitalDeployedUsd": 600.36,
       "saleProceedsUsd": 0.0
     },
     {
@@ -346,7 +346,7 @@
       "netShares": 3.5,
       "cumulativeShares": 130.6987,
       "transactions": 3,
-      "capitalDeployedUsd": 1367.75,
+      "capitalDeployedUsd": 1071.92,
       "saleProceedsUsd": 0.0
     },
     {
@@ -356,7 +356,7 @@
       "netShares": 3.3348,
       "cumulativeShares": 134.0335,
       "transactions": 1,
-      "capitalDeployedUsd": 1414.42,
+      "capitalDeployedUsd": 1100.37,
       "saleProceedsUsd": 0.0
     },
     {
@@ -366,7 +366,7 @@
       "netShares": 3.1449,
       "cumulativeShares": 137.1784,
       "transactions": 1,
-      "capitalDeployedUsd": 1412.09,
+      "capitalDeployedUsd": 1100.36,
       "saleProceedsUsd": 0.0
     },
     {
@@ -376,7 +376,7 @@
       "netShares": 2.5256,
       "cumulativeShares": 139.704,
       "transactions": 1,
-      "capitalDeployedUsd": 1425.43,
+      "capitalDeployedUsd": 1100.38,
       "saleProceedsUsd": 0.0
     },
     {
@@ -386,7 +386,7 @@
       "netShares": 2.1426,
       "cumulativeShares": 141.8466,
       "transactions": 1,
-      "capitalDeployedUsd": 1238.11,
+      "capitalDeployedUsd": 950.34,
       "saleProceedsUsd": 0.0
     },
     {
@@ -396,7 +396,7 @@
       "netShares": 2.268,
       "cumulativeShares": 144.1146,
       "transactions": 1,
-      "capitalDeployedUsd": 1297.98,
+      "capitalDeployedUsd": 1000.37,
       "saleProceedsUsd": 0.0
     },
     {
@@ -406,7 +406,7 @@
       "netShares": 3.4426,
       "cumulativeShares": 147.5572,
       "transactions": 1,
-      "capitalDeployedUsd": 1924.05,
+      "capitalDeployedUsd": 1500.35,
       "saleProceedsUsd": 0.0
     },
     {
@@ -416,7 +416,7 @@
       "netShares": 2.4012,
       "cumulativeShares": 149.9584,
       "transactions": 1,
-      "capitalDeployedUsd": 1265.74,
+      "capitalDeployedUsd": 1000.35,
       "saleProceedsUsd": 0.0
     },
     {
@@ -426,7 +426,7 @@
       "netShares": 2.8337,
       "cumulativeShares": 152.7921,
       "transactions": 1,
-      "capitalDeployedUsd": 1402.54,
+      "capitalDeployedUsd": 1100.37,
       "saleProceedsUsd": 0.0
     },
     {
@@ -436,7 +436,7 @@
       "netShares": 3.2078,
       "cumulativeShares": 155.9999,
       "transactions": 1,
-      "capitalDeployedUsd": 1410.78,
+      "capitalDeployedUsd": 1100.37,
       "saleProceedsUsd": 0.0
     },
     {
@@ -446,7 +446,7 @@
       "netShares": 3.4193,
       "cumulativeShares": 159.4192,
       "transactions": 1,
-      "capitalDeployedUsd": 1777.08,
+      "capitalDeployedUsd": 1400.38,
       "saleProceedsUsd": 0.0
     }
   ],
@@ -485,7 +485,7 @@
       "type": "Buy",
       "shares": 1.6437,
       "priceUsd": 211.69,
-      "cashFlowUsd": -469.578012
+      "cashFlowUsd": -349.024834
     },
     {
       "date": "2021-03-26",
@@ -494,7 +494,7 @@
       "type": "Buy",
       "shares": 3.0,
       "priceUsd": 211.666667,
-      "cashFlowUsd": -854.328953
+      "cashFlowUsd": -634.999965
     },
     {
       "date": "2021-05-14",
@@ -503,7 +503,7 @@
       "type": "Buy",
       "shares": 0.7158,
       "priceUsd": 195.55,
-      "cashFlowUsd": -187.927934
+      "cashFlowUsd": -141.044682
     },
     {
       "date": "2021-11-10",
@@ -512,7 +512,7 @@
       "type": "Buy",
       "shares": 3.0,
       "priceUsd": 336.676667,
-      "cashFlowUsd": -1368.119363
+      "cashFlowUsd": -1011.099965
     },
     {
       "date": "2021-12-21",
@@ -521,7 +521,7 @@
       "type": "Buy",
       "shares": 0.6519,
       "priceUsd": 300.663333,
-      "cashFlowUsd": -267.386501
+      "cashFlowUsd": -196.002419
     },
     {
       "date": "2021-12-21",
@@ -530,7 +530,7 @@
       "type": "Buy",
       "shares": 6.0,
       "priceUsd": 300.656667,
-      "cashFlowUsd": -2462.394547
+      "cashFlowUsd": -1805.00993
     },
     {
       "date": "2022-01-21",
@@ -539,7 +539,7 @@
       "type": "Buy",
       "shares": 2.9886,
       "priceUsd": 320.886667,
-      "cashFlowUsd": -1291.104633
+      "cashFlowUsd": -960.071857
     },
     {
       "date": "2022-01-21",
@@ -548,7 +548,7 @@
       "type": "Buy",
       "shares": 9.0,
       "priceUsd": 320.796667,
-      "cashFlowUsd": -3882.666075
+      "cashFlowUsd": -2887.169895
     },
     {
       "date": "2022-01-24",
@@ -557,7 +557,7 @@
       "type": "Buy",
       "shares": 3.0,
       "priceUsd": 293.876667,
-      "cashFlowUsd": -1187.849343
+      "cashFlowUsd": -882.699965
     },
     {
       "date": "2022-01-24",
@@ -566,7 +566,7 @@
       "type": "Buy",
       "shares": 6.0,
       "priceUsd": 301.666667,
-      "cashFlowUsd": -2437.156805
+      "cashFlowUsd": -1811.06993
     },
     {
       "date": "2022-02-01",
@@ -575,7 +575,7 @@
       "type": "Buy",
       "shares": 6.0,
       "priceUsd": 307.8,
-      "cashFlowUsd": -2491.483027
+      "cashFlowUsd": -1847.86993
     },
     {
       "date": "2022-03-14",
@@ -584,7 +584,7 @@
       "type": "Sell",
       "shares": 9.0,
       "priceUsd": 261.583333,
-      "cashFlowUsd": 3216.780257
+      "cashFlowUsd": 2353.167708
     },
     {
       "date": "2022-05-16",
@@ -593,7 +593,7 @@
       "type": "Buy",
       "shares": 9.0,
       "priceUsd": 242.63,
-      "cashFlowUsd": -3040.284038
+      "cashFlowUsd": -2184.739895
     },
     {
       "date": "2022-05-17",
@@ -602,7 +602,7 @@
       "type": "Buy",
       "shares": 9.0,
       "priceUsd": 248.956667,
-      "cashFlowUsd": -3103.157479
+      "cashFlowUsd": -2241.679895
     },
     {
       "date": "2022-05-19",
@@ -611,7 +611,7 @@
       "type": "Buy",
       "shares": 9.0,
       "priceUsd": 235.666667,
-      "cashFlowUsd": -2930.790732
+      "cashFlowUsd": -2122.069895
     },
     {
       "date": "2022-05-31",
@@ -620,7 +620,7 @@
       "type": "Sell",
       "shares": 9.0,
       "priceUsd": 255.216667,
-      "cashFlowUsd": 3145.742313
+      "cashFlowUsd": 2295.827115
     },
     {
       "date": "2022-06-21",
@@ -629,7 +629,7 @@
       "type": "Sell",
       "shares": 9.0,
       "priceUsd": 240.243333,
-      "cashFlowUsd": 2994.811084
+      "cashFlowUsd": 2161.070201
     },
     {
       "date": "2022-07-08",
@@ -638,7 +638,7 @@
       "type": "Sell",
       "shares": 9.0,
       "priceUsd": 251.76,
-      "cashFlowUsd": 3164.943164
+      "cashFlowUsd": 2264.717827
     },
     {
       "date": "2022-09-28",
@@ -647,7 +647,7 @@
       "type": "Buy",
       "shares": 5.0,
       "priceUsd": 287.91,
-      "cashFlowUsd": -2066.569139
+      "cashFlowUsd": -1440.619825
     },
     {
       "date": "2022-09-29",
@@ -656,7 +656,7 @@
       "type": "Buy",
       "shares": 5.0,
       "priceUsd": 267.85,
-      "cashFlowUsd": -1920.276213
+      "cashFlowUsd": -1340.319825
     },
     {
       "date": "2022-10-03",
@@ -665,7 +665,7 @@
       "type": "Buy",
       "shares": 3.0,
       "priceUsd": 246.72,
-      "cashFlowUsd": -1060.69998
+      "cashFlowUsd": -741.229895
     },
     {
       "date": "2022-10-17",
@@ -674,7 +674,7 @@
       "type": "Buy",
       "shares": 3.0,
       "priceUsd": 218.25,
-      "cashFlowUsd": -932.051235
+      "cashFlowUsd": -655.819895
     },
     {
       "date": "2022-10-19",
@@ -683,7 +683,7 @@
       "type": "Buy",
       "shares": 3.0,
       "priceUsd": 221.3,
-      "cashFlowUsd": -947.715094
+      "cashFlowUsd": -664.969895
     },
     {
       "date": "2022-10-21",
@@ -692,7 +692,7 @@
       "type": "Buy",
       "shares": 3.0,
       "priceUsd": 206.31,
-      "cashFlowUsd": -877.423851
+      "cashFlowUsd": -619.999895
     },
     {
       "date": "2022-10-28",
@@ -701,7 +701,7 @@
       "type": "Sell",
       "shares": 3.0,
       "priceUsd": 225.0,
-      "cashFlowUsd": 950.623452
+      "cashFlowUsd": 673.914258
     },
     {
       "date": "2022-11-01",
@@ -710,7 +710,7 @@
       "type": "Sell",
       "shares": 6.0,
       "priceUsd": 228.34,
-      "cashFlowUsd": 1937.321137
+      "cashFlowUsd": 1368.938056
     },
     {
       "date": "2022-11-09",
@@ -719,7 +719,7 @@
       "type": "Buy",
       "shares": 3.0,
       "priceUsd": 187.5,
-      "cashFlowUsd": -790.575849
+      "cashFlowUsd": -563.569895
     },
     {
       "date": "2022-11-10",
@@ -728,7 +728,7 @@
       "type": "Buy",
       "shares": 5.0,
       "priceUsd": 189.83,
-      "cashFlowUsd": -1313.29882
+      "cashFlowUsd": -950.219825
     },
     {
       "date": "2022-12-28",
@@ -737,7 +737,7 @@
       "type": "Sell",
       "shares": 10.0,
       "priceUsd": 111.71,
-      "cashFlowUsd": 1506.381482
+      "cashFlowUsd": 1116.003468
     },
     {
       "date": "2022-12-29",
@@ -746,7 +746,7 @@
       "type": "Sell",
       "shares": 10.0,
       "priceUsd": 119.58,
-      "cashFlowUsd": 1604.962218
+      "cashFlowUsd": 1194.701666
     },
     {
       "date": "2023-02-06",
@@ -755,7 +755,7 @@
       "type": "Sell",
       "shares": 8.0,
       "priceUsd": 193.0,
-      "cashFlowUsd": 2048.641113
+      "cashFlowUsd": 1542.883802
     },
     {
       "date": "2023-02-08",
@@ -764,7 +764,7 @@
       "type": "Sell",
       "shares": 8.0,
       "priceUsd": 200.0,
-      "cashFlowUsd": 2120.27811
+      "cashFlowUsd": 1598.88252
     },
     {
       "date": "2023-03-20",
@@ -773,7 +773,7 @@
       "type": "Buy",
       "shares": 4.0,
       "priceUsd": 184.89,
-      "cashFlowUsd": -989.150318
+      "cashFlowUsd": -739.938897
     },
     {
       "date": "2023-04-24",
@@ -782,7 +782,7 @@
       "type": "Buy",
       "shares": 10.0,
       "priceUsd": 164.64,
-      "cashFlowUsd": -2196.000942
+      "cashFlowUsd": -1646.794857
     },
     {
       "date": "2023-11-01",
@@ -791,7 +791,7 @@
       "type": "Buy",
       "shares": 3.0,
       "priceUsd": 204.03,
-      "cashFlowUsd": -837.924636
+      "cashFlowUsd": -612.473237
     },
     {
       "date": "2024-01-29",
@@ -800,7 +800,7 @@
       "type": "Buy",
       "shares": 1.0,
       "priceUsd": 187.8775,
-      "cashFlowUsd": -252.248902
+      "cashFlowUsd": -188.259498
     },
     {
       "date": "2024-02-05",
@@ -809,7 +809,7 @@
       "type": "Buy",
       "shares": 1.0,
       "priceUsd": 180.0,
-      "cashFlowUsd": -243.007545
+      "cashFlowUsd": -180.379709
     },
     {
       "date": "2024-09-09",
@@ -818,7 +818,7 @@
       "type": "Buy",
       "shares": 2.0954,
       "priceUsd": 217.14081,
-      "cashFlowUsd": -594.634171
+      "cashFlowUsd": -455.379209
     },
     {
       "date": "2024-10-09",
@@ -827,7 +827,7 @@
       "type": "Buy",
       "shares": 1.8598,
       "priceUsd": 244.65,
-      "cashFlowUsd": -595.321414
+      "cashFlowUsd": -455.382402
     },
     {
       "date": "2024-11-08",
@@ -836,7 +836,7 @@
       "type": "Buy",
       "shares": 1.4657,
       "priceUsd": 310.431562,
-      "cashFlowUsd": -603.972822
+      "cashFlowUsd": -455.381755
     },
     {
       "date": "2024-12-10",
@@ -845,7 +845,7 @@
       "type": "Buy",
       "shares": 1.1356,
       "priceUsd": 400.655349,
-      "cashFlowUsd": -611.05608
+      "cashFlowUsd": -455.366331
     },
     {
       "date": "2025-01-10",
@@ -854,7 +854,7 @@
       "type": "Buy",
       "shares": 1.1166,
       "priceUsd": 392.247287,
-      "cashFlowUsd": -601.261983
+      "cashFlowUsd": -438.3654
     },
     {
       "date": "2025-01-10",
@@ -863,7 +863,7 @@
       "type": "Buy",
       "shares": 2.0,
       "priceUsd": 388.86,
-      "cashFlowUsd": -1067.238825
+      "cashFlowUsd": -778.097715
     },
     {
       "date": "2025-02-10",
@@ -872,7 +872,7 @@
       "type": "Buy",
       "shares": 1.2374,
       "priceUsd": 357.182564,
-      "cashFlowUsd": -599.53026
+      "cashFlowUsd": -442.359817
     },
     {
       "date": "2025-03-10",
@@ -881,7 +881,7 @@
       "type": "Buy",
       "shares": 1.851,
       "priceUsd": 238.786752,
-      "cashFlowUsd": -590.218799
+      "cashFlowUsd": -442.376555
     },
     {
       "date": "2025-04-08",
@@ -890,7 +890,7 @@
       "type": "Buy",
       "shares": 1.8392,
       "priceUsd": 240.309812,
-      "cashFlowUsd": -598.778604
+      "cashFlowUsd": -442.36008
     },
     {
       "date": "2025-05-08",
@@ -899,7 +899,7 @@
       "type": "Buy",
       "shares": 1.5765,
       "priceUsd": 285.43373,
-      "cashFlowUsd": -585.884354
+      "cashFlowUsd": -450.368478
     },
     {
       "date": "2025-06-09",
@@ -908,7 +908,7 @@
       "type": "Buy",
       "shares": 2.0215,
       "priceUsd": 296.8,
-      "cashFlowUsd": -772.187563
+      "cashFlowUsd": -600.363522
     },
     {
       "date": "2025-07-02",
@@ -917,7 +917,7 @@
       "type": "Buy",
       "shares": 2.0,
       "priceUsd": 312.4,
-      "cashFlowUsd": -795.798667
+      "cashFlowUsd": -625.185534
     },
     {
       "date": "2025-07-09",
@@ -926,7 +926,7 @@
       "type": "Buy",
       "shares": 0.5,
       "priceUsd": 297.56,
-      "cashFlowUsd": -190.483192
+      "cashFlowUsd": -148.780124
     },
     {
       "date": "2025-07-09",
@@ -935,7 +935,7 @@
       "type": "Buy",
       "shares": 1.0,
       "priceUsd": 297.57,
-      "cashFlowUsd": -381.470068
+      "cashFlowUsd": -297.953657
     },
     {
       "date": "2025-08-08",
@@ -944,7 +944,7 @@
       "type": "Buy",
       "shares": 3.3348,
       "priceUsd": 329.852233,
-      "cashFlowUsd": -1414.420524
+      "cashFlowUsd": -1100.373832
     },
     {
       "date": "2025-09-08",
@@ -953,7 +953,7 @@
       "type": "Buy",
       "shares": 3.1449,
       "priceUsd": 349.764009,
-      "cashFlowUsd": -1412.086073
+      "cashFlowUsd": -1100.35539
     },
     {
       "date": "2025-10-08",
@@ -962,7 +962,7 @@
       "type": "Buy",
       "shares": 2.5256,
       "priceUsd": 435.538589,
-      "cashFlowUsd": -1425.430506
+      "cashFlowUsd": -1100.378652
     },
     {
       "date": "2025-11-10",
@@ -971,7 +971,7 @@
       "type": "Buy",
       "shares": 2.1426,
       "priceUsd": 443.367576,
-      "cashFlowUsd": -1238.105124
+      "cashFlowUsd": -950.341667
     },
     {
       "date": "2025-12-08",
@@ -980,7 +980,7 @@
       "type": "Buy",
       "shares": 2.268,
       "priceUsd": 440.911974,
-      "cashFlowUsd": -1297.980895
+      "cashFlowUsd": -1000.370632
     },
     {
       "date": "2026-01-07",
@@ -989,7 +989,7 @@
       "type": "Buy",
       "shares": 3.4426,
       "priceUsd": 435.707544,
-      "cashFlowUsd": -1924.04797
+      "cashFlowUsd": -1500.349322
     },
     {
       "date": "2026-02-09",
@@ -998,7 +998,7 @@
       "type": "Buy",
       "shares": 2.4012,
       "priceUsd": 416.44389,
-      "cashFlowUsd": -1265.73953
+      "cashFlowUsd": -1000.347373
     },
     {
       "date": "2026-03-09",
@@ -1007,7 +1007,7 @@
       "type": "Buy",
       "shares": 2.8337,
       "priceUsd": 388.181786,
-      "cashFlowUsd": -1402.535585
+      "cashFlowUsd": -1100.373125
     },
     {
       "date": "2026-04-07",
@@ -1016,7 +1016,7 @@
       "type": "Buy",
       "shares": 3.2078,
       "priceUsd": 342.91,
-      "cashFlowUsd": -1410.783323
+      "cashFlowUsd": -1100.369178
     },
     {
       "date": "2026-05-07",
@@ -1025,7 +1025,7 @@
       "type": "Buy",
       "shares": 3.4193,
       "priceUsd": 409.439878,
-      "cashFlowUsd": -1777.082616
+      "cashFlowUsd": -1400.380312
     }
   ],
   "benchmarkComparison": {
@@ -1050,10 +1050,10 @@
     },
     "summary": {
       "currentHoldingsShares": 159.4192,
-      "netInvestedCapitalUsd": 54564.73,
+      "netInvestedCapitalUsd": 44388.4,
       "finalTslaValueUsd": 70136.48,
-      "finalSpyValueUsd": 85553.54,
-      "finalDifferenceUsd": -15417.06,
+      "finalSpyValueUsd": 70954.86,
+      "finalDifferenceUsd": -818.38,
       "valuationMonth": "2026-05-01"
     },
     "points": [
@@ -1116,884 +1116,884 @@
       {
         "month": "2021-03-01",
         "tslaShares": 76.6437,
-        "spyUnits": 41.081835,
-        "netInvestedCapitalUsd": 15021.91,
+        "spyUnits": 40.224261,
+        "netInvestedCapitalUsd": 14682.02,
         "monthlyTslaShareDelta": 4.6437,
-        "monthlyCapitalFlowUsd": 1323.91,
+        "monthlyCapitalFlowUsd": 984.02,
         "tradeCount": 2,
         "tslaCloseUsd": 222.64,
         "spyCloseUsd": 396.33,
         "tslaValueUsd": 17063.95,
-        "spyValueUsd": 16281.96,
-        "differenceUsd": 781.99
+        "spyValueUsd": 15942.08,
+        "differenceUsd": 1121.87
       },
       {
         "month": "2021-04-01",
         "tslaShares": 76.6437,
-        "spyUnits": 41.081835,
-        "netInvestedCapitalUsd": 15021.91,
+        "spyUnits": 40.224261,
+        "netInvestedCapitalUsd": 14682.02,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 236.48,
         "spyCloseUsd": 417.3,
         "tslaValueUsd": 18124.7,
-        "spyValueUsd": 17143.45,
-        "differenceUsd": 981.25
+        "spyValueUsd": 16785.58,
+        "differenceUsd": 1339.12
       },
       {
         "month": "2021-05-01",
         "tslaShares": 77.3595,
-        "spyUnits": 41.52924,
-        "netInvestedCapitalUsd": 15209.83,
+        "spyUnits": 40.56005,
+        "netInvestedCapitalUsd": 14823.07,
         "monthlyTslaShareDelta": 0.7158,
-        "monthlyCapitalFlowUsd": 187.93,
+        "monthlyCapitalFlowUsd": 141.04,
         "tradeCount": 1,
         "tslaCloseUsd": 208.41,
         "spyCloseUsd": 420.04,
         "tslaValueUsd": 16122.49,
-        "spyValueUsd": 17443.94,
-        "differenceUsd": -1321.45
+        "spyValueUsd": 17036.84,
+        "differenceUsd": -914.35
       },
       {
         "month": "2021-06-01",
         "tslaShares": 77.3595,
-        "spyUnits": 41.52924,
-        "netInvestedCapitalUsd": 15209.83,
+        "spyUnits": 40.56005,
+        "netInvestedCapitalUsd": 14823.07,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 226.57,
         "spyCloseUsd": 428.06,
         "tslaValueUsd": 17527.34,
-        "spyValueUsd": 17777.01,
-        "differenceUsd": -249.66
+        "spyValueUsd": 17362.13,
+        "differenceUsd": 165.21
       },
       {
         "month": "2021-07-01",
         "tslaShares": 77.3595,
-        "spyUnits": 41.52924,
-        "netInvestedCapitalUsd": 15209.83,
+        "spyUnits": 40.56005,
+        "netInvestedCapitalUsd": 14823.07,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 229.07,
         "spyCloseUsd": 438.51,
         "tslaValueUsd": 17720.74,
-        "spyValueUsd": 18210.99,
-        "differenceUsd": -490.25
+        "spyValueUsd": 17785.99,
+        "differenceUsd": -65.25
       },
       {
         "month": "2021-08-01",
         "tslaShares": 77.3595,
-        "spyUnits": 41.52924,
-        "netInvestedCapitalUsd": 15209.83,
+        "spyUnits": 40.56005,
+        "netInvestedCapitalUsd": 14823.07,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 245.24,
         "spyCloseUsd": 451.56,
         "tslaValueUsd": 18971.64,
-        "spyValueUsd": 18752.94,
-        "differenceUsd": 218.7
+        "spyValueUsd": 18315.3,
+        "differenceUsd": 656.35
       },
       {
         "month": "2021-09-01",
         "tslaShares": 77.3595,
-        "spyUnits": 41.52924,
-        "netInvestedCapitalUsd": 15209.83,
+        "spyUnits": 40.56005,
+        "netInvestedCapitalUsd": 14823.07,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 258.49,
         "spyCloseUsd": 429.14,
         "tslaValueUsd": 19996.66,
-        "spyValueUsd": 17821.86,
-        "differenceUsd": 2174.8
+        "spyValueUsd": 17405.94,
+        "differenceUsd": 2590.72
       },
       {
         "month": "2021-10-01",
         "tslaShares": 77.3595,
-        "spyUnits": 41.52924,
-        "netInvestedCapitalUsd": 15209.83,
+        "spyUnits": 40.56005,
+        "netInvestedCapitalUsd": 14823.07,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 371.33,
         "spyCloseUsd": 459.25,
         "tslaValueUsd": 28725.9,
-        "spyValueUsd": 19072.3,
-        "differenceUsd": 9653.6
+        "spyValueUsd": 18627.2,
+        "differenceUsd": 10098.7
       },
       {
         "month": "2021-11-01",
         "tslaShares": 80.3595,
-        "spyUnits": 44.532399,
-        "netInvestedCapitalUsd": 16577.95,
+        "spyUnits": 42.779516,
+        "netInvestedCapitalUsd": 15834.17,
         "monthlyTslaShareDelta": 3.0,
-        "monthlyCapitalFlowUsd": 1368.12,
+        "monthlyCapitalFlowUsd": 1011.1,
         "tradeCount": 1,
         "tslaCloseUsd": 381.59,
         "spyCloseUsd": 455.56,
         "tslaValueUsd": 30664.38,
-        "spyValueUsd": 20287.18,
-        "differenceUsd": 10377.2
+        "spyValueUsd": 19488.64,
+        "differenceUsd": 11175.75
       },
       {
         "month": "2021-12-01",
         "tslaShares": 87.0114,
-        "spyUnits": 50.279791,
-        "netInvestedCapitalUsd": 19307.74,
+        "spyUnits": 46.992528,
+        "netInvestedCapitalUsd": 17835.18,
         "monthlyTslaShareDelta": 6.6519,
-        "monthlyCapitalFlowUsd": 2729.78,
+        "monthlyCapitalFlowUsd": 2001.01,
         "tradeCount": 2,
         "tslaCloseUsd": 352.26,
         "spyCloseUsd": 474.96,
         "tslaValueUsd": 30650.64,
-        "spyValueUsd": 23880.89,
-        "differenceUsd": 6769.75
+        "spyValueUsd": 22319.57,
+        "differenceUsd": 8331.06
       },
       {
         "month": "2022-01-01",
         "tslaShares": 108.0,
-        "spyUnits": 69.836539,
-        "netInvestedCapitalUsd": 28106.51,
+        "spyUnits": 61.531017,
+        "netInvestedCapitalUsd": 24376.19,
         "monthlyTslaShareDelta": 20.9886,
-        "monthlyCapitalFlowUsd": 8798.78,
+        "monthlyCapitalFlowUsd": 6541.01,
         "tradeCount": 4,
         "tslaCloseUsd": 312.24,
         "spyCloseUsd": 449.91,
         "tslaValueUsd": 33721.92,
-        "spyValueUsd": 31420.16,
-        "differenceUsd": 2301.76
+        "spyValueUsd": 27683.42,
+        "differenceUsd": 6038.5
       },
       {
         "month": "2022-02-01",
         "tslaShares": 114.0,
-        "spyUnits": 75.542705,
-        "netInvestedCapitalUsd": 30598.0,
+        "spyUnits": 65.763136,
+        "netInvestedCapitalUsd": 26224.06,
         "monthlyTslaShareDelta": 6.0,
-        "monthlyCapitalFlowUsd": 2491.48,
+        "monthlyCapitalFlowUsd": 1847.87,
         "tradeCount": 1,
         "tslaCloseUsd": 290.14,
         "spyCloseUsd": 436.63,
         "tslaValueUsd": 33075.96,
-        "spyValueUsd": 32984.21,
-        "differenceUsd": 91.75
+        "spyValueUsd": 28714.16,
+        "differenceUsd": 4361.8
       },
       {
         "month": "2022-03-01",
         "tslaShares": 105.0,
-        "spyUnits": 68.420262,
-        "netInvestedCapitalUsd": 27381.21,
+        "spyUnits": 60.552863,
+        "netInvestedCapitalUsd": 23870.9,
         "monthlyTslaShareDelta": -9.0,
-        "monthlyCapitalFlowUsd": -3216.78,
+        "monthlyCapitalFlowUsd": -2353.17,
         "tradeCount": 1,
         "tslaCloseUsd": 359.2,
         "spyCloseUsd": 451.64,
         "tslaValueUsd": 37716.0,
-        "spyValueUsd": 30901.33,
-        "differenceUsd": 6814.67
+        "spyValueUsd": 27348.09,
+        "differenceUsd": 10367.91
       },
       {
         "month": "2022-04-01",
         "tslaShares": 105.0,
-        "spyUnits": 68.420262,
-        "netInvestedCapitalUsd": 27381.21,
+        "spyUnits": 60.552863,
+        "netInvestedCapitalUsd": 23870.9,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 290.25,
         "spyCloseUsd": 412.0,
         "tslaValueUsd": 30476.25,
-        "spyValueUsd": 28189.15,
-        "differenceUsd": 2287.1
+        "spyValueUsd": 24947.78,
+        "differenceUsd": 5528.47
       },
       {
         "month": "2022-05-01",
         "tslaShares": 123.0,
-        "spyUnits": 82.777392,
-        "netInvestedCapitalUsd": 33309.7,
+        "spyUnits": 70.851612,
+        "netInvestedCapitalUsd": 28123.56,
         "monthlyTslaShareDelta": 18.0,
-        "monthlyCapitalFlowUsd": 5928.49,
+        "monthlyCapitalFlowUsd": 4252.66,
         "tradeCount": 4,
         "tslaCloseUsd": 252.75,
         "spyCloseUsd": 412.93,
         "tslaValueUsd": 31088.25,
-        "spyValueUsd": 34181.27,
-        "differenceUsd": -3093.02
+        "spyValueUsd": 29256.76,
+        "differenceUsd": 1831.49
       },
       {
         "month": "2022-06-01",
         "tslaShares": 114.0,
-        "spyUnits": 74.838861,
-        "netInvestedCapitalUsd": 30314.89,
+        "spyUnits": 65.123129,
+        "netInvestedCapitalUsd": 25962.49,
         "monthlyTslaShareDelta": -9.0,
-        "monthlyCapitalFlowUsd": -2994.81,
+        "monthlyCapitalFlowUsd": -2161.07,
         "tradeCount": 1,
         "tslaCloseUsd": 224.47,
         "spyCloseUsd": 377.25,
         "tslaValueUsd": 25589.58,
-        "spyValueUsd": 28232.96,
-        "differenceUsd": -2643.38
+        "spyValueUsd": 24567.7,
+        "differenceUsd": 1021.88
       },
       {
         "month": "2022-07-01",
         "tslaShares": 105.0,
-        "spyUnits": 67.156773,
-        "netInvestedCapitalUsd": 27149.95,
+        "spyUnits": 59.626108,
+        "netInvestedCapitalUsd": 23697.77,
         "monthlyTslaShareDelta": -9.0,
-        "monthlyCapitalFlowUsd": -3164.94,
+        "monthlyCapitalFlowUsd": -2264.72,
         "tradeCount": 1,
         "tslaCloseUsd": 297.15,
         "spyCloseUsd": 411.99,
         "tslaValueUsd": 31200.75,
-        "spyValueUsd": 27667.92,
-        "differenceUsd": 3532.83
+        "spyValueUsd": 24565.36,
+        "differenceUsd": 6635.39
       },
       {
         "month": "2022-08-01",
         "tslaShares": 105.0,
-        "spyUnits": 67.156773,
-        "netInvestedCapitalUsd": 27149.95,
+        "spyUnits": 59.626108,
+        "netInvestedCapitalUsd": 23697.77,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 275.61,
         "spyCloseUsd": 395.18,
         "tslaValueUsd": 28939.05,
-        "spyValueUsd": 26539.01,
-        "differenceUsd": 2400.04
+        "spyValueUsd": 23563.05,
+        "differenceUsd": 5376.0
       },
       {
         "month": "2022-09-01",
         "tslaShares": 115.0,
-        "spyUnits": 78.318779,
-        "netInvestedCapitalUsd": 31136.8,
+        "spyUnits": 67.411929,
+        "netInvestedCapitalUsd": 26478.71,
         "monthlyTslaShareDelta": 10.0,
-        "monthlyCapitalFlowUsd": 3986.85,
+        "monthlyCapitalFlowUsd": 2780.94,
         "tradeCount": 2,
         "tslaCloseUsd": 265.25,
         "spyCloseUsd": 357.18,
         "tslaValueUsd": 30503.75,
-        "spyValueUsd": 27973.9,
-        "differenceUsd": 2529.85
+        "spyValueUsd": 24078.19,
+        "differenceUsd": 6425.56
       },
       {
         "month": "2022-10-01",
         "tslaShares": 124.0,
-        "spyUnits": 85.742892,
-        "netInvestedCapitalUsd": 34004.06,
+        "spyUnits": 72.611446,
+        "netInvestedCapitalUsd": 28486.82,
         "monthlyTslaShareDelta": 9.0,
-        "monthlyCapitalFlowUsd": 2867.27,
+        "monthlyCapitalFlowUsd": 2008.11,
         "tradeCount": 5,
         "tslaCloseUsd": 227.54,
         "spyCloseUsd": 386.21,
         "tslaValueUsd": 28214.96,
-        "spyValueUsd": 33114.76,
-        "differenceUsd": -4899.8
+        "spyValueUsd": 28043.27,
+        "differenceUsd": 171.69
       },
       {
         "month": "2022-11-01",
         "tslaShares": 126.0,
-        "spyUnits": 86.151432,
-        "netInvestedCapitalUsd": 34170.62,
+        "spyUnits": 72.966753,
+        "netInvestedCapitalUsd": 28631.67,
         "monthlyTslaShareDelta": 2.0,
-        "monthlyCapitalFlowUsd": 166.55,
+        "monthlyCapitalFlowUsd": 144.85,
         "tradeCount": 3,
         "tslaCloseUsd": 194.7,
         "spyCloseUsd": 407.68,
         "tslaValueUsd": 24532.2,
-        "spyValueUsd": 35122.22,
-        "differenceUsd": -10590.02
+        "spyValueUsd": 29747.09,
+        "differenceUsd": -5214.89
       },
       {
         "month": "2022-12-01",
         "tslaShares": 106.0,
-        "spyUnits": 78.015711,
-        "netInvestedCapitalUsd": 31059.27,
+        "spyUnits": 66.924588,
+        "netInvestedCapitalUsd": 26320.96,
         "monthlyTslaShareDelta": -20.0,
-        "monthlyCapitalFlowUsd": -3111.34,
+        "monthlyCapitalFlowUsd": -2310.71,
         "tradeCount": 2,
         "tslaCloseUsd": 123.18,
         "spyCloseUsd": 382.43,
         "tslaValueUsd": 13057.08,
-        "spyValueUsd": 29835.55,
-        "differenceUsd": -16778.47
+        "spyValueUsd": 25593.97,
+        "differenceUsd": -12536.89
       },
       {
         "month": "2023-01-01",
         "tslaShares": 106.0,
-        "spyUnits": 78.015711,
-        "netInvestedCapitalUsd": 31059.27,
+        "spyUnits": 66.924588,
+        "netInvestedCapitalUsd": 26320.96,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 173.22,
         "spyCloseUsd": 406.48,
         "tslaValueUsd": 18361.32,
-        "spyValueUsd": 31711.83,
-        "differenceUsd": -13350.51
+        "spyValueUsd": 27203.51,
+        "differenceUsd": -8842.19
       },
       {
         "month": "2023-02-01",
         "tslaShares": 90.0,
-        "spyUnits": 67.495045,
-        "netInvestedCapitalUsd": 26890.35,
+        "spyUnits": 58.99604,
+        "netInvestedCapitalUsd": 23179.2,
         "monthlyTslaShareDelta": -16.0,
-        "monthlyCapitalFlowUsd": -4168.92,
+        "monthlyCapitalFlowUsd": -3141.77,
         "tradeCount": 2,
         "tslaCloseUsd": 205.71,
         "spyCloseUsd": 396.26,
         "tslaValueUsd": 18513.9,
-        "spyValueUsd": 26745.59,
-        "differenceUsd": -8231.69
+        "spyValueUsd": 23377.77,
+        "differenceUsd": -4863.87
       },
       {
         "month": "2023-03-01",
         "tslaShares": 94.0,
-        "spyUnits": 69.911202,
-        "netInvestedCapitalUsd": 27879.5,
+        "spyUnits": 60.803459,
+        "netInvestedCapitalUsd": 23919.13,
         "monthlyTslaShareDelta": 4.0,
-        "monthlyCapitalFlowUsd": 989.15,
+        "monthlyCapitalFlowUsd": 739.94,
         "tradeCount": 1,
         "tslaCloseUsd": 207.46,
         "spyCloseUsd": 409.39,
         "tslaValueUsd": 19501.24,
-        "spyValueUsd": 28620.95,
-        "differenceUsd": -9119.71
+        "spyValueUsd": 24892.33,
+        "differenceUsd": -5391.09
       },
       {
         "month": "2023-04-01",
         "tslaShares": 104.0,
-        "spyUnits": 75.190939,
-        "netInvestedCapitalUsd": 30075.5,
+        "spyUnits": 64.762766,
+        "netInvestedCapitalUsd": 25565.93,
         "monthlyTslaShareDelta": 10.0,
-        "monthlyCapitalFlowUsd": 2196.0,
+        "monthlyCapitalFlowUsd": 1646.79,
         "tradeCount": 1,
         "tslaCloseUsd": 164.31,
         "spyCloseUsd": 415.93,
         "tslaValueUsd": 17088.24,
-        "spyValueUsd": 31274.17,
-        "differenceUsd": -14185.93
+        "spyValueUsd": 26936.78,
+        "differenceUsd": -9848.54
       },
       {
         "month": "2023-05-01",
         "tslaShares": 104.0,
-        "spyUnits": 75.190939,
-        "netInvestedCapitalUsd": 30075.5,
+        "spyUnits": 64.762766,
+        "netInvestedCapitalUsd": 25565.93,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 203.93,
         "spyCloseUsd": 417.85,
         "tslaValueUsd": 21208.72,
-        "spyValueUsd": 31418.53,
-        "differenceUsd": -10209.81
+        "spyValueUsd": 27061.12,
+        "differenceUsd": -5852.4
       },
       {
         "month": "2023-06-01",
         "tslaShares": 104.0,
-        "spyUnits": 75.190939,
-        "netInvestedCapitalUsd": 30075.5,
+        "spyUnits": 64.762766,
+        "netInvestedCapitalUsd": 25565.93,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 261.77,
         "spyCloseUsd": 443.28,
         "tslaValueUsd": 27224.08,
-        "spyValueUsd": 33330.64,
-        "differenceUsd": -6106.56
+        "spyValueUsd": 28708.04,
+        "differenceUsd": -1483.96
       },
       {
         "month": "2023-07-01",
         "tslaShares": 104.0,
-        "spyUnits": 75.190939,
-        "netInvestedCapitalUsd": 30075.5,
+        "spyUnits": 64.762766,
+        "netInvestedCapitalUsd": 25565.93,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 267.43,
         "spyCloseUsd": 457.79,
         "tslaValueUsd": 27812.72,
-        "spyValueUsd": 34421.66,
-        "differenceUsd": -6608.94
+        "spyValueUsd": 29647.75,
+        "differenceUsd": -1835.03
       },
       {
         "month": "2023-08-01",
         "tslaShares": 104.0,
-        "spyUnits": 75.190939,
-        "netInvestedCapitalUsd": 30075.5,
+        "spyUnits": 64.762766,
+        "netInvestedCapitalUsd": 25565.93,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 258.08,
         "spyCloseUsd": 450.35,
         "tslaValueUsd": 26840.32,
-        "spyValueUsd": 33862.24,
-        "differenceUsd": -7021.92
+        "spyValueUsd": 29165.91,
+        "differenceUsd": -2325.59
       },
       {
         "month": "2023-09-01",
         "tslaShares": 104.0,
-        "spyUnits": 75.190939,
-        "netInvestedCapitalUsd": 30075.5,
+        "spyUnits": 64.762766,
+        "netInvestedCapitalUsd": 25565.93,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 250.22,
         "spyCloseUsd": 427.48,
         "tslaValueUsd": 26022.88,
-        "spyValueUsd": 32142.62,
-        "differenceUsd": -6119.74
+        "spyValueUsd": 27684.79,
+        "differenceUsd": -1661.91
       },
       {
         "month": "2023-10-01",
         "tslaShares": 104.0,
-        "spyUnits": 75.190939,
-        "netInvestedCapitalUsd": 30075.5,
+        "spyUnits": 64.762766,
+        "netInvestedCapitalUsd": 25565.93,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 200.84,
         "spyCloseUsd": 418.2,
         "tslaValueUsd": 20887.36,
-        "spyValueUsd": 31444.85,
-        "differenceUsd": -10557.49
+        "spyValueUsd": 27083.79,
+        "differenceUsd": -6196.43
       },
       {
         "month": "2023-11-01",
         "tslaShares": 107.0,
-        "spyUnits": 77.026882,
-        "netInvestedCapitalUsd": 30913.43,
+        "spyUnits": 66.104732,
+        "netInvestedCapitalUsd": 26178.4,
         "monthlyTslaShareDelta": 3.0,
-        "monthlyCapitalFlowUsd": 837.92,
+        "monthlyCapitalFlowUsd": 612.47,
         "tradeCount": 1,
         "tslaCloseUsd": 240.08,
         "spyCloseUsd": 456.4,
         "tslaValueUsd": 25688.56,
-        "spyValueUsd": 35155.07,
-        "differenceUsd": -9466.51
+        "spyValueUsd": 30170.2,
+        "differenceUsd": -4481.64
       },
       {
         "month": "2023-12-01",
         "tslaShares": 107.0,
-        "spyUnits": 77.026882,
-        "netInvestedCapitalUsd": 30913.43,
+        "spyUnits": 66.104732,
+        "netInvestedCapitalUsd": 26178.4,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 248.48,
         "spyCloseUsd": 475.31,
         "tslaValueUsd": 26587.36,
-        "spyValueUsd": 36611.65,
-        "differenceUsd": -10024.29
+        "spyValueUsd": 31420.24,
+        "differenceUsd": -4832.88
       },
       {
         "month": "2024-01-01",
         "tslaShares": 108.0,
-        "spyUnits": 77.549266,
-        "netInvestedCapitalUsd": 31165.68,
+        "spyUnits": 66.4946,
+        "netInvestedCapitalUsd": 26366.66,
         "monthlyTslaShareDelta": 1.0,
-        "monthlyCapitalFlowUsd": 252.25,
+        "monthlyCapitalFlowUsd": 188.26,
         "tradeCount": 1,
         "tslaCloseUsd": 187.29,
         "spyCloseUsd": 482.88,
         "tslaValueUsd": 20227.32,
-        "spyValueUsd": 37446.99,
-        "differenceUsd": -17219.67
+        "spyValueUsd": 32108.91,
+        "differenceUsd": -11881.59
       },
       {
         "month": "2024-02-01",
         "tslaShares": 109.0,
-        "spyUnits": 78.027552,
-        "netInvestedCapitalUsd": 31408.69,
+        "spyUnits": 66.849623,
+        "netInvestedCapitalUsd": 26547.04,
         "monthlyTslaShareDelta": 1.0,
-        "monthlyCapitalFlowUsd": 243.01,
+        "monthlyCapitalFlowUsd": 180.38,
         "tradeCount": 1,
         "tslaCloseUsd": 201.88,
         "spyCloseUsd": 508.08,
         "tslaValueUsd": 22004.92,
-        "spyValueUsd": 39644.24,
-        "differenceUsd": -17639.32
+        "spyValueUsd": 33964.96,
+        "differenceUsd": -11960.04
       },
       {
         "month": "2024-03-01",
         "tslaShares": 109.0,
-        "spyUnits": 78.027552,
-        "netInvestedCapitalUsd": 31408.69,
+        "spyUnits": 66.849623,
+        "netInvestedCapitalUsd": 26547.04,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 175.79,
         "spyCloseUsd": 523.07,
         "tslaValueUsd": 19161.11,
-        "spyValueUsd": 40813.87,
-        "differenceUsd": -21652.76
+        "spyValueUsd": 34967.03,
+        "differenceUsd": -15805.92
       },
       {
         "month": "2024-04-01",
         "tslaShares": 109.0,
-        "spyUnits": 78.027552,
-        "netInvestedCapitalUsd": 31408.69,
+        "spyUnits": 66.849623,
+        "netInvestedCapitalUsd": 26547.04,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 183.28,
         "spyCloseUsd": 501.98,
         "tslaValueUsd": 19977.52,
-        "spyValueUsd": 39168.27,
-        "differenceUsd": -19190.75
+        "spyValueUsd": 33557.17,
+        "differenceUsd": -13579.65
       },
       {
         "month": "2024-05-01",
         "tslaShares": 109.0,
-        "spyUnits": 78.027552,
-        "netInvestedCapitalUsd": 31408.69,
+        "spyUnits": 66.849623,
+        "netInvestedCapitalUsd": 26547.04,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 178.08,
         "spyCloseUsd": 527.37,
         "tslaValueUsd": 19410.72,
-        "spyValueUsd": 41149.39,
-        "differenceUsd": -21738.67
+        "spyValueUsd": 35254.49,
+        "differenceUsd": -15843.77
       },
       {
         "month": "2024-06-01",
         "tslaShares": 109.0,
-        "spyUnits": 78.027552,
-        "netInvestedCapitalUsd": 31408.69,
+        "spyUnits": 66.849623,
+        "netInvestedCapitalUsd": 26547.04,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 197.88,
         "spyCloseUsd": 544.22,
         "tslaValueUsd": 21568.92,
-        "spyValueUsd": 42464.15,
-        "differenceUsd": -20895.23
+        "spyValueUsd": 36380.9,
+        "differenceUsd": -14811.98
       },
       {
         "month": "2024-07-01",
         "tslaShares": 109.0,
-        "spyUnits": 78.027552,
-        "netInvestedCapitalUsd": 31408.69,
+        "spyUnits": 66.849623,
+        "netInvestedCapitalUsd": 26547.04,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 232.07,
         "spyCloseUsd": 550.81,
         "tslaValueUsd": 25295.63,
-        "spyValueUsd": 42978.36,
-        "differenceUsd": -17682.73
+        "spyValueUsd": 36821.44,
+        "differenceUsd": -11525.81
       },
       {
         "month": "2024-08-01",
         "tslaShares": 109.0,
-        "spyUnits": 78.027552,
-        "netInvestedCapitalUsd": 31408.69,
+        "spyUnits": 66.849623,
+        "netInvestedCapitalUsd": 26547.04,
         "monthlyTslaShareDelta": 0.0,
         "monthlyCapitalFlowUsd": 0.0,
         "tradeCount": 0,
         "tslaCloseUsd": 214.11,
         "spyCloseUsd": 563.68,
         "tslaValueUsd": 23337.99,
-        "spyValueUsd": 43982.57,
-        "differenceUsd": -20644.58
+        "spyValueUsd": 37681.8,
+        "differenceUsd": -14343.81
       },
       {
         "month": "2024-09-01",
         "tslaShares": 111.0954,
-        "spyUnits": 79.063934,
-        "netInvestedCapitalUsd": 32003.32,
+        "spyUnits": 67.643298,
+        "netInvestedCapitalUsd": 27002.42,
         "monthlyTslaShareDelta": 2.0954,
-        "monthlyCapitalFlowUsd": 594.63,
+        "monthlyCapitalFlowUsd": 455.38,
         "tradeCount": 1,
         "tslaCloseUsd": 261.63,
         "spyCloseUsd": 573.76,
         "tslaValueUsd": 29065.89,
-        "spyValueUsd": 45363.72,
-        "differenceUsd": -16297.83
+        "spyValueUsd": 38811.02,
+        "differenceUsd": -9745.13
       },
       {
         "month": "2024-10-01",
         "tslaShares": 112.9552,
-        "spyUnits": 80.110855,
-        "netInvestedCapitalUsd": 32598.64,
+        "spyUnits": 68.444125,
+        "netInvestedCapitalUsd": 27457.8,
         "monthlyTslaShareDelta": 1.8598,
-        "monthlyCapitalFlowUsd": 595.32,
+        "monthlyCapitalFlowUsd": 455.38,
         "tradeCount": 1,
         "tslaCloseUsd": 249.85,
         "spyCloseUsd": 568.64,
         "tslaValueUsd": 28221.86,
-        "spyValueUsd": 45554.24,
-        "differenceUsd": -17332.38
+        "spyValueUsd": 38920.07,
+        "differenceUsd": -10698.21
       },
       {
         "month": "2024-11-01",
         "tslaShares": 114.4209,
-        "spyUnits": 81.113216,
-        "netInvestedCapitalUsd": 33202.61,
+        "spyUnits": 69.199883,
+        "netInvestedCapitalUsd": 27913.18,
         "monthlyTslaShareDelta": 1.4657,
-        "monthlyCapitalFlowUsd": 603.97,
+        "monthlyCapitalFlowUsd": 455.38,
         "tradeCount": 1,
         "tslaCloseUsd": 345.16,
         "spyCloseUsd": 602.55,
         "tslaValueUsd": 39493.52,
-        "spyValueUsd": 48874.77,
-        "differenceUsd": -9381.25
+        "spyValueUsd": 41696.39,
+        "differenceUsd": -2202.87
       },
       {
         "month": "2024-12-01",
         "tslaShares": 115.5565,
-        "spyUnits": 82.155832,
-        "netInvestedCapitalUsd": 33813.67,
+        "spyUnits": 69.976852,
+        "netInvestedCapitalUsd": 28368.55,
         "monthlyTslaShareDelta": 1.1356,
-        "monthlyCapitalFlowUsd": 611.06,
+        "monthlyCapitalFlowUsd": 455.37,
         "tradeCount": 1,
         "tslaCloseUsd": 403.84,
         "spyCloseUsd": 586.08,
         "tslaValueUsd": 46666.34,
-        "spyValueUsd": 48149.89,
-        "differenceUsd": -1483.55
+        "spyValueUsd": 41012.03,
+        "differenceUsd": 5654.3
       },
       {
         "month": "2025-01-01",
         "tslaShares": 118.6731,
-        "spyUnits": 84.928257,
-        "netInvestedCapitalUsd": 35482.17,
+        "spyUnits": 71.99816,
+        "netInvestedCapitalUsd": 29585.01,
         "monthlyTslaShareDelta": 3.1166,
-        "monthlyCapitalFlowUsd": 1668.5,
+        "monthlyCapitalFlowUsd": 1216.46,
         "tradeCount": 2,
         "tslaCloseUsd": 404.6,
         "spyCloseUsd": 601.82,
         "tslaValueUsd": 48015.14,
-        "spyValueUsd": 51111.52,
-        "differenceUsd": -3096.39
+        "spyValueUsd": 43329.93,
+        "differenceUsd": 4685.2
       },
       {
         "month": "2025-02-01",
         "tslaShares": 119.9105,
-        "spyUnits": 85.937261,
-        "netInvestedCapitalUsd": 36081.7,
+        "spyUnits": 72.742647,
+        "netInvestedCapitalUsd": 30027.37,
         "monthlyTslaShareDelta": 1.2374,
-        "monthlyCapitalFlowUsd": 599.53,
+        "monthlyCapitalFlowUsd": 442.36,
         "tradeCount": 1,
         "tslaCloseUsd": 292.98,
         "spyCloseUsd": 594.18,
         "tslaValueUsd": 35131.38,
-        "spyValueUsd": 51062.2,
-        "differenceUsd": -15930.82
+        "spyValueUsd": 43222.23,
+        "differenceUsd": -8090.85
       },
       {
         "month": "2025-03-01",
         "tslaShares": 121.7615,
-        "spyUnits": 86.992373,
-        "netInvestedCapitalUsd": 36671.92,
+        "spyUnits": 73.533467,
+        "netInvestedCapitalUsd": 30469.75,
         "monthlyTslaShareDelta": 1.851,
-        "monthlyCapitalFlowUsd": 590.22,
+        "monthlyCapitalFlowUsd": 442.38,
         "tradeCount": 1,
         "tslaCloseUsd": 259.16,
         "spyCloseUsd": 559.39,
         "tslaValueUsd": 31555.71,
-        "spyValueUsd": 48662.66,
-        "differenceUsd": -17106.95
+        "spyValueUsd": 41133.89,
+        "differenceUsd": -9578.18
       },
       {
         "month": "2025-04-01",
         "tslaShares": 123.6007,
-        "spyUnits": 88.072148,
-        "netInvestedCapitalUsd": 37270.7,
+        "spyUnits": 74.331173,
+        "netInvestedCapitalUsd": 30912.11,
         "monthlyTslaShareDelta": 1.8392,
-        "monthlyCapitalFlowUsd": 598.78,
+        "monthlyCapitalFlowUsd": 442.36,
         "tradeCount": 1,
         "tslaCloseUsd": 282.16,
         "spyCloseUsd": 554.54,
         "tslaValueUsd": 34875.17,
-        "spyValueUsd": 48839.53,
-        "differenceUsd": -13964.36
+        "spyValueUsd": 41219.61,
+        "differenceUsd": -6344.44
       },
       {
         "month": "2025-05-01",
         "tslaShares": 125.1772,
-        "spyUnits": 89.0662,
-        "netInvestedCapitalUsd": 37856.58,
+        "spyUnits": 75.0953,
+        "netInvestedCapitalUsd": 31362.48,
         "monthlyTslaShareDelta": 1.5765,
-        "monthlyCapitalFlowUsd": 585.88,
+        "monthlyCapitalFlowUsd": 450.37,
         "tradeCount": 1,
         "tslaCloseUsd": 346.46,
         "spyCloseUsd": 589.39,
         "tslaValueUsd": 43368.89,
-        "spyValueUsd": 52494.73,
-        "differenceUsd": -9125.84
+        "spyValueUsd": 44260.42,
+        "differenceUsd": -891.53
       },
       {
         "month": "2025-06-01",
         "tslaShares": 127.1987,
-        "spyUnits": 90.315998,
-        "netInvestedCapitalUsd": 38628.77,
+        "spyUnits": 76.066998,
+        "netInvestedCapitalUsd": 31962.84,
         "monthlyTslaShareDelta": 2.0215,
-        "monthlyCapitalFlowUsd": 772.19,
+        "monthlyCapitalFlowUsd": 600.36,
         "tradeCount": 1,
         "tslaCloseUsd": 317.66,
         "spyCloseUsd": 617.85,
         "tslaValueUsd": 40405.94,
-        "spyValueUsd": 55801.74,
-        "differenceUsd": -15395.8
+        "spyValueUsd": 46997.99,
+        "differenceUsd": -6592.06
       },
       {
         "month": "2025-07-01",
         "tslaShares": 130.6987,
-        "spyUnits": 92.479889,
-        "netInvestedCapitalUsd": 39996.52,
+        "spyUnits": 77.762858,
+        "netInvestedCapitalUsd": 33034.76,
         "monthlyTslaShareDelta": 3.5,
-        "monthlyCapitalFlowUsd": 1367.75,
+        "monthlyCapitalFlowUsd": 1071.92,
         "tradeCount": 3,
         "tslaCloseUsd": 308.27,
         "spyCloseUsd": 632.08,
         "tslaValueUsd": 40290.49,
-        "spyValueUsd": 58454.69,
-        "differenceUsd": -18164.2
+        "spyValueUsd": 49152.35,
+        "differenceUsd": -8861.86
       },
       {
         "month": "2025-08-01",
         "tslaShares": 134.0335,
-        "spyUnits": 94.672619,
-        "netInvestedCapitalUsd": 41410.94,
+        "spyUnits": 79.468732,
+        "netInvestedCapitalUsd": 34135.14,
         "monthlyTslaShareDelta": 3.3348,
-        "monthlyCapitalFlowUsd": 1414.42,
+        "monthlyCapitalFlowUsd": 1100.37,
         "tradeCount": 1,
         "tslaCloseUsd": 333.87,
         "spyCloseUsd": 645.05,
         "tslaValueUsd": 44749.76,
-        "spyValueUsd": 61068.57,
-        "differenceUsd": -16318.81
+        "spyValueUsd": 51261.31,
+        "differenceUsd": -6511.54
       },
       {
         "month": "2025-09-01",
         "tslaShares": 137.1784,
-        "spyUnits": 96.792295,
-        "netInvestedCapitalUsd": 42823.03,
+        "spyUnits": 81.12047,
+        "netInvestedCapitalUsd": 35235.49,
         "monthlyTslaShareDelta": 3.1449,
-        "monthlyCapitalFlowUsd": 1412.09,
+        "monthlyCapitalFlowUsd": 1100.36,
         "tradeCount": 1,
         "tslaCloseUsd": 444.72,
         "spyCloseUsd": 666.18,
         "tslaValueUsd": 61005.98,
-        "spyValueUsd": 64481.09,
-        "differenceUsd": -3475.11
+        "spyValueUsd": 54040.84,
+        "differenceUsd": 6965.14
       },
       {
         "month": "2025-10-01",
         "tslaShares": 139.704,
-        "spyUnits": 98.882185,
-        "netInvestedCapitalUsd": 44248.46,
+        "spyUnits": 82.733787,
+        "netInvestedCapitalUsd": 36335.87,
         "monthlyTslaShareDelta": 2.5256,
-        "monthlyCapitalFlowUsd": 1425.43,
+        "monthlyCapitalFlowUsd": 1100.38,
         "tradeCount": 1,
         "tslaCloseUsd": 456.56,
         "spyCloseUsd": 682.06,
         "tslaValueUsd": 63783.26,
-        "spyValueUsd": 67443.58,
-        "differenceUsd": -3660.33
+        "spyValueUsd": 56429.41,
+        "differenceUsd": 7353.85
       },
       {
         "month": "2025-11-01",
         "tslaShares": 141.8466,
-        "spyUnits": 100.693896,
-        "netInvestedCapitalUsd": 45486.56,
+        "spyUnits": 84.124416,
+        "netInvestedCapitalUsd": 37286.21,
         "monthlyTslaShareDelta": 2.1426,
-        "monthlyCapitalFlowUsd": 1238.11,
+        "monthlyCapitalFlowUsd": 950.34,
         "tradeCount": 1,
         "tslaCloseUsd": 430.17,
         "spyCloseUsd": 683.39,
         "tslaValueUsd": 61018.15,
-        "spyValueUsd": 68813.2,
-        "differenceUsd": -7795.05
+        "spyValueUsd": 57489.78,
+        "differenceUsd": 3528.37
       },
       {
         "month": "2025-12-01",
         "tslaShares": 144.1146,
-        "spyUnits": 102.597317,
-        "netInvestedCapitalUsd": 46784.55,
+        "spyUnits": 85.591407,
+        "netInvestedCapitalUsd": 38286.58,
         "monthlyTslaShareDelta": 2.268,
-        "monthlyCapitalFlowUsd": 1297.98,
+        "monthlyCapitalFlowUsd": 1000.37,
         "tradeCount": 1,
         "tslaCloseUsd": 449.72,
         "spyCloseUsd": 681.92,
         "tslaValueUsd": 64811.22,
-        "spyValueUsd": 69963.16,
-        "differenceUsd": -5151.94
+        "spyValueUsd": 58366.49,
+        "differenceUsd": 6444.73
       },
       {
         "month": "2026-01-01",
         "tslaShares": 147.5572,
-        "spyUnits": 105.377854,
-        "netInvestedCapitalUsd": 48708.59,
+        "spyUnits": 87.759636,
+        "netInvestedCapitalUsd": 39786.93,
         "monthlyTslaShareDelta": 3.4426,
-        "monthlyCapitalFlowUsd": 1924.05,
+        "monthlyCapitalFlowUsd": 1500.35,
         "tradeCount": 1,
         "tslaCloseUsd": 430.41,
         "spyCloseUsd": 691.97,
         "tslaValueUsd": 63510.09,
-        "spyValueUsd": 72918.31,
-        "differenceUsd": -9408.22
+        "spyValueUsd": 60727.04,
+        "differenceUsd": 2783.06
       },
       {
         "month": "2026-02-01",
         "tslaShares": 149.9584,
-        "spyUnits": 107.222982,
-        "netInvestedCapitalUsd": 49974.33,
+        "spyUnits": 89.217889,
+        "netInvestedCapitalUsd": 40787.28,
         "monthlyTslaShareDelta": 2.4012,
-        "monthlyCapitalFlowUsd": 1265.74,
+        "monthlyCapitalFlowUsd": 1000.35,
         "tradeCount": 1,
         "tslaCloseUsd": 402.51,
         "spyCloseUsd": 685.99,
         "tslaValueUsd": 60359.76,
-        "spyValueUsd": 73553.89,
-        "differenceUsd": -13194.14
+        "spyValueUsd": 61202.58,
+        "differenceUsd": -842.82
       },
       {
         "month": "2026-03-01",
         "tslaShares": 152.7921,
-        "spyUnits": 109.379601,
-        "netInvestedCapitalUsd": 51376.87,
+        "spyUnits": 90.909886,
+        "netInvestedCapitalUsd": 41887.65,
         "monthlyTslaShareDelta": 2.8337,
-        "monthlyCapitalFlowUsd": 1402.54,
+        "monthlyCapitalFlowUsd": 1100.37,
         "tradeCount": 1,
         "tslaCloseUsd": 371.75,
         "spyCloseUsd": 650.34,
         "tslaValueUsd": 56800.46,
-        "spyValueUsd": 71133.93,
-        "differenceUsd": -14333.47
+        "spyValueUsd": 59122.34,
+        "differenceUsd": -2321.87
       },
       {
         "month": "2026-04-01",
         "tslaShares": 155.9999,
-        "spyUnits": 111.342676,
-        "netInvestedCapitalUsd": 52787.65,
+        "spyUnits": 92.441026,
+        "netInvestedCapitalUsd": 42988.02,
         "monthlyTslaShareDelta": 3.2078,
-        "monthlyCapitalFlowUsd": 1410.78,
+        "monthlyCapitalFlowUsd": 1100.37,
         "tradeCount": 1,
         "tslaCloseUsd": 381.63,
         "spyCloseUsd": 718.66,
         "tslaValueUsd": 59534.24,
-        "spyValueUsd": 80017.53,
-        "differenceUsd": -20483.29
+        "spyValueUsd": 66433.67,
+        "differenceUsd": -6899.43
       },
       {
         "month": "2026-05-01",
         "tslaShares": 159.4192,
-        "spyUnits": 113.704499,
-        "netInvestedCapitalUsd": 54564.73,
+        "spyUnits": 94.302194,
+        "netInvestedCapitalUsd": 44388.4,
         "monthlyTslaShareDelta": 3.4193,
-        "monthlyCapitalFlowUsd": 1777.08,
+        "monthlyCapitalFlowUsd": 1400.38,
         "tradeCount": 1,
         "tslaCloseUsd": 439.95,
         "spyCloseUsd": 752.42,
         "tslaValueUsd": 70136.48,
-        "spyValueUsd": 85553.54,
-        "differenceUsd": -15417.06
+        "spyValueUsd": 70954.86,
+        "differenceUsd": -818.38
       }
     ]
   }
