@@ -1,54 +1,52 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-10 (Cycle 65 across the projects workspace)
+Last updated: 2026-08-10 (Cycle 66 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.10.5`.
-- Local verification: fourteen mutation/fixture tests, two Chromium interaction tests, `tools/check_site.py`, Python compilation, and syntax checks for every first-party JavaScript file.
-- Automated verification: least-privilege GitHub Actions installs locked test dependencies and Chromium, then runs the browser, site, Python, and first-party JavaScript gates on Python 3.12 and Node 24.
+- Deployment version: `2026.08.10.6`.
+- Local verification: sixteen mutation/fixture/freshness tests, a non-writing conviction generator check, two Chromium interaction tests, `tools/check_site.py`, Python compilation, and syntax checks for every first-party JavaScript file.
+- Automated verification: least-privilege GitHub Actions runs cheap data/site gates before installing Chromium, then runs the browser, Python, and first-party JavaScript gates on Python 3.12 and Node 24.
 
-## Latest cycle: execute high-risk home interactions in Chromium
+## Latest cycle: enforce conviction generator freshness
 
 ### Why this was selected
 
-Structural source checks could prove that mobile-menu and project-modal hooks existed, but could not prove that state, keyboard control, and focus behaved correctly in a browser. The first modal test exposed a real accessibility defect: the dialog opened without updating `aria-hidden`, did not move or trap focus, and did not restore focus to its trigger.
+The conviction validator proved that the committed payload was internally consistent, but could not detect a tracked transaction or price-history input changing without regenerating the browser payload. The generator also mixed payload construction, timestamp creation, file writing, and reporting, so it had no safe CI mode.
 
 ### Changes
 
-- Added a pinned, test-only Playwright harness with a locally managed static server and no deployed runtime dependencies.
-- Added phone-width mobile-menu coverage for expanded state, scrim/body isolation, Escape closure, and trigger-focus restoration.
-- Added desktop project-modal coverage for ARIA visibility, initial focus, forward/reverse Tab containment, Escape closure, and trigger-focus restoration.
-- Made the modal own keyboard handling, expose accurate `aria-hidden` state, move focus on open, trap focus while open, and restore its opening control on close.
-- Integrated locked dependency and Chromium installation plus browser tests into CI, with npm caching and first-party-only JavaScript syntax scanning.
-- Taught the local HTML reference graph to exclude non-deployed dependency and browser-artifact directories, protected by a fixture test.
-- Documented local browser validation and bumped the deployment version to `2026.08.10.5`.
+- Extracted pure payload construction from command-line writing and made the generation timestamp injectable for tests.
+- Added a comparison contract that ignores only the top-level informational `generatedAt`; every transaction, aggregate, summary, provenance, and benchmark field must match.
+- Added `--check`, which recomputes from all tracked inputs, fails with the repair command when stale, and never rewrites the committed JSON.
+- Added committed-output freshness and timestamp-only-exclusion tests, bringing the Python suite to sixteen tests.
+- Added the freshness command and all generator inputs to the site/CI contracts, documented regeneration and verification, and moved expensive Chromium installation after the cheap data/site gates.
+- Bumped the deployment version to `2026.08.10.6`.
 
 ### Verification and scores
 
-- Test-first evidence: after correcting an overly broad test regex that matched Tailwind's `md:hidden` token, the mobile interaction passed while the modal test failed at its absent `aria-hidden` transition; both passed after the modal repair.
-- Integration evidence: installing test dependencies made the complete site checker fail on Playwright's internal HTML. Explicit deploy-boundary exclusions repaired the gate, and the new fixture prevents recurrence.
-- `npm run test:browser`: both Chromium interactions passed in 2.1–2.5 seconds.
-- `python3 -m unittest discover -s tools -p 'test_*.py'`: all fourteen tests passed.
-- `python3 tools/check_site.py`: 31 required files, 18 workflow policies, nine canonical crawler routes, and all existing site/data contracts passed.
-- `npm audit`: zero known vulnerabilities.
-- `python3 -m compileall -q tools`, every first-party JavaScript syntax check, and `git diff --check`: passed.
-- Correctness/reliability: 9/10 (modal state and focus now follow the behavior exposed to assistive technology and keyboard users).
-- Verifiability: 10/10 (the riskiest home interactions now execute in a real browser locally and on every push/PR).
-- Accessibility: 10/10 (initial focus, containment, Escape, ARIA state, and restoration are asserted end to end).
-- Maintainability: 9/10 (a small shared focus helper and one serial browser suite define the interaction contract).
-- Performance: 9/10 (deployed runtime is unchanged; the complete browser suite adds roughly 2.5 seconds after browser installation).
-- Security/robustness: 9/10 (dependencies are exact-locked, audited, test-only, and CI remains read-only).
+- Test-first evidence: the new freshness test initially failed to import the absent construction and normalization functions.
+- Current dataset evidence: recomputation exactly matched 64 transactions, 43 active months, 67 benchmark months, and all metadata except `generatedAt`.
+- Negative evidence: a timestamp-only mutation passes the freshness comparator, while changing `summary.currentShares` fails it.
+- Non-writing evidence: the committed payload SHA-256 remained `e23f19710e3c2b7a2d02767c624ac22d23b4cc43c42649364eb95354d3e81566` before and after `--check`.
+- `python3 -m unittest discover -s tools -p 'test_*.py'`: all sixteen tests passed.
+- `python3 tools/finance/generate_conviction_history.py --check`: passed.
+- `python3 tools/check_site.py`: 35 required files, 19 workflow policies, nine canonical crawler routes, and all existing site/data contracts passed.
+- Both Chromium interactions, Python compilation, every first-party JavaScript syntax check, and `git diff --check`: passed.
+- Correctness/reliability: 9/10 (committed finance data can no longer silently lag tracked inputs).
+- Verifiability: 10/10 (freshness, internal accounting, mutation behavior, and browser consumption now form independent gates).
+- Maintainability: 9/10 (payload construction is reusable and CLI checking is explicit and non-mutating).
+- Performance: 10/10 (the new gate completes in about 0.1 seconds, and CI now fails before browser installation on cheap-check errors).
+- Security/robustness: 9/10 (the check is offline, read-only, and uses only already tracked anonymized inputs).
 
 ### Lessons and process improvements
 
-- Match utility classes as whitespace-delimited tokens; a word-boundary regex incorrectly treats `md:hidden` as the standalone `hidden` class.
-- Add browser tooling through an explicit deployed/non-deployed boundary. Repository scanners and syntax checks must not silently ingest dependency internals.
-- A real-browser assertion should first demonstrate a meaningful failure; the modal test did, while the menu test preserved known-good behavior.
-- Local `playwright install --with-deps` requires privileged package installation; install the browser alone on this machine and reserve dependency installation for the prepared CI runner.
-- Keep the suite narrow and serial until a new interaction has evidence of risk, preserving cheap feedback and avoiding a brittle end-to-end test pyramid.
+- Internal consistency and generator freshness answer different questions; both gates are needed because a stale payload can remain perfectly self-consistent.
+- Separate pure payload construction from side effects before adding a check mode; this keeps tests fast and avoids temporary-file choreography.
+- Exclude only the known volatile field instead of maintaining a whitelist of deterministic fields, so future generated fields become freshness-checked automatically.
+- Order CI by cost: tracked-data and structural failures should surface before installing a browser.
 
 ## Previous cross-repository update: deploy vault link diagnostics
 
@@ -104,7 +102,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Recent project evolution
 
-- Cycle 65: added CI-gated Chromium interaction coverage and repaired project-modal focus/ARIA behavior.
+- Cycle 66: added deterministic conviction payload freshness checks and CI fail-fast ordering.
+- Cycle 65 (`8046cdf`): added CI-gated Chromium interaction coverage and repaired project-modal focus/ARIA behavior.
 - Cycle 64 (`03f0c27`, state follow-up `e46cf7c`): enforced the complete nine-route crawler discovery contract.
 - Cycle 62 (`e8932bb`): deployed and contract-checked non-blocking vault link diagnostics.
 - Cycle 60 (`4587321`): deployed complete metadata-safe vault content to the canonical viewer.
@@ -114,10 +113,10 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Add deterministic conviction-generator freshness checks excluding timestamps | Verification / maintainability | Medium-high | Medium / low | Payload relationships are checked, but source inputs could change without an explicit generated-output freshness gate |
-| 2 | Add one direct-link/anchor browser smoke | Verification / UX | Medium | Small / low | Menu and modal flows execute in Chromium; section navigation and sticky-header landing position remain structural only |
-| 3 | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | The route inventory is complete, but crawlers receive only coarse change-frequency hints |
+| 1 | Add one direct-link/anchor browser smoke | Verification / UX | Medium | Small / low | Menu and modal flows execute in Chromium; section navigation and sticky-header landing position remain structural only |
+| 2 | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | The route inventory is complete, but crawlers receive only coarse change-frequency hints |
+| 3 | Report browser console/page errors during interaction smokes | Observability / reliability | Low-medium | Small / low | Assertions catch known behavior, but unexpected runtime exceptions are not yet promoted to test failures |
 
 ## Next cycle
 
-Make conviction data generation reproducible and add a freshness check that fails when deterministic source inputs and the committed browser payload diverge.
+Verify direct section links and mobile menu navigation in Chromium, including the sticky-header landing position and closed-menu focus/state contract.

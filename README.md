@@ -50,7 +50,15 @@ Open:
 - http://127.0.0.1:8000/pages/kobo-forge.html (redirects to the standalone site)
 - http://127.0.0.1:8000/pages/seeking-biblical-truth/
 
-The conviction page reads from `data/conviction_tsla_history.json`, which is committed directly in this repo.
+The conviction page reads from `data/conviction_tsla_history.json`, which is
+committed directly in this repo. Regenerate it after changing its tracked
+transaction or price-history inputs, then verify freshness without rewriting
+the informational generation timestamp:
+
+```bash
+python3 tools/finance/generate_conviction_history.py
+python3 tools/finance/generate_conviction_history.py --check
+```
 
 To regenerate the older benchmark-only dataset:
 
@@ -83,6 +91,7 @@ Run before pushing:
 
 ```bash
 python3 -m unittest discover -s tools -p 'test_*.py'
+python3 tools/finance/generate_conviction_history.py --check
 python3 tools/check_site.py
 npm ci
 npx playwright install chromium

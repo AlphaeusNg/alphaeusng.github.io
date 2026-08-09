@@ -8,7 +8,12 @@ import unittest
 from pathlib import Path
 
 from tools.check_site import validate_conviction_payload
-from tools.finance.generate_conviction_history import load_imported_transactions
+from tools.finance.generate_conviction_history import (
+    build_payload,
+    load_imported_transactions,
+    payload_matches_generator_inputs,
+    payload_without_generated_at,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,6 +27,22 @@ class ConvictionPayloadTests(unittest.TestCase):
 
     def test_committed_payload_is_internally_consistent(self) -> None:
         self.assertEqual(validate_conviction_payload(self.payload), [])
+
+    def test_committed_payload_matches_tracked_generator_inputs(self) -> None:
+        generated = build_payload(generated_at="2000-01-01T00:00:00Z")
+
+        self.assertEqual(
+            payload_without_generated_at(self.payload),
+            payload_without_generated_at(generated),
+        )
+
+    def test_freshness_comparison_ignores_only_generation_time(self) -> None:
+        generated = copy.deepcopy(self.payload)
+        generated["generatedAt"] = "2000-01-01T00:00:00Z"
+        self.assertTrue(payload_matches_generator_inputs(self.payload, generated))
+
+        generated["summary"]["currentShares"] += 1
+        self.assertFalse(payload_matches_generator_inputs(self.payload, generated))
 
     def test_detects_summary_and_transaction_corruption(self) -> None:
         payload = copy.deepcopy(self.payload)

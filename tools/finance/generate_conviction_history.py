@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import csv
 import json
 from collections import defaultdict
@@ -269,7 +270,17 @@ def build_benchmark(transactions, summary):
     }
 
 
-def main():
+def payload_without_generated_at(payload):
+    return {key: value for key, value in payload.items() if key != "generatedAt"}
+
+
+def payload_matches_generator_inputs(committed, generated):
+    return payload_without_generated_at(committed) == payload_without_generated_at(
+        generated
+    )
+
+
+def build_payload(*, generated_at=None):
     report_start, _report_end, imported = load_imported_transactions()
     first_import_date = min(entry["date"] for entry in imported)
     default_account = imported[0]["account"]
@@ -302,7 +313,8 @@ def main():
         "symbol": "TSLA",
         "sourceFile": "data/tsla_transactions.csv + tools/finance/tsla_trades_anonymized.csv",
         "sourceSheet": "IBKR transaction export reconciled with recovered in-period Nov 2020 to Feb 2021 TSLA buys",
-        "generatedAt": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "generatedAt": generated_at
+        or datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "summary": summary,
         "monthlySeries": monthly_series,
         "transactions": [
@@ -319,9 +331,38 @@ def main():
         ],
         "benchmarkComparison": build_benchmark(transactions, summary),
     }
+    return payload
 
-    OUTPUT_PATH.write_text(json.dumps(payload, indent=2) + "\n")
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Generate the public conviction transaction and benchmark payload."
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Fail without writing if tracked inputs do not match the committed payload.",
+    )
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    payload = build_payload()
+
+    if args.check:
+        committed = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+        if not payload_matches_generator_inputs(committed, payload):
+            raise SystemExit(
+                "Conviction payload is stale; run "
+                "python3 tools/finance/generate_conviction_history.py and review the diff."
+            )
+        print(f"OK: {OUTPUT_PATH} matches tracked generator inputs")
+        return
+
+    OUTPUT_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {OUTPUT_PATH}")
+    summary = payload["summary"]
     print(
         json.dumps(
             {

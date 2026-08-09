@@ -30,12 +30,14 @@ jobs:
           cache: npm
       - name: Install browser test dependencies
         run: npm ci
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
       - name: Test site contracts
         run: python3 -m unittest discover -s tools -p 'test_*.py'
+      - name: Check conviction data freshness
+        run: python3 tools/finance/generate_conviction_history.py --check
       - name: Check site contracts
         run: python3 tools/check_site.py
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
       - name: Test browser interactions
         run: npm run test:browser
       - name: Compile Python tools

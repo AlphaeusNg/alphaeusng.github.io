@@ -545,6 +545,10 @@ def main() -> None:
         ROOT / "pages" / "seeking-biblical-truth" / "js" / "app.js",
         ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json",
         ROOT / "data" / "conviction_tsla_history.json",
+        ROOT / "data" / "tsla_transactions.csv",
+        ROOT / "tools" / "finance" / "generate_conviction_history.py",
+        ROOT / "tools" / "finance" / "tsla-vs-spy.json",
+        ROOT / "tools" / "finance" / "tsla_trades_anonymized.csv",
         ROOT / "tools" / "browser" / "portfolio.spec.mjs",
         ROOT / "assets" / "alphaeus-portrait.jpg",
         ROOT / "assets" / "xray-baggage-sample.jpg",
@@ -580,6 +584,9 @@ def main() -> None:
             "python3 -m unittest discover -s tools -p 'test_*.py'" in workflow
         ),
         "complete site check": "python3 tools/check_site.py" in workflow,
+        "conviction freshness check": (
+            "python3 tools/finance/generate_conviction_history.py --check" in workflow
+        ),
         "browser interaction tests": "npm run test:browser" in workflow,
         "Python compilation": "python3 -m compileall -q tools" in workflow,
         "JavaScript syntax check": "node --check" in workflow,
