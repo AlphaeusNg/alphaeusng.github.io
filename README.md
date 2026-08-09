@@ -84,16 +84,20 @@ Run before pushing:
 ```bash
 python3 -m unittest discover -s tools -p 'test_*.py'
 python3 tools/check_site.py
+npm ci
+npx playwright install chromium
+npm run test:browser
 python3 -m compileall tools
 while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 python3 -m http.server 8000
 ```
 
 The checker fixtures, conviction-data accounting contracts, site contracts,
-Python compilation, and JavaScript syntax checks run in least-privilege GitHub
-Actions on every `main` push and pull request. The workflow policy is validated
-by `tools/check_site.py` alongside the complete case-sensitive local HTML
-reference graph.
+Chromium interaction smokes, Python compilation, and JavaScript syntax checks
+run in least-privilege GitHub Actions on every `main` push and pull request. The
+workflow policy is validated by `tools/check_site.py` alongside the complete
+case-sensitive local HTML reference graph. Playwright is test-only; the deployed
+site remains zero-build with no runtime package dependency.
 
 Then check:
 

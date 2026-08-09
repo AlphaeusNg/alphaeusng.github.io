@@ -35,6 +35,9 @@ PUBLIC_CRAWLER_ROUTES: dict[str, str | None] = {
     "https://alphaeusng.github.io/ChristoDay/": None,
     "https://alphaeusng.github.io/CardFitSG/": None,
 }
+NON_DEPLOYED_DIRS = frozenset(
+    {".git", "node_modules", "playwright-report", "test-results"}
+)
 
 
 @dataclass(frozen=True)
@@ -105,7 +108,9 @@ def find_local_reference_issues(
 ) -> list[LocalReferenceIssue]:
     root = root.resolve()
     entries = html_entries or sorted(
-        path for path in root.rglob("*.html") if ".git" not in path.relative_to(root).parts
+        path
+        for path in root.rglob("*.html")
+        if NON_DEPLOYED_DIRS.isdisjoint(path.relative_to(root).parts)
     )
     issues: list[LocalReferenceIssue] = []
 
@@ -516,6 +521,9 @@ def main() -> None:
         ROOT / "index.html",
         ROOT / ".github" / "workflows" / "ci.yml",
         ROOT / ".nojekyll",
+        ROOT / "package.json",
+        ROOT / "package-lock.json",
+        ROOT / "playwright.config.mjs",
         ROOT / "robots.txt",
         ROOT / "sitemap.xml",
         ROOT / "404.html",
@@ -537,6 +545,7 @@ def main() -> None:
         ROOT / "pages" / "seeking-biblical-truth" / "js" / "app.js",
         ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json",
         ROOT / "data" / "conviction_tsla_history.json",
+        ROOT / "tools" / "browser" / "portfolio.spec.mjs",
         ROOT / "assets" / "alphaeus-portrait.jpg",
         ROOT / "assets" / "xray-baggage-sample.jpg",
         ROOT / "LICENSE",
@@ -563,10 +572,15 @@ def main() -> None:
         "Python 3.12 baseline": re.search(r"python-version:\s*[\"']?3\.12", workflow),
         "supported Node action": "actions/setup-node@v7" in workflow,
         "Node 24 baseline": re.search(r"node-version:\s*[\"']?24", workflow),
+        "deterministic Node install": "npm ci" in workflow,
+        "Chromium browser install": (
+            "npx playwright install --with-deps chromium" in workflow
+        ),
         "contract unit tests": (
             "python3 -m unittest discover -s tools -p 'test_*.py'" in workflow
         ),
         "complete site check": "python3 tools/check_site.py" in workflow,
+        "browser interaction tests": "npm run test:browser" in workflow,
         "Python compilation": "python3 -m compileall -q tools" in workflow,
         "JavaScript syntax check": "node --check" in workflow,
     }

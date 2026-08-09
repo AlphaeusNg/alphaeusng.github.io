@@ -1,52 +1,54 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-10 (Cycle 64 across the projects workspace)
+Last updated: 2026-08-10 (Cycle 65 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.10.4`.
-- Local verification: thirteen mutation/fixture tests, `tools/check_site.py`, Python compilation, and syntax checks for every JavaScript file.
-- Automated verification: least-privilege GitHub Actions discovers all Python contract tests and runs the same site/Python/JavaScript checks on Python 3.12 and Node 24.
+- Deployment version: `2026.08.10.5`.
+- Local verification: fourteen mutation/fixture tests, two Chromium interaction tests, `tools/check_site.py`, Python compilation, and syntax checks for every first-party JavaScript file.
+- Automated verification: least-privilege GitHub Actions installs locked test dependencies and Chromium, then runs the browser, site, Python, and first-party JavaScript gates on Python 3.12 and Node 24.
 
-## Latest cycle: enforce canonical crawler discovery
+## Latest cycle: execute high-risk home interactions in Chromium
 
 ### Why this was selected
 
-The sitemap listed the original portfolio, conviction, vault, KoboForge, and AlpArcade routes but had drifted behind four shipped sites: AIly, VerseKeep, ChristoDay, and CardFitSG. Neither sitemap contents, robots directives, canonical tags, duplicates, nor target existence had automated coverage.
+Structural source checks could prove that mobile-menu and project-modal hooks existed, but could not prove that state, keyboard control, and focus behaved correctly in a browser. The first modal test exposed a real accessibility defect: the dialog opened without updating `aria-hidden`, did not move or trap focus, and did not restore focus to its trigger.
 
 ### Changes
 
-- Defined the exact nine-URL public crawler contract, distinguishing local canonical HTML files from same-origin GitHub Pages project sites.
-- Added a reusable XML/robots/canonical validator with an HTML parser that tolerates attribute ordering and normal/self-closing link tags.
-- Added four fixture tests covering the valid contract plus missing, duplicate, non-canonical, unexpected, root-blocking, wrong-sitemap, missing-file, and canonical-mismatch failures.
-- Integrated crawler validation into `tools/check_site.py` and expanded `sitemap.xml` with AIly, VerseKeep, ChristoDay, and CardFitSG.
-- Bumped the crawler deployment to `2026.08.10.3` and the final recovery/state deployment to `2026.08.10.4`.
+- Added a pinned, test-only Playwright harness with a locally managed static server and no deployed runtime dependencies.
+- Added phone-width mobile-menu coverage for expanded state, scrim/body isolation, Escape closure, and trigger-focus restoration.
+- Added desktop project-modal coverage for ARIA visibility, initial focus, forward/reverse Tab containment, Escape closure, and trigger-focus restoration.
+- Made the modal own keyboard handling, expose accurate `aria-hidden` state, move focus on open, trap focus while open, and restore its opening control on close.
+- Integrated locked dependency and Chromium installation plus browser tests into CI, with npm caching and first-party-only JavaScript syntax scanning.
+- Taught the local HTML reference graph to exclude non-deployed dependency and browser-artifact directories, protected by a fixture test.
+- Documented local browser validation and bumped the deployment version to `2026.08.10.5`.
 
 ### Verification and scores
 
-- Test-first evidence: the fixture suite initially failed to import the absent crawler validator.
-- Integrated gate evidence: before sitemap repair, the real site checker named exactly the four missing shipped routes.
-- `python3 -m unittest discover -s tools -p 'test_*.py'`: all thirteen tests passed.
-- `python3 tools/check_site.py`: 27 required files, 15 workflow policies, nine canonical crawler routes, and all existing site/data contracts passed.
-- All nine sitemap URLs returned HTTP 200, including the four newly listed project sites.
-- Local HTTP smoke: `/sitemap.xml` and `/robots.txt` returned 200, and the served sitemap parsed with exactly nine URLs.
-- Deployment recovery: the first managed Pages build raced the push, attempted prior SHA `e8932bb`, and failed before a runner started. After the stale build reached its terminal error, a Pages API rebuild selected current SHA `03f0c27`; managed run `31327676498` succeeded and live version/routes passed.
-- `python3 -m compileall -q tools`, all JavaScript syntax checks, and `git diff --check`: passed.
-- Correctness/reliability: 9/10 (crawler discovery now matches the authoritative shipped-site map).
-- Verifiability: 10/10 (XML, robots, canonical HTML, local files, duplicates, and live destinations all have evidence).
-- Maintainability: 9/10 (one explicit route map drives sitemap and canonical expectations).
-- Performance: 10/10 (thirteen tests and the complete local checker finish in well under a second).
-- Security/robustness: 9/10 (root blocking and off-contract crawler URLs fail closed).
+- Test-first evidence: after correcting an overly broad test regex that matched Tailwind's `md:hidden` token, the mobile interaction passed while the modal test failed at its absent `aria-hidden` transition; both passed after the modal repair.
+- Integration evidence: installing test dependencies made the complete site checker fail on Playwright's internal HTML. Explicit deploy-boundary exclusions repaired the gate, and the new fixture prevents recurrence.
+- `npm run test:browser`: both Chromium interactions passed in 2.1–2.5 seconds.
+- `python3 -m unittest discover -s tools -p 'test_*.py'`: all fourteen tests passed.
+- `python3 tools/check_site.py`: 31 required files, 18 workflow policies, nine canonical crawler routes, and all existing site/data contracts passed.
+- `npm audit`: zero known vulnerabilities.
+- `python3 -m compileall -q tools`, every first-party JavaScript syntax check, and `git diff --check`: passed.
+- Correctness/reliability: 9/10 (modal state and focus now follow the behavior exposed to assistive technology and keyboard users).
+- Verifiability: 10/10 (the riskiest home interactions now execute in a real browser locally and on every push/PR).
+- Accessibility: 10/10 (initial focus, containment, Escape, ARIA state, and restoration are asserted end to end).
+- Maintainability: 9/10 (a small shared focus helper and one serial browser suite define the interaction contract).
+- Performance: 9/10 (deployed runtime is unchanged; the complete browser suite adds roughly 2.5 seconds after browser installation).
+- Security/robustness: 9/10 (dependencies are exact-locked, audited, test-only, and CI remains read-only).
 
 ### Lessons and process improvements
 
-- A valid XML sitemap can still be product-incomplete; compare it against the authoritative shipped-project inventory.
-- Model cross-repository Pages routes explicitly instead of pretending their files exist in the portfolio working tree.
-- Test canonical tags through an HTML parser so attribute ordering and self-closing syntax do not create brittle checks.
-- Pair structural crawler validation with reachability evidence for every published URL.
-- Verify the SHA selected by legacy Pages, not just workflow completion; if ref propagation races, wait for the stale build to terminate before requesting one latest-`main` rebuild.
+- Match utility classes as whitespace-delimited tokens; a word-boundary regex incorrectly treats `md:hidden` as the standalone `hidden` class.
+- Add browser tooling through an explicit deployed/non-deployed boundary. Repository scanners and syntax checks must not silently ingest dependency internals.
+- A real-browser assertion should first demonstrate a meaningful failure; the modal test did, while the menu test preserved known-good behavior.
+- Local `playwright install --with-deps` requires privileged package installation; install the browser alone on this machine and reserve dependency installation for the prepared CI runner.
+- Keep the suite narrow and serial until a new interaction has evidence of risk, preserving cheap feedback and avoiding a brittle end-to-end test pyramid.
 
 ## Previous cross-repository update: deploy vault link diagnostics
 
@@ -102,6 +104,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Recent project evolution
 
+- Cycle 65: added CI-gated Chromium interaction coverage and repaired project-modal focus/ARIA behavior.
+- Cycle 64 (`03f0c27`, state follow-up `e46cf7c`): enforced the complete nine-route crawler discovery contract.
 - Cycle 62 (`e8932bb`): deployed and contract-checked non-blocking vault link diagnostics.
 - Cycle 60 (`4587321`): deployed complete metadata-safe vault content to the canonical viewer.
 - Cycle 59 (`9ce7ed2`): corrected conviction USD accounting and added complete dataset contracts.
@@ -110,10 +114,10 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Add browser smoke coverage for home navigation/modals | Verification / accessibility | High | Large / medium | Structural checks do not execute mobile menu, modal focus, or anchor behavior in a browser DOM |
-| 2 | Add deterministic conviction-generator freshness checks excluding timestamps | Verification / maintainability | Medium | Medium / low | Payload relationships are checked, but source inputs could change without an explicit generated-output freshness gate |
+| 1 | Add deterministic conviction-generator freshness checks excluding timestamps | Verification / maintainability | Medium-high | Medium / low | Payload relationships are checked, but source inputs could change without an explicit generated-output freshness gate |
+| 2 | Add one direct-link/anchor browser smoke | Verification / UX | Medium | Small / low | Menu and modal flows execute in Chromium; section navigation and sticky-header landing position remain structural only |
 | 3 | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | The route inventory is complete, but crawlers receive only coarse change-frequency hints |
 
 ## Next cycle
 
-Add a minimal browser-executed smoke suite for the highest-risk home interactions: mobile navigation state, modal opening/closing, and focus restoration.
+Make conviction data generation reproducible and add a freshness check that fails when deterministic source inputs and the committed browser payload diverge.

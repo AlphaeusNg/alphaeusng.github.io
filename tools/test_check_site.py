@@ -74,6 +74,18 @@ class LocalReferenceTests(unittest.TestCase):
         self.assertEqual(len(issues), 1)
         self.assertEqual(issues[0].reason, "target escapes site root")
 
+    def test_automatic_discovery_ignores_non_deployed_directories(self) -> None:
+        self.write_index("<main>Portfolio</main>")
+        for directory in ("node_modules", "playwright-report", "test-results"):
+            path = self.root / directory
+            path.mkdir()
+            (path / "internal.html").write_text(
+                '<script src="missing-internal.js"></script>',
+                encoding="utf-8",
+            )
+
+        self.assertEqual(find_local_reference_issues(self.root), [])
+
 
 class CrawlerContractTests(unittest.TestCase):
     def setUp(self) -> None:

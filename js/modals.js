@@ -220,6 +220,21 @@ const PROJECT_MODAL_DATA = {
   }
 };
 
+const MODAL_FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])'
+].join(',');
+let projectModalTrigger = null;
+
+function getProjectModalFocusables(modal) {
+  return Array.from(modal.querySelectorAll(MODAL_FOCUSABLE_SELECTOR))
+    .filter(element => element.getClientRects().length > 0);
+}
+
 // Reusable renderer for rich project modals
 function openRichProjectModal(slug) {
   const data = PROJECT_MODAL_DATA[slug];
@@ -230,6 +245,11 @@ function openRichProjectModal(slug) {
 
   const modal = document.getElementById('project-modal');
   if (!modal) return;
+  if (modal.classList.contains('hidden')) {
+    projectModalTrigger = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+  }
 
   // Header
   const badgesContainer = document.getElementById('modal-badges') || modal.querySelector('#modal-badges');
@@ -363,16 +383,57 @@ function openRichProjectModal(slug) {
   // Show modal
   modal.classList.remove('hidden');
   modal.classList.add('flex');
+  modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    getProjectModalFocusables(modal)[0]?.focus({ preventScroll: true });
+  });
 }
 
 function closeProjectModal() {
   const modal = document.getElementById('project-modal');
-  if (!modal) return;
+  if (!modal || modal.classList.contains('hidden')) return;
   modal.classList.remove('flex');
   modal.classList.add('hidden');
+  modal.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+  const trigger = projectModalTrigger;
+  projectModalTrigger = null;
+  if (trigger?.isConnected) {
+    trigger.focus({ preventScroll: true });
+  }
 }
+
+function handleProjectModalKeydown(event) {
+  const modal = document.getElementById('project-modal');
+  if (!modal || modal.classList.contains('hidden')) return;
+
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeProjectModal();
+    return;
+  }
+  if (event.key !== 'Tab') return;
+
+  const focusables = getProjectModalFocusables(modal);
+  if (!focusables.length) {
+    event.preventDefault();
+    return;
+  }
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  const active = document.activeElement;
+  if (event.shiftKey && (active === first || !modal.contains(active))) {
+    event.preventDefault();
+    last.focus({ preventScroll: true });
+  } else if (!event.shiftKey && active === last) {
+    event.preventDefault();
+    first.focus({ preventScroll: true });
+  }
+}
+
+document.addEventListener('keydown', handleProjectModalKeydown, true);
 
 // Expose for debugging if needed
 window.openRichProjectModal = openRichProjectModal;

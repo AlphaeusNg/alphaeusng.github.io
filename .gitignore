@@ -20,8 +20,10 @@ __pycache__/
 *$py.class
 *.pyc
 
-# Dependencies (none required for static site)
+# Test-only dependencies and browser artifacts (the deployed site remains zero-build)
 node_modules/
+playwright-report/
+test-results/
 
 # OS
 .DS_Store

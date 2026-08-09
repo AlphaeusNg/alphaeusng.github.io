@@ -913,7 +913,7 @@
     <!-- All project-specific content (text, visuals, actions) is injected by openRichProjectModal via targeted DOM updates.
          The original full Seeking Biblical Truth static markup has been stripped (was dead weight; never shown post-JS).
          Stable IDs establish a clear DOM contract for the renderer (see JS comments in openRichProjectModal). -->
-    <div id="project-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div id="project-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modal-title">
         <!-- Backdrop -->
         <div onclick="closeProjectModal()" class="modal-backdrop absolute inset-0 bg-black/85"></div>
         
