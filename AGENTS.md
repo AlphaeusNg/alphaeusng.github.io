@@ -81,9 +81,12 @@ while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' 
 
 ```bash
 cd /home/alph/projects/Seeking-Biblical-Truth
-python3 tools/generate_vault_data.py
-cp pages/vault-data.json /home/alph/projects/alphaeusng.github.io/pages/seeking-biblical-truth/vault-data.json
+python3 tools/sync_public_viewer.py
+python3 tools/sync_public_viewer.py --check
 ```
+
+The first command generates one canonical payload and updates both tracked
+copies; `--check` is read-only and identifies which copy is stale.
 
 ### Finance data
 
@@ -125,4 +128,4 @@ git push origin main
 2. Edit the smallest set of files; match existing CSS tokens.
 3. Run `tools/check_site.py` and syntax checks when structure changes.
 4. Bump version; commit only this repo.
-5. If vault content changed, sync `vault-data.json` as above (separate commit in this repo and/or the vault repo).
+5. If vault content changed, run the sync command and its `--check` mode above, then commit each changed repository separately.

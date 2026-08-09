@@ -1,12 +1,12 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-10 (Cycle 68 across the projects workspace)
+Last updated: 2026-08-10 (Cycle 78 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.10.8`.
+- Deployment version: `2026.08.10.9`.
 - Local verification: sixteen mutation/fixture/freshness tests, a non-writing conviction generator check, three Chromium interaction tests with shared runtime-error monitoring, `tools/check_site.py`, Python compilation, and syntax checks for every first-party JavaScript file.
 - Automated verification: least-privilege GitHub Actions runs cheap data/site gates before installing Chromium, then runs the browser, Python, and first-party JavaScript gates on Python 3.12 and Node 24.
 
@@ -44,6 +44,12 @@ The three browser flows asserted their intended outputs but could still pass whi
 - Attach broad runtime health checks at the test-fixture boundary so adding a new interaction automatically adds observability.
 - Do not preemptively suppress third-party messages; observe the real baseline first and add only exact, evidenced exceptions.
 - Mutation-test observability itself. A green baseline proves current health, while deliberate page and console failures prove the detector.
+
+## Current cross-repository update: verify vault-data synchronization
+
+Cycle 78 replaces the manual generate-and-copy publication path with a source-side `tools/sync_public_viewer.py` command. It generates one canonical payload, updates both tracked copies without rewriting identical files, validates both source and viewer destinations before either write, and provides a read-only `--check` mode that distinguishes source drift from public-copy drift. Seven isolated sync/CLI contracts cover idempotence, both drift classes, malformed bytes, immutable checking, and missing/empty source or target refusal. The current source and public datasets remain byte-identical; deployment version is `2026.08.10.9` for the updated maintainer workflow.
+
+The implementation, test-first evidence, scores, and remaining non-transactional Git boundary are recorded in `/home/alph/projects/Seeking-Biblical-Truth/PROGRESS.md`.
 
 ## Previous cross-repository update: deploy vault link diagnostics
 
@@ -99,6 +105,7 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Recent project evolution
 
+- Cycle 78: replaced manual vault-data copying with one-command synchronization and precise drift checks.
 - Cycle 68: promoted console errors and uncaught browser exceptions to shared interaction-test failures.
 - Cycle 67 (`1cc038e`): repaired and browser-verified sticky-header hash geometry, URL history, and mobile destination focus.
 - Cycle 66 (`beeb86d`): added deterministic conviction payload freshness checks and CI fail-fast ordering.

@@ -78,9 +78,13 @@ When the vault changes:
 
 ```bash
 cd /home/alph/projects/Seeking-Biblical-Truth
-python3 tools/generate_vault_data.py
-cp pages/vault-data.json /home/alph/projects/alphaeusng.github.io/pages/seeking-biblical-truth/vault-data.json
+python3 tools/sync_public_viewer.py
+python3 tools/sync_public_viewer.py --check
 ```
+
+The sync command generates one canonical payload and updates both repositories'
+tracked copies. The read-only check reports whether the source export or this
+public copy has drifted; commit each changed repository separately.
 
 The viewer includes `obsidian://open?vault=Seeking-Biblical-Truth` links for users who cloned and opened the vault in Obsidian.
 It also defaults to rendered Markdown previews with a raw-source toggle in the note panel.
