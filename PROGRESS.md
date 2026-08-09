@@ -1,16 +1,22 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-10 (Cycle 60 across the projects workspace)
+Last updated: 2026-08-10 (Cycle 62 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.10.1`.
+- Deployment version: `2026.08.10.2`.
 - Local verification: nine mutation/fixture tests, `tools/check_site.py`, Python compilation, and syntax checks for every JavaScript file.
 - Automated verification: least-privilege GitHub Actions discovers all Python contract tests and runs the same site/Python/JavaScript checks on Python 3.12 and Node 24.
 
-## Latest cross-repository update: deploy the lossless vault export
+## Latest cross-repository update: deploy vault link diagnostics
+
+Cycle 62 adds non-blocking link observability to the source exporter and synced public payload. The canonical viewer data now records 26 unique unresolved wiki-links and zero ambiguous links, deduplicated from 27 occurrences, while preserving the existing 55-note/1-canvas/62-node/99-link graph. Source/copy equality, portfolio contracts, syntax checks, and served-route diagnostics passed before commit; deployment version is `2026.08.10.2`.
+
+The source-side schema, test-first evidence, scores, and remediation backlog are recorded in `/home/alph/projects/Seeking-Biblical-Truth/PROGRESS.md`.
+
+## Previous cross-repository update: deploy the lossless vault export
 
 The Cycle 60 source-vault exporter now preserves complete note bodies, fails on malformed canvases, excludes repository metadata, and is protected by five tests plus CI. Its regenerated dataset was copied byte-for-byte into the canonical public viewer: 55 notes, one canvas, 62 nodes, and 99 links. The deployment version was bumped to `2026.08.10.1`; full portfolio contracts, syntax checks, served-route checks, and source/copy equality passed before commit.
 
@@ -58,9 +64,9 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Recent project evolution
 
+- Cycle 60 (`4587321`): deployed complete metadata-safe vault content to the canonical viewer.
 - Cycle 59 (`9ce7ed2`): corrected conviction USD accounting and added complete dataset contracts.
 - Cycle 58 (`3edc124`): restored and contract-checked the Biblical Truth compatibility route.
-- Cycle 57 (`f8df394`): added fixture-backed exhaustive case-sensitive local reference validation.
 
 ## Prioritized opportunities
 

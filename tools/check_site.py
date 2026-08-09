@@ -587,7 +587,41 @@ def main() -> None:
         fail("vault-data.json has no nodes")
     if not isinstance(vault.get("links"), list):
         fail("vault-data.json missing links array")
-    ok(f"vault-data.json: {len(vault['nodes'])} nodes, {len(vault['links'])} links")
+    vault_counts = vault.get("counts")
+    diagnostics = vault.get("linkDiagnostics")
+    if not isinstance(vault_counts, dict) or not isinstance(diagnostics, dict):
+        fail("vault-data.json missing diagnostic metadata")
+    node_ids = {node.get("id") for node in vault["nodes"] if isinstance(node, dict)}
+    for kind, count_field in (
+        ("unresolved", "unresolvedLinks"),
+        ("ambiguous", "ambiguousLinks"),
+    ):
+        entries = diagnostics.get(kind)
+        if not isinstance(entries, list):
+            fail(f"vault-data.json missing {kind} link diagnostics")
+        if vault_counts.get(count_field) != len(entries):
+            fail(f"vault-data.json {kind} diagnostic count mismatch")
+        if any(
+            not isinstance(entry, dict)
+            or entry.get("source") not in node_ids
+            or not isinstance(entry.get("reference"), str)
+            or not entry["reference"].strip()
+            or entry.get("type") != "wikilink"
+            for entry in entries
+        ):
+            fail(f"vault-data.json has invalid {kind} link diagnostics")
+    if any(
+        not isinstance(entry.get("candidates"), list)
+        or len(entry["candidates"]) < 2
+        or any(candidate not in node_ids for candidate in entry["candidates"])
+        for entry in diagnostics["ambiguous"]
+    ):
+        fail("vault-data.json ambiguous diagnostics need candidate paths")
+    ok(
+        f"vault-data.json: {len(vault['nodes'])} nodes, {len(vault['links'])} links, "
+        f"{len(diagnostics['unresolved'])} unresolved, "
+        f"{len(diagnostics['ambiguous'])} ambiguous"
+    )
 
     portrait = ROOT / "assets" / "alphaeus-portrait.jpg"
     if portrait.stat().st_size > 120_000:
