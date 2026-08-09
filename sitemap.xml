@@ -11,18 +11,38 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://alphaeusng.github.io/KoboForge/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://alphaeusng.github.io/pages/seeking-biblical-truth/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://alphaeusng.github.io/AIly/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://alphaeusng.github.io/KoboForge/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://alphaeusng.github.io/AlpArcade/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://alphaeusng.github.io/VerseKeep/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://alphaeusng.github.io/ChristoDay/</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://alphaeusng.github.io/CardFitSG/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>

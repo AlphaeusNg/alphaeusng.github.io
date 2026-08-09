@@ -12,14 +12,29 @@ import json
 import math
 import re
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import date
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
+SITEMAP_URL = "https://alphaeusng.github.io/sitemap.xml"
+PUBLIC_CRAWLER_ROUTES: dict[str, str | None] = {
+    "https://alphaeusng.github.io/": "index.html",
+    "https://alphaeusng.github.io/pages/conviction.html": "pages/conviction.html",
+    "https://alphaeusng.github.io/pages/seeking-biblical-truth/": (
+        "pages/seeking-biblical-truth/index.html"
+    ),
+    "https://alphaeusng.github.io/AIly/": None,
+    "https://alphaeusng.github.io/KoboForge/": None,
+    "https://alphaeusng.github.io/AlpArcade/": None,
+    "https://alphaeusng.github.io/VerseKeep/": None,
+    "https://alphaeusng.github.io/ChristoDay/": None,
+    "https://alphaeusng.github.io/CardFitSG/": None,
+}
 
 
 @dataclass(frozen=True)
@@ -48,6 +63,28 @@ class ReferenceParser(HTMLParser):
         self, tag: str, attributes: list[tuple[str, str | None]]
     ) -> None:
         self._collect(attributes)
+
+
+class CanonicalParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.urls: list[str] = []
+
+    def handle_starttag(
+        self, tag: str, attributes: list[tuple[str, str | None]]
+    ) -> None:
+        if tag.lower() != "link":
+            return
+        values = {name.lower(): value for name, value in attributes}
+        relationships = (values.get("rel") or "").lower().split()
+        href = values.get("href")
+        if "canonical" in relationships and href:
+            self.urls.append(href.strip())
+
+    def handle_startendtag(
+        self, tag: str, attributes: list[tuple[str, str | None]]
+    ) -> None:
+        self.handle_starttag(tag, attributes)
 
 
 def _has_exact_case(root: Path, target: Path) -> bool:
@@ -99,6 +136,66 @@ def find_local_reference_issues(
                 candidate = candidate / "index.html"
             if not candidate.is_file() or not _has_exact_case(root, candidate):
                 issues.append(LocalReferenceIssue(entry, reference, "missing target"))
+
+    return issues
+
+
+def find_crawler_contract_issues(
+    root: Path,
+    expected_routes: dict[str, str | None],
+    *,
+    sitemap_url: str,
+) -> list[str]:
+    issues: list[str] = []
+    sitemap_path = root / "sitemap.xml"
+    robots_path = root / "robots.txt"
+
+    try:
+        sitemap = ElementTree.parse(sitemap_path)
+    except (OSError, ElementTree.ParseError) as error:
+        return [f"sitemap.xml is unreadable or invalid: {error}"]
+
+    locations = [
+        (element.text or "").strip()
+        for element in sitemap.findall(".//{*}loc")
+        if (element.text or "").strip()
+    ]
+    location_counts = Counter(locations)
+    for url, count in sorted(location_counts.items()):
+        if count > 1:
+            issues.append(f"duplicate sitemap URL: {url}")
+    expected_urls = set(expected_routes)
+    for url in sorted(expected_urls - set(locations)):
+        issues.append(f"missing sitemap URL: {url}")
+    for url in sorted(set(locations) - expected_urls):
+        issues.append(f"non-canonical or unexpected sitemap URL: {url}")
+
+    try:
+        robots = robots_path.read_text(encoding="utf-8")
+    except OSError as error:
+        issues.append(f"robots.txt is unreadable: {error}")
+    else:
+        sitemap_directives = re.findall(r"(?im)^\s*Sitemap:\s*(\S+)\s*$", robots)
+        if sitemap_directives != [sitemap_url]:
+            issues.append("robots.txt sitemap directive must name the canonical sitemap once")
+        allows_root = re.search(r"(?im)^\s*Allow:\s*/\s*$", robots)
+        blocks_root = re.search(r"(?im)^\s*Disallow:\s*/\s*$", robots)
+        if not allows_root or blocks_root:
+            issues.append("robots.txt must allow the site root")
+        if not re.search(r"(?im)^\s*User-agent:\s*\*\s*$", robots):
+            issues.append("robots.txt must define the wildcard user agent")
+
+    for url, relative_path in expected_routes.items():
+        if relative_path is None:
+            continue
+        route_path = root / relative_path
+        if not route_path.is_file():
+            issues.append(f"crawler route file missing: {relative_path}")
+            continue
+        parser = CanonicalParser()
+        parser.feed(route_path.read_text(encoding="utf-8"))
+        if parser.urls != [url]:
+            issues.append(f"canonical URL mismatch for {relative_path}: {parser.urls}")
 
     return issues
 
@@ -479,6 +576,15 @@ def main() -> None:
     if missing_workflow_contracts:
         fail("CI workflow policy missing: " + ", ".join(missing_workflow_contracts))
     ok(f"GitHub Actions policy: {len(workflow_contracts)} contracts")
+
+    crawler_issues = find_crawler_contract_issues(
+        ROOT,
+        PUBLIC_CRAWLER_ROUTES,
+        sitemap_url=SITEMAP_URL,
+    )
+    if crawler_issues:
+        fail("invalid crawler discovery contract: " + "; ".join(crawler_issues))
+    ok(f"crawler discovery: {len(PUBLIC_CRAWLER_ROUTES)} canonical public routes")
 
     home = (ROOT / "index.html").read_text(encoding="utf-8")
     if "d3js.org" in home or "html2canvas" in home:

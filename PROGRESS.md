@@ -1,16 +1,52 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-10 (Cycle 62 across the projects workspace)
+Last updated: 2026-08-10 (Cycle 64 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.10.2`.
-- Local verification: nine mutation/fixture tests, `tools/check_site.py`, Python compilation, and syntax checks for every JavaScript file.
+- Deployment version: `2026.08.10.3`.
+- Local verification: thirteen mutation/fixture tests, `tools/check_site.py`, Python compilation, and syntax checks for every JavaScript file.
 - Automated verification: least-privilege GitHub Actions discovers all Python contract tests and runs the same site/Python/JavaScript checks on Python 3.12 and Node 24.
 
-## Latest cross-repository update: deploy vault link diagnostics
+## Latest cycle: enforce canonical crawler discovery
+
+### Why this was selected
+
+The sitemap listed the original portfolio, conviction, vault, KoboForge, and AlpArcade routes but had drifted behind four shipped sites: AIly, VerseKeep, ChristoDay, and CardFitSG. Neither sitemap contents, robots directives, canonical tags, duplicates, nor target existence had automated coverage.
+
+### Changes
+
+- Defined the exact nine-URL public crawler contract, distinguishing local canonical HTML files from same-origin GitHub Pages project sites.
+- Added a reusable XML/robots/canonical validator with an HTML parser that tolerates attribute ordering and normal/self-closing link tags.
+- Added four fixture tests covering the valid contract plus missing, duplicate, non-canonical, unexpected, root-blocking, wrong-sitemap, missing-file, and canonical-mismatch failures.
+- Integrated crawler validation into `tools/check_site.py` and expanded `sitemap.xml` with AIly, VerseKeep, ChristoDay, and CardFitSG.
+- Bumped the deployment version to `2026.08.10.3`.
+
+### Verification and scores
+
+- Test-first evidence: the fixture suite initially failed to import the absent crawler validator.
+- Integrated gate evidence: before sitemap repair, the real site checker named exactly the four missing shipped routes.
+- `python3 -m unittest discover -s tools -p 'test_*.py'`: all thirteen tests passed.
+- `python3 tools/check_site.py`: 27 required files, 15 workflow policies, nine canonical crawler routes, and all existing site/data contracts passed.
+- All nine sitemap URLs returned HTTP 200, including the four newly listed project sites.
+- Local HTTP smoke: `/sitemap.xml` and `/robots.txt` returned 200, and the served sitemap parsed with exactly nine URLs.
+- `python3 -m compileall -q tools`, all JavaScript syntax checks, and `git diff --check`: passed.
+- Correctness/reliability: 9/10 (crawler discovery now matches the authoritative shipped-site map).
+- Verifiability: 10/10 (XML, robots, canonical HTML, local files, duplicates, and live destinations all have evidence).
+- Maintainability: 9/10 (one explicit route map drives sitemap and canonical expectations).
+- Performance: 10/10 (thirteen tests and the complete local checker finish in well under a second).
+- Security/robustness: 9/10 (root blocking and off-contract crawler URLs fail closed).
+
+### Lessons and process improvements
+
+- A valid XML sitemap can still be product-incomplete; compare it against the authoritative shipped-project inventory.
+- Model cross-repository Pages routes explicitly instead of pretending their files exist in the portfolio working tree.
+- Test canonical tags through an HTML parser so attribute ordering and self-closing syntax do not create brittle checks.
+- Pair structural crawler validation with reachability evidence for every published URL.
+
+## Previous cross-repository update: deploy vault link diagnostics
 
 Cycle 62 adds non-blocking link observability to the source exporter and synced public payload. The canonical viewer data now records 26 unique unresolved wiki-links and zero ambiguous links, deduplicated from 27 occurrences, while preserving the existing 55-note/1-canvas/62-node/99-link graph. Source/copy equality, portfolio contracts, syntax checks, and served-route diagnostics passed before commit; deployment version is `2026.08.10.2`.
 
@@ -64,18 +100,18 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Recent project evolution
 
+- Cycle 62 (`e8932bb`): deployed and contract-checked non-blocking vault link diagnostics.
 - Cycle 60 (`4587321`): deployed complete metadata-safe vault content to the canonical viewer.
 - Cycle 59 (`9ce7ed2`): corrected conviction USD accounting and added complete dataset contracts.
-- Cycle 58 (`3edc124`): restored and contract-checked the Biblical Truth compatibility route.
 
 ## Prioritized opportunities
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Validate sitemap/robots canonical routes | Reliability / SEO | Medium | Small / low | Local links are checked, but crawler files are not cross-checked against existing canonical entry points |
-| 2 | Add browser smoke coverage for home navigation/modals | Verification / accessibility | High | Large / medium | Structural checks do not execute mobile menu, modal focus, or anchor behavior in a browser DOM |
-| 3 | Add deterministic generator golden checks excluding timestamps | Verification / maintainability | Medium | Medium / low | Payload relationships are checked, but source inputs could change without an explicit generated-output freshness gate |
+| 1 | Add browser smoke coverage for home navigation/modals | Verification / accessibility | High | Large / medium | Structural checks do not execute mobile menu, modal focus, or anchor behavior in a browser DOM |
+| 2 | Add deterministic conviction-generator freshness checks excluding timestamps | Verification / maintainability | Medium | Medium / low | Payload relationships are checked, but source inputs could change without an explicit generated-output freshness gate |
+| 3 | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | The route inventory is complete, but crawlers receive only coarse change-frequency hints |
 
 ## Next cycle
 
-Cross-check `sitemap.xml` and `robots.txt` against the canonical deployed routes, with mutation fixtures for missing, duplicate, non-canonical, and nonexistent entries.
+Add a minimal browser-executed smoke suite for the highest-risk home interactions: mobile navigation state, modal opening/closing, and focus restoration.

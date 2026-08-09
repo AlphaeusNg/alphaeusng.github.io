@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from collections.abc import Iterable
 from pathlib import Path
 
-from tools.check_site import find_local_reference_issues
+from tools.check_site import find_crawler_contract_issues, find_local_reference_issues
 
 
 class LocalReferenceTests(unittest.TestCase):
@@ -72,6 +73,88 @@ class LocalReferenceTests(unittest.TestCase):
         issues = find_local_reference_issues(self.root, [entry])
         self.assertEqual(len(issues), 1)
         self.assertEqual(issues[0].reason, "target escapes site root")
+
+
+class CrawlerContractTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        (self.root / "pages").mkdir()
+        (self.root / "index.html").write_text(
+            '<link rel="canonical" href="https://example.test/">',
+            encoding="utf-8",
+        )
+        (self.root / "pages" / "index.html").write_text(
+            '<link rel="canonical" href="https://example.test/pages/">',
+            encoding="utf-8",
+        )
+        self.routes = {
+            "https://example.test/": "index.html",
+            "https://example.test/pages/": "pages/index.html",
+            "https://example.test/External/": None,
+        }
+        self.write_sitemap(self.routes)
+        (self.root / "robots.txt").write_text(
+            "User-agent: *\nAllow: /\n\nSitemap: https://example.test/sitemap.xml\n",
+            encoding="utf-8",
+        )
+
+    def write_sitemap(self, urls: Iterable[str]) -> None:
+        locations = "\n".join(f"<url><loc>{url}</loc></url>" for url in urls)
+        (self.root / "sitemap.xml").write_text(
+            '<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            f"{locations}</urlset>",
+            encoding="utf-8",
+        )
+
+    def issues(self) -> list[str]:
+        return find_crawler_contract_issues(
+            self.root,
+            self.routes,
+            sitemap_url="https://example.test/sitemap.xml",
+        )
+
+    def test_accepts_exact_canonical_crawler_contract(self) -> None:
+        self.assertEqual(self.issues(), [])
+
+    def test_reports_missing_duplicate_and_noncanonical_urls(self) -> None:
+        self.write_sitemap(
+            [
+                "https://example.test/",
+                "https://example.test/",
+                "http://example.test/index.html",
+                "https://example.test/External/",
+            ]
+        )
+
+        issues = self.issues()
+        self.assertTrue(any("duplicate sitemap URL" in issue for issue in issues))
+        self.assertTrue(any("missing sitemap URL" in issue for issue in issues))
+        self.assertTrue(
+            any("non-canonical or unexpected sitemap URL" in issue for issue in issues)
+        )
+
+    def test_reports_wrong_robots_sitemap_and_blocked_root(self) -> None:
+        (self.root / "robots.txt").write_text(
+            "User-agent: *\nDisallow: /\nSitemap: https://wrong.test/map.xml\n",
+            encoding="utf-8",
+        )
+
+        issues = self.issues()
+        self.assertTrue(any("robots.txt sitemap directive" in issue for issue in issues))
+        self.assertTrue(any("robots.txt must allow the site root" in issue for issue in issues))
+
+    def test_reports_missing_route_file_and_canonical_mismatch(self) -> None:
+        (self.root / "pages" / "index.html").unlink()
+        (self.root / "index.html").write_text(
+            '<link rel="canonical" href="https://example.test/wrong/">',
+            encoding="utf-8",
+        )
+
+        issues = self.issues()
+        self.assertTrue(any("crawler route file missing" in issue for issue in issues))
+        self.assertTrue(any("canonical URL mismatch" in issue for issue in issues))
 
 
 if __name__ == "__main__":
