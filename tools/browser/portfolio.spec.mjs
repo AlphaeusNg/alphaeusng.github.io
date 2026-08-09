@@ -48,3 +48,32 @@ test('project modal owns focus, traps Tab, and restores its trigger', async ({ p
   await expect(modal).toHaveAttribute('aria-hidden', 'true');
   await expect(trigger).toBeFocused();
 });
+
+test('hash navigation clears the sticky header and moves mobile focus to content', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/#craft', { waitUntil: 'domcontentloaded' });
+
+  const desktopGeometry = await page.locator('#craft').evaluate(element => ({
+    targetTop: element.getBoundingClientRect().top,
+    navBottom: document.querySelector('#nav').getBoundingClientRect().bottom,
+  }));
+  expect(desktopGeometry.targetTop).toBeGreaterThanOrEqual(desktopGeometry.navBottom - 1);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.locator('#mobile-menu-btn').click();
+  await page.getByRole('button', { name: /Work/ }).click();
+  await page.locator('#mobile-menu a[href="#story"]').click();
+
+  await expect(page).toHaveURL(/#story$/);
+  await expect(page.locator('#mobile-menu')).toHaveClass(HIDDEN_CLASS);
+  await expect(page.locator('#mobile-menu-btn')).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('body')).not.toHaveClass(/\bmobile-menu-open\b/);
+  await expect(page.locator('#story')).toBeFocused();
+
+  const mobileGeometry = await page.locator('#story').evaluate(element => ({
+    targetTop: element.getBoundingClientRect().top,
+    navBottom: document.querySelector('#nav').getBoundingClientRect().bottom,
+  }));
+  expect(mobileGeometry.targetTop).toBeGreaterThanOrEqual(mobileGeometry.navBottom - 1);
+});

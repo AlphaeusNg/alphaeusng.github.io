@@ -1,52 +1,53 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-10 (Cycle 66 across the projects workspace)
+Last updated: 2026-08-10 (Cycle 67 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.10.6`.
-- Local verification: sixteen mutation/fixture/freshness tests, a non-writing conviction generator check, two Chromium interaction tests, `tools/check_site.py`, Python compilation, and syntax checks for every first-party JavaScript file.
+- Deployment version: `2026.08.10.7`.
+- Local verification: sixteen mutation/fixture/freshness tests, a non-writing conviction generator check, three Chromium interaction tests, `tools/check_site.py`, Python compilation, and syntax checks for every first-party JavaScript file.
 - Automated verification: least-privilege GitHub Actions runs cheap data/site gates before installing Chromium, then runs the browser, Python, and first-party JavaScript gates on Python 3.12 and Node 24.
 
-## Latest cycle: enforce conviction generator freshness
+## Latest cycle: make hash navigation sticky-header-safe
 
 ### Why this was selected
 
-The conviction validator proved that the committed payload was internally consistent, but could not detect a tracked transaction or price-history input changing without regenerating the browser payload. The generator also mixed payload construction, timestamp creation, file writing, and reporting, so it had no safe CI mode.
+Direct section links and mobile-menu navigation were not browser-tested. Measurement exposed three related UX/accessibility defects: desktop targets landed 38px beneath the fixed navigation chrome, smooth scrolling suppressed the browser's default hash update without replacing it, and mobile navigation left keyboard focus inside the hidden menu after moving the viewport.
 
 ### Changes
 
-- Extracted pure payload construction from command-line writing and made the generation timestamp injectable for tests.
-- Added a comparison contract that ignores only the top-level informational `generatedAt`; every transaction, aggregate, summary, provenance, and benchmark field must match.
-- Added `--check`, which recomputes from all tracked inputs, fails with the repair command when stale, and never rewrites the committed JSON.
-- Added committed-output freshness and timestamp-only-exclusion tests, bringing the Python suite to sixteen tests.
-- Added the freshness command and all generator inputs to the site/CI contracts, documented regeneration and verification, and moved expensive Chromium installation after the cheap data/site gates.
-- Bumped the deployment version to `2026.08.10.6`.
+- Added a third Chromium interaction test covering direct desktop hash landing geometry and the complete mobile Work → Story navigation flow.
+- Corrected desktop target clearance to account for both the 80px main header and project-tab bar, while retaining the compact 80px mobile offset.
+- Applied the shared header offset to every public section/subsection hash target, including CV downloads.
+- Restored standard anchor semantics by pushing the selected hash into browser history before smooth scrolling.
+- Moved focus from a closing mobile menu to its destination, using a temporary `tabindex="-1"` that is removed on blur.
+- Bumped the deployment version to `2026.08.10.7`.
 
 ### Verification and scores
 
-- Test-first evidence: the new freshness test initially failed to import the absent construction and normalization functions.
-- Current dataset evidence: recomputation exactly matched 64 transactions, 43 active months, 67 benchmark months, and all metadata except `generatedAt`.
-- Negative evidence: a timestamp-only mutation passes the freshness comparator, while changing `summary.currentShares` fails it.
-- Non-writing evidence: the committed payload SHA-256 remained `e23f19710e3c2b7a2d02767c624ac22d23b4cc43c42649364eb95354d3e81566` before and after `--check`.
+- Test-first evidence: the direct `#craft` target initially landed at 80.4px while the visible desktop navigation ended at 119.0px.
+- Iteration evidence: the first 124px correction remained 5.7px short of the rendered navigation; the corrected 132px design offset cleared it.
+- Semantic evidence: once geometry passed, the same test exposed that clicking `#story` left the URL at `/`; restoring history updates made the complete flow pass.
+- Focus evidence: after the mobile link closes the menu, `#story` is the active element, menu/body state is closed, the toggle reports `aria-expanded="false"`, and the target clears the mobile header.
 - `python3 -m unittest discover -s tools -p 'test_*.py'`: all sixteen tests passed.
 - `python3 tools/finance/generate_conviction_history.py --check`: passed.
 - `python3 tools/check_site.py`: 35 required files, 19 workflow policies, nine canonical crawler routes, and all existing site/data contracts passed.
-- Both Chromium interactions, Python compilation, every first-party JavaScript syntax check, and `git diff --check`: passed.
-- Correctness/reliability: 9/10 (committed finance data can no longer silently lag tracked inputs).
-- Verifiability: 10/10 (freshness, internal accounting, mutation behavior, and browser consumption now form independent gates).
-- Maintainability: 9/10 (payload construction is reusable and CLI checking is explicit and non-mutating).
-- Performance: 10/10 (the new gate completes in about 0.1 seconds, and CI now fails before browser installation on cheap-check errors).
-- Security/robustness: 9/10 (the check is offline, read-only, and uses only already tracked anonymized inputs).
+- All three Chromium interactions passed in about three seconds; Python compilation, every first-party JavaScript syntax check, and `git diff --check` passed.
+- Correctness/reliability: 9/10 (hash URLs, smooth-scroll destinations, and visible geometry now agree).
+- Verifiability: 10/10 (desktop/mobile geometry, state, URL, and focus are browser-measured on every push).
+- Accessibility: 10/10 (focus is no longer stranded in hidden navigation, and destinations remain keyboard-focusable only as long as needed).
+- Maintainability: 9/10 (one CSS variable drives all public target offsets; one mobile handler owns focus transfer).
+- Performance: 10/10 (no additional runtime work outside user navigation; one browser test adds roughly one second).
+- Security/robustness: 9/10 (only same-document targets receive focus/history handling, and missing targets safely no-op).
 
 ### Lessons and process improvements
 
-- Internal consistency and generator freshness answer different questions; both gates are needed because a stale payload can remain perfectly self-consistent.
-- Separate pure payload construction from side effects before adding a check mode; this keeps tests fast and avoids temporary-file choreography.
-- Exclude only the known volatile field instead of maintaining a whitelist of deterministic fields, so future generated fields become freshness-checked automatically.
-- Order CI by cost: tracked-data and structural failures should surface before installing a browser.
+- Measure target geometry against the rendered fixed header, not an assumed utility-class value; the project-tab bar contributes real height.
+- Calling `preventDefault()` on an anchor assumes responsibility for URL/history semantics as well as scrolling.
+- Closing a disclosure is not enough when it contains focus; transfer focus to the revealed destination before making the old control subtree unavailable.
+- Layer browser assertions so each repaired failure reveals the next behavioral contract instead of masking it behind one coarse check.
 
 ## Previous cross-repository update: deploy vault link diagnostics
 
@@ -102,7 +103,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Recent project evolution
 
-- Cycle 66: added deterministic conviction payload freshness checks and CI fail-fast ordering.
+- Cycle 67: repaired and browser-verified sticky-header hash geometry, URL history, and mobile destination focus.
+- Cycle 66 (`beeb86d`): added deterministic conviction payload freshness checks and CI fail-fast ordering.
 - Cycle 65 (`8046cdf`): added CI-gated Chromium interaction coverage and repaired project-modal focus/ARIA behavior.
 - Cycle 64 (`03f0c27`, state follow-up `e46cf7c`): enforced the complete nine-route crawler discovery contract.
 - Cycle 62 (`e8932bb`): deployed and contract-checked non-blocking vault link diagnostics.
@@ -113,10 +115,10 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Add one direct-link/anchor browser smoke | Verification / UX | Medium | Small / low | Menu and modal flows execute in Chromium; section navigation and sticky-header landing position remain structural only |
+| 1 | Report browser console/page errors during interaction smokes | Observability / reliability | Low-medium | Small / low | Assertions catch known behavior, but unexpected runtime exceptions are not yet promoted to test failures |
 | 2 | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | The route inventory is complete, but crawlers receive only coarse change-frequency hints |
-| 3 | Report browser console/page errors during interaction smokes | Observability / reliability | Low-medium | Small / low | Assertions catch known behavior, but unexpected runtime exceptions are not yet promoted to test failures |
+| 3 | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | The browser gate proves the current 132px design; future header-height changes would fail before deployment but still need a CSS edit |
 
 ## Next cycle
 
-Verify direct section links and mobile menu navigation in Chromium, including the sticky-header landing position and closed-menu focus/state contract.
+Promote unexpected browser page errors and console errors to interaction-test failures while filtering known third-party network noise explicitly.

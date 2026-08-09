@@ -101,7 +101,26 @@ function initMobileMenu() {
 
     // Close menu when clicking a link
     document.querySelectorAll('.mobile-link').forEach(link => {
-        link.addEventListener('click', () => closeMobileMenu());
+        link.addEventListener('click', () => {
+            closeMobileMenu();
+            const href = link.getAttribute('href');
+            if (!href?.startsWith('#')) return;
+            const target = document.getElementById(href.slice(1));
+            if (!target) return;
+
+            window.requestAnimationFrame(() => {
+                const hadTabIndex = target.hasAttribute('tabindex');
+                if (!hadTabIndex) target.setAttribute('tabindex', '-1');
+                target.focus({ preventScroll: true });
+                if (!hadTabIndex) {
+                    target.addEventListener(
+                        'blur',
+                        () => target.removeAttribute('tabindex'),
+                        { once: true }
+                    );
+                }
+            });
+        });
     });
 
     window.matchMedia('(min-width: 768px)').addEventListener?.('change', event => {
@@ -241,6 +260,9 @@ function initSmoothScroll() {
             const target = document.querySelector(href);
             if (target) {
                 e.preventDefault();
+                if (window.location.hash !== href) {
+                    window.history.pushState(null, '', href);
+                }
                 const navHeight = document.getElementById('nav')?.offsetHeight ?? 80;
                 const targetScrollMargin = Number.parseFloat(window.getComputedStyle(target).scrollMarginTop) || 0;
                 const targetOffset = Math.max(navHeight, targetScrollMargin);

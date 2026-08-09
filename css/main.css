@@ -1378,11 +1378,14 @@ button.portrait-phone-status:focus-visible {
 
 /* Space for fixed nav + project tabs */
 body.has-project-tabs {
-    --site-nav-offset: 7.75rem;
+    --site-nav-offset: 8.25rem;
 }
 
-body.has-project-tabs .site-nav + * {
-    /* first main block after nav — hero uses its own pt; set for skip targets */
+section[id],
+#church-home,
+#journey-documents,
+#cv-downloads {
+    scroll-margin-top: var(--site-nav-offset, 5rem);
 }
 
 @media (max-width: 767px) {
