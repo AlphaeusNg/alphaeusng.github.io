@@ -81,15 +81,17 @@ It also defaults to rendered Markdown previews with a raw-source toggle in the n
 Run before pushing:
 
 ```bash
+python3 -m unittest tools/test_check_site.py
 python3 tools/check_site.py
 python3 -m compileall tools
 while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 python3 -m http.server 8000
 ```
 
-The same site contracts, Python compilation, and JavaScript syntax checks run
-in least-privilege GitHub Actions on every `main` push and pull request. The
-workflow policy is validated by `tools/check_site.py` alongside the site.
+The checker fixtures, site contracts, Python compilation, and JavaScript syntax
+checks run in least-privilege GitHub Actions on every `main` push and pull
+request. The workflow policy is validated by `tools/check_site.py` alongside
+the complete case-sensitive local HTML reference graph.
 
 Then check:
 

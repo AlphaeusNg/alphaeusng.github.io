@@ -11,9 +11,93 @@ from __future__ import annotations
 import json
 import re
 import sys
+from dataclasses import dataclass
+from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@dataclass(frozen=True)
+class LocalReferenceIssue:
+    entry: Path
+    reference: str
+    reason: str
+
+
+class ReferenceParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.references: list[str] = []
+
+    def _collect(self, attributes: list[tuple[str, str | None]]) -> None:
+        for name, value in attributes:
+            if name.lower() in {"href", "src"} and value:
+                self.references.append(value.strip())
+
+    def handle_starttag(
+        self, tag: str, attributes: list[tuple[str, str | None]]
+    ) -> None:
+        self._collect(attributes)
+
+    def handle_startendtag(
+        self, tag: str, attributes: list[tuple[str, str | None]]
+    ) -> None:
+        self._collect(attributes)
+
+
+def _has_exact_case(root: Path, target: Path) -> bool:
+    current = root
+    try:
+        parts = target.relative_to(root).parts
+    except ValueError:
+        return False
+    for part in parts:
+        if not current.is_dir() or part not in {child.name for child in current.iterdir()}:
+            return False
+        current = current / part
+    return True
+
+
+def find_local_reference_issues(
+    root: Path, html_entries: list[Path] | None = None
+) -> list[LocalReferenceIssue]:
+    root = root.resolve()
+    entries = html_entries or sorted(
+        path for path in root.rglob("*.html") if ".git" not in path.relative_to(root).parts
+    )
+    issues: list[LocalReferenceIssue] = []
+
+    for entry in entries:
+        entry = entry.resolve()
+        parser = ReferenceParser()
+        parser.feed(entry.read_text(encoding="utf-8"))
+        for reference in parser.references:
+            parsed = urlsplit(reference)
+            if parsed.scheme or parsed.netloc:
+                continue
+            reference_path = unquote(parsed.path)
+            if not reference_path:
+                continue
+            if reference_path.startswith("/"):
+                candidate = root / reference_path.lstrip("/")
+            else:
+                candidate = entry.parent / reference_path
+            candidate = candidate.resolve()
+            try:
+                candidate.relative_to(root)
+            except ValueError:
+                issues.append(
+                    LocalReferenceIssue(entry, reference, "target escapes site root")
+                )
+                continue
+            if candidate.is_dir() or reference_path.endswith("/"):
+                candidate = candidate / "index.html"
+            if not candidate.is_file() or not _has_exact_case(root, candidate):
+                issues.append(LocalReferenceIssue(entry, reference, "missing target"))
+
+    return issues
 
 
 def fail(msg: str) -> None:
@@ -75,6 +159,7 @@ def main() -> None:
         "Python 3.12 baseline": re.search(r"python-version:\s*[\"']?3\.12", workflow),
         "supported Node action": "actions/setup-node@v7" in workflow,
         "Node 24 baseline": re.search(r"node-version:\s*[\"']?24", workflow),
+        "checker unit tests": "python3 -m unittest tools/test_check_site.py" in workflow,
         "complete site check": "python3 tools/check_site.py" in workflow,
         "Python compilation": "python3 -m compileall -q tools" in workflow,
         "JavaScript syntax check": "node --check" in workflow,
@@ -152,6 +237,15 @@ def main() -> None:
         ):
             fail(f"{entry.relative_to(ROOT)} contains inline JavaScript")
     ok("HTML entry points keep local CSS and JavaScript in grouped assets")
+
+    reference_issues = find_local_reference_issues(ROOT)
+    if reference_issues:
+        details = "; ".join(
+            f"{issue.entry.relative_to(ROOT)} -> {issue.reference!r} ({issue.reason})"
+            for issue in reference_issues
+        )
+        fail("invalid local HTML references: " + details)
+    ok("all local HTML href/src targets resolve case-sensitively")
 
     vault = json.loads((ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json").read_text(encoding="utf-8"))
     if not isinstance(vault.get("nodes"), list) or not vault["nodes"]:
