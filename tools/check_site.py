@@ -130,6 +130,7 @@ def main() -> None:
         ROOT / "pages" / "feedback" / "css" / "main.css",
         ROOT / "pages" / "feedback" / "js" / "app.js",
         ROOT / "pages" / "seeking-biblical-truth" / "index.html",
+        ROOT / "seeking-biblical-truth" / "index.html",
         ROOT / "pages" / "seeking-biblical-truth" / "css" / "main.css",
         ROOT / "pages" / "seeking-biblical-truth" / "js" / "app.js",
         ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json",
@@ -218,6 +219,19 @@ def main() -> None:
         if obsolete.exists():
             fail(f"obsolete duplicate KoboForge implementation remains: {obsolete.relative_to(ROOT)}")
     ok("KoboForge routes use the standalone repository only")
+
+    canonical_truth = "https://alphaeusng.github.io/pages/seeking-biblical-truth/"
+    legacy_truth = (ROOT / "seeking-biblical-truth" / "index.html").read_text(
+        encoding="utf-8"
+    )
+    if (
+        'http-equiv="refresh" content="0; url=../pages/seeking-biblical-truth/"'
+        not in legacy_truth
+        or f'rel="canonical" href="{canonical_truth}"' not in legacy_truth
+        or 'href="../pages/seeking-biblical-truth/"' not in legacy_truth
+    ):
+        fail("legacy Biblical Truth route is not a canonical compatibility redirect")
+    ok("legacy Biblical Truth route redirects to the canonical viewer")
 
     html_entries = [
         ROOT / "index.html",

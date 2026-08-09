@@ -21,6 +21,7 @@ The design should remain restrained, professional, and easy to share. It should 
   - `pages/kobo-forge.html`: compatibility redirect to the standalone
     [KoboForge repository](https://github.com/AlphaeusNg/KoboForge).
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.
+- `seeking-biblical-truth/index.html`: compatibility redirect for old viewer bookmarks.
 - `data/`: root-level public data payloads.
   - `data/conviction_tsla_history.json`: TSLA transaction history plus the benchmark comparison used by `pages/conviction.html`.
 - `css/`: grouped site styles (`main.css` shared foundations plus route-specific
