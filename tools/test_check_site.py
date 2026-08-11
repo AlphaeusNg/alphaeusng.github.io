@@ -5,7 +5,11 @@ import unittest
 from collections.abc import Iterable
 from pathlib import Path
 
-from tools.check_site import find_crawler_contract_issues, find_local_reference_issues
+from tools.check_site import (
+    find_crawler_contract_issues,
+    find_local_reference_issues,
+    validate_vault_payload,
+)
 
 
 class LocalReferenceTests(unittest.TestCase):
@@ -194,6 +198,73 @@ class CrawlerContractTests(unittest.TestCase):
         issues = self.issues()
         self.assertTrue(any("crawler route file missing" in issue for issue in issues))
         self.assertTrue(any("canonical URL mismatch" in issue for issue in issues))
+
+
+class VaultPayloadTests(unittest.TestCase):
+    def valid_payload(self) -> dict:
+        return {
+            "nodes": [
+                {"id": "Index.md"},
+                {"id": "A/Grace.md"},
+                {"id": "B/Grace.md"},
+            ],
+            "links": [],
+            "counts": {"unresolvedLinks": 2, "ambiguousLinks": 1},
+            "linkDiagnostics": {
+                "unresolved": [
+                    {
+                        "source": "Index.md",
+                        "reference": "Missing",
+                        "type": "wikilink",
+                        "lines": [1],
+                    },
+                    {
+                        "source": "Index.md",
+                        "reference": "Missing.md",
+                        "type": "markdown",
+                        "lines": [2, 4],
+                    },
+                ],
+                "ambiguous": [
+                    {
+                        "source": "Index.md",
+                        "reference": "Grace",
+                        "type": "wikilink",
+                        "lines": [3],
+                        "candidates": ["A/Grace.md", "B/Grace.md"],
+                    }
+                ],
+            },
+        }
+
+    def test_accepts_source_located_wikilink_and_markdown_diagnostics(self) -> None:
+        self.assertEqual(validate_vault_payload(self.valid_payload()), [])
+
+    def test_rejects_missing_or_invalid_source_lines(self) -> None:
+        invalid_lines = [None, [], [0], [2, 1], [1, 1], [True]]
+        for lines in invalid_lines:
+            with self.subTest(lines=lines):
+                payload = self.valid_payload()
+                diagnostic = payload["linkDiagnostics"]["unresolved"][0]
+                if lines is None:
+                    diagnostic.pop("lines")
+                else:
+                    diagnostic["lines"] = lines
+
+                self.assertTrue(
+                    any(
+                        "source lines" in issue
+                        for issue in validate_vault_payload(payload)
+                    )
+                )
+
+    def test_rejects_unknown_diagnostic_link_type(self) -> None:
+        payload = self.valid_payload()
+        payload["linkDiagnostics"]["unresolved"][0]["type"] = "external"
+
+        self.assertTrue(
+            any("link type" in issue for issue in validate_vault_payload(payload))
+        )
 
 
 if __name__ == "__main__":

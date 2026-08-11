@@ -527,6 +527,77 @@ def validate_conviction_payload(payload: object) -> list[str]:
     return issues
 
 
+def validate_vault_payload(payload: object) -> list[str]:
+    """Validate the generated vault graph and source-located link diagnostics."""
+    issues: list[str] = []
+    if not isinstance(payload, dict):
+        return ["vault-data.json must contain an object"]
+
+    nodes = payload.get("nodes")
+    links = payload.get("links")
+    counts = payload.get("counts")
+    diagnostics = payload.get("linkDiagnostics")
+    if not isinstance(nodes, list) or not nodes:
+        issues.append("vault-data.json has no nodes")
+        nodes = []
+    if not isinstance(links, list):
+        issues.append("vault-data.json missing links array")
+    if not isinstance(counts, dict) or not isinstance(diagnostics, dict):
+        issues.append("vault-data.json missing diagnostic metadata")
+        return issues
+
+    node_ids = {
+        node.get("id")
+        for node in nodes
+        if isinstance(node, dict) and isinstance(node.get("id"), str)
+    }
+    for kind, count_field in (
+        ("unresolved", "unresolvedLinks"),
+        ("ambiguous", "ambiguousLinks"),
+    ):
+        entries = diagnostics.get(kind)
+        if not isinstance(entries, list):
+            issues.append(f"vault-data.json missing {kind} link diagnostics")
+            continue
+        if (
+            type(counts.get(count_field)) is not int
+            or counts[count_field] != len(entries)
+        ):
+            issues.append(f"vault-data.json {kind} diagnostic count mismatch")
+
+        for index, entry in enumerate(entries):
+            label = f"vault-data.json {kind} diagnostic {index}"
+            if not isinstance(entry, dict):
+                issues.append(f"{label} must be an object")
+                continue
+            if entry.get("source") not in node_ids:
+                issues.append(f"{label} has an unknown source")
+            reference = entry.get("reference")
+            if not isinstance(reference, str) or not reference.strip():
+                issues.append(f"{label} has an invalid reference")
+            if entry.get("type") not in {"wikilink", "markdown"}:
+                issues.append(f"{label} has an unsupported link type")
+            source_lines = entry.get("lines")
+            if (
+                not isinstance(source_lines, list)
+                or not source_lines
+                or any(type(line) is not int or line <= 0 for line in source_lines)
+                or source_lines != sorted(set(source_lines))
+            ):
+                issues.append(f"{label} has invalid source lines")
+
+            if kind == "ambiguous":
+                candidates = entry.get("candidates")
+                if (
+                    not isinstance(candidates, list)
+                    or len(candidates) < 2
+                    or any(candidate not in node_ids for candidate in candidates)
+                ):
+                    issues.append(f"{label} needs candidate paths")
+
+    return issues
+
+
 def fail(msg: str) -> None:
     print(f"FAIL  {msg}")
     raise SystemExit(1)
@@ -738,41 +809,15 @@ def main() -> None:
         f"{len(conviction['benchmarkComparison']['points'])} benchmark months"
     )
 
-    vault = json.loads((ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json").read_text(encoding="utf-8"))
-    if not isinstance(vault.get("nodes"), list) or not vault["nodes"]:
-        fail("vault-data.json has no nodes")
-    if not isinstance(vault.get("links"), list):
-        fail("vault-data.json missing links array")
-    vault_counts = vault.get("counts")
-    diagnostics = vault.get("linkDiagnostics")
-    if not isinstance(vault_counts, dict) or not isinstance(diagnostics, dict):
-        fail("vault-data.json missing diagnostic metadata")
-    node_ids = {node.get("id") for node in vault["nodes"] if isinstance(node, dict)}
-    for kind, count_field in (
-        ("unresolved", "unresolvedLinks"),
-        ("ambiguous", "ambiguousLinks"),
-    ):
-        entries = diagnostics.get(kind)
-        if not isinstance(entries, list):
-            fail(f"vault-data.json missing {kind} link diagnostics")
-        if vault_counts.get(count_field) != len(entries):
-            fail(f"vault-data.json {kind} diagnostic count mismatch")
-        if any(
-            not isinstance(entry, dict)
-            or entry.get("source") not in node_ids
-            or not isinstance(entry.get("reference"), str)
-            or not entry["reference"].strip()
-            or entry.get("type") != "wikilink"
-            for entry in entries
-        ):
-            fail(f"vault-data.json has invalid {kind} link diagnostics")
-    if any(
-        not isinstance(entry.get("candidates"), list)
-        or len(entry["candidates"]) < 2
-        or any(candidate not in node_ids for candidate in entry["candidates"])
-        for entry in diagnostics["ambiguous"]
-    ):
-        fail("vault-data.json ambiguous diagnostics need candidate paths")
+    vault = json.loads(
+        (ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    vault_issues = validate_vault_payload(vault)
+    if vault_issues:
+        fail("invalid vault-data.json: " + "; ".join(vault_issues))
+    diagnostics = vault["linkDiagnostics"]
     ok(
         f"vault-data.json: {len(vault['nodes'])} nodes, {len(vault['links'])} links, "
         f"{len(diagnostics['unresolved'])} unresolved, "

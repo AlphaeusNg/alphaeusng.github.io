@@ -1,13 +1,13 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 133 across the projects workspace)
+Last updated: 2026-08-11 (Cycle 135 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.11.4`.
-- Local verification: 21 mutation/fixture/freshness tests, non-writing
+- Deployment version: `2026.08.11.5`.
+- Local verification: 24 mutation/fixture/freshness tests, non-writing
   conviction and sitemap generator checks, four Chromium interaction tests
   with shared runtime-error and same-origin HTTP-failure monitoring,
   deterministic font delivery, and a local Chart.js test double,
@@ -18,7 +18,62 @@ Last updated: 2026-08-11 (Cycle 133 across the projects workspace)
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: fail browser smokes on first-party HTTP errors
+## Latest cross-repository cycle: validate source-located vault diagnostics
+
+### Why this was selected
+
+The source vault now preserves exact occurrence lines for unresolved and
+ambiguous note links. The portfolio checker needed to enforce that richer
+producer contract; review also found that it accepted only `wikilink` entries
+even though the exporter supports unresolved internal Markdown links.
+
+### Changes
+
+- Extracted generated-vault validation into a reusable pure function rather
+  than keeping the contract embedded in the CLI path.
+- Accepts the producer's two internal link syntaxes (`wikilink` and `markdown`)
+  and requires every diagnostic to carry non-empty, sorted, unique positive
+  source lines.
+- Added three unit tests with valid mixed-syntax metadata and mutations for
+  missing, empty, non-positive, unsorted, duplicate, boolean, and unknown-type
+  values.
+- Synchronized the source-located 26-diagnostic payload and bumped the public
+  deployment version to `2026.08.11.5`.
+
+### Verification and scores
+
+- Test-first evidence: the new consumer contracts failed to import the absent
+  validator; the prior inline check also explicitly rejected `markdown`.
+- Focused downstream coverage passed all three tests and their seven line-shape
+  mutations after implementation.
+- The canonical source and public payloads are byte-identical and retain 55
+  notes, one canvas, 62 nodes, 99 resolved links, 26 unresolved diagnostics,
+  zero ambiguous diagnostics, and 27 recorded occurrence lines.
+- All 24 Python tests, conviction and sitemap freshness checks, 35-file site
+  contracts, four Chromium journeys, compilation, JavaScript syntax, and the
+  zero-vulnerability npm audit passed; the vault viewer sitemap date advanced
+  from 2026-08-10 to 2026-08-11 from its tracked payload input.
+- Correctness/reliability: 7/10 → 9/10 (consumer and exporter no longer disagree on valid link types).
+- Observability/verifiability: 7/10 → 10/10 (diagnostic source locations are schema-validated, not display-only text).
+- Maintainability: 7/10 → 9/10 (one pure validator supports direct mutation tests and the CLI gate).
+- Performance: 9/10 → 9/10 (linear validation over 26 small records is deployment-only).
+- Security/robustness: 8/10 → 9/10 (weak booleans and malformed location arrays fail closed).
+- Developer/content-owner experience: 6/10 → 9/10 (public metadata retains exact review locations).
+
+### Lessons and process improvements
+
+- A generated-data consumer needs executable fixtures for every producer branch,
+  including branches absent from the current corpus.
+- Extract validation from command orchestration when mutation tests need to
+  prove schema behavior directly.
+
+### Explicit next opportunity
+
+The portfolio's next local item remains deterministic feedback-page browser
+coverage. At workspace scope, rotate to CardFitSG after completing this paired
+source/public deployment.
+
+## Previous portfolio cycle: fail browser smokes on first-party HTTP errors
 
 ### Why this was selected
 
@@ -378,6 +433,7 @@ The source-side rationale, test-first failures, restored-content measurements, s
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
 | 1 | Add a deterministic feedback-page browser journey | Test / reliability | Medium-high | Medium / low | Feedback query sanitization, validation, submission, cooldown, and fallback are not executed in Chromium |
+| — | Validate source-located vault diagnostics | Correctness / observability | Medium | Small-medium / low | Three consumer tests cover both internal link syntaxes and seven invalid source-line shapes | Completed in Cycle 135 |
 | — | Add first-party failed-response diagnostics to browser smokes | Observability / reliability | Low-medium | Small / low | A mutation-proven shared listener now reports status, method, and local URL | Completed in Cycle 133 |
 | — | Add a deterministic conviction-page browser journey | Test / reliability | Medium-high | Medium / low | Four browser paths now cover exact finance DOM output and all benchmark dataset/ARIA transitions | Completed in Cycle 124 |
 | — | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | A 178px mutation now proves the runtime adapts beyond the former 132px constant | Completed in Cycle 114 |
