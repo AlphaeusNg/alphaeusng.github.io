@@ -124,7 +124,9 @@ workflow policy is validated by `tools/check_site.py` alongside the complete
 case-sensitive local HTML reference graph. Playwright is test-only; the deployed
 site remains zero-build with no runtime package dependency. The conviction
 journey stubs Chart.js locally while exercising the real tracked finance data,
-so benchmark view coverage does not depend on the CDN.
+so benchmark view coverage does not depend on the CDN. The feedback journey
+similarly replaces only the Firebase SDK boundary while exercising source URL
+sanitization, validation, success, cooldown, and private-inbox fallback.
 
 Then check:
 

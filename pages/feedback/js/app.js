@@ -21,6 +21,7 @@
     ChristoDay: "/ChristoDay/",
     CardFitSG: "/CardFitSG/",
   };
+  var PORTFOLIO_ORIGIN = "https://alphaeusng.github.io";
   var FIREBASE_CONFIG = {
     apiKey: "AIzaSyAWNQ_-0BW8VEZWZ7NfYaAyHK-Dwr3U6WA",
     authDomain: "alparcade-cb87c.firebaseapp.com",
@@ -53,17 +54,14 @@
   }
 
   function projectUrl(project) {
-    return "https://alphaeusng.github.io" + PROJECT_PATHS[project];
+    return PORTFOLIO_ORIGIN + PROJECT_PATHS[project];
   }
 
   function safeSourceUrl(raw, project) {
     if (!raw) return projectUrl(project);
     try {
       var parsed = new global.URL(raw);
-      if (
-        parsed.protocol === "https:" &&
-        parsed.hostname === "alphaeusng.github.io"
-      ) {
+      if (parsed.origin === PORTFOLIO_ORIGIN) {
         parsed.search = "";
         parsed.hash = "";
         return parsed.toString();

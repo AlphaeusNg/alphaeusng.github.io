@@ -23,6 +23,37 @@ const CHART_STUB = `
     }
   };
 `;
+const FIREBASE_APP_STUB = `
+  window.__feedbackWrites = [];
+  window.__feedbackReject = false;
+  function firestore() {
+    return {
+      collection(name) {
+        return {
+          add(payload) {
+            window.__feedbackWrites.push({ collection: name, payload });
+            if (window.__feedbackReject) {
+              return Promise.reject(new Error('private inbox unavailable'));
+            }
+            return Promise.resolve({ id: 'feedback-Ab12c3' });
+          },
+        };
+      },
+    };
+  }
+  firestore.FieldValue = {
+    serverTimestamp() {
+      return '__SERVER_TIMESTAMP__';
+    },
+  };
+  window.firebase = {
+    apps: [],
+    initializeApp(config) {
+      this.apps.push({ config });
+    },
+    firestore,
+  };
+`;
 
 test.beforeEach(async ({ page, baseURL }) => {
   const errors = [];
@@ -212,4 +243,115 @@ test('conviction page renders ledger data and switches benchmark views', async (
   expect(await page.evaluate(() =>
     window.__chartInstances[1].data.datasets.map(dataset => dataset.label)
   )).toEqual(['Monthly capital flow', 'Net invested capital']);
+});
+
+test('feedback sanitizes its source and handles submission lifecycle', async ({ page }) => {
+  await page.route('https://www.gstatic.com/firebasejs/**/firebase-app-compat.js', route =>
+    route.fulfill({ contentType: 'application/javascript', body: FIREBASE_APP_STUB })
+  );
+  await page.route('https://www.gstatic.com/firebasejs/**/firebase-firestore-compat.js', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+
+  const unsafeSource = encodeURIComponent(
+    'https://alphaeusng.github.io:444/untrusted?token=private#fragment'
+  );
+  await page.goto(
+    `/pages/feedback/?project=VerseKeep&from=${unsafeSource}`,
+    { waitUntil: 'domcontentloaded' }
+  );
+
+  await expect(page.locator('#project')).toHaveValue('VerseKeep');
+  await expect(page.locator('#feedback-title')).toHaveText('Share feedback about VerseKeep');
+  await expect(page.locator('#source-link')).toHaveAttribute(
+    'href',
+    'https://alphaeusng.github.io/VerseKeep/'
+  );
+  await expect(page.locator('#back-link')).toHaveAttribute(
+    'href',
+    'https://alphaeusng.github.io/VerseKeep/'
+  );
+
+  const submit = page.locator('#submit-button');
+  const message = page.locator('#message');
+  const status = page.getByRole('status');
+  await message.fill('Too short');
+  await submit.click();
+  await expect(status).toHaveText('Please complete the highlighted field.');
+  expect(await page.evaluate(() => window.__feedbackWrites.length)).toBe(0);
+
+  await page.locator('#feedback-type').selectOption('Bug');
+  await page.locator('#rating-5').check();
+  await page.locator('#contact').fill('reader@example.com');
+  await message.fill('The navigation needs a clearer return path.');
+  await submit.click();
+
+  await expect(status).toHaveText(
+    'Thank you — your feedback has been sent. Reference AB12C3.'
+  );
+  await expect(submit).toBeEnabled();
+  await expect(message).toHaveValue('');
+  expect(await page.evaluate(() => window.__feedbackWrites)).toEqual([
+    {
+      collection: 'feedback',
+      payload: {
+        schema: 1,
+        project: 'VerseKeep',
+        type: 'Bug',
+        rating: 5,
+        message: 'The navigation needs a clearer return path.',
+        contact: 'reader@example.com',
+        sourceUrl: 'https://alphaeusng.github.io/VerseKeep/',
+        submittedAt: '__SERVER_TIMESTAMP__',
+      },
+    },
+  ]);
+
+  await message.fill('A second immediate submission should be throttled.');
+  await submit.click();
+  await expect(status).toHaveText(/Please wait (?:29|30) seconds before sending again\./);
+  expect(await page.evaluate(() => window.__feedbackWrites.length)).toBe(1);
+
+  await page.evaluate(() => {
+    localStorage.removeItem('alphaeus-feedback-last-submit-v1');
+    window.__feedbackReject = true;
+  });
+  await page.locator('#contact').fill('private@example.com');
+  await message.fill('Use the public issue fallback without my private email.');
+  await submit.click();
+
+  await expect(status).toHaveText(
+    'The private inbox is unavailable. You can use the prefilled GitHub draft below; your email is not included.'
+  );
+  const fallback = page.locator('#github-fallback');
+  await expect(fallback).toBeVisible();
+  const fallbackHref = await fallback.getAttribute('href');
+  const fallbackUrl = new URL(fallbackHref);
+  expect(fallbackUrl.origin + fallbackUrl.pathname).toBe(
+    'https://github.com/AlphaeusNg/alphaeusng.github.io/issues/new'
+  );
+  expect(fallbackUrl.searchParams.get('title')).toBe('Feedback — VerseKeep: Suggestion');
+  expect(fallbackUrl.searchParams.get('body')).toContain(
+    'Use the public issue fallback without my private email.'
+  );
+  expect(fallbackUrl.searchParams.get('body')).toContain(
+    '**Source:** https://alphaeusng.github.io/VerseKeep/'
+  );
+  expect(fallbackUrl.searchParams.get('body')).not.toContain('private@example.com');
+
+  const safeSource = encodeURIComponent(
+    'https://alphaeusng.github.io/VerseKeep/guide?mode=private#section'
+  );
+  await page.goto(
+    `/pages/feedback/?project=VerseKeep&from=${safeSource}`,
+    { waitUntil: 'domcontentloaded' }
+  );
+  await expect(page.locator('#source-link')).toHaveAttribute(
+    'href',
+    'https://alphaeusng.github.io/VerseKeep/guide'
+  );
+  await expect(page.locator('#back-link')).toHaveAttribute(
+    'href',
+    'https://alphaeusng.github.io/VerseKeep/guide'
+  );
 });

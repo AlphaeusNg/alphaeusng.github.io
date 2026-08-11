@@ -1,16 +1,17 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 135 across the projects workspace)
+Last updated: 2026-08-11 (Cycle 142 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.11.5`.
+- Deployment version: `2026.08.11.6`.
 - Local verification: 24 mutation/fixture/freshness tests, non-writing
-  conviction and sitemap generator checks, four Chromium interaction tests
+  conviction and sitemap generator checks, five Chromium interaction tests / 73
+  encoded assertion sites
   with shared runtime-error and same-origin HTTP-failure monitoring,
-  deterministic font delivery, and a local Chart.js test double,
+  deterministic font delivery, and local Chart.js/Firebase doubles,
   `tools/check_site.py`, Python
   compilation, and syntax checks for every first-party JavaScript file.
 - Automated verification: least-privilege GitHub Actions checks out complete
@@ -18,7 +19,65 @@ Last updated: 2026-08-11 (Cycle 135 across the projects workspace)
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cross-repository cycle: validate source-located vault diagnostics
+## Latest cycle: exercise and harden the feedback journey
+
+### Why this was selected
+
+The project-aware feedback form had Firestore rules and static checks but no
+executed browser contract for query handling, HTML validation, successful
+submission, cooldown, or fallback privacy. While defining that journey,
+inspection found that source validation compared protocol and hostname
+separately, admitting nonstandard ports as trusted portfolio return links.
+
+### Changes
+
+- Replaced the split source check with exact normalized-origin equality, so an
+  alternate port falls back to the selected project's canonical URL while real
+  same-origin paths remain supported.
+- Added a local Firebase SDK double at the external-script boundary and kept the
+  real feedback page and application code under test.
+- Added one end-to-end Chromium journey covering project personalization,
+  source sanitization, short-message validation, exact Firestore payload,
+  successful reset/reference, 30-second cooldown, rejected private-inbox write,
+  and a prefilled GitHub draft that excludes the contact email.
+- Bumped the deployment and feedback-script cache key to `2026.08.11.6` and
+  documented the deterministic browser boundary.
+
+### Verification and scores
+
+- Test-first evidence: the new journey failed because the old page preserved
+  `https://alphaeusng.github.io:444/untrusted` as its trusted return link.
+- The focused full-lifecycle journey passed 3/3 consecutive runs after the
+  origin fix; its successful and rejected writes never touch Firebase.
+- Three complete suite repetitions passed 15/15 journeys; the browser suite now
+  has five paths / 73 encoded interaction, data, accessibility-state, privacy,
+  network, and runtime assertion sites.
+- All 24 Python tests, conviction and sitemap freshness checks, 35-file site
+  contracts, compilation, recursive JavaScript syntax, `git diff --check`, and
+  the zero-vulnerability npm audit passed.
+- Correctness/reliability: 6/10 → 9/10 (return links and all form states now have executed contracts).
+- Observability/verifiability: 4/10 → 10/10 (payloads, cooldown, and fallback are visible without an external service).
+- Maintainability: 7/10 → 9/10 (one SDK-boundary double exercises production orchestration).
+- Performance: 9/10 → 9/10 (deployed work is one exact string comparison).
+- Security/robustness: 6/10 → 9/10 (alternate-port trust is closed and fallback email omission is enforced).
+- Developer/user experience: 6/10 → 9/10 (success, retry, and fallback outcomes are regression-protected).
+
+### Lessons and process improvements
+
+- URL trust decisions must compare normalized origins, not protocol and hostname
+  separately; the port is part of the security boundary.
+- Stub an external SDK at its script/API surface, then execute the real page
+  rather than replacing application orchestration with a test implementation.
+- Privacy claims need negative assertions: decode the fallback draft and prove
+  the private contact value is absent.
+
+### Explicit next opportunity
+
+When Firebase SDK loading fails entirely, the page disables submission without
+offering its GitHub fallback. Preserve a useful, privacy-safe alternate path at
+that initialization boundary. At workspace scope, rotate to KoboForge.
+
+## Previous cross-repository cycle: validate source-located vault diagnostics
 
 ### Why this was selected
 
@@ -432,7 +491,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Add a deterministic feedback-page browser journey | Test / reliability | Medium-high | Medium / low | Feedback query sanitization, validation, submission, cooldown, and fallback are not executed in Chromium |
+| 1 | Offer a privacy-safe fallback when Firebase cannot initialize | Reliability / UX | Medium | Small-medium / low | SDK absence currently disables submission and exposes no alternate route |
+| — | Add a deterministic feedback-page browser journey | Test / reliability | Medium-high | Medium / low | Five Chromium paths now cover source trust, validation, success payload, cooldown, and private fallback | Completed in Cycle 142 |
 | — | Validate source-located vault diagnostics | Correctness / observability | Medium | Small-medium / low | Three consumer tests cover both internal link syntaxes and seven invalid source-line shapes | Completed in Cycle 135 |
 | — | Add first-party failed-response diagnostics to browser smokes | Observability / reliability | Low-medium | Small / low | A mutation-proven shared listener now reports status, method, and local URL | Completed in Cycle 133 |
 | — | Add a deterministic conviction-page browser journey | Test / reliability | Medium-high | Medium / low | Four browser paths now cover exact finance DOM output and all benchmark dataset/ARIA transitions | Completed in Cycle 124 |
@@ -442,5 +502,4 @@ The source-side rationale, test-first failures, restored-content measurements, s
 ## Next cycle
 
 Rotate to KoboForge, the next least-recently improved repository. When returning
-here, add a deterministic feedback-page browser journey with local Firebase
-doubles.
+here, preserve a privacy-safe feedback fallback when Firebase cannot initialize.
