@@ -1,22 +1,84 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 114 across the projects workspace)
+Last updated: 2026-08-11 (Cycle 124 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.11.2`.
+- Deployment version: `2026.08.11.3`.
 - Local verification: 21 mutation/fixture/freshness tests, non-writing
-  conviction and sitemap generator checks, three Chromium interaction tests
-  with shared runtime-error monitoring, `tools/check_site.py`, Python
+  conviction and sitemap generator checks, four Chromium interaction tests
+  with shared runtime-error monitoring, deterministic font delivery, and a
+  local Chart.js test double, `tools/check_site.py`, Python
   compilation, and syntax checks for every first-party JavaScript file.
 - Automated verification: least-privilege GitHub Actions checks out complete
   route history, runs cheap data/site gates before installing Chromium, then
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: measure fixed navigation geometry
+## Latest cycle: exercise the conviction page in Chromium
+
+### Why this was selected
+
+The conviction payload had strong accounting and freshness contracts, but its
+browser runtime was absent from the interaction suite. Metrics, recent rows,
+both Chart.js constructors, and the three benchmark views could all regress
+while CI remained green. The first baseline run also exposed a real test-harness
+dependency on a transient Google Fonts response.
+
+### Changes
+
+- Added a deterministic conviction journey that uses the real tracked finance
+  payload and a small local Chart.js double while stubbing the irrelevant
+  Tailwind CDN runtime for that route.
+- Verifies six ledger metrics, four benchmark metrics, valuation status, the
+  six-row recent table and newest entry, both initial chart dataset groups, and
+  Value → Delta → Cash Flows dataset/ARIA transitions.
+- Made all browser journeys serve empty Google Fonts CSS locally so behavioral
+  results cannot fail on font-CDN availability.
+- Added console source URLs to shared runtime-error diagnostics, documented the
+  local Chart boundary, and bumped the deployment version to `2026.08.11.3`.
+
+### Verification and scores
+
+- Honest baseline: before any new journey, the existing suite passed 2/3; the
+  modal path failed because a Google-hosted Playfair Display WOFF2 returned
+  HTTP 404. Trace evidence showed no missing first-party resource.
+- After font isolation, the original three journeys passed. The new conviction
+  journey then passed 1/1 without an application-code change.
+- All four journeys / 52 encoded assertion sites passed three consecutive full
+  runs (12/12 paths) with no console errors or uncaught exceptions.
+- All 21 unit/mutation tests passed in 0.069s; conviction and sitemap freshness
+  checks matched tracked inputs.
+- `tools/check_site.py` passed 35 required-file, 21 workflow-policy, nine-route
+  crawler, local-link, finance, vault, and asset contracts.
+- Python compilation, all first-party JavaScript syntax checks,
+  `git diff --check`, and `npm audit` (zero vulnerabilities) passed.
+- Correctness/reliability: 8/10 → 9/10 (the complete conviction render and view state are browser-locked).
+- Observability/verifiability: 7/10 → 10/10 (real DOM outputs and chart transitions now share the runtime-error gate).
+- Maintainability: 8/10 → 9/10 (one minimal chart double models only constructor/update/destroy behavior).
+- Performance: 9/10 → 9/10 (deployed runtime is unchanged; the fourth path remains sub-second locally).
+- Security/robustness: 8/10 → 9/10 (browser tests no longer inherit an irrelevant font-availability failure mode).
+- Developer/user experience: 8/10 → 9/10 (finance UI regressions and error sources are now directly diagnosable).
+
+### Lessons and process improvements
+
+- A shared runtime-error gate should isolate third-party resources irrelevant to
+  the behavior under test; a font 404 is not a portfolio interaction failure.
+- A useful library double must preserve the mutation surfaces the application
+  uses (`data`, `options`, `update`, and `destroy`), then expose those effects
+  for assertions.
+- The new characterization test passed immediately, so this cycle closes a
+  verification gap rather than claiming an application defect was repaired.
+
+### Explicit next opportunity
+
+Record failed first-party HTTP responses in the shared browser harness with
+status and local URL. Console failures now include their source, but silent
+local 4xx/5xx subresources are still visible only in server output.
+
+## Previous portfolio cycle: measure fixed navigation geometry
 
 ### Why this was selected
 
@@ -77,12 +139,10 @@ headings; the runtime could already measure the actual chrome safely.
 - URL hashes are external input; ID lookup avoids selector syntax failures and
   is the right primitive when fragments identify elements.
 
-### Explicit next opportunity
+### Follow-up
 
-Add a deterministic Chromium journey for the conviction page's data render and
-benchmark toggles. It is the only data-rich public portfolio route whose
-first-party runtime and interaction state are not covered by the shared browser
-error gate; stub Chart.js locally so CI does not depend on its CDN.
+The deterministic conviction-page journey was completed in workspace Cycle
+124 with a local Chart.js double and the shared runtime-error gate.
 
 ## Previous portfolio cycle: derive sitemap dates from deploy inputs
 
@@ -239,6 +299,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Recent project evolution
 
+- Cycle 124: browser-verified conviction metrics, recent rows, and all benchmark views with deterministic external resources.
+- Cycle 114 (`1223d29`): derived anchor offsets from measured fixed navigation geometry and rejected malformed URL fragments safely.
 - Cycle 104: generated accurate local sitemap dates from explicit deploy inputs
   and prohibited fabricated sibling-project dates.
 - Cycle 78: replaced manual vault-data copying with one-command synchronization and precise drift checks.
@@ -255,12 +317,13 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Add a deterministic conviction-page browser journey | Test / reliability | Medium-high | Medium / low | Data contracts cover the payload, but Chart rendering, metrics, and benchmark toggle state never enter the browser/runtime-error gate; use a local Chart stub |
+| 1 | Add first-party failed-response diagnostics to browser smokes | Observability / reliability | Low-medium | Small / low | Console errors now include source URLs, but a silent local 4xx/5xx response appears only in server output |
+| — | Add a deterministic conviction-page browser journey | Test / reliability | Medium-high | Medium / low | Four browser paths now cover exact finance DOM output and all benchmark dataset/ARIA transitions | Completed in Cycle 124 |
 | — | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | A 178px mutation now proves the runtime adapts beyond the former 132px constant | Completed in Cycle 114 |
-| 2 | Add request-failure diagnostics to browser smokes | Observability / reliability | Low | Small / medium | Runtime errors fail closed, while failed local subresource requests are visible only in server output; third-party blocking needs careful filtering |
 | — | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | Three local routes now derive dates from tracked inputs; six sibling deployments remain intentionally undated | Completed in Cycle 104 |
 
 ## Next cycle
 
 Rotate to KoboForge, the next least-recently improved repository. When returning
-here, replace the fixed desktop header offset with measured chrome geometry.
+here, add precise first-party failed-response diagnostics to the shared browser
+harness.

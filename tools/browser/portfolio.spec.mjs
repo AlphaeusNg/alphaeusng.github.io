@@ -2,14 +2,41 @@ import { expect, test } from '@playwright/test';
 
 const HIDDEN_CLASS = /(^|\s)hidden(\s|$)/;
 const runtimeErrors = new WeakMap();
+const CHART_STUB = `
+  window.__chartInstances = [];
+  window.Chart = class {
+    constructor(canvas, config) {
+      this.canvas = canvas;
+      this.data = config.data;
+      this.options = config.options;
+      this.updateCount = 0;
+      this.destroyed = false;
+      window.__chartInstances.push(this);
+    }
+
+    update() {
+      this.updateCount += 1;
+    }
+
+    destroy() {
+      this.destroyed = true;
+    }
+  };
+`;
 
 test.beforeEach(async ({ page }) => {
   const errors = [];
   runtimeErrors.set(page, errors);
   page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
   page.on('console', message => {
-    if (message.type() === 'error') errors.push(`console: ${message.text()}`);
+    const source = message.location().url ? ` @ ${message.location().url}` : '';
+    if (message.type() === 'error') errors.push(`console: ${message.text()}${source}`);
   });
+
+  await page.route('https://fonts.googleapis.com/**', route =>
+    route.fulfill({ contentType: 'text/css', body: '' })
+  );
+  await page.route('https://fonts.gstatic.com/**', route => route.fulfill({ status: 204 }));
 });
 
 test.afterEach(async ({ page }) => {
@@ -108,4 +135,72 @@ test('hash navigation clears the sticky header and moves mobile focus to content
 
   await page.goto('/#%', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#nav')).toBeVisible();
+});
+
+test('conviction page renders ledger data and switches benchmark views', async ({ page }) => {
+  await page.route('https://cdn.jsdelivr.net/npm/chart.js', route =>
+    route.fulfill({ contentType: 'application/javascript', body: CHART_STUB })
+  );
+  await page.route('https://cdn.tailwindcss.com/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+
+  await page.goto('/pages/conviction.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#transactionWindow')).toHaveText(
+    'November 19, 2020 -> May 7, 2026'
+  );
+  await expect(page.locator('#transactionCount')).toHaveText('64 total');
+  await expect(page.locator('#currentShares')).toHaveText('159.42 shares');
+  await expect(page.locator('#buySellCount')).toHaveText('54 buys / 10 sells');
+  await expect(page.locator('#capitalDeployed')).toHaveText('$60,959');
+  await expect(page.locator('#saleProceeds')).toHaveText('$16,570');
+  await expect(page.locator('#benchmarkTslaValue')).toHaveText('$70,136');
+  await expect(page.locator('#benchmarkSpyValue')).toHaveText('$70,955');
+  await expect(page.locator('#benchmarkDifference')).toHaveText('-$818');
+  await expect(page.locator('#benchmarkNetCapital')).toHaveText('$44,388');
+  await expect(page.locator('#benchmarkChartStatus')).toContainText(
+    'Latest valuation month: May 2026. Current value differential: -$818.'
+  );
+
+  const recentRows = page.locator('#recentTransactionsBody tr');
+  await expect(recentRows).toHaveCount(6);
+  await expect(recentRows.first()).toContainText('May 7, 2026');
+  await expect(recentRows.first()).toContainText('Buy');
+  await expect(recentRows.first()).toContainText('3.42');
+  await expect(recentRows.first()).toContainText('$409');
+  await expect(recentRows.first()).toContainText('-$1,400');
+
+  await expect.poll(() => page.evaluate(() => window.__chartInstances.length)).toBe(2);
+  expect(await page.evaluate(() => window.__chartInstances.map(chart => ({
+    labels: chart.data.datasets.map(dataset => dataset.label),
+    updateCount: chart.updateCount,
+  })))).toEqual([
+    { labels: ['Monthly net shares', 'Cumulative shares'], updateCount: 0 },
+    {
+      labels: ['TSLA position value', 'SPY benchmark value', 'Net invested capital'],
+      updateCount: 0,
+    },
+  ]);
+
+  const valueButton = page.locator('[data-view="value"]');
+  const deltaButton = page.locator('[data-view="delta"]');
+  const flowsButton = page.locator('[data-view="flows"]');
+  await expect(valueButton).toHaveAttribute('aria-pressed', 'true');
+
+  await deltaButton.click();
+  await expect(valueButton).toHaveAttribute('aria-pressed', 'false');
+  await expect(deltaButton).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => page.evaluate(() => window.__chartInstances[1].updateCount)).toBe(1);
+  expect(await page.evaluate(() =>
+    window.__chartInstances[1].data.datasets.map(dataset => dataset.label)
+  )).toEqual(['TSLA minus SPY']);
+
+  await flowsButton.click();
+  await expect(deltaButton).toHaveAttribute('aria-pressed', 'false');
+  await expect(flowsButton).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => page.evaluate(() => window.__chartInstances[1].updateCount)).toBe(2);
+  expect(await page.evaluate(() =>
+    window.__chartInstances[1].data.datasets.map(dataset => dataset.label)
+  )).toEqual(['Monthly capital flow', 'Net invested capital']);
 });
