@@ -25,6 +25,8 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `firebase/`: shared Firebase infra (combined Firestore rules + indexes + deploy docs). CLI: root `firebase.json` / `.firebaserc`.
 - `assets/`: images and share assets referenced by public pages.
 - `tools/`: maintenance scripts grouped by domain.
+- `tools/generate_sitemap.py` and `tools/sitemap_contract.py`: deterministic
+  local-route sitemap metadata derived from tracked deploy inputs and Git dates.
 - `tools/finance/`: financial data extraction utilities.
 - `data/tsla_transactions.csv`: imported IBKR TSLA transaction history.
 - `data/conviction_tsla_history.json`: split-adjusted monthly dataset consumed by `js/conviction.js`.
@@ -74,6 +76,7 @@ Also run static checks:
 
 ```bash
 python3 -m compileall tools
+python3 tools/generate_sitemap.py --check
 python3 tools/check_site.py
 while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 find . -maxdepth 3 -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \) -print

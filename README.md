@@ -31,7 +31,8 @@ The design should remain restrained, professional, and easy to share. It should 
 - `pages/seeking-biblical-truth/css/` and `pages/seeking-biblical-truth/js/`:
   feature-local viewer assets, including the documented Firebase runtime files.
 - `assets/`: images and share assets referenced by public pages (prefer compressed JPEG web assets; keep originals only when needed).
-- `robots.txt` / `sitemap.xml`: basic crawl hints for the public site.
+- `robots.txt` / `sitemap.xml`: canonical crawl hints generated from the local
+  route manifest and tracked deploy-input history.
 - `tools/`: scripts grouped by domain.
   - `tools/finance/`: local-only financial data helpers, including the TSLA-versus-SPY benchmark generator, the legacy benchmark snapshot, and the anonymized trade ledger.
 - `.nojekyll`: required so GitHub Pages serves this as static files.
@@ -68,6 +69,16 @@ python3 tools/finance/generate_tsla_vs_spy.py
 
 The generator reads `tools/finance/tsla_trades_anonymized.csv` and writes the legacy monthly TSLA/SPY snapshot to `tools/finance/tsla-vs-spy.json`.
 
+The sitemap dates only routes deployed by this repository. It intentionally
+omits `<lastmod>` from sibling project routes because their histories live in
+separate repositories. Regenerate or verify it after changing a local route or
+one of its declared deploy inputs:
+
+```bash
+python3 tools/generate_sitemap.py
+python3 tools/generate_sitemap.py --check
+```
+
 ## Seeking Biblical Truth Viewer
 
 The public viewer is served from `pages/seeking-biblical-truth/`. It uses `vault-data.json`, generated from the separate source repo:
@@ -96,6 +107,7 @@ Run before pushing:
 ```bash
 python3 -m unittest discover -s tools -p 'test_*.py'
 python3 tools/finance/generate_conviction_history.py --check
+python3 tools/generate_sitemap.py --check
 python3 tools/check_site.py
 npm ci
 npx playwright install chromium

@@ -73,6 +73,7 @@ python3 -m http.server 8000
 # http://127.0.0.1:8000/pages/seeking-biblical-truth/
 
 python3 tools/check_site.py
+python3 tools/generate_sitemap.py --check
 python3 -m compileall tools
 while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
 ```
@@ -129,3 +130,5 @@ git push origin main
 3. Run `tools/check_site.py` and syntax checks when structure changes.
 4. Bump version; commit only this repo.
 5. If vault content changed, run the sync command and its `--check` mode above, then commit each changed repository separately.
+6. If a local public route or declared route input changed, regenerate
+   `sitemap.xml`; never add this repository's date to sibling project routes.

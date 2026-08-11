@@ -106,14 +106,26 @@ class CrawlerContractTests(unittest.TestCase):
             "https://example.test/pages/": "pages/index.html",
             "https://example.test/External/": None,
         }
-        self.write_sitemap(self.routes)
+        self.lastmods = {
+            "https://example.test/": "2026-01-02",
+            "https://example.test/pages/": "2026-02-03",
+        }
+        self.write_sitemap(self.routes, self.lastmods)
         (self.root / "robots.txt").write_text(
             "User-agent: *\nAllow: /\n\nSitemap: https://example.test/sitemap.xml\n",
             encoding="utf-8",
         )
 
-    def write_sitemap(self, urls: Iterable[str]) -> None:
-        locations = "\n".join(f"<url><loc>{url}</loc></url>" for url in urls)
+    def write_sitemap(
+        self, urls: Iterable[str], lastmods: dict[str, str] | None = None
+    ) -> None:
+        lastmods = lastmods or {}
+        locations = "\n".join(
+            f"<url><loc>{url}</loc>"
+            f"{f'<lastmod>{lastmods[url]}</lastmod>' if url in lastmods else ''}"
+            "</url>"
+            for url in urls
+        )
         (self.root / "sitemap.xml").write_text(
             '<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
             f"{locations}</urlset>",
@@ -125,6 +137,7 @@ class CrawlerContractTests(unittest.TestCase):
             self.root,
             self.routes,
             sitemap_url="https://example.test/sitemap.xml",
+            expected_lastmods=self.lastmods,
         )
 
     def test_accepts_exact_canonical_crawler_contract(self) -> None:
@@ -156,6 +169,20 @@ class CrawlerContractTests(unittest.TestCase):
         issues = self.issues()
         self.assertTrue(any("robots.txt sitemap directive" in issue for issue in issues))
         self.assertTrue(any("robots.txt must allow the site root" in issue for issue in issues))
+
+    def test_reports_missing_stale_and_external_lastmods(self) -> None:
+        self.write_sitemap(
+            self.routes,
+            {
+                "https://example.test/": "2025-12-31",
+                "https://example.test/External/": "2026-03-04",
+            },
+        )
+
+        issues = self.issues()
+        self.assertTrue(any("lastmod mismatch" in issue for issue in issues))
+        self.assertTrue(any("missing sitemap lastmod" in issue for issue in issues))
+        self.assertTrue(any("unexpected sitemap lastmod" in issue for issue in issues))
 
     def test_reports_missing_route_file_and_canonical_mismatch(self) -> None:
         (self.root / "pages" / "index.html").unlink()

@@ -20,21 +20,17 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 from xml.etree import ElementTree
 
+try:
+    from tools.sitemap_contract import (
+        SITEMAP_ROUTES,
+        SITEMAP_URL,
+        compute_lastmods,
+    )
+except ModuleNotFoundError:  # Direct execution from the tools directory on sys.path.
+    from sitemap_contract import SITEMAP_ROUTES, SITEMAP_URL, compute_lastmods
+
 ROOT = Path(__file__).resolve().parents[1]
-SITEMAP_URL = "https://alphaeusng.github.io/sitemap.xml"
-PUBLIC_CRAWLER_ROUTES: dict[str, str | None] = {
-    "https://alphaeusng.github.io/": "index.html",
-    "https://alphaeusng.github.io/pages/conviction.html": "pages/conviction.html",
-    "https://alphaeusng.github.io/pages/seeking-biblical-truth/": (
-        "pages/seeking-biblical-truth/index.html"
-    ),
-    "https://alphaeusng.github.io/AIly/": None,
-    "https://alphaeusng.github.io/KoboForge/": None,
-    "https://alphaeusng.github.io/AlpArcade/": None,
-    "https://alphaeusng.github.io/VerseKeep/": None,
-    "https://alphaeusng.github.io/ChristoDay/": None,
-    "https://alphaeusng.github.io/CardFitSG/": None,
-}
+PUBLIC_CRAWLER_ROUTES = {route.url: route.local_path for route in SITEMAP_ROUTES}
 NON_DEPLOYED_DIRS = frozenset(
     {".git", "node_modules", "playwright-report", "test-results"}
 )
@@ -150,6 +146,7 @@ def find_crawler_contract_issues(
     expected_routes: dict[str, str | None],
     *,
     sitemap_url: str,
+    expected_lastmods: dict[str, str] | None = None,
 ) -> list[str]:
     issues: list[str] = []
     sitemap_path = root / "sitemap.xml"
@@ -160,11 +157,21 @@ def find_crawler_contract_issues(
     except (OSError, ElementTree.ParseError) as error:
         return [f"sitemap.xml is unreadable or invalid: {error}"]
 
-    locations = [
-        (element.text or "").strip()
-        for element in sitemap.findall(".//{*}loc")
-        if (element.text or "").strip()
-    ]
+    expected_lastmods = expected_lastmods or {}
+    locations: list[str] = []
+    lastmods_by_url: dict[str, list[str]] = defaultdict(list)
+    for url_entry in sitemap.findall(".//{*}url"):
+        location_elements = url_entry.findall("{*}loc")
+        location = (
+            (location_elements[0].text or "").strip() if location_elements else ""
+        )
+        if not location:
+            continue
+        locations.append(location)
+        lastmods_by_url[location].extend(
+            (element.text or "").strip()
+            for element in url_entry.findall("{*}lastmod")
+        )
     location_counts = Counter(locations)
     for url, count in sorted(location_counts.items()):
         if count > 1:
@@ -174,6 +181,19 @@ def find_crawler_contract_issues(
         issues.append(f"missing sitemap URL: {url}")
     for url in sorted(set(locations) - expected_urls):
         issues.append(f"non-canonical or unexpected sitemap URL: {url}")
+    for url in sorted(expected_urls):
+        actual_lastmods = lastmods_by_url.get(url, [])
+        expected_lastmod = expected_lastmods.get(url)
+        if expected_lastmod is None:
+            if actual_lastmods:
+                issues.append(f"unexpected sitemap lastmod for external route: {url}")
+        elif not actual_lastmods:
+            issues.append(f"missing sitemap lastmod: {url}")
+        elif actual_lastmods != [expected_lastmod]:
+            issues.append(
+                f"sitemap lastmod mismatch for {url}: "
+                f"expected {expected_lastmod}, found {actual_lastmods}"
+            )
 
     try:
         robots = robots_path.read_text(encoding="utf-8")
@@ -587,6 +607,10 @@ def main() -> None:
         "conviction freshness check": (
             "python3 tools/finance/generate_conviction_history.py --check" in workflow
         ),
+        "sitemap freshness check": (
+            "python3 tools/generate_sitemap.py --check" in workflow
+        ),
+        "complete checkout history": "fetch-depth: 0" in workflow,
         "browser interaction tests": "npm run test:browser" in workflow,
         "Python compilation": "python3 -m compileall -q tools" in workflow,
         "JavaScript syntax check": "node --check" in workflow,
@@ -598,10 +622,15 @@ def main() -> None:
         fail("CI workflow policy missing: " + ", ".join(missing_workflow_contracts))
     ok(f"GitHub Actions policy: {len(workflow_contracts)} contracts")
 
+    try:
+        expected_lastmods = compute_lastmods(ROOT)
+    except RuntimeError as error:
+        fail(f"cannot derive sitemap lastmod metadata: {error}")
     crawler_issues = find_crawler_contract_issues(
         ROOT,
         PUBLIC_CRAWLER_ROUTES,
         sitemap_url=SITEMAP_URL,
+        expected_lastmods=expected_lastmods,
     )
     if crawler_issues:
         fail("invalid crawler discovery contract: " + "; ".join(crawler_issues))

@@ -1,16 +1,82 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-10 (Cycle 78 across the projects workspace)
+Last updated: 2026-08-11 (Cycle 104 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.10.9`.
-- Local verification: sixteen mutation/fixture/freshness tests, a non-writing conviction generator check, three Chromium interaction tests with shared runtime-error monitoring, `tools/check_site.py`, Python compilation, and syntax checks for every first-party JavaScript file.
-- Automated verification: least-privilege GitHub Actions runs cheap data/site gates before installing Chromium, then runs the browser, Python, and first-party JavaScript gates on Python 3.12 and Node 24.
+- Deployment version: `2026.08.11.1`.
+- Local verification: 21 mutation/fixture/freshness tests, non-writing
+  conviction and sitemap generator checks, three Chromium interaction tests
+  with shared runtime-error monitoring, `tools/check_site.py`, Python
+  compilation, and syntax checks for every first-party JavaScript file.
+- Automated verification: least-privilege GitHub Actions checks out complete
+  route history, runs cheap data/site gates before installing Chromium, then
+  runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
+  Node 24.
 
-## Latest cycle: fail browser smokes on runtime errors
+## Latest cycle: derive sitemap dates from deploy inputs
+
+### Why this was selected
+
+The sitemap enumerated all nine canonical routes but supplied only coarse
+change-frequency hints. Adding dates manually would immediately create a new
+staleness risk, while applying this repository's deploy date to six sibling
+project sites would publish false metadata.
+
+### Changes
+
+- Added one typed manifest for the nine canonical routes, including the three
+  local route files, their significant tracked deploy inputs, priorities, and
+  frequencies.
+- Added a deterministic sitemap generator that takes the newest Git date across
+  each local route's inputs, uses today's date for dirty inputs, and exposes a
+  non-writing `--check` mode.
+- Added `<lastmod>` values of 2026-08-10 for home, 2026-08-09 for conviction,
+  and 2026-08-10 for the vault viewer; omitted the field from all six sibling
+  deployments.
+- Made the crawler checker reject missing, stale, duplicate, or fabricated
+  external dates and derive its route inventory from the same manifest.
+- Added five focused tests, complete-history checkout, a CI freshness step,
+  maintainer documentation, and deployment version `2026.08.11.1`.
+
+### Verification and scores
+
+- Test-first evidence: all five crawler fixtures failed on the absent
+  `expected_lastmods` contract before implementation.
+- Unit suite: 21 tests passed in 0.057s (up from 16), including newest-commit,
+  dirty-input, local-only rendering, and missing/stale/external date cases.
+- `python3 tools/generate_sitemap.py --check`: the committed XML matches route
+  inputs and Git history byte-for-byte.
+- `python3 tools/finance/generate_conviction_history.py --check`: passed.
+- `python3 tools/check_site.py`: 35 files, 21 workflow policies, nine crawler
+  routes, and all existing site/data contracts passed.
+- All three Chromium flows passed in 3.1s with no console errors or uncaught
+  exceptions; Python compilation, every JavaScript syntax check, and
+  `git diff --check` passed.
+- Served XML smoke returned nine URLs and exactly the three expected dated
+  local routes; the document parsed successfully through `ElementTree`.
+- Correctness/reliability: 6/10 → 10/10 (dates derive from explicit inputs;
+  separate deployments are never guessed).
+- Observability/verifiability: 7/10 → 10/10 (dirty and committed drift both
+  fail locally and in CI).
+- Maintainability: 6/10 → 9/10 (one manifest owns routes and sitemap metadata).
+- Performance: 9/10 → 9/10 (runtime is unchanged; full Git history is a small
+  CI-only cost).
+- Security/robustness: 8/10 → 9/10 (argument-vector Git calls and exact route
+  ownership fail closed).
+
+### Lessons and process improvements
+
+- Metadata shared with crawlers deserves the same generated-artifact freshness
+  contract as application data.
+- Cross-repository URLs should remain intentionally undated unless their own
+  deployment history is an explicit input; a plausible date is still false.
+- A Git-derived pre-commit generator must account for dirty inputs, while CI
+  must fetch enough history to reproduce unchanged routes' prior dates.
+
+## Previous portfolio cycle: fail browser smokes on runtime errors
 
 ### Why this was selected
 
@@ -105,6 +171,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Recent project evolution
 
+- Cycle 104: generated accurate local sitemap dates from explicit deploy inputs
+  and prohibited fabricated sibling-project dates.
 - Cycle 78: replaced manual vault-data copying with one-command synchronization and precise drift checks.
 - Cycle 68: promoted console errors and uncaught browser exceptions to shared interaction-test failures.
 - Cycle 67 (`1cc038e`): repaired and browser-verified sticky-header hash geometry, URL history, and mobile destination focus.
@@ -119,10 +187,11 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | The route inventory is complete, but crawlers receive only coarse change-frequency hints |
-| 2 | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | The browser gate proves the current 132px design; future header-height changes would fail before deployment but still need a CSS edit |
-| 3 | Add request-failure diagnostics to browser smokes | Observability / reliability | Low | Small / medium | Runtime errors fail closed, while failed local subresource requests are visible only in server output; third-party blocking needs careful filtering |
+| 1 | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | The browser gate proves the current 132px design; future header-height changes would fail before deployment but still need a CSS edit |
+| 2 | Add request-failure diagnostics to browser smokes | Observability / reliability | Low | Small / medium | Runtime errors fail closed, while failed local subresource requests are visible only in server output; third-party blocking needs careful filtering |
+| — | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | Three local routes now derive dates from tracked inputs; six sibling deployments remain intentionally undated | Completed in Cycle 104 |
 
 ## Next cycle
 
-Add accurate sitemap `<lastmod>` metadata from tracked deploy inputs without inventing dates for cross-repository project routes.
+Rotate to KoboForge, the next least-recently improved repository. When returning
+here, replace the fixed desktop header offset with measured chrome geometry.
