@@ -65,13 +65,27 @@ test('project modal owns focus, traps Tab, and restores its trigger', async ({ p
 });
 
 test('hash navigation clears the sticky header and moves mobile focus to content', async ({ page }) => {
+  await page.addInitScript(() => {
+    document.addEventListener('DOMContentLoaded', () => {
+      const style = document.createElement('style');
+      style.textContent = `
+        @media (min-width: 768px) {
+          .project-tabs-inner { padding-block: 2rem !important; }
+        }
+      `;
+      document.head.append(style);
+    }, { once: true });
+  });
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/#craft', { waitUntil: 'domcontentloaded' });
 
   const desktopGeometry = await page.locator('#craft').evaluate(element => ({
     targetTop: element.getBoundingClientRect().top,
     navBottom: document.querySelector('#nav').getBoundingClientRect().bottom,
+    navHeight: document.querySelector('#nav').offsetHeight,
+    scrollOffset: Number.parseFloat(window.getComputedStyle(element).scrollMarginTop),
   }));
+  expect(desktopGeometry.scrollOffset).toBeCloseTo(desktopGeometry.navHeight, 0);
   expect(desktopGeometry.targetTop).toBeGreaterThanOrEqual(desktopGeometry.navBottom - 1);
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -91,4 +105,7 @@ test('hash navigation clears the sticky header and moves mobile focus to content
     navBottom: document.querySelector('#nav').getBoundingClientRect().bottom,
   }));
   expect(mobileGeometry.targetTop).toBeGreaterThanOrEqual(mobileGeometry.navBottom - 1);
+
+  await page.goto('/#%', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#nav')).toBeVisible();
 });

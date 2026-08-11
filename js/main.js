@@ -6,6 +6,71 @@ function initTailwind() {
     document.documentElement.style.setProperty('--accent-gold', '#C9A227');
 }
 
+const DEFAULT_NAV_CHROME_HEIGHT = 80;
+
+function getNavigationChromeHeight() {
+    const nav = document.getElementById('nav');
+    if (!nav) return DEFAULT_NAV_CHROME_HEIGHT;
+
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuHeight = mobileMenu?.offsetHeight ?? 0;
+    const chromeHeight = nav.offsetHeight - mobileMenuHeight;
+    return chromeHeight > 0 ? chromeHeight : DEFAULT_NAV_CHROME_HEIGHT;
+}
+
+function syncNavigationOffset() {
+    const height = getNavigationChromeHeight();
+    document.body.style.setProperty('--site-nav-offset', `${height}px`);
+    return height;
+}
+
+function getAnchorScrollTop(target) {
+    const scrollMarginTop = Number.parseFloat(
+        window.getComputedStyle(target).scrollMarginTop
+    ) || 0;
+    const targetOffset = Math.max(getNavigationChromeHeight(), scrollMarginTop);
+    return target.getBoundingClientRect().top + window.scrollY - targetOffset;
+}
+
+function getHashTarget(hash = window.location.hash) {
+    if (!hash.startsWith('#') || hash.length === 1) return null;
+    let id = hash.slice(1);
+    try {
+        id = decodeURIComponent(id);
+    } catch (_) {
+        return null;
+    }
+    return document.getElementById(id);
+}
+
+function initNavigationGeometry() {
+    const nav = document.getElementById('nav');
+    if (!nav) return;
+
+    const initialTarget = getHashTarget();
+
+    function sync({ alignInitialHash = false } = {}) {
+        syncNavigationOffset();
+        if (alignInitialHash && initialTarget && getHashTarget() === initialTarget) {
+            window.scrollTo({ top: getAnchorScrollTop(initialTarget), behavior: 'auto' });
+        }
+    }
+
+    sync({ alignInitialHash: true });
+    window.requestAnimationFrame(() => sync({ alignInitialHash: true }));
+
+    if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(() => sync());
+        observer.observe(nav);
+    }
+    window.addEventListener('resize', () => sync(), { passive: true });
+    window.addEventListener(
+        'load',
+        () => sync({ alignInitialHash: true }),
+        { once: true }
+    );
+}
+
 // Navbar scroll effect
 function initNavbar() {
     const nav = document.getElementById('nav');
@@ -257,20 +322,14 @@ function initSmoothScroll() {
             const href = this.getAttribute('href');
             if (!href || href === '#') return;
 
-            const target = document.querySelector(href);
+            const target = document.getElementById(href.slice(1));
             if (target) {
                 e.preventDefault();
                 if (window.location.hash !== href) {
                     window.history.pushState(null, '', href);
                 }
-                const navHeight = document.getElementById('nav')?.offsetHeight ?? 80;
-                const targetScrollMargin = Number.parseFloat(window.getComputedStyle(target).scrollMarginTop) || 0;
-                const targetOffset = Math.max(navHeight, targetScrollMargin);
-                const elementPosition = target.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - targetOffset;
-
                 window.scrollTo({
-                    top: offsetPosition,
+                    top: getAnchorScrollTop(target),
                     behavior: 'smooth'
                 });
             }
@@ -367,7 +426,7 @@ function initActiveNav() {
     const activationSlack = 24;
 
     function getNavHeight() {
-        return document.getElementById('nav')?.offsetHeight ?? 80;
+        return getNavigationChromeHeight();
     }
 
     function getSectionActivationTop(section) {
@@ -1664,6 +1723,7 @@ function initEmailCopy() {
 // Boot everything
 function init() {
     initTailwind();
+    initNavigationGeometry();
     initNavbar();
     initMobileMenu();
     initExploreNavigation();

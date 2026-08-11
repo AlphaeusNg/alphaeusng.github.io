@@ -25,6 +25,7 @@
     --nav-muted: rgba(148, 163, 184, 0.88);
     --nav-highlight: rgba(201, 162, 39, 0.1);
     --nav-shadow: 0 18px 38px rgba(0, 0, 0, 0.34);
+    --site-nav-offset: 5rem;
 }
 
 body {
@@ -1376,11 +1377,6 @@ button.portrait-phone-status:focus-visible {
     font-weight: 500;
 }
 
-/* Space for fixed nav + project tabs */
-body.has-project-tabs {
-    --site-nav-offset: 8.25rem;
-}
-
 section[id],
 #church-home,
 #journey-documents,
@@ -1393,9 +1389,6 @@ section[id],
         display: none;
     }
 
-    body.has-project-tabs {
-        --site-nav-offset: 5rem;
-    }
 }
 
 /* Conviction page specific */

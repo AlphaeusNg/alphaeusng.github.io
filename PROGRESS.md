@@ -1,12 +1,12 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 104 across the projects workspace)
+Last updated: 2026-08-11 (Cycle 114 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.11.1`.
+- Deployment version: `2026.08.11.2`.
 - Local verification: 21 mutation/fixture/freshness tests, non-writing
   conviction and sitemap generator checks, three Chromium interaction tests
   with shared runtime-error monitoring, `tools/check_site.py`, Python
@@ -16,7 +16,75 @@ Last updated: 2026-08-11 (Cycle 104 across the projects workspace)
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: derive sitemap dates from deploy inputs
+## Latest cycle: measure fixed navigation geometry
+
+### Why this was selected
+
+Desktop anchor clearance depended on a hand-maintained `8.25rem` value that
+happened to equal the current primary navigation plus project-tab bar. The
+browser gate would detect a future height change only after it obscured section
+headings; the runtime could already measure the actual chrome safely.
+
+### Changes
+
+- Added one shared navigation-chrome measurement that excludes the expanded
+  mobile drawer and supplies smooth scrolling, active-section calculations,
+  and the CSS `scroll-margin-top` variable.
+- Synchronizes the measured offset at startup, resize, and fixed-nav resize;
+  direct initial hashes are realigned after DOM and page-load geometry settles.
+- Replaced selector parsing of URL fragments with safe decoded-ID lookup, so a
+  malformed percent-encoded fragment cannot throw during initialization.
+- Removed the fixed desktop offset and its now-unused body marker while keeping
+  an 80px no-JavaScript fallback.
+- Strengthened the hash-navigation browser journey by injecting a 178px test
+  header, requiring measured offset equality and visible desktop/mobile targets,
+  and loading a malformed fragment under the shared runtime-error gate.
+- Bumped deployment version to `2026.08.11.2` and regenerated the home route's
+  sitemap date to 2026-08-11.
+
+### Verification and scores
+
+- Test-first evidence: the mutated header measured 178px while the committed
+  scroll margin remained 132px, causing the new browser assertion to fail.
+- Focused Chromium regression passed after implementation with measured desktop
+  geometry, mobile menu close/focus behavior, and malformed-hash safety.
+- All 21 unit/mutation tests passed in 0.056s; conviction and sitemap freshness
+  checks matched their tracked inputs.
+- `tools/check_site.py` passed 35 required-file, 21 workflow-policy, nine-route
+  crawler, local-link, finance, vault, and asset contracts.
+- All three Chromium journeys passed in 3.2s with no console errors or uncaught
+  exceptions; Python compilation, all first-party JavaScript syntax checks,
+  `git diff --check`, and `npm audit` (zero vulnerabilities) passed.
+- Correctness/reliability: 7/10 → 10/10 (anchor clearance derives from rendered
+  chrome at every supported viewport).
+- Observability/verifiability: 8/10 → 10/10 (a deliberate 46px geometry mutation
+  proves the test detects the former coupling).
+- Maintainability: 6/10 → 9/10 (one measurement replaces CSS and JavaScript
+  offset assumptions).
+- Performance: 9/10 → 9/10 (one resize observer and bounded geometry reads;
+  no steady animation or polling).
+- Security/robustness: 7/10 → 9/10 (untrusted URL fragments no longer enter a
+  CSS selector parser).
+- Developer/user experience: 8/10 → 10/10 (section headings remain visible
+  after legitimate header changes).
+
+### Lessons and process improvements
+
+- Geometry mutation is stronger than reasserting today's pixel values: make
+  the chrome deliberately taller and require the page to adapt.
+- Measure only fixed chrome. Including the expanded mobile drawer would turn a
+  correct responsive offset into a full-screen scroll gap.
+- URL hashes are external input; ID lookup avoids selector syntax failures and
+  is the right primitive when fragments identify elements.
+
+### Explicit next opportunity
+
+Add a deterministic Chromium journey for the conviction page's data render and
+benchmark toggles. It is the only data-rich public portfolio route whose
+first-party runtime and interaction state are not covered by the shared browser
+error gate; stub Chart.js locally so CI does not depend on its CDN.
+
+## Previous portfolio cycle: derive sitemap dates from deploy inputs
 
 ### Why this was selected
 
@@ -187,7 +255,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | The browser gate proves the current 132px design; future header-height changes would fail before deployment but still need a CSS edit |
+| 1 | Add a deterministic conviction-page browser journey | Test / reliability | Medium-high | Medium / low | Data contracts cover the payload, but Chart rendering, metrics, and benchmark toggle state never enter the browser/runtime-error gate; use a local Chart stub |
+| — | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | A 178px mutation now proves the runtime adapts beyond the former 132px constant | Completed in Cycle 114 |
 | 2 | Add request-failure diagnostics to browser smokes | Observability / reliability | Low | Small / medium | Runtime errors fail closed, while failed local subresource requests are visible only in server output; third-party blocking needs careful filtering |
 | — | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | Three local routes now derive dates from tracked inputs; six sibling deployments remain intentionally undated | Completed in Cycle 104 |
 
