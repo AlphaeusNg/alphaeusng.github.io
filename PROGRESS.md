@@ -1,23 +1,83 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 124 across the projects workspace)
+Last updated: 2026-08-11 (Cycle 133 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.11.3`.
+- Deployment version: `2026.08.11.4`.
 - Local verification: 21 mutation/fixture/freshness tests, non-writing
   conviction and sitemap generator checks, four Chromium interaction tests
-  with shared runtime-error monitoring, deterministic font delivery, and a
-  local Chart.js test double, `tools/check_site.py`, Python
+  with shared runtime-error and same-origin HTTP-failure monitoring,
+  deterministic font delivery, and a local Chart.js test double,
+  `tools/check_site.py`, Python
   compilation, and syntax checks for every first-party JavaScript file.
 - Automated verification: least-privilege GitHub Actions checks out complete
   route history, runs cheap data/site gates before installing Chromium, then
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: exercise the conviction page in Chromium
+## Latest cycle: fail browser smokes on first-party HTTP errors
+
+### Why this was selected
+
+The shared Chromium harness failed on console errors and uncaught exceptions,
+but a same-origin request returning HTTP 4xx/5xx could still be silent in the
+page and visible only in the local server log. One shared listener closes that
+observability gap for every existing and future browser journey.
+
+### Changes
+
+- Added a per-page response listener that compares each response with the
+  configured test origin and records every same-origin status of 400 or higher.
+- Included status, request method, and local path/query in the shared failure
+  message while intentionally ignoring third-party response status.
+- Reused the existing after-test runtime assertion, so every browser journey
+  inherits the new contract without duplicated checks.
+- Bumped the deployment version to `2026.08.11.4`.
+
+### Verification and scores
+
+- Baseline: the complete existing gate passed with four Chromium journeys and
+  no first-party failures, confirming the change targeted an observability gap.
+- Mutation evidence: a temporary missing local image made the focused journey
+  fail with the exact diagnostic
+  `response: 404 GET /response-gate-probe.png`; the probe was then removed.
+- All four real journeys passed three consecutive runs (12/12 paths) with no
+  runtime, console, or first-party HTTP failures.
+- All 21 Python mutation/fixture tests passed; conviction and sitemap
+  generators matched their tracked inputs.
+- `tools/check_site.py` passed 35 required-file, 21 workflow-policy, nine-route
+  crawler, local-link, finance, vault, and asset contracts.
+- Python compilation, every first-party JavaScript syntax check,
+  `git diff --check`, and `npm audit` (zero vulnerabilities) passed.
+- Correctness/reliability: 8/10 → 9/10 (broken local subresources now invalidate browser journeys).
+- Observability/verifiability: 8/10 → 10/10 (failures name exact status, method, and route).
+- Maintainability: 9/10 → 10/10 (one fixture listener covers every current and future journey).
+- Performance: 9/10 → 9/10 (one constant-time origin/status check per response; deployed runtime unchanged).
+- Security/robustness: 9/10 → 9/10 (same-origin scoping avoids treating intentionally stubbed third parties as application failures).
+- Developer/user experience: 8/10 → 9/10 (local resource defects are actionable from test output alone).
+
+### Lessons and process improvements
+
+- Browser runtime health includes the network graph, not only JavaScript error
+  channels. Attach the response gate at the fixture boundary so coverage grows
+  automatically with new journeys.
+- Scope strict response policy by origin. External services can fail for reasons
+  outside the application contract, while every first-party 4xx/5xx is owned by
+  this deployment.
+- Mutation-test observability with a real missing resource; checking the listener
+  implementation alone would not prove that the shared after-test gate reports it.
+
+### Explicit next opportunity
+
+Add a deterministic feedback-page browser journey with local Firebase doubles.
+Its query-source sanitization, form validation, successful submission, cooldown,
+and private-inbox fallback currently have syntax/static checks but no executed
+browser contract.
+
+## Previous portfolio cycle: exercise the conviction page in Chromium
 
 ### Why this was selected
 
@@ -317,7 +377,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Add first-party failed-response diagnostics to browser smokes | Observability / reliability | Low-medium | Small / low | Console errors now include source URLs, but a silent local 4xx/5xx response appears only in server output |
+| 1 | Add a deterministic feedback-page browser journey | Test / reliability | Medium-high | Medium / low | Feedback query sanitization, validation, submission, cooldown, and fallback are not executed in Chromium |
+| — | Add first-party failed-response diagnostics to browser smokes | Observability / reliability | Low-medium | Small / low | A mutation-proven shared listener now reports status, method, and local URL | Completed in Cycle 133 |
 | — | Add a deterministic conviction-page browser journey | Test / reliability | Medium-high | Medium / low | Four browser paths now cover exact finance DOM output and all benchmark dataset/ARIA transitions | Completed in Cycle 124 |
 | — | Replace the fixed desktop header offset with measured chrome geometry | Robustness / maintainability | Low | Medium / low | A 178px mutation now proves the runtime adapts beyond the former 132px constant | Completed in Cycle 114 |
 | — | Add `<lastmod>` values from deploy inputs | SEO / process | Low-medium | Medium / low | Three local routes now derive dates from tracked inputs; six sibling deployments remain intentionally undated | Completed in Cycle 104 |
@@ -325,5 +386,5 @@ The source-side rationale, test-first failures, restored-content measurements, s
 ## Next cycle
 
 Rotate to KoboForge, the next least-recently improved repository. When returning
-here, add precise first-party failed-response diagnostics to the shared browser
-harness.
+here, add a deterministic feedback-page browser journey with local Firebase
+doubles.

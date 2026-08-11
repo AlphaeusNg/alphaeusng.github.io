@@ -24,13 +24,22 @@ const CHART_STUB = `
   };
 `;
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, baseURL }) => {
   const errors = [];
+  const firstPartyOrigin = new URL(baseURL).origin;
   runtimeErrors.set(page, errors);
   page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
   page.on('console', message => {
     const source = message.location().url ? ` @ ${message.location().url}` : '';
     if (message.type() === 'error') errors.push(`console: ${message.text()}${source}`);
+  });
+  page.on('response', response => {
+    const url = new URL(response.url());
+    if (url.origin === firstPartyOrigin && response.status() >= 400) {
+      errors.push(
+        `response: ${response.status()} ${response.request().method()} ${url.pathname}${url.search}`
+      );
+    }
   });
 
   await page.route('https://fonts.googleapis.com/**', route =>
