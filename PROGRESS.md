@@ -1,12 +1,12 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-18 (Cycle 163 across the projects workspace)
+Last updated: 2026-08-18 (Cycle 164 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.18.3`.
+- Deployment version: `2026.08.18.4`.
 - Local verification: 24 mutation/fixture/freshness tests, non-writing
   conviction and sitemap generator checks, six Chromium interaction tests / 83
   encoded assertion sites
@@ -19,7 +19,24 @@ Last updated: 2026-08-18 (Cycle 163 across the projects workspace)
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: first-screen hero, Craft cards, and a read-first vault
+## Latest cycle: quieter chrome — one-line nav, thin project tabs, smaller vault header
+
+### Why this was selected
+
+Home nav pills were two-line 9.5rem cards, the project-tab strip read as a second toolbar, and the vault title still dominated the first screen. The ask was cleaner, more pleasant navigation without removing `#nav`, `#project-tabs`, or vault IDs.
+
+### Changes
+
+- Drop `.nav-pill-meta` and restyle `.nav-pill` as a compact single-line chip (Work / Faith / Connect).
+- Thin `.project-tabs-bar`: smaller type and padding; hide the “Projects” label visually; keep every project link.
+- Vault title `text-3xl md:text-4xl`, tighter header padding, and Fit / Reset / PNG moved beside “Interactive graph” so Notes is search + folders + files.
+- Bump to `2026.08.18.4` and keep feedback / kofi cache keys on the stamp.
+
+### Explicit next opportunity
+
+Conviction header still uses a thinner chrome than home. Workspace next: continue rotation; skip Car-Type-Classification-Service and leave KoboForge to the other agent.
+
+## Previous cycle: first-screen hero, Craft cards, and a read-first vault
 
 ### Why this was selected
 

@@ -61,7 +61,6 @@
                     <div class="nav-menu" data-nav-menu>
                         <a href="#story" data-nav-group="portfolio" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-portfolio">
                             <span class="nav-pill-label">Work</span>
-                            <span class="nav-pill-meta">Story · craft · CV</span>
                         </a>
                         <div id="nav-submenu-portfolio" class="nav-submenu" role="menu" aria-hidden="true">
                             <a href="#story" class="nav-submenu-link" role="menuitem">The Story</a>
@@ -74,7 +73,6 @@
                     <div class="nav-menu" data-nav-menu>
                         <a href="#reflections" data-nav-group="faith" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-faith">
                             <span class="nav-pill-label">Faith</span>
-                            <span class="nav-pill-meta">Christ · Scripture</span>
                         </a>
                         <div id="nav-submenu-faith" class="nav-submenu" role="menu" aria-hidden="true">
                             <a href="#reflections" class="nav-submenu-link" role="menuitem">North star</a>
@@ -86,7 +84,6 @@
                     <div class="nav-menu" data-nav-menu>
                         <a href="#connect" data-nav-group="connect" class="nav-link nav-pill" aria-haspopup="true" aria-expanded="false" aria-controls="nav-submenu-connect">
                             <span class="nav-pill-label">Connect</span>
-                            <span class="nav-pill-meta">Email · social</span>
                         </a>
                         <div id="nav-submenu-connect" class="nav-submenu" role="menu" aria-hidden="true">
                             <button type="button" class="nav-submenu-link email-copy-btn" role="menuitem" data-email="alphaolivegreen@gmail.com" data-email-label="Email">Email</button>
@@ -110,7 +107,7 @@
         </div>
 
         <!-- Project quick-link tabs (desktop/tablet) -->
-        <div class="project-tabs-bar" aria-label="Project quick links">
+        <div id="project-tabs" class="project-tabs-bar" aria-label="Project quick links">
             <div class="project-tabs-inner">
                 <span class="project-tabs-label">Projects</span>
                 <a class="project-tab" href="https://alphaeusng.github.io/KoboForge/" title="Client-side EPUB converter for Kobo">KoboForge</a>
@@ -1015,7 +1012,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.08.18.3"
+    <script src="js/kofi-support.js?v=2026.08.18.4"
             data-target="#kofi-support-widget"
             data-feedback="false"
             data-auto-footer

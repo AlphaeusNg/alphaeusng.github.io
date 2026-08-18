@@ -28,11 +28,11 @@
 </head>
 <body class="bg-[#0A0F1C] text-[#F3F4F6]">
   <main class="mx-auto max-w-[96rem] px-4 py-4 md:px-6 md:py-8 xl:px-8">
-    <header class="vault-header mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <header class="vault-header mb-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
       <div>
-        <div class="mb-2 text-xs font-semibold uppercase tracking-[3px] text-[#C9A227]">Public study vault</div>
-        <h1 class="vault-title text-4xl tracking-tight md:text-6xl">Seeking Biblical Truth</h1>
-        <p id="vault-summary" class="mt-3 max-w-2xl text-sm leading-6 text-[#94A3B8]">Loading notes from the repository...</p>
+        <div class="mb-1 text-xs font-semibold uppercase tracking-[3px] text-[#C9A227]">Public study vault</div>
+        <h1 class="vault-title text-3xl tracking-tight md:text-4xl">Seeking Biblical Truth</h1>
+        <p id="vault-summary" class="mt-2 max-w-2xl text-sm leading-6 text-[#94A3B8]">Loading notes from the repository...</p>
       </div>
       <div class="flex flex-col items-stretch gap-2 sm:items-end">
         <nav class="flex flex-wrap gap-2 text-sm justify-end" aria-label="Related">
@@ -71,11 +71,6 @@
       <aside class="vault-notes self-start rounded-2xl border border-white/10 bg-[#111827] p-4 xl:sticky xl:top-4">
         <label class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]" for="search">Search notes</label>
         <input id="search" class="mt-2 w-full rounded-xl border border-white/10 bg-[#0A0F1C] px-3 py-2 text-sm text-white outline-none focus:border-[#C9A227]" placeholder="Baptism, Romans, Gospel...">
-        <div class="mt-4 flex flex-wrap gap-2">
-          <button id="fit" class="rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#CBD5E1] hover:border-[#C9A227]">Fit</button>
-          <button id="reset" class="rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#CBD5E1] hover:border-[#C9A227]">Reset</button>
-          <button id="export-png" class="rounded-full border border-[#C9A227]/50 px-3 py-1.5 text-xs text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">PNG</button>
-        </div>
         <div class="mt-5">
           <div class="mb-2 text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">Folders</div>
           <div id="folder-list" class="space-y-1 text-sm"></div>
@@ -93,9 +88,14 @@
       </aside>
 
       <section class="vault-graph overflow-hidden rounded-2xl border border-white/10 bg-[#111827]">
-        <div class="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-2">
           <div class="text-sm font-medium text-[#CBD5E1]">Interactive graph</div>
-          <div id="graph-count" class="text-xs text-[#64748B]"></div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="fit" class="rounded-full border border-white/10 px-3 py-1 text-xs text-[#CBD5E1] hover:border-[#C9A227]">Fit</button>
+            <button id="reset" class="rounded-full border border-white/10 px-3 py-1 text-xs text-[#CBD5E1] hover:border-[#C9A227]">Reset</button>
+            <button id="export-png" class="rounded-full border border-[#C9A227]/50 px-3 py-1 text-xs text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">PNG</button>
+            <div id="graph-count" class="text-xs text-[#64748B]"></div>
+          </div>
         </div>
         <div id="graph" class="bg-[#0A0F1C]" style="min-height:420px;"></div>
       </section>
@@ -121,7 +121,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="../../js/kofi-support.js?v=2026.08.18.3" data-auto-footer defer></script>
+  <script src="../../js/kofi-support.js?v=2026.08.18.4" data-auto-footer defer></script>
   <script src="../../js/version.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/vault-cloud.js"></script>

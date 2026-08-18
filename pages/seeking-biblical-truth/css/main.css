@@ -52,7 +52,7 @@ body { font-family: Inter, system-ui, sans-serif; }
   position: sticky;
   top: 0;
   z-index: 40;
-  padding: 1rem 0;
+  padding: 0.4rem 0 0.55rem;
   background: rgba(10, 15, 28, .94);
   backdrop-filter: blur(14px);
   transition: transform .22s ease, opacity .22s ease;
