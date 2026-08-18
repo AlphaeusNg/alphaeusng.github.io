@@ -14,13 +14,10 @@
 
   var KOFI_ID = "K1V623R7BV";
   var KOFI_URL = "https://ko-fi.com/" + KOFI_ID;
-  var KOFI_WIDGET_URL = "https://storage.ko-fi.com/cdn/widget/Widget_2.js";
-  var KOFI_COLOR = "#72a4f2";
   var KOFI_LABEL = "Support me on Ko-fi";
   var FEEDBACK_PAGE_URL =
     "https://alphaeusng.github.io/pages/feedback/";
   var scriptElement = global.document.currentScript;
-  var widgetPromise;
 
   function projectName() {
     var pathname = global.location.pathname.toLowerCase();
@@ -87,38 +84,6 @@
     global.document.head.appendChild(style);
   }
 
-  function loadOfficialWidget() {
-    if (
-      global.kofiwidget2 &&
-      typeof global.kofiwidget2.getHTML === "function"
-    ) {
-      return Promise.resolve(global.kofiwidget2);
-    }
-    if (widgetPromise) {
-      return widgetPromise;
-    }
-    widgetPromise = new Promise(function (resolve, reject) {
-      var script = global.document.createElement("script");
-      script.src = KOFI_WIDGET_URL;
-      script.async = true;
-      script.onload = function () {
-        if (
-          global.kofiwidget2 &&
-          typeof global.kofiwidget2.getHTML === "function"
-        ) {
-          resolve(global.kofiwidget2);
-        } else {
-          reject(new Error("Ko-fi widget did not initialize"));
-        }
-      };
-      script.onerror = function () {
-        reject(new Error("Ko-fi widget could not be loaded"));
-      };
-      global.document.head.appendChild(script);
-    });
-    return widgetPromise;
-  }
-
   function fallbackMarkup() {
     return (
       '<a class="alphaeus-kofi-support__fallback" href="' +
@@ -152,28 +117,6 @@
     host.innerHTML =
       (includeKofi ? fallbackMarkup() : "") +
       (includeFeedback ? feedbackMarkup() : "");
-
-    if (!includeKofi) {
-      return;
-    }
-
-    loadOfficialWidget()
-      .then(function (widget) {
-        widget.init(KOFI_LABEL, KOFI_COLOR, KOFI_ID);
-        host.innerHTML =
-          widget.getHTML() + (includeFeedback ? feedbackMarkup() : "");
-        var link = host.querySelector(".kofi-button");
-        if (link) {
-          link.setAttribute("rel", "me noopener noreferrer");
-          link.setAttribute(
-            "aria-label",
-            "Support Alphaeus on Ko-fi (opens in a new tab)"
-          );
-        }
-      })
-      .catch(function () {
-        // Keep the plain Ko-fi link if the official widget CDN is blocked.
-      });
   }
 
   function mountInFooter(footer, message, options) {

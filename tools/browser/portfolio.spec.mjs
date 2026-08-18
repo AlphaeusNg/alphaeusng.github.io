@@ -93,12 +93,12 @@ test('home Ko-fi chip sits with the coffee card and footer Feedback is a real li
   const kofi = widget.locator('a[href*="ko-fi.com"]');
   const footerFeedback = page.locator('footer a.alphaeus-kofi-support__feedback');
 
-  await expect(card.locator('.support-card-icon')).toBeVisible();
+  await expect(card.locator('.support-card-icon')).toHaveCount(0);
   await expect(kofi).toBeVisible();
   await expect(kofi).toHaveText(/Support me on Ko-fi/);
+  await expect(kofi.locator('img')).toHaveCount(0);
   await expect(widget).toHaveCSS('align-items', 'center');
-  await expect(widget.locator('.kofi-button')).toBeVisible();
-  await expect(widget.locator('img.kofiimg')).toBeVisible();
+  await expect(widget.locator('.kofi-button')).toHaveCount(0);
 
   await expect(page.locator('.alphaeus-kofi-support')).toContainText('Have feedback?');
   await expect(footerFeedback).toBeVisible();
