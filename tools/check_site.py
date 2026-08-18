@@ -664,6 +664,25 @@ def main() -> None:
             fail(f"feedback {asset} cache key must match SITE_VERSION.id {site_version}")
     ok(f"feedback asset cache keys match {site_version}")
 
+    kofi_pages = (
+        (ROOT / "index.html", rf'src="js/kofi-support\.js\?v={re.escape(site_version)}"'),
+        (
+            ROOT / "pages" / "conviction.html",
+            rf'src="\.\./js/kofi-support\.js\?v={re.escape(site_version)}"',
+        ),
+        (
+            ROOT / "pages" / "seeking-biblical-truth" / "index.html",
+            rf'src="\.\./\.\./js/kofi-support\.js\?v={re.escape(site_version)}"',
+        ),
+    )
+    for path, pattern in kofi_pages:
+        if not re.search(pattern, path.read_text(encoding="utf-8")):
+            fail(
+                f"{path.relative_to(ROOT)} kofi-support cache key must match "
+                f"SITE_VERSION.id {site_version}"
+            )
+    ok(f"kofi-support cache keys match {site_version}")
+
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     workflow_contracts = {
         "stable workflow name": re.search(r"(?m)^name:\s*ci\s*$", workflow),

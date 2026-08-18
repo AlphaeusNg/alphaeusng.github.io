@@ -1,12 +1,12 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-18 (Cycle 161 across the projects workspace)
+Last updated: 2026-08-18 (Cycle 163 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.18.2`.
+- Deployment version: `2026.08.18.3`.
 - Local verification: 24 mutation/fixture/freshness tests, non-writing
   conviction and sitemap generator checks, six Chromium interaction tests / 83
   encoded assertion sites
@@ -19,7 +19,37 @@ Last updated: 2026-08-18 (Cycle 161 across the projects workspace)
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: couple feedback CSS and JS cache keys
+## Latest cycle: first-screen hero, Craft cards, and a read-first vault
+
+### Why this was selected
+
+Workspace rotation asked for visitor-visible product value, not another
+verification-only gate. The phone hero hid the job line behind a 68px name,
+the Connect email button went white-on-white on hover, VerseKeep and
+AlpArcade were missing from Selected work, and the public vault greeted
+people with editor chrome.
+
+### Changes
+
+- Clamp the hero name, drop the faith paragraph and chips on small screens,
+  and stop forcing a full-viewport first paint on phones so CTAs appear.
+- Fix the Connect email hover to gold-on-navy and correct the `system-ui`
+  fallback typo.
+- Add VerseKeep and AlpArcade cards to `#craft`.
+- Replace the light Google Maps embed with an address plus “Open in Maps”.
+- Vault viewer: load Inter/Playfair, hide Refresh/Obsidian/sign-in behind
+  Editor & source, add Notes/Graph/Read surfaces on phones, filter the
+  file tree from search, honor `#/path` links, and offer Copy link.
+- Couple remaining kofi-support cache keys to `SITE_VERSION` and bump to
+  `2026.08.18.3`.
+
+### Explicit next opportunity
+
+Conviction header still uses a thinner chrome than home. Workspace next:
+continue rotation; skip Car-Type-Classification-Service and leave KoboForge
+to the other agent.
+
+## Previous cycle: couple feedback CSS and JS cache keys
 
 ### Why this was selected
 

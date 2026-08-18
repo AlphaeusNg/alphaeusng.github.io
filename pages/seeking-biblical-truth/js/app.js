@@ -222,7 +222,7 @@ function paintAuthBar() {
   if (!statusEl) return;
 
   if (!a.configured) {
-    statusEl.textContent = 'Cloud editor off — set enabled:true in js/firebase-config.js';
+    statusEl.textContent = 'Reading the public vault';
     signIn?.classList.add('hidden');
     signOut?.classList.add('hidden');
     return;
@@ -374,11 +374,54 @@ function radius(d) {
   return Math.max(7, Math.min(14, 6 + Math.sqrt(d.wordCount || 1) / 8));
 }
 
+function searchTerm() {
+  return document.getElementById('search')?.value.trim().toLowerCase() || '';
+}
+
+function matchesSearch(d, term = searchTerm()) {
+  if (!term) return true;
+  return [d.title, d.path, d.excerpt, d.content].join(' ').toLowerCase().includes(term);
+}
+
 function visibleNode(d) {
-  const term = document.getElementById('search').value.trim().toLowerCase();
-  const matchesText = !term || [d.title, d.path, d.excerpt, d.content].join(' ').toLowerCase().includes(term);
   const matchesFolder = state.filter === 'all' || d.group === state.filter || d.id === `folder::${state.filter}`;
-  return matchesText && matchesFolder;
+  return matchesSearch(d) && matchesFolder;
+}
+
+function noteHash(path) {
+  return '#/' + encodeURI(path || '');
+}
+
+function pathFromHash() {
+  const raw = (location.hash || '').replace(/^#\/?/, '');
+  if (!raw) return '';
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
+function findNoteByPath(path) {
+  if (!path || !state.data) return null;
+  return state.data.nodes.find(n => n.path === path || n.id === path) || null;
+}
+
+function setVaultSurface(name) {
+  const layout = document.querySelector('.vault-layout');
+  if (!layout) return;
+  const next = name === 'notes' || name === 'graph' || name === 'read' ? name : 'read';
+  layout.dataset.surface = next;
+  document.querySelectorAll('[data-surface]').forEach(btn => {
+    if (btn.tagName !== 'BUTTON') return;
+    btn.setAttribute('aria-pressed', String(btn.dataset.surface === next));
+  });
+  if (next === 'graph') {
+    requestAnimationFrame(() => {
+      syncGraphHeight();
+      if (state.simulation) state.simulation.alpha(0.25).restart();
+    });
+  }
 }
 
 function renderFolders() {
@@ -398,14 +441,22 @@ function renderFolders() {
   });
 }
 
+function visibleNotes() {
+  if (!state.data) return [];
+  return state.data.nodes
+    .filter(n => n.type === 'note' || n.type === 'canvas')
+    .filter(n => state.filter === 'all' || n.group === state.filter)
+    .filter(n => matchesSearch(n))
+    .sort((a, b) => (a.path || a.title).localeCompare(b.path || b.title));
+}
+
 function renderFileTree() {
   const host = document.getElementById('file-tree');
   if (!host || !state.data) return;
   host.innerHTML = '';
-  const notes = state.data.nodes
-    .filter(n => n.type === 'note' || n.type === 'canvas')
-    .filter(n => state.filter === 'all' || n.group === state.filter)
-    .sort((a, b) => (a.path || a.title).localeCompare(b.path || b.title));
+  const notes = visibleNotes();
+  const count = document.getElementById('note-count');
+  if (count) count.textContent = `${notes.length} note${notes.length === 1 ? '' : 's'}`;
 
   const byFolder = new Map();
   notes.forEach(n => {
@@ -430,7 +481,7 @@ function renderFileTree() {
     });
   }
   if (!notes.length) {
-    host.innerHTML = '<p class="text-xs text-[#64748B]">No notes in this folder.</p>';
+    host.innerHTML = '<p class="text-xs text-[#64748B]">No matching notes.</p>';
   }
 }
 
@@ -495,6 +546,7 @@ function applyVisibility() {
   state.node.style('opacity', d => visible.has(d.id) ? 1 : .08);
   state.link.style('opacity', d => visible.has(d.source.id || d.source) && visible.has(d.target.id || d.target) ? .5 : .04);
   document.getElementById('graph-count').textContent = `${visible.size} visible / ${state.data.counts.nodes} nodes`;
+  renderFileTree();
 }
 
 function paintNotePanel(d, { liveStatus = '' } = {}) {
@@ -536,7 +588,7 @@ function paintNotePanel(d, { liveStatus = '' } = {}) {
     <h2 class="mt-2 text-2xl font-semibold tracking-tight">${esc(d.title)}</h2>
     <p class="mt-2 text-xs text-[#64748B]">${esc(d.path || d.id)}</p>
     <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
-      ${d.obsidianUri ? `<a href="${d.obsidianUri}" class="rounded-full border border-[#C9A227]/50 px-3 py-1.5 text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">Open this note in Obsidian</a>` : ''}
+      ${d.path ? `<button type="button" id="btn-copy-note-link" class="rounded-full border border-white/10 px-3 py-1.5 text-[#CBD5E1] hover:border-[#C9A227] hover:text-white">Copy link</button>` : ''}
       ${d.path ? `<a href="https://github.com/AlphaeusNg/Seeking-Biblical-Truth/blob/main/${encodeURI(d.path)}" target="_blank" rel="noopener noreferrer" class="rounded-full border border-white/10 px-3 py-1.5 text-[#CBD5E1] hover:text-white">View source</a>` : ''}
       ${viewToggle}
     </div>
@@ -557,6 +609,20 @@ function paintNotePanel(d, { liveStatus = '' } = {}) {
 
   bindPanelLinks(d);
   renderFileTree();
+
+  const copyBtn = document.getElementById('btn-copy-note-link');
+  if (copyBtn && d.path) {
+    copyBtn.addEventListener('click', async () => {
+      const url = `${location.origin}${location.pathname}${noteHash(d.path)}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        copyBtn.textContent = 'Copied';
+        setTimeout(() => { copyBtn.textContent = 'Copy link'; }, 1600);
+      } catch {
+        copyBtn.textContent = 'Copy failed';
+      }
+    });
+  }
 }
 
 async function selectNode(d) {
@@ -567,6 +633,12 @@ async function selectNode(d) {
   }
   state.selected = d;
   if (state.noteView === 'edit' && !authState().canEdit) state.noteView = 'rendered';
+  if (d.path && location.hash !== noteHash(d.path)) {
+    history.replaceState(null, '', noteHash(d.path));
+  }
+  if (window.innerWidth < 1280 && (d.type === 'note' || d.type === 'canvas')) {
+    setVaultSurface('read');
+  }
 
   paintNotePanel(d, { liveStatus: d.path ? 'loading…' : '' });
 
@@ -632,6 +704,21 @@ function dragged(e, d) { d.fx = e.x; d.fy = e.y; }
 function dragEnd(e, d) { if (!e.active) state.simulation.alphaTarget(0); d.fx = null; d.fy = null; }
 
 document.getElementById('search').addEventListener('input', applyVisibility);
+document.getElementById('search').addEventListener('keydown', event => {
+  if (event.key !== 'Enter') return;
+  const first = visibleNotes()[0];
+  if (first) {
+    event.preventDefault();
+    selectNode(first);
+  }
+});
+document.querySelectorAll('.vault-surface-tabs [data-surface]').forEach(btn => {
+  btn.addEventListener('click', () => setVaultSurface(btn.dataset.surface));
+});
+window.addEventListener('hashchange', () => {
+  const next = findNoteByPath(pathFromHash());
+  if (next && next.id !== state.selected?.id) selectNode(next);
+});
 document.getElementById('fit').addEventListener('click', fitGraph);
 document.getElementById('reset').addEventListener('click', resetGraph);
 function loadHtml2Canvas() {
@@ -693,7 +780,7 @@ async function loadVault({ bustCache = false, keepSelection = false } = {}) {
     state.liveCache = Object.create(null);
     buildIndexes();
     const when = new Date().toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-    summary.textContent = `${data.counts.notes} Markdown notes, ${data.counts.canvas} canvas, and ${data.counts.links} links · loaded ${when}. Sign in with Google to edit online; Save to cloud works from any device.`;
+    summary.textContent = `${data.counts.notes} Markdown notes, ${data.counts.canvas} canvas, and ${data.counts.links} links · loaded ${when}.`;
     renderFolders();
     renderFileTree();
     renderGraph();
@@ -705,7 +792,9 @@ async function loadVault({ bustCache = false, keepSelection = false } = {}) {
       }
     }
     const prevId = keepSelection ? state.selected?.id : null;
+    const hashed = findNoteByPath(pathFromHash());
     const first =
+      hashed ||
       (prevId && state.byId[prevId]) ||
       data.nodes.find(n => n.path === 'My Search for Truth.md') ||
       data.nodes.find(n => n.type === 'note');

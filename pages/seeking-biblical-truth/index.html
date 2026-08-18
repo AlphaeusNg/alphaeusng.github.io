@@ -13,9 +13,12 @@
   <meta property="og:type" content="website">
   <link rel="icon" href="../../assets/alphaeus-portrait.jpg" type="image/jpeg">
   <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://d3js.org" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="dns-prefetch" href="https://html2canvas.hertzen.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Playfair+Display:wght@500;600&amp;display=swap">
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Graph + note render libs (needed on first paint of this page). html2canvas is lazy-loaded on PNG export. -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -27,28 +30,45 @@
   <main class="mx-auto max-w-[96rem] px-4 py-4 md:px-6 md:py-8 xl:px-8">
     <header class="vault-header mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
-        <div class="mb-2 text-xs font-semibold uppercase tracking-[3px] text-[#C9A227]">Actual Obsidian Vault</div>
+        <div class="mb-2 text-xs font-semibold uppercase tracking-[3px] text-[#C9A227]">Public study vault</div>
         <h1 class="vault-title text-4xl tracking-tight md:text-6xl">Seeking Biblical Truth</h1>
         <p id="vault-summary" class="mt-3 max-w-2xl text-sm leading-6 text-[#94A3B8]">Loading notes from the repository...</p>
       </div>
       <div class="flex flex-col items-stretch gap-2 sm:items-end">
-        <div class="flex flex-wrap gap-2 text-sm justify-end">
-          <button type="button" id="refresh-vault" class="rounded-full border border-[#C9A227]/50 px-4 py-2 text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">Refresh vault</button>
-          <a id="open-vault" href="obsidian://open?vault=Seeking-Biblical-Truth" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white">Open Obsidian vault</a>
+        <nav class="flex flex-wrap gap-2 text-sm justify-end" aria-label="Related">
           <a href="https://alphaeusng.github.io/ChristoDay/" target="_blank" rel="noopener noreferrer" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white" title="Christ-centered daily reading">ChristoDay ↗</a>
           <a href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white" title="Scripture memory by theme">VerseKeep ↗</a>
           <a href="../../" target="_blank" rel="noopener noreferrer" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white">Portfolio ↗</a>
-        </div>
-        <div id="auth-bar" class="flex flex-wrap items-center justify-end gap-2 text-xs text-[#94A3B8]">
-          <span id="auth-status">Cloud editor off — configure Firebase to edit online.</span>
-          <button type="button" id="btn-google-signin" class="hidden rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[#F3F4F6] hover:border-[#C9A227] hover:text-white">Sign in with Google</button>
-          <button type="button" id="btn-google-signout" class="hidden rounded-full border border-white/10 px-3 py-1.5 text-[#CBD5E1] hover:border-white/30">Sign out</button>
-        </div>
+        </nav>
+        <details class="vault-tools">
+          <summary>Editor &amp; source</summary>
+          <div class="vault-tools-body">
+            <div class="flex flex-wrap gap-2 text-sm justify-end">
+              <button type="button" id="refresh-vault" class="rounded-full border border-[#C9A227]/50 px-4 py-2 text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">Refresh vault</button>
+              <a id="open-vault" href="obsidian://open?vault=Seeking-Biblical-Truth" class="rounded-full border border-white/10 px-4 py-2 text-[#CBD5E1] hover:border-white/30 hover:text-white">Open in Obsidian</a>
+            </div>
+            <label class="mt-3 flex cursor-pointer items-center gap-2 text-xs text-[#94A3B8]">
+              <input id="live-notes" type="checkbox" checked class="rounded border-white/20 bg-[#0A0F1C] text-[#C9A227] focus:ring-[#C9A227]">
+              <span>Fetch latest note body from GitHub on open</span>
+            </label>
+            <div id="auth-bar" class="mt-3 flex flex-wrap items-center justify-end gap-2 text-xs text-[#94A3B8]">
+              <span id="auth-status">Reading the public vault</span>
+              <button type="button" id="btn-google-signin" class="hidden rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[#F3F4F6] hover:border-[#C9A227] hover:text-white">Sign in with Google</button>
+              <button type="button" id="btn-google-signout" class="hidden rounded-full border border-white/10 px-3 py-1.5 text-[#CBD5E1] hover:border-white/30">Sign out</button>
+            </div>
+          </div>
+        </details>
       </div>
     </header>
 
-    <section class="grid gap-4 xl:grid-cols-[280px_minmax(0,1.12fr)_minmax(420px,1.08fr)]">
-      <aside class="self-start rounded-2xl border border-white/10 bg-[#111827] p-4 xl:sticky xl:top-4">
+    <div class="vault-surface-tabs xl:hidden" role="group" aria-label="Vault view">
+      <button type="button" data-surface="notes" aria-pressed="false">Notes</button>
+      <button type="button" data-surface="graph" aria-pressed="false">Graph</button>
+      <button type="button" data-surface="read" aria-pressed="true">Read</button>
+    </div>
+
+    <section class="vault-layout grid gap-4 xl:grid-cols-[280px_minmax(0,1.12fr)_minmax(420px,1.08fr)]" data-surface="read">
+      <aside class="vault-notes self-start rounded-2xl border border-white/10 bg-[#111827] p-4 xl:sticky xl:top-4">
         <label class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]" for="search">Search notes</label>
         <input id="search" class="mt-2 w-full rounded-xl border border-white/10 bg-[#0A0F1C] px-3 py-2 text-sm text-white outline-none focus:border-[#C9A227]" placeholder="Baptism, Romans, Gospel...">
         <div class="mt-4 flex flex-wrap gap-2">
@@ -56,24 +76,23 @@
           <button id="reset" class="rounded-full border border-white/10 px-3 py-1.5 text-xs text-[#CBD5E1] hover:border-[#C9A227]">Reset</button>
           <button id="export-png" class="rounded-full border border-[#C9A227]/50 px-3 py-1.5 text-xs text-[#C9A227] hover:bg-[#C9A227] hover:text-[#0A0F1C]">PNG</button>
         </div>
-        <label class="mt-4 flex cursor-pointer items-center gap-2 text-xs text-[#94A3B8]">
-          <input id="live-notes" type="checkbox" checked class="rounded border-white/20 bg-[#0A0F1C] text-[#C9A227] focus:ring-[#C9A227]">
-          <span>Fetch latest note body from GitHub on open</span>
-        </label>
         <div class="mt-5">
           <div class="mb-2 text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">Folders</div>
           <div id="folder-list" class="space-y-1 text-sm"></div>
         </div>
         <div class="mt-5">
-          <div class="mb-2 text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">File explorer</div>
-          <div id="file-tree" class="max-h-56 space-y-0.5 overflow-auto text-sm"></div>
+          <div class="mb-2 flex items-center justify-between text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">
+            <span>Notes</span>
+            <span id="note-count" class="normal-case tracking-normal font-medium text-[#94A3B8]"></span>
+          </div>
+          <div id="file-tree" class="max-h-56 space-y-0.5 overflow-auto text-sm xl:max-h-[28rem]"></div>
         </div>
         <div class="mt-5 rounded-xl border border-white/10 bg-black/20 p-3 text-xs leading-5 text-[#94A3B8]">
-          Drag nodes · click a note to read. <strong class="text-[#CBD5E1]">Sign in with Google</strong> (allowlisted account) to edit online and <strong class="text-[#CBD5E1]">Save to cloud</strong> from any device. Optional <strong class="text-[#CBD5E1]">Push to GitHub</strong> so Obsidian can pull. Setup: <code class="text-[#C9A227]">firebase/README.md</code> at the portfolio repo root (see also <code class="text-[#C9A227]">FIREBASE.md</code> stub here).
+          Search, open a note, then follow gold links. Drag the graph to explore neighbors.
         </div>
       </aside>
 
-      <section class="overflow-hidden rounded-2xl border border-white/10 bg-[#111827]">
+      <section class="vault-graph overflow-hidden rounded-2xl border border-white/10 bg-[#111827]">
         <div class="flex items-center justify-between border-b border-white/10 px-4 py-3">
           <div class="text-sm font-medium text-[#CBD5E1]">Interactive graph</div>
           <div id="graph-count" class="text-xs text-[#64748B]"></div>
@@ -81,7 +100,7 @@
         <div id="graph" class="bg-[#0A0F1C]" style="min-height:420px;"></div>
       </section>
 
-      <aside class="self-start rounded-2xl border border-white/10 bg-[#111827] p-6 xl:sticky xl:top-4">
+      <aside class="vault-note self-start rounded-2xl border border-white/10 bg-[#111827] p-6 xl:sticky xl:top-4">
         <div id="note-panel">
           <div class="text-[10px] font-semibold uppercase tracking-[2px] text-[#64748B]">Selected note</div>
           <h2 class="mt-2 text-2xl font-semibold tracking-tight">Choose a node</h2>
@@ -102,7 +121,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="../../js/kofi-support.js?v=2026.07.24.10" data-auto-footer defer></script>
+  <script src="../../js/kofi-support.js?v=2026.08.18.3" data-auto-footer defer></script>
   <script src="../../js/version.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/vault-cloud.js"></script>

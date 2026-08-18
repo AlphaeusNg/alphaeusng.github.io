@@ -1,5 +1,53 @@
 body { font-family: Inter, system-ui, sans-serif; }
-.vault-title { font-family: Georgia, serif; }
+.vault-title { font-family: "Playfair Display", Georgia, serif; }
+.vault-tools {
+  width: 100%;
+  max-width: 22rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.35rem 0.75rem;
+}
+.vault-tools summary {
+  cursor: pointer;
+  list-style: none;
+  color: #94A3B8;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.45rem 0;
+}
+.vault-tools summary::-webkit-details-marker { display: none; }
+.vault-tools[open] { padding-bottom: 0.75rem; }
+.vault-tools-body { padding-top: 0.35rem; }
+.vault-surface-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+}
+.vault-surface-tabs button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: transparent;
+  color: #CBD5E1;
+  font-size: 0.82rem;
+  padding: 0.5rem 0.75rem;
+}
+.vault-surface-tabs button[aria-pressed="true"] {
+  background: #C9A227;
+  border-color: #C9A227;
+  color: #0A0F1C;
+  font-weight: 600;
+}
+@media (max-width: 1279px) {
+  .vault-layout[data-surface="notes"] .vault-graph,
+  .vault-layout[data-surface="notes"] .vault-note { display: none; }
+  .vault-layout[data-surface="graph"] .vault-notes,
+  .vault-layout[data-surface="graph"] .vault-note { display: none; }
+  .vault-layout[data-surface="read"] .vault-notes,
+  .vault-layout[data-surface="read"] .vault-graph { display: none; }
+}
 .vault-header {
   position: sticky;
   top: 0;
