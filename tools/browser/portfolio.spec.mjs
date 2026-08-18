@@ -289,6 +289,20 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
   await expect(page.locator('#spcxConfidenceBadge')).toContainText('limited');
   await expect(page.locator('#recommendationReasons')).toContainText('capped at 1.75×');
 
+  const tslaChart = page.locator('#tslaSparkline');
+  const tslaTooltip = page.locator('#tslaChartTooltip');
+  const tslaAllRange = page.locator('[data-chart-symbol="TSLA"][data-chart-range="all"]');
+  await expect(tslaChart.locator('svg polyline')).toBeVisible();
+  await expect(page.locator('[data-chart-symbol="TSLA"][data-chart-range="66"]')).toHaveAttribute('aria-pressed', 'true');
+  await tslaAllRange.click();
+  await expect(tslaAllRange).toHaveAttribute('aria-pressed', 'true');
+  await tslaChart.hover({ position: { x: 140, y: 70 } });
+  await expect(tslaTooltip).toBeVisible();
+  await expect(tslaTooltip).toContainText('$');
+  await tslaChart.focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.locator('#tslaChartSummary')).toContainText('$');
+
   await page.locator('#planDate').fill('2026-08-18');
   await page.locator('#monthlyBudget').fill('3000');
   await page.locator('#tslaAllocation').fill('70');
@@ -308,6 +322,9 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
   await expect(page.locator('#tslaPrice')).toBeEnabled();
   await page.locator('#tslaPrice').fill('340.25');
   await expect(page.locator('#tslaShares')).toContainText('@ $340.25');
+  await tslaChart.focus();
+  await page.keyboard.press('End');
+  await expect(tslaTooltip).toContainText('$340.25');
 
   await page.locator('#recordPurchase').click();
   await expect(page.locator('#journalBody tr')).toHaveCount(2);

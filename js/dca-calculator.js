@@ -10,6 +10,8 @@
     let marketData = null;
     let currentPlan = null;
     let state = loadState();
+    const chartRanges = { TSLA: '66', SPCX: '66' };
+    const chartModels = {};
 
     function byId(id) {
         return document.getElementById(id);
@@ -32,6 +34,8 @@
             'heroSpcxPrice', 'heroTslaMove', 'heroSpcxMove', 'marketFreshness',
             'marketTimestamp', 'tslaConfidenceBadge', 'spcxConfidenceBadge',
             'tslaIndicators', 'spcxIndicators', 'tslaSparkline', 'spcxSparkline',
+            'tslaChartSummary', 'spcxChartSummary', 'tslaChartTooltip',
+            'spcxChartTooltip',
             'tslaReplayMonth', 'spcxReplayMonth', 'tslaAdaptiveAverage',
             'spcxAdaptiveAverage', 'tslaFlatAverage', 'spcxFlatAverage',
             'tslaAdaptiveShares', 'spcxAdaptiveShares', 'tslaFlatShares',
@@ -39,6 +43,7 @@
             'journalEmpty', 'exportJournal', 'resetMonth'
         ].forEach((id) => { elements[id] = byId(id); });
         elements.strategyRadios = Array.from(document.querySelectorAll('input[name="strategy"]'));
+        elements.chartRangeButtons = Array.from(document.querySelectorAll('[data-chart-range]'));
     }
 
     function defaultState() {
@@ -514,41 +519,159 @@
         confidence.className = `confidence-badge is-${indicator.confidence}`;
     }
 
-    function renderSparkline(symbol, record) {
+    function chartRows(symbol, record, asset) {
+        const rows = record.history.map((row) => ({
+            date: String(row.date),
+            close: Number(row.close)
+        }));
+        const current = {
+            date: asset.price.currentDate,
+            close: Number(asset.price.value)
+        };
+        const final = rows[rows.length - 1];
+        if (current.date > final.date) rows.push(current);
+        else if (current.date === final.date) rows[rows.length - 1] = current;
+        const range = chartRanges[symbol];
+        return range === 'all' ? rows : rows.slice(-Number(range));
+    }
+
+    function svgElement(namespace, tag, attributes = {}) {
+        const element = document.createElementNS(namespace, tag);
+        Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, String(value)));
+        return element;
+    }
+
+    function shortChartDate(dateText) {
+        return new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: 'numeric',
+            timeZone: 'UTC'
+        }).format(new Date(`${dateText}T12:00:00Z`));
+    }
+
+    function hideChartPoint(symbol) {
+        const model = chartModels[symbol];
+        if (!model) return;
         const lower = symbol.toLowerCase();
-        const rows = record.history.slice(-90);
+        const chart = elements[`${lower}Sparkline`];
+        chart.querySelector('[data-chart-crosshair]')?.setAttribute('opacity', '0');
+        chart.querySelector('[data-chart-focus]')?.setAttribute('opacity', '0');
+        elements[`${lower}ChartTooltip`].hidden = true;
+        elements[`${lower}ChartSummary`].textContent = model.summary;
+        model.selectedIndex = null;
+    }
+
+    function showChartPoint(symbol, requestedIndex) {
+        const model = chartModels[symbol];
+        if (!model || !model.points.length) return;
+        const lower = symbol.toLowerCase();
+        const index = clamp(Math.round(requestedIndex), 0, model.points.length - 1);
+        const point = model.points[index];
+        const previous = index > 0 ? model.rows[index - 1].close : null;
+        const sessionMove = previous ? (point.row.close / previous) - 1 : null;
+        const chart = elements[`${lower}Sparkline`];
+        const crosshair = chart.querySelector('[data-chart-crosshair]');
+        const focus = chart.querySelector('[data-chart-focus]');
+        crosshair.setAttribute('x1', point.x);
+        crosshair.setAttribute('x2', point.x);
+        crosshair.setAttribute('opacity', '1');
+        focus.setAttribute('cx', point.x);
+        focus.setAttribute('cy', point.y);
+        focus.setAttribute('opacity', '1');
+
+        const tooltip = elements[`${lower}ChartTooltip`];
+        const price = document.createElement('strong');
+        const detail = document.createElement('span');
+        price.textContent = formatCurrency(point.row.close, 2);
+        detail.textContent = `${formatDate(point.row.date, { short: true })}${Number.isFinite(sessionMove) ? ` · ${formatPercent(sessionMove)}` : ''}`;
+        tooltip.replaceChildren(price, detail);
+        tooltip.style.left = `${clamp((point.x / model.width) * 100, 18, 82)}%`;
+        tooltip.hidden = false;
+        elements[`${lower}ChartSummary`].textContent = `${shortChartDate(point.row.date)} · ${formatCurrency(point.row.close, 2)}${Number.isFinite(sessionMove) ? ` · ${formatPercent(sessionMove)}` : ''}`;
+        model.selectedIndex = index;
+    }
+
+    function renderPriceChart(symbol, record, asset) {
+        const lower = symbol.toLowerCase();
+        const rows = chartRows(symbol, record, asset);
         const prices = rows.map((row) => Number(row.close));
         if (prices.length < 2) return;
         const minimum = Math.min(...prices);
         const maximum = Math.max(...prices);
-        const spread = maximum - minimum || 1;
+        const spread = maximum - minimum || Math.max(maximum * 0.02, 1);
+        const width = 600;
+        const top = 18;
+        const bottom = 145;
         const points = prices.map((price, index) => {
-            const x = 8 + ((index / (prices.length - 1)) * 584);
-            const y = 135 - (((price - minimum) / spread) * 120);
-            return `${x.toFixed(2)},${y.toFixed(2)}`;
-        }).join(' ');
+            const x = 12 + ((index / (prices.length - 1)) * 576);
+            const y = bottom - (((price - minimum) / spread) * (bottom - top));
+            return { x, y, row: rows[index] };
+        });
+        const pointText = points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(' ');
+        const color = symbol === 'TSLA' ? '#f1d574' : '#49d6c8';
+        const gradientId = `chart-fill-${symbol.toLowerCase()}`;
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('viewBox', '0 0 600 150');
+        svg.setAttribute('viewBox', '0 0 600 180');
         svg.setAttribute('preserveAspectRatio', 'none');
         svg.setAttribute('aria-hidden', 'true');
-        const grid = document.createElementNS(svg.namespaceURI, 'path');
-        grid.setAttribute('d', 'M0 30H600 M0 75H600 M0 120H600');
-        grid.setAttribute('stroke', 'rgba(148,163,184,0.12)');
-        grid.setAttribute('stroke-width', '1');
-        const line = document.createElementNS(svg.namespaceURI, 'polyline');
-        line.setAttribute('points', points);
-        line.setAttribute('fill', 'none');
-        line.setAttribute('stroke', symbol === 'TSLA' ? '#f1d574' : '#49d6c8');
-        line.setAttribute('stroke-width', '3');
-        line.setAttribute('vector-effect', 'non-scaling-stroke');
-        const finalPoint = document.createElementNS(svg.namespaceURI, 'circle');
-        const [finalX, finalY] = points.split(' ').pop().split(',');
-        finalPoint.setAttribute('cx', finalX);
-        finalPoint.setAttribute('cy', finalY);
-        finalPoint.setAttribute('r', '4');
-        finalPoint.setAttribute('fill', symbol === 'TSLA' ? '#f1d574' : '#49d6c8');
-        svg.append(grid, line, finalPoint);
+
+        const defs = svgElement(svg.namespaceURI, 'defs');
+        const gradient = svgElement(svg.namespaceURI, 'linearGradient', { id: gradientId, x1: '0', x2: '0', y1: '0', y2: '1' });
+        gradient.append(
+            svgElement(svg.namespaceURI, 'stop', { offset: '0%', 'stop-color': color, 'stop-opacity': '0.22' }),
+            svgElement(svg.namespaceURI, 'stop', { offset: '100%', 'stop-color': color, 'stop-opacity': '0' })
+        );
+        defs.appendChild(gradient);
+        const grid = svgElement(svg.namespaceURI, 'path', {
+            d: 'M0 30H600 M0 81.5H600 M0 133H600',
+            stroke: 'rgba(148,163,184,0.12)',
+            'stroke-width': '1'
+        });
+        const area = svgElement(svg.namespaceURI, 'polygon', {
+            points: `12,${bottom} ${pointText} 588,${bottom}`,
+            fill: `url(#${gradientId})`
+        });
+        const line = svgElement(svg.namespaceURI, 'polyline', {
+            points: pointText,
+            fill: 'none',
+            stroke: color,
+            'stroke-width': '2.5',
+            'vector-effect': 'non-scaling-stroke'
+        });
+        const crosshair = svgElement(svg.namespaceURI, 'line', {
+            y1: top,
+            y2: bottom,
+            stroke: 'rgba(226,232,240,0.55)',
+            'stroke-width': '1',
+            opacity: '0',
+            'data-chart-crosshair': ''
+        });
+        const focus = svgElement(svg.namespaceURI, 'circle', {
+            r: '4.5',
+            fill: color,
+            stroke: '#07111f',
+            'stroke-width': '2',
+            opacity: '0',
+            'data-chart-focus': ''
+        });
+        const startLabel = svgElement(svg.namespaceURI, 'text', {
+            x: '12', y: '169', fill: 'rgba(158,172,192,0.75)', 'font-size': '10'
+        });
+        const endLabel = svgElement(svg.namespaceURI, 'text', {
+            x: '588', y: '169', fill: 'rgba(158,172,192,0.75)', 'font-size': '10', 'text-anchor': 'end'
+        });
+        startLabel.textContent = shortChartDate(rows[0].date);
+        endLabel.textContent = shortChartDate(rows[rows.length - 1].date);
+        svg.append(defs, grid, area, line, crosshair, focus, startLabel, endLabel);
         elements[`${lower}Sparkline`].replaceChildren(svg);
+        const totalReturn = (rows[rows.length - 1].close / rows[0].close) - 1;
+        const summary = `${shortChartDate(rows[0].date)}–${shortChartDate(rows[rows.length - 1].date)} · ${formatPercent(totalReturn)}`;
+        chartModels[symbol] = { rows, points, width, summary, selectedIndex: null };
+        elements[`${lower}ChartSummary`].textContent = summary;
+        elements[`${lower}ChartTooltip`].hidden = true;
+        elements.chartRangeButtons
+            .filter((button) => button.dataset.chartSymbol === symbol)
+            .forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.chartRange === chartRanges[symbol])));
     }
 
     function renderReplayAsset(symbol, replay) {
@@ -587,7 +710,7 @@
         renderRecommendation(currentPlan);
         SYMBOLS.forEach((symbol) => {
             renderIndicators(symbol, currentPlan.assets[symbol]);
-            renderSparkline(symbol, marketData.symbols[symbol]);
+            renderPriceChart(symbol, marketData.symbols[symbol], currentPlan.assets[symbol]);
         });
         renderReplay(currentPlan);
     }
@@ -762,6 +885,48 @@
             toggle.addEventListener('change', () => {
                 updatePriceControls();
                 recalculate();
+            });
+        });
+        elements.chartRangeButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const symbol = button.dataset.chartSymbol;
+                chartRanges[symbol] = button.dataset.chartRange;
+                if (currentPlan) renderPriceChart(symbol, marketData.symbols[symbol], currentPlan.assets[symbol]);
+            });
+        });
+        SYMBOLS.forEach((symbol) => {
+            const lower = symbol.toLowerCase();
+            const chart = elements[`${lower}Sparkline`];
+            chart.addEventListener('pointermove', (event) => {
+                const model = chartModels[symbol];
+                if (!model) return;
+                const bounds = chart.getBoundingClientRect();
+                const ratio = clamp((event.clientX - bounds.left) / bounds.width, 0, 1);
+                showChartPoint(symbol, ratio * (model.points.length - 1));
+            });
+            chart.addEventListener('pointerleave', (event) => {
+                if (event.pointerType !== 'touch') hideChartPoint(symbol);
+            });
+            chart.addEventListener('focus', () => {
+                const model = chartModels[symbol];
+                if (model) showChartPoint(symbol, model.selectedIndex ?? model.points.length - 1);
+            });
+            chart.addEventListener('blur', () => hideChartPoint(symbol));
+            chart.addEventListener('keydown', (event) => {
+                const model = chartModels[symbol];
+                if (!model) return;
+                const current = model.selectedIndex ?? model.points.length - 1;
+                let next = current;
+                if (event.key === 'ArrowLeft') next = current - 1;
+                else if (event.key === 'ArrowRight') next = current + 1;
+                else if (event.key === 'Home') next = 0;
+                else if (event.key === 'End') next = model.points.length - 1;
+                else if (event.key === 'Escape') {
+                    hideChartPoint(symbol);
+                    return;
+                } else return;
+                event.preventDefault();
+                showChartPoint(symbol, next);
             });
         });
         elements.recordPurchase.addEventListener('click', recordPurchase);

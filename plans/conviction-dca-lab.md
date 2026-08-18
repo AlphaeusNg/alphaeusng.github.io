@@ -122,8 +122,9 @@ continues to work with its last valid snapshot when upstream data is delayed.
 2. Total next-session amount plus dollars and estimated shares per asset.
 3. Remaining budget, trading sessions, baseline, applied multiplier, and an
    explanation of the strongest signal contributors.
-4. Indicator table with daily/five-day returns, 20-day trend and drawdown, RSI,
-   volatility, history depth, and confidence.
+4. Interactive 1M/3M/all price charts with hover, touch, and keyboard session
+   inspection, followed by daily/five-day returns, 20-day trend and drawdown,
+   RSI, volatility, history depth, and confidence.
 5. Equal-budget replay of the last completed calendar month comparing flat DCA
    with the adaptive schedule. This is descriptive and never presented as a
    return forecast.

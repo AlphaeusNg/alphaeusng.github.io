@@ -39,14 +39,13 @@
         <header class="dca-hero">
             <div class="dca-shell">
                 <p class="eyebrow">Conviction DCA Lab · local-first</p>
-                <h1>Buy every session.<br><span>Lean into weakness.</span></h1>
+                <h1>Daily DCA.<br><span>Bounded by discipline.</span></h1>
                 <p class="dca-hero__lede">
-                    Start with a fixed monthly cap. Keep buying on strong days, shift more of that same
-                    budget into weak days, and see exactly why the amount changed.
+                    Set one monthly cap. Keep buying on strong days. Deploy more of the same budget into weakness.
                 </p>
                 <div class="dca-hero__actions">
-                    <a class="button button--primary" href="#planner">Build today’s plan</a>
-                    <a class="button button--quiet" href="#method">Read the method</a>
+                    <a class="button button--primary" href="#planner">Calculate today</a>
+                    <a class="button button--quiet" href="#signals">Explore prices</a>
                 </div>
                 <div class="market-strip" aria-label="Market data status">
                     <div>
@@ -76,7 +75,7 @@
                 <div class="section-heading">
                     <div>
                         <p class="eyebrow">01 · Today’s plan</p>
-                        <h2 id="plannerTitle">One cap. Two allocations. No hidden guesswork.</h2>
+                        <h2 id="plannerTitle">Set the month. Get today’s amount.</h2>
                     </div>
                     <p>All personal values stay in this browser. Nothing is sent to a server.</p>
                 </div>
@@ -276,9 +275,9 @@
                 <div class="section-heading">
                     <div>
                         <p class="eyebrow">02 · Signal desk</p>
-                        <h2 id="signalsTitle">See what the multiplier sees.</h2>
+                        <h2 id="signalsTitle">Price context, on demand.</h2>
                     </div>
-                    <p>Weakness is normalized by each asset’s own recent volatility. No indicator predicts the next move.</p>
+                    <p>Choose a range, then hover, touch, or use arrow keys to inspect any session.</p>
                 </div>
 
                 <div class="signal-cards">
@@ -287,7 +286,18 @@
                             <div><span class="asset-dot asset-dot--tsla"></span><h3>TSLA <small>Tesla</small></h3></div>
                             <span id="tslaConfidenceBadge" class="confidence-badge">—</span>
                         </div>
-                        <div id="tslaSparkline" class="sparkline" role="img" aria-label="Recent TSLA closing prices"></div>
+                        <div class="chart-toolbar">
+                            <span id="tslaChartSummary" class="chart-summary" aria-live="polite">Loading prices…</span>
+                            <div class="chart-ranges" role="group" aria-label="TSLA chart range">
+                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="22" aria-pressed="false">1M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="66" aria-pressed="true">3M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="all" aria-pressed="false">All</button>
+                            </div>
+                        </div>
+                        <div class="chart-stage">
+                            <div id="tslaSparkline" class="sparkline" role="img" tabindex="0" aria-label="Interactive TSLA closing price chart. Use left and right arrow keys to inspect sessions."></div>
+                            <div id="tslaChartTooltip" class="chart-tooltip" hidden></div>
+                        </div>
                         <dl class="indicator-grid" id="tslaIndicators"></dl>
                     </article>
                     <article class="signal-card">
@@ -295,7 +305,18 @@
                             <div><span class="asset-dot asset-dot--spcx"></span><h3>SPCX <small>SpaceX</small></h3></div>
                             <span id="spcxConfidenceBadge" class="confidence-badge">—</span>
                         </div>
-                        <div id="spcxSparkline" class="sparkline" role="img" aria-label="Recent SPCX closing prices"></div>
+                        <div class="chart-toolbar">
+                            <span id="spcxChartSummary" class="chart-summary" aria-live="polite">Loading prices…</span>
+                            <div class="chart-ranges" role="group" aria-label="SPCX chart range">
+                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="22" aria-pressed="false">1M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="66" aria-pressed="true">3M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="all" aria-pressed="false">All</button>
+                            </div>
+                        </div>
+                        <div class="chart-stage">
+                            <div id="spcxSparkline" class="sparkline" role="img" tabindex="0" aria-label="Interactive SPCX closing price chart. Use left and right arrow keys to inspect sessions."></div>
+                            <div id="spcxChartTooltip" class="chart-tooltip" hidden></div>
+                        </div>
                         <dl class="indicator-grid" id="spcxIndicators"></dl>
                     </article>
                 </div>
@@ -312,7 +333,7 @@
                 <div class="section-heading">
                     <div>
                         <p class="eyebrow">03 · Same-budget replay</p>
-                        <h2 id="replayTitle">What would the last full month have done?</h2>
+                    <h2 id="replayTitle">Last month, same budget.</h2>
                     </div>
                     <p>Flat and adaptive schedules deploy the exact same dollars. This is a diagnostic, not a forecast.</p>
                 </div>
@@ -334,7 +355,7 @@
                         <p id="spcxReplayDelta">Waiting for market data.</p>
                     </article>
                 </div>
-                <p class="replay-footnote">The replay uses closing prices, only information available up to each session, and the current strategy settings. Slippage, fees, taxes, and intraday execution are excluded.</p>
+                <p class="replay-footnote">Closing-price replay using only then-available data. Excludes fees, taxes and slippage.</p>
             </div>
         </section>
 
@@ -343,7 +364,7 @@
                 <div class="section-heading section-heading--actions">
                     <div>
                         <p class="eyebrow">04 · Local journal</p>
-                        <h2 id="journalTitle">Keep the plan accountable.</h2>
+                        <h2 id="journalTitle">Local purchase history.</h2>
                     </div>
                     <div class="journal-actions">
                         <button id="exportJournal" class="button button--quiet" type="button">Export CSV</button>
@@ -363,28 +384,26 @@
         <section id="method" class="dca-section" aria-labelledby="methodTitle">
             <div class="dca-shell method-layout">
                 <div>
-                    <p class="eyebrow">05 · Method and limits</p>
-                    <h2 id="methodTitle">Adaptive pacing, not price prediction.</h2>
+                    <p class="eyebrow">05 · Guardrails</p>
+                    <h2 id="methodTitle">Simple rules. Hard limits.</h2>
                     <p class="method-lede">
-                        Traditional dollar-cost averaging invests equal portions at regular intervals. This lab keeps
-                        that discipline but lets observable weakness change when a fixed monthly budget is deployed.
+                        Adaptive pacing changes when a fixed budget is invested—not how much exists.
                     </p>
                 </div>
-                <div class="method-steps">
-                    <article><span>1</span><div><h3>Fix the cap</h3><p>Monthly budget × allocation creates an asset target. Contributions already made are deducted first.</p></div></article>
-                    <article><span>2</span><div><h3>Find the baseline</h3><p>The remaining target is divided by remaining Nasdaq trading sessions, including the next eligible session.</p></div></article>
-                    <article><span>3</span><div><h3>Weight the day</h3><p>Daily and weekly returns, the 20-day trend, drawdown, RSI, and volatility produce a bounded multiplier.</p></div></article>
-                    <article><span>4</span><div><h3>Respect the month</h3><p>Strong days retain a floor buy, weak days cannot exceed the ceiling, and the final session catches up the remainder.</p></div></article>
-                </div>
-                <div class="risk-grid">
-                    <article><h3>Concentration risk</h3><p>TSLA and SPCX can both be highly volatile and share key-person and technology-sector risks. A pacing rule does not make a concentrated portfolio diversified.</p></article>
-                    <article><h3>Short SPCX history</h3><p>SPCX began trading in June 2026. Until 60 sessions exist, the engine pulls its signal toward neutral and caps weak-day sizing at 1.75×.</p></article>
-                    <article><h3>Data and execution</h3><p>Nasdaq data may be delayed. Manual price mode improves share estimates intraday, but the actual fill, fees, FX, and taxes remain broker-side.</p></article>
+                <div class="method-rules">
+                    <article><strong>Cap</strong><span>Never exceed the monthly budget.</span></article>
+                    <article><strong>Cadence</strong><span>Keep a floor buy on strong days.</span></article>
+                    <article><strong>Weakness</strong><span>Raise today’s weight within the ceiling.</span></article>
+                    <article><strong>Catch-up</strong><span>Invest the remainder on the final session.</span></article>
                 </div>
                 <div class="formula-card">
                     <code>today = clamp((remaining budget ÷ remaining sessions) × signal, floor, ceiling)</code>
-                    <a href="https://www.investor.gov/introduction-investing/investing-basics/glossary/dollar-cost-averaging" target="_blank" rel="noopener noreferrer">Dollar-cost averaging definition at Investor.gov</a>
+                    <a href="https://www.investor.gov/introduction-investing/investing-basics/glossary/dollar-cost-averaging" target="_blank" rel="noopener noreferrer">DCA at Investor.gov</a>
                 </div>
+                <details class="limit-details">
+                    <summary>Risk and data limits</summary>
+                    <p>TSLA and SPCX remain concentrated, volatile holdings. SPCX is capped at 1.75× until it has 60 public sessions. Nasdaq snapshots may be delayed; verify execution, fees, FX and taxes with your broker.</p>
+                </details>
             </div>
         </section>
     </main>
@@ -395,7 +414,7 @@
             <div><a href="conviction.html">Conviction</a><a href="../index.html">Portfolio</a><a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer">Source</a></div>
         </div>
     </footer>
-    <script src="../js/kofi-support.js?v=2026.08.19.2" data-auto-footer defer></script>
+    <script src="../js/kofi-support.js?v=2026.08.19.3" data-auto-footer defer></script>
     <script src="../js/version.js"></script>
 </body>
 </html>
