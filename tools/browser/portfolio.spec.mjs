@@ -89,16 +89,14 @@ test('home Ko-fi chip sits with the coffee card and footer Feedback is a real li
   await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   const card = page.locator('.support-card');
-  const widget = page.locator('#kofi-support-widget');
-  const kofi = widget.locator('a[href*="ko-fi.com"]');
+  const coffeeLink = card.locator('a[href*="ko-fi.com"]');
+  const footerKofi = page.locator('footer a.alphaeus-kofi-support__fallback');
   const footerFeedback = page.locator('footer a.alphaeus-kofi-support__feedback');
 
   await expect(card.locator('.support-card-icon')).toHaveCount(0);
-  await expect(kofi).toBeVisible();
-  await expect(kofi).toHaveText(/Support me on Ko-fi/);
-  await expect(kofi.locator('img.alphaeus-kofi-support__icon, img.support-card-fallback-icon')).toHaveCount(1);
-  await expect(widget).toHaveCSS('align-items', 'center');
-  await expect(widget.locator('.kofi-button')).toHaveCount(0);
+  await expect(card.locator('#kofi-support-widget')).toHaveCount(0);
+  await expect(coffeeLink).toHaveText('coffee');
+  await expect(coffeeLink).toHaveAttribute('href', 'https://ko-fi.com/K1V623R7BV');
   const cardPad = await card.evaluate((el) => {
     const s = getComputedStyle(el);
     return { left: parseFloat(s.paddingLeft), right: parseFloat(s.paddingRight) };
@@ -107,7 +105,10 @@ test('home Ko-fi chip sits with the coffee card and footer Feedback is a real li
     throw new Error(`support card padding is too tight: ${JSON.stringify(cardPad)}`);
   }
 
-  await expect(page.locator('.alphaeus-kofi-support')).toContainText('Have feedback?');
+  await expect(page.locator('.alphaeus-kofi-support')).toContainText('Found this project helpful?');
+  await expect(footerKofi).toBeVisible();
+  await expect(footerKofi).toHaveText(/Support me on Ko-fi/);
+  await expect(footerKofi.locator('img.alphaeus-kofi-support__icon')).toHaveCount(1);
   await expect(footerFeedback).toBeVisible();
   await expect(footerFeedback).toHaveText('Feedback');
   await expect(footerFeedback).toHaveAttribute(
@@ -275,6 +276,46 @@ test('conviction page renders ledger data and switches benchmark views', async (
   expect(await page.evaluate(() =>
     window.__chartInstances[1].data.datasets.map(dataset => dataset.label)
   )).toEqual(['Monthly capital flow', 'Net invested capital']);
+});
+
+test('DCA Lab builds a budget-capped plan and persists its local journal', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#heroTslaPrice')).toContainText('$');
+  await expect(page.locator('#heroSpcxPrice')).toContainText('$');
+  await expect(page.locator('#totalRecommendation')).not.toHaveText('—');
+  await expect(page.locator('#tslaConfidenceBadge')).toContainText('sessions');
+  await expect(page.locator('#spcxConfidenceBadge')).toContainText('limited');
+  await expect(page.locator('#recommendationReasons')).toContainText('capped at 1.75×');
+
+  await page.locator('#planDate').fill('2026-08-18');
+  await page.locator('#monthlyBudget').fill('3000');
+  await page.locator('#tslaAllocation').fill('70');
+  await page.locator('#tslaInvested').fill('0');
+  await page.locator('#spcxInvested').fill('0');
+  await expect(page.locator('#nextSessionLabel')).toContainText('Aug 18, 2026');
+  await expect(page.locator('#allocationOutput')).toHaveText('TSLA 70% · SPCX 30%');
+
+  const suggested = Number(
+    (await page.locator('#totalRecommendation').textContent()).replace(/[$,]/g, '')
+  );
+  expect(suggested).toBeGreaterThan(0);
+  expect(suggested).toBeLessThanOrEqual(3000);
+
+  await expect(page.locator('#tslaPrice')).toBeDisabled();
+  await page.locator('#tslaManualToggle').check();
+  await expect(page.locator('#tslaPrice')).toBeEnabled();
+  await page.locator('#tslaPrice').fill('340.25');
+  await expect(page.locator('#tslaShares')).toContainText('@ $340.25');
+
+  await page.locator('#recordPurchase').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
+  await expect(page.locator('#calculatorStatus')).toContainText('No brokerage order was placed');
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
+  await expect(page.locator('#budgetInvested')).not.toHaveText('$0.00');
 });
 
 test('feedback sanitizes its source and handles submission lifecycle', async ({ page }) => {

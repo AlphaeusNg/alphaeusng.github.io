@@ -29,6 +29,11 @@ try:
 except ModuleNotFoundError:  # Direct execution from the tools directory on sys.path.
     from sitemap_contract import SITEMAP_ROUTES, SITEMAP_URL, compute_lastmods
 
+try:
+    from tools.finance.generate_dca_market_data import validate_payload as validate_dca_payload
+except ModuleNotFoundError:
+    from finance.generate_dca_market_data import validate_payload as validate_dca_payload
+
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_CRAWLER_ROUTES = {route.url: route.local_path for route in SITEMAP_ROUTES}
 NON_DEPLOYED_DIRS = frozenset(
@@ -620,12 +625,16 @@ def main() -> None:
         ROOT / "404.html",
         ROOT / "css" / "404.css",
         ROOT / "css" / "conviction.css",
+        ROOT / "css" / "dca-calculator.css",
         ROOT / "css" / "home.css",
         ROOT / "css" / "main.css",
         ROOT / "js" / "main.js",
         ROOT / "js" / "modals.js",
         ROOT / "js" / "conviction.js",
+        ROOT / "js" / "dca-engine.js",
+        ROOT / "js" / "dca-calculator.js",
         ROOT / "pages" / "conviction.html",
+        ROOT / "pages" / "dca-calculator.html",
         ROOT / "pages" / "kobo-forge.html",
         ROOT / "pages" / "feedback" / "index.html",
         ROOT / "pages" / "feedback" / "css" / "main.css",
@@ -636,8 +645,10 @@ def main() -> None:
         ROOT / "pages" / "seeking-biblical-truth" / "js" / "app.js",
         ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json",
         ROOT / "data" / "conviction_tsla_history.json",
+        ROOT / "data" / "dca_market_history.json",
         ROOT / "data" / "tsla_transactions.csv",
         ROOT / "tools" / "finance" / "generate_conviction_history.py",
+        ROOT / "tools" / "finance" / "generate_dca_market_data.py",
         ROOT / "tools" / "finance" / "tsla-vs-spy.json",
         ROOT / "tools" / "finance" / "tsla_trades_anonymized.csv",
         ROOT / "tools" / "browser" / "portfolio.spec.mjs",
@@ -671,6 +682,10 @@ def main() -> None:
             rf'src="\.\./js/kofi-support\.js\?v={re.escape(site_version)}"',
         ),
         (
+            ROOT / "pages" / "dca-calculator.html",
+            rf'src="\.\./js/kofi-support\.js\?v={re.escape(site_version)}"',
+        ),
+        (
             ROOT / "pages" / "seeking-biblical-truth" / "index.html",
             rf'src="\.\./\.\./js/kofi-support\.js\?v={re.escape(site_version)}"',
         ),
@@ -684,12 +699,17 @@ def main() -> None:
     ok(f"kofi-support cache keys match {site_version}")
 
     home_html = (ROOT / "index.html").read_text(encoding="utf-8")
-    if 'id="kofi-support-widget"' not in home_html:
-        fail("home page must keep a dedicated Ko-fi host")
     if "data-auto-footer" not in home_html:
         fail("home page must mount the footer feedback strip")
+    if 'data-target=' in home_html.split("kofi-support.js")[1][:400]:
+        fail("home Ko-fi chip must sit in the footer beside Feedback, not in a dedicated card host")
+    if not re.search(
+        r'buy me a <a href="https://ko-fi.com/K1V623R7BV"[^>]*>coffee</a>',
+        home_html,
+    ):
+        fail("support card must link only the word coffee to Ko-fi")
     if re.search(r'data-feedback\s*=\s*"false"', home_html):
-        fail("home page must not disable footer Feedback when Ko-fi has its own host")
+        fail("home page must not disable footer Feedback")
     kofi_js = (ROOT / "js" / "kofi-support.js").read_text(encoding="utf-8")
     if "includeFeedback: target ? true : includeFeedback" not in kofi_js:
         fail("kofi-support must keep footer Feedback when a targeted Ko-fi host is present")
@@ -826,6 +846,7 @@ def main() -> None:
         ROOT / "index.html",
         ROOT / "404.html",
         ROOT / "pages" / "conviction.html",
+        ROOT / "pages" / "dca-calculator.html",
         ROOT / "pages" / "kobo-forge.html",
         ROOT / "pages" / "feedback" / "index.html",
         ROOT / "pages" / "seeking-biblical-truth" / "index.html",
@@ -861,6 +882,18 @@ def main() -> None:
         f"{len(conviction['transactions'])} transactions, "
         f"{len(conviction['monthlySeries'])} active months, "
         f"{len(conviction['benchmarkComparison']['points'])} benchmark months"
+    )
+
+    dca_market = json.loads(
+        (ROOT / "data" / "dca_market_history.json").read_text(encoding="utf-8")
+    )
+    dca_issues = validate_dca_payload(dca_market)
+    if dca_issues:
+        fail("invalid DCA market dataset: " + "; ".join(dca_issues))
+    ok(
+        "DCA market dataset: "
+        f"{len(dca_market['symbols']['TSLA']['history'])} TSLA sessions, "
+        f"{len(dca_market['symbols']['SPCX']['history'])} SPCX sessions"
     )
 
     vault = json.loads(

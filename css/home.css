@@ -154,11 +154,7 @@ body {
 }
 
 .support-card-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.85rem 1.15rem;
-    flex-wrap: wrap;
+    display: block;
 }
 
 .support-card-eyebrow {
@@ -183,56 +179,19 @@ body {
     line-height: 1.55;
 }
 
-.support-card-widget {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    flex: 0 0 auto;
-    margin: 0.15rem 0.1rem 0.15rem 0.35rem;
+.support-card p a {
+    color: #C9A227;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
 }
 
-body .support-card-fallback,
-body .support-card .alphaeus-kofi-support__fallback {
-    display: inline-flex;
-    min-height: 1.625rem;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 0.3rem 0.55rem;
-    border-radius: 0.3125rem;
-    background: #72A4F2;
-    color: #FFFFFF !important;
-    font-size: 0.65rem;
-    font-weight: 700;
-    line-height: 1;
-    white-space: nowrap;
-    text-decoration: none !important;
-}
-
-.support-card-fallback-icon,
-body .support-card .alphaeus-kofi-support__icon {
-    width: 14px;
-    height: 11px;
-    flex: 0 0 auto;
-    object-fit: contain;
-}
-
-body .support-card-fallback:focus-visible {
-    outline: 2px solid #F8FAFC;
-    outline-offset: 3px;
+.support-card p a:hover {
+    color: #E8C547;
 }
 
 @media (max-width: 639px) {
     .support-card {
         padding: 1.35rem 1.4rem;
-    }
-
-    .support-card-top {
-        align-items: flex-start;
-    }
-
-    .support-card-widget {
-        margin-left: 0;
     }
 }
 
