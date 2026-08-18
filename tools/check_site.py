@@ -650,6 +650,20 @@ def main() -> None:
             fail(f"missing required file: {path.relative_to(ROOT)}")
     ok(f"{len(required)} required files present")
 
+    version_source = (ROOT / "js" / "version.js").read_text(encoding="utf-8")
+    version_match = re.search(r'id:\s*"(\d{4}\.\d{2}\.\d{2}\.\d+)"', version_source)
+    if not version_match:
+        fail("js/version.js must declare a deploy-stamp SITE_VERSION.id")
+    site_version = version_match.group(1)
+    feedback_html = (ROOT / "pages" / "feedback" / "index.html").read_text(encoding="utf-8")
+    for asset, pattern in (
+        ("css", rf'href="css/main\.css\?v={re.escape(site_version)}"'),
+        ("js", rf'src="js/app\.js\?v={re.escape(site_version)}"'),
+    ):
+        if not re.search(pattern, feedback_html):
+            fail(f"feedback {asset} cache key must match SITE_VERSION.id {site_version}")
+    ok(f"feedback asset cache keys match {site_version}")
+
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     workflow_contracts = {
         "stable workflow name": re.search(r"(?m)^name:\s*ci\s*$", workflow),

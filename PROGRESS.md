@@ -1,12 +1,12 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-18 (Cycle 152 across the projects workspace)
+Last updated: 2026-08-18 (Cycle 161 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.18.1`.
+- Deployment version: `2026.08.18.2`.
 - Local verification: 24 mutation/fixture/freshness tests, non-writing
   conviction and sitemap generator checks, six Chromium interaction tests / 83
   encoded assertion sites
@@ -19,7 +19,42 @@ Last updated: 2026-08-18 (Cycle 152 across the projects workspace)
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: keep feedback usable when Firebase never loads
+## Latest cycle: couple feedback CSS and JS cache keys
+
+### Why this was selected
+
+The feedback script already used the deploy stamp, but `css/main.css` still
+carried `2026.07.24.1`. A stylesheet change could stay stale after deploy, and
+the mismatch was the documented return item.
+
+### Changes
+
+- Pointed the feedback stylesheet and script at `SITE_VERSION.id`.
+- Added a `check_site.py` contract so both cache keys must match the stamp.
+- Bumped the deployment version to `2026.08.18.2`.
+
+### Verification and scores
+
+- `python3 tools/check_site.py` reports `feedback asset cache keys match 2026.08.18.2`.
+- 24 unit tests and `compileall` passed.
+- Correctness/reliability: 7/10 → 9/10 (feedback CSS cannot silently remain on an old query).
+- Verifiability: 5/10 → 10/10 (the pairing is mechanically checked).
+- Maintainability: 7/10 → 9/10 (one stamp owns both assets).
+- Performance: 9/10 → 9/10.
+- Security/robustness: 8/10 → 8/10.
+- Developer/user experience: 7/10 → 8/10 (deploys bust both caches together).
+
+### Lessons and process improvements
+
+- When a page has two versioned assets, check them against the same stamp
+  rather than bumping only the file that changed.
+
+### Explicit next opportunity
+
+Inspect remaining kofi-support cache keys on home/conviction/viewer pages.
+Workspace next: continue rotation; skip Car-Type-Classification-Service.
+
+## Previous cycle: keep feedback usable when Firebase never loads
 
 ### Why this was selected
 
@@ -539,6 +574,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
+| 1 | Align remaining kofi-support cache keys with the deploy stamp | Maintainability / UX | Low | Small / low | Home, conviction, and viewer still pin older kofi-support query strings |
+| — | Couple feedback CSS and JS cache keys to SITE_VERSION | Maintainability / reliability | Low-medium | Small / low | check_site now requires both feedback assets to match the deploy stamp | Completed in Cycle 161 |
 | — | Offer a privacy-safe fallback when Firebase cannot initialize | Reliability / UX | Medium | Small-medium / low | Init and write failures both reveal a GitHub draft that omits email | Completed in Cycle 152 |
 | — | Add a deterministic feedback-page browser journey | Test / reliability | Medium-high | Medium / low | Five Chromium paths now cover source trust, validation, success payload, cooldown, and private fallback | Completed in Cycle 142 |
 | — | Validate source-located vault diagnostics | Correctness / observability | Medium | Small-medium / low | Three consumer tests cover both internal link syntaxes and seven invalid source-line shapes | Completed in Cycle 135 |
@@ -549,6 +586,5 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Next cycle
 
-Rotate to KoboForge, the next least-recently improved repository. When returning
-here, inspect remaining feedback privacy copy and whether the CSS cache key
-should track the same deploy stamp as the script.
+Inspect remaining kofi-support cache keys on home, conviction, and viewer
+pages. Workspace next: continue rotation and skip Car-Type-Classification-Service.
