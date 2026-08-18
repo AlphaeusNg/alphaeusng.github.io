@@ -1,5 +1,6 @@
 const VAULT_JSON = 'vault-data.json';
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/AlphaeusNg/Seeking-Biblical-Truth/main/';
+const LAST_NOTE_KEY = 'sbt-last-note-path-v1';
 const state = {
   data: null,
   selected: null,
@@ -173,11 +174,30 @@ function resolveNoteReference(reference, currentNode) {
   return null;
 }
 
+function slugifyHeading(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/<[^>]+>/g, "")
+    .replace(/[^\w]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function addHeadingAnchors(html) {
+  return String(html || "").replace(/<(h[1-4])([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tag, attrs, inner) => {
+    if (/\sid\s*=/i.test(attrs)) return match;
+    const id = slugifyHeading(inner);
+    if (!id) return match;
+    return `<${tag}${attrs} id="h-${id}">${inner}</${tag}>`;
+  });
+}
+
 function renderMarkdown(note) {
   const raw = note.content || note.excerpt || '';
   const prepared = preprocessCallouts(preprocessWikiLinks(raw));
   let html = markdown.render(prepared);
   html = applyCalloutMarkup(html);
+  html = addHeadingAnchors(html);
   return window.DOMPurify ? window.DOMPurify.sanitize(html) : html;
 }
 
@@ -407,6 +427,31 @@ function findNoteByPath(path) {
   return state.data.nodes.find(n => n.path === path || n.id === path) || null;
 }
 
+function rememberLastNote(path) {
+  if (!path) return;
+  try {
+    localStorage.setItem(LAST_NOTE_KEY, path);
+  } catch {
+    /* fail closed */
+  }
+}
+
+function lastRememberedNotePath() {
+  try {
+    return localStorage.getItem(LAST_NOTE_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+function renderGraphLegend() {
+  const host = document.getElementById('graph-legend');
+  if (!host) return;
+  host.innerHTML = color.domain().map((name) => (
+    `<li><span class="swatch" style="background:${color(name)}"></span>${esc(name)}</li>`
+  )).join('');
+}
+
 function setVaultSurface(name) {
   const layout = document.querySelector('.vault-layout');
   if (!layout) return;
@@ -632,6 +677,7 @@ async function selectNode(d) {
     state.noteView = 'rendered';
   }
   state.selected = d;
+  if (d.path) rememberLastNote(d.path);
   if (state.noteView === 'edit' && !authState().canEdit) state.noteView = 'rendered';
   if (d.path && location.hash !== noteHash(d.path)) {
     history.replaceState(null, '', noteHash(d.path));
@@ -784,6 +830,7 @@ async function loadVault({ bustCache = false, keepSelection = false } = {}) {
     renderFolders();
     renderFileTree();
     renderGraph();
+    renderGraphLegend();
     if ('ResizeObserver' in window && !graphResizeObserver) {
       const graphPanel = document.getElementById('graph')?.parentElement;
       if (graphPanel) {
@@ -793,8 +840,10 @@ async function loadVault({ bustCache = false, keepSelection = false } = {}) {
     }
     const prevId = keepSelection ? state.selected?.id : null;
     const hashed = findNoteByPath(pathFromHash());
+    const remembered = hashed ? null : findNoteByPath(lastRememberedNotePath());
     const first =
       hashed ||
+      remembered ||
       (prevId && state.byId[prevId]) ||
       data.nodes.find(n => n.path === 'My Search for Truth.md') ||
       data.nodes.find(n => n.type === 'note');

@@ -97,6 +97,19 @@ test('home Ko-fi chip sits with the coffee card and footer Feedback is a real li
   await expect(kofi).toBeVisible();
   await expect(kofi).toHaveText(/Support me on Ko-fi/);
   await expect(widget).toHaveCSS('align-items', 'center');
+  const chipBox = await kofi.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return {
+      gap: parseFloat(s.columnGap || s.gap),
+      padLeft: parseFloat(s.paddingLeft),
+      padRight: parseFloat(s.paddingRight),
+    };
+  });
+  if (chipBox.gap < 8 || chipBox.padLeft < 8 || chipBox.padRight < 10) {
+    throw new Error(
+      `Ko-fi chip is too tight against the cup or button walls: ${JSON.stringify(chipBox)}`
+    );
+  }
 
   await expect(page.locator('.alphaeus-kofi-support')).toContainText('Have feedback?');
   await expect(footerFeedback).toBeVisible();

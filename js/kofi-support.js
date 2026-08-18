@@ -65,19 +65,20 @@
       ".alphaeus-kofi-support__message{color:#94a3b8;font-size:.78rem;line-height:1.45}" +
       ".alphaeus-kofi-support__message strong{color:#e2e8f0;font-weight:600}" +
       ".alphaeus-kofi-support__button{min-width:0;display:inline-flex;align-items:center;" +
-      "justify-content:center;gap:.4rem;flex-wrap:wrap}" +
+      "justify-content:center;gap:.5rem;flex-wrap:wrap}" +
       ".alphaeus-kofi-support__fallback{box-sizing:border-box;display:inline-flex;" +
-      "min-height:26px;align-items:center;justify-content:center;gap:4px;padding:.3rem .55rem;" +
-      "border-radius:5px;background:#72a4f2;color:#fff!important;font-size:.65rem;" +
-      "font-weight:700;line-height:1;text-decoration:none!important}" +
+      "min-height:2rem;align-items:center;justify-content:center;gap:.5rem;" +
+      "padding:.45rem .8rem .45rem .65rem;border-radius:.4rem;background:#72a4f2;" +
+      "color:#fff!important;font-size:.65rem;font-weight:700;line-height:1.25;" +
+      "letter-spacing:.01em;white-space:nowrap;text-decoration:none!important}" +
       ".alphaeus-kofi-support__feedback{box-sizing:border-box;display:inline-flex;" +
-      "min-height:26px;align-items:center;justify-content:center;padding:.3rem .58rem;" +
-      "border:1px solid rgba(148,163,184,.38);border-radius:5px;" +
+      "min-height:2rem;align-items:center;justify-content:center;padding:.45rem .75rem;" +
+      "border:1px solid rgba(148,163,184,.38);border-radius:.4rem;" +
       "background:rgba(15,23,42,.58);color:#e2e8f0!important;font-size:.65rem;" +
-      "font-weight:700;line-height:1;text-decoration:none!important}" +
+      "font-weight:700;line-height:1.25;text-decoration:none!important}" +
       ".alphaeus-kofi-support__feedback:hover{border-color:rgba(114,164,242,.75);" +
       "background:rgba(114,164,242,.12);color:#fff!important}" +
-      ".alphaeus-kofi-support__icon{display:block;width:14px;height:11px;" +
+      ".alphaeus-kofi-support__icon{display:block;width:16px;height:13px;" +
       "object-fit:contain;flex:0 0 auto}" +
       ".alphaeus-kofi-support__fallback:focus-visible," +
       ".alphaeus-kofi-support__feedback:focus-visible{" +

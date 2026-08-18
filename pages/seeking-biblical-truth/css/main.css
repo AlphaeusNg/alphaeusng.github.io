@@ -1,3 +1,28 @@
+.graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin: 0;
+  padding: 0.45rem 1rem;
+  list-style: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 15, 28, 0.65);
+}
+.graph-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: #94A3B8;
+}
+.graph-legend .swatch {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
 body { font-family: Inter, system-ui, sans-serif; }
 .vault-title { font-family: "Playfair Display", Georgia, serif; }
 .vault-tools {
