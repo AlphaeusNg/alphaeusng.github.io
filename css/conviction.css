@@ -46,3 +46,40 @@ body {
 a { color: var(--gold) !important; text-decoration: none; transition: color .15s ease; }
 a:hover, a:focus-visible { color: var(--gold-hover) !important; }
 a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }
+
+.conviction-nav {
+    border-bottom: 1px solid var(--nav-border, rgba(201, 162, 39, 0.28));
+    background: rgba(8, 13, 23, 0.92);
+    backdrop-filter: blur(14px);
+}
+
+.conviction-nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0.85rem 1.5rem 0.7rem;
+}
+
+.conviction-back {
+    flex-shrink: 0;
+    font-size: 0.875rem;
+}
+
+.conviction-nav .project-tabs-bar {
+    display: block;
+    background: transparent;
+    border-top: 1px solid rgba(201, 162, 39, 0.16);
+}
+
+.conviction-nav .project-tabs-inner {
+    max-width: 80rem;
+}
+
+@media (max-width: 767px) {
+    .conviction-nav .project-tabs-bar {
+        display: block;
+    }
+}

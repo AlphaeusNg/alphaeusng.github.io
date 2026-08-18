@@ -1,12 +1,12 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-18 (Cycle 164 across the projects workspace)
+Last updated: 2026-08-18 (Cycle 165 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.18.4`.
+- Deployment version: `2026.08.18.5`.
 - Local verification: 24 mutation/fixture/freshness tests, non-writing
   conviction and sitemap generator checks, six Chromium interaction tests / 83
   encoded assertion sites
@@ -19,7 +19,24 @@ Last updated: 2026-08-18 (Cycle 164 across the projects workspace)
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: quieter chrome — one-line nav, thin project tabs, smaller vault header
+## Latest cycle: unify Conviction chrome with home
+
+### Why this was selected
+
+Conviction still used a thinner header than home, exposed a filesystem path in the footer, and had no skip link or as-of line above the charts.
+
+### Changes
+
+- Add a skip link and in-flow header with the home A mark, gold border language, Back to main, and one-line pills (Conviction current, vault, Home).
+- Footer is “Personal ledger · not advice”; drop `data/tsla_transactions.csv`.
+- Paint an “as of {latest transaction date}” methodology line above the charts from existing payload dates.
+- Bump to `2026.08.18.5` and keep feedback / kofi cache keys on the stamp.
+
+### Explicit next opportunity
+
+Vault header still has its own chrome. Workspace next: continue rotation.
+
+## Previous cycle: quieter chrome — one-line nav, thin project tabs, smaller vault header
 
 ### Why this was selected
 

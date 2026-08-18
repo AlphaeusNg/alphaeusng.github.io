@@ -17,20 +17,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap">
+    <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/conviction.css">
 
 </head>
 <body class="text-slate-50 antialiased">
-    <div class="border-b border-white/10">
-        <div class="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
-            <div class="flex items-center gap-3">
-                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#C9A227] to-[#8F7417] text-sm font-semibold text-slate-950">A</div>
-                <a href="../index.html" class="font-semibold tracking-tight transition hover:text-[#C9A227]">Alphaeus Ng</a>
-            </div>
-            <a href="../index.html" class="text-sm text-slate-400 transition hover:text-white">← Back to main site</a>
+    <a class="skip-link" href="#content">Skip to content</a>
+    <nav class="site-nav conviction-nav" aria-label="Primary">
+        <div class="conviction-nav-row">
+            <a href="../index.html" class="nav-home-link flex items-center gap-x-3">
+                <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#C9A227] to-[#A68B1F] shadow-[0_0_0_1px_rgba(201,162,39,0.25)]">
+                    <span class="text-xl font-semibold tracking-tighter text-[#0A0F1C]">A</span>
+                </div>
+                <span class="nav-home-title text-xl font-semibold tracking-tight">Alphaeus Ng</span>
+            </a>
+            <a href="../index.html" class="conviction-back">Back to main</a>
         </div>
-    </div>
+        <div class="project-tabs-bar" aria-label="Related pages">
+            <div class="project-tabs-inner">
+                <a class="project-tab is-current" href="conviction.html" aria-current="page" title="Conviction (TSLA) notes">Conviction</a>
+                <a class="project-tab" href="seeking-biblical-truth/" title="Public vault browser">Biblical Truth</a>
+                <a class="project-tab" href="../index.html" title="Portfolio home">Home</a>
+            </div>
+        </div>
+    </nav>
 
+    <main id="content">
     <header class="mx-auto max-w-5xl px-6 pb-14 pt-16">
         <div class="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-[#C9A227]">Concentrated Capital</div>
         <h1 class="heading-serif max-w-4xl text-6xl leading-none text-slate-50 md:text-7xl">Conviction</h1>
@@ -73,7 +85,7 @@
         </aside>
     </section>
 
-    <section class="border-y border-white/10 bg-slate-950/30 py-16">
+    <section id="record" class="border-y border-white/10 bg-slate-950/30 py-16">
         <div class="mx-auto max-w-5xl px-6">
             <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div>
@@ -82,6 +94,7 @@
                     <p class="mt-3 max-w-3xl text-slate-300">
                         Bars show monthly net shares bought or sold. The gold line shows cumulative shares held. Everything is split-adjusted so the 2021 entries are directly comparable to the 2026 entries.
                     </p>
+                    <p id="convictionAsOf" class="mt-3 text-sm text-slate-400">Loading as-of date…</p>
                 </div>
                 <div id="chartSource" class="text-xs text-slate-500">Loading transaction history…</div>
             </div>
@@ -264,14 +277,16 @@
             </div>
         </div>
     </section>
+    </main>
 
     <div class="soft-divider mx-auto max-w-5xl px-6"></div>
 
     <footer class="mx-auto max-w-5xl px-6 py-12 text-xs leading-6 text-slate-500">
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-                © Alphaeus Ng. Personal views only. Not financial advice.<br>
-                Source data: split-adjusted TSLA transactions from <code>data/tsla_transactions.csv</code>, reconciled with the recovered in-period Nov 2020 to Feb 2021 TSLA buys from the archived ledger.
+                Personal ledger · not advice
+                <span class="mx-2 opacity-40">·</span>
+                © Alphaeus Ng
                 <span class="mx-2 opacity-40">·</span>
                 <span id="site-version" class="font-mono text-slate-500" title="Bump js/version.js on each deploy">v—</span>
             </div>
@@ -282,7 +297,7 @@
             </div>
         </div>
     </footer>
-    <script src="../js/kofi-support.js?v=2026.08.18.4" data-auto-footer defer></script>
+    <script src="../js/kofi-support.js?v=2026.08.18.5" data-auto-footer defer></script>
     <script src="../js/version.js"></script>
 </body>
 </html>

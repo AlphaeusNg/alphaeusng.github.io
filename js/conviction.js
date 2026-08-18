@@ -94,6 +94,11 @@ function populateMetrics(data) {
     document.getElementById('saleProceeds').textContent = formatCurrency(summary.saleProceedsUsd);
     document.getElementById('chartSource').textContent =
         `${data.symbol} from ${summary.accounts.join(' + ')} • ${data.sourceSheet}`;
+    const asOfEl = document.getElementById('convictionAsOf');
+    if (asOfEl && summary.latestTransactionDate) {
+        asOfEl.textContent =
+            `As of ${formatDate(summary.latestTransactionDate)} · split-adjusted IBKR ledger vs same-dated SPY cash flows · personal record, not a model`;
+    }
 }
 
 function populateNarrative(data) {
