@@ -877,8 +877,8 @@
     </section>
 
     <!-- Support lives outside connect; Feedback mounts in the page footer -->
-    <div class="border-t border-white/10 bg-[#0B1220] py-12">
-        <div class="support-card mx-auto max-w-xl w-full px-6 sm:px-0">
+    <div class="border-t border-white/10 bg-[#0B1220] py-12 px-6">
+        <div class="support-card mx-auto max-w-xl w-full">
             <div class="support-card-copy">
                 <div class="support-card-top">
                     <div>
@@ -890,6 +890,10 @@
                            target="_blank"
                            rel="me noopener noreferrer"
                            class="support-card-fallback">
+                            <img src="https://storage.ko-fi.com/cdn/cup-border.png"
+                                 alt=""
+                                 aria-hidden="true"
+                                 class="support-card-fallback-icon">
                             Support me on Ko-fi ↗
                         </a>
                     </div>
@@ -1007,7 +1011,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.08.18.11"
+    <script src="js/kofi-support.js?v=2026.08.18.12"
             data-target="#kofi-support-widget"
             data-auto-footer
             data-message="Tell me what worked or what would help."

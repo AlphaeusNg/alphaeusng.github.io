@@ -694,12 +694,14 @@ def main() -> None:
     if "includeFeedback: target ? true : includeFeedback" not in kofi_js:
         fail("kofi-support must keep footer Feedback when a targeted Ko-fi host is present")
     if "Widget_2.js" in kofi_js or "kofiwidget2" in kofi_js:
-        fail("portfolio Ko-fi chip must stay the compact text button, not Widget_2")
-    if "cup-border.png" in kofi_js or "☕" in home_html:
-        fail("Ko-fi chip and support card must not include a coffee cup icon")
+        fail("portfolio Ko-fi chip must stay the compact button, not Widget_2")
+    if "cup-border.png" not in kofi_js:
+        fail("shared Ko-fi chip must keep the cup icon")
+    if "☕" in home_html or "support-card-icon" in home_html:
+        fail("portfolio support card must not keep a separate coffee tile")
     home_css = (ROOT / "css" / "home.css").read_text(encoding="utf-8")
-    if "padding: 1.35rem 1.5rem" not in home_css:
-        fail("support card must keep inset so the Ko-fi chip does not hug the card border")
+    if "padding: 1.5rem 1.75rem" not in home_css:
+        fail("support card must keep inset so copy does not hug the card border")
     ok("home Ko-fi card and footer Feedback stay paired")
 
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")

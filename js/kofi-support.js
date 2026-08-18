@@ -14,6 +14,7 @@
 
   var KOFI_ID = "K1V623R7BV";
   var KOFI_URL = "https://ko-fi.com/" + KOFI_ID;
+  var KOFI_ICON_URL = "https://storage.ko-fi.com/cdn/cup-border.png";
   var KOFI_LABEL = "Support me on Ko-fi";
   var FEEDBACK_PAGE_URL =
     "https://alphaeusng.github.io/pages/feedback/";
@@ -66,9 +67,11 @@
       ".alphaeus-kofi-support__button{min-width:0;display:inline-flex;align-items:center;" +
       "justify-content:center;gap:.55rem;flex-wrap:wrap}" +
       ".alphaeus-kofi-support__fallback{box-sizing:border-box;display:inline-flex;" +
-      "min-height:26px;align-items:center;justify-content:center;padding:.3rem .55rem;" +
+      "min-height:26px;align-items:center;justify-content:center;gap:4px;padding:.3rem .55rem;" +
       "border-radius:5px;background:#72a4f2;color:#fff!important;font-size:.65rem;" +
       "font-weight:700;line-height:1;text-decoration:none!important}" +
+      ".alphaeus-kofi-support__icon{display:block;width:14px;height:11px;" +
+      "object-fit:contain;flex:0 0 auto}" +
       ".alphaeus-kofi-support__feedback{box-sizing:border-box;display:inline-flex;" +
       "min-height:26px;align-items:center;justify-content:center;padding:.3rem .58rem;" +
       "border:1px solid rgba(148,163,184,.38);border-radius:5px;" +
@@ -89,6 +92,9 @@
       '<a class="alphaeus-kofi-support__fallback" href="' +
       KOFI_URL +
       '" target="_blank" rel="me noopener noreferrer">' +
+      '<img class="alphaeus-kofi-support__icon" src="' +
+      KOFI_ICON_URL +
+      '" alt="" aria-hidden="true">' +
       KOFI_LABEL +
       " ↗</a>"
     );

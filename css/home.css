@@ -138,7 +138,8 @@ body {
 
 /* Optional project support — Ko-fi widget within the portfolio design system */
 .support-card {
-    padding: 1.35rem 1.5rem;
+    box-sizing: border-box;
+    padding: 1.5rem 1.75rem;
     text-align: left;
     border: 1px solid rgba(201, 162, 39, 0.24);
     border-radius: 1.25rem;
@@ -196,7 +197,8 @@ body .support-card .alphaeus-kofi-support__fallback {
     min-height: 1.625rem;
     align-items: center;
     justify-content: center;
-    padding: 0.3rem 0.7rem;
+    gap: 4px;
+    padding: 0.3rem 0.55rem;
     border-radius: 0.3125rem;
     background: #72A4F2;
     color: #FFFFFF !important;
@@ -207,6 +209,14 @@ body .support-card .alphaeus-kofi-support__fallback {
     text-decoration: none !important;
 }
 
+.support-card-fallback-icon,
+body .support-card .alphaeus-kofi-support__icon {
+    width: 14px;
+    height: 11px;
+    flex: 0 0 auto;
+    object-fit: contain;
+}
+
 body .support-card-fallback:focus-visible {
     outline: 2px solid #F8FAFC;
     outline-offset: 3px;
@@ -214,7 +224,7 @@ body .support-card-fallback:focus-visible {
 
 @media (max-width: 639px) {
     .support-card {
-        padding: 1.2rem 1.25rem;
+        padding: 1.35rem 1.4rem;
     }
 
     .support-card-top {

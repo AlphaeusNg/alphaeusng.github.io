@@ -96,9 +96,16 @@ test('home Ko-fi chip sits with the coffee card and footer Feedback is a real li
   await expect(card.locator('.support-card-icon')).toHaveCount(0);
   await expect(kofi).toBeVisible();
   await expect(kofi).toHaveText(/Support me on Ko-fi/);
-  await expect(kofi.locator('img')).toHaveCount(0);
+  await expect(kofi.locator('img.alphaeus-kofi-support__icon, img.support-card-fallback-icon')).toHaveCount(1);
   await expect(widget).toHaveCSS('align-items', 'center');
   await expect(widget.locator('.kofi-button')).toHaveCount(0);
+  const cardPad = await card.evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { left: parseFloat(s.paddingLeft), right: parseFloat(s.paddingRight) };
+  });
+  if (cardPad.left < 24 || cardPad.right < 24) {
+    throw new Error(`support card padding is too tight: ${JSON.stringify(cardPad)}`);
+  }
 
   await expect(page.locator('.alphaeus-kofi-support')).toContainText('Have feedback?');
   await expect(footerFeedback).toBeVisible();
