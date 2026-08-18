@@ -355,3 +355,45 @@ test('feedback sanitizes its source and handles submission lifecycle', async ({ 
     'https://alphaeusng.github.io/VerseKeep/guide'
   );
 });
+
+test('feedback offers a GitHub draft when Firebase cannot initialize', async ({ page }) => {
+  await page.route('https://www.gstatic.com/firebasejs/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+
+  await page.goto('/pages/feedback/?project=CardFitSG', { waitUntil: 'domcontentloaded' });
+
+  const submit = page.locator('#submit-button');
+  const fallback = page.locator('#github-fallback');
+  const status = page.getByRole('status');
+
+  await expect(submit).toBeEnabled();
+  await expect(status).toHaveText(
+    'The private inbox could not load. You can still use the prefilled GitHub draft below after writing your feedback; your email is not included.'
+  );
+  await expect(fallback).toBeVisible();
+  expect(await page.evaluate(() => window.firebase)).toBeUndefined();
+
+  await page.locator('#contact').fill('secret@example.com');
+  await page.locator('#message').fill(
+    'The cashback fit needs a clearer fallback when cloud tools fail.'
+  );
+  await submit.click();
+
+  await expect(status).toHaveText(
+    'The private inbox is unavailable. You can use the prefilled GitHub draft below; your email is not included.'
+  );
+  const fallbackHref = await fallback.getAttribute('href');
+  const fallbackUrl = new URL(fallbackHref);
+  expect(fallbackUrl.origin + fallbackUrl.pathname).toBe(
+    'https://github.com/AlphaeusNg/alphaeusng.github.io/issues/new'
+  );
+  expect(fallbackUrl.searchParams.get('title')).toBe('Feedback — CardFitSG: Suggestion');
+  expect(fallbackUrl.searchParams.get('body')).toContain(
+    'The cashback fit needs a clearer fallback when cloud tools fail.'
+  );
+  expect(fallbackUrl.searchParams.get('body')).toContain(
+    '**Source:** https://alphaeusng.github.io/CardFitSG/'
+  );
+  expect(fallbackUrl.searchParams.get('body')).not.toContain('secret@example.com');
+});

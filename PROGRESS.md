@@ -1,14 +1,14 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-11 (Cycle 142 across the projects workspace)
+Last updated: 2026-08-18 (Cycle 152 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.11.6`.
+- Deployment version: `2026.08.18.1`.
 - Local verification: 24 mutation/fixture/freshness tests, non-writing
-  conviction and sitemap generator checks, five Chromium interaction tests / 73
+  conviction and sitemap generator checks, six Chromium interaction tests / 83
   encoded assertion sites
   with shared runtime-error and same-origin HTTP-failure monitoring,
   deterministic font delivery, and local Chart.js/Firebase doubles,
@@ -19,7 +19,55 @@ Last updated: 2026-08-11 (Cycle 142 across the projects workspace)
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: exercise and harden the feedback journey
+## Latest cycle: keep feedback usable when Firebase never loads
+
+### Why this was selected
+
+Workspace rotation returned to the oldest non-profile backlog. The documented
+next local item was the initialization boundary: a missing Firebase SDK
+disabled the submit button and left the GitHub draft hidden, so a blocked CDN
+made the form a dead end.
+
+### Changes
+
+- Treat a missing or throwing Firebase SDK as an offline-fallback mode instead
+  of disabling submission.
+- Reveal the privacy-safe GitHub draft at startup and refresh it as the form
+  changes, still omitting the optional email.
+- Submit without a database now uses the same fallback helper as a failed
+  private-inbox write.
+- Added a Chromium journey that loads empty Firebase scripts, keeps the form
+  enabled, and proves the draft contains the message but not the contact email.
+- Bumped the deployment and feedback-script cache key to `2026.08.18.1`.
+
+### Verification and scores
+
+- Test-first evidence: the old page showed only a refresh error and a disabled
+  submit control when the SDK scripts defined nothing.
+- The focused initialization journey passed after the fallback landed.
+- Complete browser suite: 6 passed, including the existing write-failure
+  fallback. Site contracts, 24 unit tests, sitemap freshness, compilation, and
+  JavaScript syntax checks passed.
+- Correctness/reliability: 6/10 → 9/10 (CDN or init failure no longer dead-ends the form).
+- Observability/verifiability: 7/10 → 10/10 (init and write fallbacks are both browser-locked).
+- Maintainability: 8/10 → 9/10 (one helper owns every GitHub-draft reveal).
+- Performance: 9/10 → 9/10 (no extra network work).
+- Security/robustness: 8/10 → 9/10 (email remains absent from the public draft).
+- Developer/user experience: 5/10 → 9/10 (users can still send feedback offline).
+
+### Lessons and process improvements
+
+- An initialization failure needs the same recovery path as a later write
+  failure; hiding the fallback until submit is too late if submit is disabled.
+- Empty SDK doubles are enough to prove the missing-global branch without
+  aborting scripts and tripping first-party console-error monitors.
+
+### Explicit next opportunity
+
+Rotate to KoboForge, still the next least-recently improved repository after
+this portfolio cycle.
+
+## Previous cycle: exercise and harden the feedback journey
 
 ### Why this was selected
 
@@ -491,7 +539,7 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Offer a privacy-safe fallback when Firebase cannot initialize | Reliability / UX | Medium | Small-medium / low | SDK absence currently disables submission and exposes no alternate route |
+| — | Offer a privacy-safe fallback when Firebase cannot initialize | Reliability / UX | Medium | Small-medium / low | Init and write failures both reveal a GitHub draft that omits email | Completed in Cycle 152 |
 | — | Add a deterministic feedback-page browser journey | Test / reliability | Medium-high | Medium / low | Five Chromium paths now cover source trust, validation, success payload, cooldown, and private fallback | Completed in Cycle 142 |
 | — | Validate source-located vault diagnostics | Correctness / observability | Medium | Small-medium / low | Three consumer tests cover both internal link syntaxes and seven invalid source-line shapes | Completed in Cycle 135 |
 | — | Add first-party failed-response diagnostics to browser smokes | Observability / reliability | Low-medium | Small / low | A mutation-proven shared listener now reports status, method, and local URL | Completed in Cycle 133 |
@@ -502,4 +550,5 @@ The source-side rationale, test-first failures, restored-content measurements, s
 ## Next cycle
 
 Rotate to KoboForge, the next least-recently improved repository. When returning
-here, preserve a privacy-safe feedback fallback when Firebase cannot initialize.
+here, inspect remaining feedback privacy copy and whether the CSS cache key
+should track the same deploy stamp as the script.

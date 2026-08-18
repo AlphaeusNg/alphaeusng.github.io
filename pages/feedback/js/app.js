@@ -33,6 +33,10 @@
   };
   var COOLDOWN_KEY = "alphaeus-feedback-last-submit-v1";
   var COOLDOWN_MS = 30000;
+  var INIT_FALLBACK_MESSAGE =
+    "The private inbox could not load. You can still use the prefilled GitHub draft below after writing your feedback; your email is not included.";
+  var WRITE_FALLBACK_MESSAGE =
+    "The private inbox is unavailable. You can use the prefilled GitHub draft below; your email is not included.";
 
   var form = global.document.getElementById("feedback-form");
   var projectSelect = global.document.getElementById("project");
@@ -81,6 +85,16 @@
     status.dataset.kind = kind || "";
   }
 
+  function currentPayload() {
+    return {
+      project: knownProject(projectSelect.value),
+      type: typeSelect.value,
+      rating: selectedRating(),
+      message: messageInput.value.trim(),
+      sourceUrl: sourceUrl,
+    };
+  }
+
   function fallbackUrl(payload) {
     var titleText = "Feedback — " + payload.project + ": " + payload.type;
     var body = [
@@ -100,6 +114,17 @@
       "&body=" +
       encodeURIComponent(body)
     );
+  }
+
+  function offerGithubFallback(payload, message) {
+    githubFallback.href = fallbackUrl(payload);
+    githubFallback.hidden = false;
+    setStatus(message, "error");
+  }
+
+  function refreshOfflineFallback() {
+    if (database) return;
+    githubFallback.href = fallbackUrl(currentPayload());
   }
 
   function personalize(project) {
@@ -141,15 +166,19 @@
   }
 
   function initializeFirebase() {
-    if (!global.firebase || !global.firebase.firestore) {
-      setStatus("The feedback service could not load. Please refresh and try again.", "error");
-      submitButton.disabled = true;
-      return;
+    try {
+      if (!global.firebase || !global.firebase.firestore) {
+        offerGithubFallback(currentPayload(), INIT_FALLBACK_MESSAGE);
+        return;
+      }
+      if (!global.firebase.apps.length) {
+        global.firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      database = global.firebase.firestore();
+    } catch (_error) {
+      database = null;
+      offerGithubFallback(currentPayload(), INIT_FALLBACK_MESSAGE);
     }
-    if (!global.firebase.apps.length) {
-      global.firebase.initializeApp(FIREBASE_CONFIG);
-    }
-    database = global.firebase.firestore();
   }
 
   projectSelect.value = initialProject;
@@ -159,8 +188,13 @@
 
   projectSelect.addEventListener("change", function () {
     personalize(knownProject(projectSelect.value));
+    refreshOfflineFallback();
   });
-  messageInput.addEventListener("input", updateCount);
+  typeSelect.addEventListener("change", refreshOfflineFallback);
+  messageInput.addEventListener("input", function () {
+    updateCount();
+    refreshOfflineFallback();
+  });
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -192,7 +226,7 @@
     }
 
     if (!database) {
-      setStatus("The feedback service is unavailable. Please refresh and try again.", "error");
+      offerGithubFallback(currentPayload(), WRITE_FALLBACK_MESSAGE);
       return;
     }
 
@@ -231,12 +265,7 @@
         );
       })
       .catch(function () {
-        githubFallback.href = fallbackUrl(payload);
-        githubFallback.hidden = false;
-        setStatus(
-          "The private inbox is unavailable. You can use the prefilled GitHub draft below; your email is not included.",
-          "error"
-        );
+        offerGithubFallback(payload, WRITE_FALLBACK_MESSAGE);
       })
       .finally(function () {
         submitButton.disabled = false;

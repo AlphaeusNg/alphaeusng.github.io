@@ -126,7 +126,8 @@ site remains zero-build with no runtime package dependency. The conviction
 journey stubs Chart.js locally while exercising the real tracked finance data,
 so benchmark view coverage does not depend on the CDN. The feedback journey
 similarly replaces only the Firebase SDK boundary while exercising source URL
-sanitization, validation, success, cooldown, and private-inbox fallback.
+sanitization, validation, success, cooldown, write fallback, and the
+initialization fallback used when the SDK never becomes available.
 
 Then check:
 
