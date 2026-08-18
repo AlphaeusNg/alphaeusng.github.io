@@ -881,25 +881,29 @@
         <div class="support-card mx-auto max-w-xl w-full px-6 sm:px-0">
             <div class="support-card-icon" aria-hidden="true">☕</div>
             <div class="support-card-copy">
-                <div class="support-card-eyebrow">SUPPORT MY OPEN PROJECTS</div>
-                <h3>Found something helpful?</h3>
+                <div class="support-card-top">
+                    <div>
+                        <div class="support-card-eyebrow">SUPPORT MY OPEN PROJECTS</div>
+                        <h3>Found something helpful?</h3>
+                    </div>
+                    <div id="kofi-support-widget" class="support-card-widget">
+                        <a href="https://ko-fi.com/K1V623R7BV"
+                           target="_blank"
+                           rel="me noopener noreferrer"
+                           class="support-card-fallback">
+                            <img src="https://storage.ko-fi.com/cdn/cup-border.png"
+                                 alt=""
+                                 aria-hidden="true"
+                                 class="support-card-fallback-icon">
+                            Support me on Ko-fi ↗
+                        </a>
+                    </div>
+                </div>
                 <p>
                     If one of my projects saved you time, or you would simply like to
                     support more open work, you can buy me a coffee. No pressure —
                     everything here stays free to use.
                 </p>
-            </div>
-            <div id="kofi-support-widget" class="support-card-widget">
-                <a href="https://ko-fi.com/K1V623R7BV"
-                   target="_blank"
-                   rel="me noopener noreferrer"
-                   class="support-card-fallback">
-                    <img src="https://storage.ko-fi.com/cdn/cup-border.png"
-                         alt=""
-                         aria-hidden="true"
-                         class="support-card-fallback-icon">
-                    Support me on Ko-fi ↗
-                </a>
             </div>
         </div>
     </div>
@@ -1012,10 +1016,10 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.08.18.5"
+    <script src="js/kofi-support.js?v=2026.08.18.6"
             data-target="#kofi-support-widget"
-            data-feedback="false"
             data-auto-footer
+            data-message="Tell me what worked or what would help."
             defer></script>
     <script src="js/main.js" defer></script>
     <script src="js/modals.js" defer></script>

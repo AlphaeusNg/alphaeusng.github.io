@@ -683,6 +683,18 @@ def main() -> None:
             )
     ok(f"kofi-support cache keys match {site_version}")
 
+    home_html = (ROOT / "index.html").read_text(encoding="utf-8")
+    if 'id="kofi-support-widget"' not in home_html:
+        fail("home page must keep a dedicated Ko-fi host")
+    if "data-auto-footer" not in home_html:
+        fail("home page must mount the footer feedback strip")
+    if re.search(r'data-feedback\s*=\s*"false"', home_html):
+        fail("home page must not disable footer Feedback when Ko-fi has its own host")
+    kofi_js = (ROOT / "js" / "kofi-support.js").read_text(encoding="utf-8")
+    if "includeFeedback: target ? true : includeFeedback" not in kofi_js:
+        fail("kofi-support must keep footer Feedback when a targeted Ko-fi host is present")
+    ok("home Ko-fi card and footer Feedback stay paired")
+
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     workflow_contracts = {
         "stable workflow name": re.search(r"(?m)^name:\s*ci\s*$", workflow),

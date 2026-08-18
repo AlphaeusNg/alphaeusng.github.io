@@ -84,6 +84,29 @@ test.afterEach(async ({ page }) => {
   expect(runtimeErrors.get(page), 'unexpected browser runtime errors').toEqual([]);
 });
 
+test('home Ko-fi chip sits with the coffee card and footer Feedback is a real link', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  const card = page.locator('.support-card');
+  const widget = page.locator('#kofi-support-widget');
+  const kofi = widget.locator('a[href*="ko-fi.com"]');
+  const footerFeedback = page.locator('footer a.alphaeus-kofi-support__feedback');
+
+  await expect(card.locator('.support-card-icon')).toBeVisible();
+  await expect(kofi).toBeVisible();
+  await expect(kofi).toHaveText(/Support me on Ko-fi/);
+  await expect(widget).toHaveCSS('align-items', 'center');
+
+  await expect(page.locator('.alphaeus-kofi-support')).toContainText('Have feedback?');
+  await expect(footerFeedback).toBeVisible();
+  await expect(footerFeedback).toHaveText('Feedback');
+  await expect(footerFeedback).toHaveAttribute(
+    'href',
+    /\/pages\/feedback\/\?project=Portfolio/
+  );
+});
+
 test('mobile menu exposes state and restores focus on Escape', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/', { waitUntil: 'domcontentloaded' });

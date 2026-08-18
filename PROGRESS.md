@@ -1,12 +1,12 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-18 (Cycle 165 across the projects workspace)
+Last updated: 2026-08-18 (Cycle 166 across the projects workspace)
 
 ## Current state
 
 - Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.18.5`.
+- Deployment version: `2026.08.18.6`.
 - Local verification: 24 mutation/fixture/freshness tests, non-writing
   conviction and sitemap generator checks, six Chromium interaction tests / 83
   encoded assertion sites
@@ -19,7 +19,23 @@ Last updated: 2026-08-18 (Cycle 165 across the projects workspace)
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: unify Conviction chrome with home
+## Latest cycle: align Ko-fi card and restore footer Feedback
+
+### Why this was selected
+
+A home screenshot showed the coffee cup and Ko-fi chip on different
+vertical axes, and “Have feedback?” in the footer with no form or
+button. `data-feedback="false"` on the shared script killed the footer
+control that the support card comment promised.
+
+### Changes
+
+- Put the cup, heading, and Ko-fi chip on one row so they share alignment.
+- When the page has a dedicated Ko-fi host plus `data-auto-footer`, the
+  footer always gets a Feedback link to `/pages/feedback/`.
+- `check_site` now rejects a home page that disables that pairing.
+
+## Previous cycle: unify Conviction chrome with home
 
 ### Why this was selected
 

@@ -58,7 +58,7 @@
     style.textContent =
       ".alphaeus-kofi-support{" +
       "box-sizing:border-box;display:flex;flex:1 0 100%;width:100%;" +
-      "align-items:center;justify-content:center;gap:.7rem 1rem;flex-wrap:wrap;" +
+      "align-items:center;justify-content:center;gap:.55rem .85rem;flex-wrap:wrap;" +
       "margin:0 0 .9rem;padding:0 0 1rem;border-bottom:1px solid rgba(148,163,184,.16);" +
       "font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;" +
       "text-align:center}" +
@@ -196,21 +196,21 @@
       scriptElement.getAttribute("data-feedback") !== "false";
     var includeKofi = scriptElement.getAttribute("data-kofi") !== "false";
     var target = scriptElement.getAttribute("data-target");
+    var hasAutoFooter = scriptElement.hasAttribute("data-auto-footer");
     if (target) {
       mount({
         target: target,
-        includeFeedback: includeFeedback,
+        // A dedicated Ko-fi host plus a footer strip should not duplicate Feedback.
+        includeFeedback: includeFeedback && !hasAutoFooter,
         includeKofi: includeKofi,
       });
     }
     // Allow both a targeted Ko-fi host and a footer feedback strip on one page.
-    if (scriptElement.hasAttribute("data-auto-footer")) {
+    if (hasAutoFooter) {
       mount({
         message: scriptElement.getAttribute("data-message") || "",
-        includeFeedback: includeFeedback,
-        includeKofi: scriptElement.hasAttribute("data-target")
-          ? false
-          : includeKofi,
+        includeFeedback: target ? true : includeFeedback,
+        includeKofi: target ? false : includeKofi,
       });
     }
   }
