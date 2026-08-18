@@ -207,34 +207,21 @@ body {
     display: flex;
     align-items: center;
     flex: 0 0 auto;
-    padding-top: 0.15rem;
 }
 
-body .support-card-fallback,
-body .support-card .alphaeus-kofi-support__fallback {
+body .support-card-fallback {
     display: inline-flex;
-    min-height: 2rem;
+    min-height: 1.625rem;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.45rem 0.8rem 0.45rem 0.65rem;
-    border-radius: 0.4rem;
+    padding: 0.3rem 0.55rem;
+    border-radius: 0.3125rem;
     background: #72A4F2;
     color: #FFFFFF !important;
     font-size: 0.65rem;
     font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
+    line-height: 1;
     text-decoration: none !important;
-}
-
-.support-card-fallback-icon,
-body .support-card .alphaeus-kofi-support__icon {
-    width: 1rem;
-    height: 0.8rem;
-    flex: 0 0 auto;
-    object-fit: contain;
 }
 
 body .support-card-fallback:focus-visible {

@@ -14,11 +14,13 @@
 
   var KOFI_ID = "K1V623R7BV";
   var KOFI_URL = "https://ko-fi.com/" + KOFI_ID;
-  var KOFI_ICON_URL = "https://storage.ko-fi.com/cdn/cup-border.png";
+  var KOFI_WIDGET_URL = "https://storage.ko-fi.com/cdn/widget/Widget_2.js";
+  var KOFI_COLOR = "#72a4f2";
   var KOFI_LABEL = "Support me on Ko-fi";
   var FEEDBACK_PAGE_URL =
     "https://alphaeusng.github.io/pages/feedback/";
   var scriptElement = global.document.currentScript;
+  var widgetPromise;
 
   function projectName() {
     var pathname = global.location.pathname.toLowerCase();
@@ -65,21 +67,18 @@
       ".alphaeus-kofi-support__message{color:#94a3b8;font-size:.78rem;line-height:1.45}" +
       ".alphaeus-kofi-support__message strong{color:#e2e8f0;font-weight:600}" +
       ".alphaeus-kofi-support__button{min-width:0;display:inline-flex;align-items:center;" +
-      "justify-content:center;gap:.5rem;flex-wrap:wrap}" +
+      "justify-content:center;gap:.55rem;flex-wrap:wrap}" +
       ".alphaeus-kofi-support__fallback{box-sizing:border-box;display:inline-flex;" +
-      "min-height:2rem;align-items:center;justify-content:center;gap:.5rem;" +
-      "padding:.45rem .8rem .45rem .65rem;border-radius:.4rem;background:#72a4f2;" +
-      "color:#fff!important;font-size:.65rem;font-weight:700;line-height:1.25;" +
-      "letter-spacing:.01em;white-space:nowrap;text-decoration:none!important}" +
+      "min-height:26px;align-items:center;justify-content:center;padding:.3rem .55rem;" +
+      "border-radius:5px;background:#72a4f2;color:#fff!important;font-size:.65rem;" +
+      "font-weight:700;line-height:1;text-decoration:none!important}" +
       ".alphaeus-kofi-support__feedback{box-sizing:border-box;display:inline-flex;" +
-      "min-height:2rem;align-items:center;justify-content:center;padding:.45rem .75rem;" +
-      "border:1px solid rgba(148,163,184,.38);border-radius:.4rem;" +
+      "min-height:26px;align-items:center;justify-content:center;padding:.3rem .58rem;" +
+      "border:1px solid rgba(148,163,184,.38);border-radius:5px;" +
       "background:rgba(15,23,42,.58);color:#e2e8f0!important;font-size:.65rem;" +
-      "font-weight:700;line-height:1.25;text-decoration:none!important}" +
+      "font-weight:700;line-height:1;text-decoration:none!important}" +
       ".alphaeus-kofi-support__feedback:hover{border-color:rgba(114,164,242,.75);" +
       "background:rgba(114,164,242,.12);color:#fff!important}" +
-      ".alphaeus-kofi-support__icon{display:block;width:16px;height:13px;" +
-      "object-fit:contain;flex:0 0 auto}" +
       ".alphaeus-kofi-support__fallback:focus-visible," +
       ".alphaeus-kofi-support__feedback:focus-visible{" +
       "outline:2px solid #f8fafc;outline-offset:3px}" +
@@ -88,14 +87,43 @@
     global.document.head.appendChild(style);
   }
 
+  function loadOfficialWidget() {
+    if (
+      global.kofiwidget2 &&
+      typeof global.kofiwidget2.getHTML === "function"
+    ) {
+      return Promise.resolve(global.kofiwidget2);
+    }
+    if (widgetPromise) {
+      return widgetPromise;
+    }
+    widgetPromise = new Promise(function (resolve, reject) {
+      var script = global.document.createElement("script");
+      script.src = KOFI_WIDGET_URL;
+      script.async = true;
+      script.onload = function () {
+        if (
+          global.kofiwidget2 &&
+          typeof global.kofiwidget2.getHTML === "function"
+        ) {
+          resolve(global.kofiwidget2);
+        } else {
+          reject(new Error("Ko-fi widget did not initialize"));
+        }
+      };
+      script.onerror = function () {
+        reject(new Error("Ko-fi widget could not be loaded"));
+      };
+      global.document.head.appendChild(script);
+    });
+    return widgetPromise;
+  }
+
   function fallbackMarkup() {
     return (
       '<a class="alphaeus-kofi-support__fallback" href="' +
       KOFI_URL +
       '" target="_blank" rel="me noopener noreferrer">' +
-      '<img class="alphaeus-kofi-support__icon" src="' +
-      KOFI_ICON_URL +
-      '" alt="" aria-hidden="true">' +
       KOFI_LABEL +
       " ↗</a>"
     );
@@ -124,6 +152,28 @@
     host.innerHTML =
       (includeKofi ? fallbackMarkup() : "") +
       (includeFeedback ? feedbackMarkup() : "");
+
+    if (!includeKofi) {
+      return;
+    }
+
+    loadOfficialWidget()
+      .then(function (widget) {
+        widget.init(KOFI_LABEL, KOFI_COLOR, KOFI_ID);
+        host.innerHTML =
+          widget.getHTML() + (includeFeedback ? feedbackMarkup() : "");
+        var link = host.querySelector(".kofi-button");
+        if (link) {
+          link.setAttribute("rel", "me noopener noreferrer");
+          link.setAttribute(
+            "aria-label",
+            "Support Alphaeus on Ko-fi (opens in a new tab)"
+          );
+        }
+      })
+      .catch(function () {
+        // Keep the plain Ko-fi link if the official widget CDN is blocked.
+      });
   }
 
   function mountInFooter(footer, message, options) {

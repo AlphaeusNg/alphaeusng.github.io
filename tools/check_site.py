@@ -693,11 +693,8 @@ def main() -> None:
     kofi_js = (ROOT / "js" / "kofi-support.js").read_text(encoding="utf-8")
     if "includeFeedback: target ? true : includeFeedback" not in kofi_js:
         fail("kofi-support must keep footer Feedback when a targeted Ko-fi host is present")
-    if "gap:.5rem" not in kofi_js or "padding:.45rem .8rem .45rem .65rem" not in kofi_js:
-        fail("Ko-fi chip must keep space between the cup, the label, and the button walls")
-    home_css = (ROOT / "css" / "home.css").read_text(encoding="utf-8")
-    if "gap: 0.5rem" not in home_css or "padding: 0.45rem 0.8rem 0.45rem 0.65rem" not in home_css:
-        fail("home Ko-fi fallback must keep space between the cup, the label, and the button walls")
+    if "Widget_2.js" not in kofi_js or "kofiwidget2" not in kofi_js:
+        fail("Ko-fi button must use the official Ko-fi widget used on sibling project pages")
     ok("home Ko-fi card and footer Feedback stay paired")
 
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
