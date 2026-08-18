@@ -54,6 +54,20 @@ SITEMAP_ROUTES = (
         ),
     ),
     SitemapRoute(
+        "https://alphaeusng.github.io/pages/dca-calculator.html",
+        "pages/dca-calculator.html",
+        "daily",
+        "0.8",
+        (
+            "pages/dca-calculator.html",
+            "css/dca-calculator.css",
+            "js/dca-engine.js",
+            "js/dca-calculator.js",
+            "js/kofi-support.js",
+            "data/dca_market_history.json",
+        ),
+    ),
+    SitemapRoute(
         "https://alphaeusng.github.io/pages/seeking-biblical-truth/",
         "pages/seeking-biblical-truth/index.html",
         "weekly",

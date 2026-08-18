@@ -68,6 +68,46 @@ a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }
     font-size: 0.875rem;
 }
 
+.dca-lab-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 46rem;
+    margin-top: 1.5rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid rgba(201, 162, 39, 0.34);
+    border-radius: 1rem;
+    background: linear-gradient(120deg, rgba(201, 162, 39, 0.1), rgba(96, 165, 250, 0.05));
+    color: #F8FAFC !important;
+}
+
+.dca-lab-cta:hover {
+    border-color: rgba(244, 210, 106, 0.65);
+    color: #F8FAFC !important;
+}
+
+.dca-lab-cta > span:first-child {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.dca-lab-cta strong {
+    color: #F4D26A;
+}
+
+.dca-lab-cta small {
+    color: #94A3B8;
+    line-height: 1.5;
+}
+
+.dca-lab-cta > span:last-child {
+    flex-shrink: 0;
+    color: #CBD5E1;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
 .conviction-nav .project-tabs-bar {
     display: block;
     background: transparent;
@@ -81,5 +121,10 @@ a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }
 @media (max-width: 767px) {
     .conviction-nav .project-tabs-bar {
         display: block;
+    }
+
+    .dca-lab-cta {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }

@@ -3,6 +3,8 @@
 This folder contains secondary deployable pages for the portfolio.
 
 - `conviction.html`: public conviction page.
+- `dca-calculator.html`: Conviction DCA Lab for budget-capped TSLA/SPCX daily
+  contribution planning; personal settings remain in browser storage.
 - `kobo-forge.html`: compatibility redirect to the standalone `/KoboForge/`
   project site; no converter implementation lives in this repository.
 - `feedback/`: shared, project-aware feedback form used by all public projects.

@@ -18,12 +18,16 @@ The design should remain restrained, professional, and easy to share. It should 
 - `index.html`: main portfolio page served from the GitHub Pages root.
 - `pages/`: secondary public pages.
   - `pages/conviction.html`: conviction page.
+  - `pages/dca-calculator.html`: local-first, budget-capped TSLA/SPCX daily
+    contribution planner linked from Conviction.
   - `pages/kobo-forge.html`: compatibility redirect to the standalone
     [KoboForge repository](https://github.com/AlphaeusNg/KoboForge).
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.
 - `seeking-biblical-truth/index.html`: compatibility redirect for old viewer bookmarks.
 - `data/`: root-level public data payloads.
   - `data/conviction_tsla_history.json`: TSLA transaction history plus the benchmark comparison used by `pages/conviction.html`.
+  - `data/dca_market_history.json`: scheduled Nasdaq market snapshot used by
+    the DCA Lab; it contains no personal contribution values.
 - `css/`: grouped site styles (`main.css` shared foundations plus route-specific
   `home.css`, `404.css`, and `conviction.css`).
 - `js/`: grouped site applications (`main.js`, `modals.js`, `conviction.js`,
@@ -48,6 +52,7 @@ Open:
 
 - http://127.0.0.1:8000/
 - http://127.0.0.1:8000/pages/conviction.html
+- http://127.0.0.1:8000/pages/dca-calculator.html
 - http://127.0.0.1:8000/pages/kobo-forge.html (redirects to the standalone site)
 - http://127.0.0.1:8000/pages/seeking-biblical-truth/
 
@@ -68,6 +73,19 @@ python3 tools/finance/generate_tsla_vs_spy.py
 ```
 
 The generator reads `tools/finance/tsla_trades_anonymized.csv` and writes the legacy monthly TSLA/SPY snapshot to `tools/finance/tsla-vs-spy.json`.
+
+The DCA Lab reads its public market snapshot from
+`data/dca_market_history.json`. A weekday workflow refreshes it after the U.S.
+close and commits only when the market payload changes. To refresh it manually:
+
+```bash
+python3 tools/finance/generate_dca_market_data.py
+python3 -m unittest tools.test_dca_market_data
+npm run test:dca
+```
+
+Calculator inputs and its purchase journal are stored only in the visitor's
+browser. The static market dataset never contains those personal values.
 
 The sitemap dates only routes deployed by this repository. It intentionally
 omits `<lastmod>` from sibling project routes because their histories live in
@@ -106,6 +124,7 @@ Run before pushing:
 
 ```bash
 python3 -m unittest discover -s tools -p 'test_*.py'
+npm run test:dca
 python3 tools/finance/generate_conviction_history.py --check
 python3 tools/generate_sitemap.py --check
 python3 tools/check_site.py
@@ -128,6 +147,8 @@ so benchmark view coverage does not depend on the CDN. The feedback journey
 similarly replaces only the Firebase SDK boundary while exercising source URL
 sanitization, validation, success, cooldown, write fallback, and the
 initialization fallback used when the SDK never becomes available.
+The DCA journey exercises the real market snapshot, manual-price mode, bounded
+recommendations, and browser-journal persistence.
 
 Then check:
 

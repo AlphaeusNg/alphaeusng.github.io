@@ -93,8 +93,8 @@ class SitemapContractTests(unittest.TestCase):
         dated = [route for route in SITEMAP_ROUTES if route.deploy_inputs]
         external = [route for route in SITEMAP_ROUTES if not route.deploy_inputs]
 
-        self.assertEqual(len(SITEMAP_ROUTES), 9)
-        self.assertEqual(len(dated), 3)
+        self.assertEqual(len(SITEMAP_ROUTES), 10)
+        self.assertEqual(len(dated), 4)
         self.assertEqual(len(external), 6)
         self.assertTrue(all(route.local_path for route in dated))
         self.assertTrue(all(route.local_path is None for route in external))

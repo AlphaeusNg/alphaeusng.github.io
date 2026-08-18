@@ -34,6 +34,8 @@ jobs:
         run: npm ci
       - name: Test site contracts
         run: python3 -m unittest discover -s tools -p 'test_*.py'
+      - name: Test DCA calculation engine
+        run: npm run test:dca
       - name: Check conviction data freshness
         run: python3 tools/finance/generate_conviction_history.py --check
       - name: Check sitemap freshness

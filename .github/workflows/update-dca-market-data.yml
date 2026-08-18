@@ -1,0 +1,45 @@
+name: update DCA market data
+
+on:
+  schedule:
+    # 22:30 UTC is safely after the regular Nasdaq close in both U.S. DST states.
+    - cron: "30 22 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-dca-market-data
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Fetch Nasdaq snapshot
+        run: python3 tools/finance/generate_dca_market_data.py
+      - name: Validate snapshot contract
+        run: python3 -m unittest tools.test_dca_market_data
+      - name: Commit a new market session
+        shell: bash
+        run: |
+          if git diff --quiet -- data/dca_market_history.json; then
+            echo "No new market session to publish."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/dca_market_history.json
+          git commit -m "Update DCA market snapshot"
+          git pull --rebase origin main
+          git push origin HEAD:main

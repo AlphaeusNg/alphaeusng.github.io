@@ -2,7 +2,8 @@
   "name": "alphaeusng-portfolio",
   "private": true,
   "scripts": {
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:dca": "node --test tools/test_dca_engine.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1"

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conviction DCA Lab • Alphaeus Ng</title>
+    <meta name="description" content="A budget-capped, trend-aware daily contribution calculator for Tesla and SpaceX. Local-first decision support; no brokerage execution.">
+    <meta name="theme-color" content="#07111f">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://alphaeusng.github.io/pages/dca-calculator.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/dca-calculator.css">
+    <script src="../js/dca-engine.js" defer></script>
+    <script src="../js/dca-calculator.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#planner">Skip to calculator</a>
+
+    <nav class="dca-nav" aria-label="Primary">
+        <div class="dca-nav__top">
+            <a class="dca-brand" href="../index.html" aria-label="Alphaeus Ng portfolio home">
+                <span class="dca-brand__mark" aria-hidden="true">A</span>
+                <span>Alphaeus Ng</span>
+            </a>
+            <a class="dca-nav__back" href="conviction.html">Back to Conviction</a>
+        </div>
+        <div class="dca-tabs" aria-label="Related pages">
+            <a href="conviction.html">Conviction</a>
+            <a class="is-current" href="dca-calculator.html" aria-current="page">DCA Lab</a>
+            <a href="seeking-biblical-truth/">Biblical Truth</a>
+            <a href="../index.html">Home</a>
+        </div>
+    </nav>
+
+    <main>
+        <header class="dca-hero">
+            <div class="dca-shell">
+                <p class="eyebrow">Conviction DCA Lab · local-first</p>
+                <h1>Buy every session.<br><span>Lean into weakness.</span></h1>
+                <p class="dca-hero__lede">
+                    Start with a fixed monthly cap. Keep buying on strong days, shift more of that same
+                    budget into weak days, and see exactly why the amount changed.
+                </p>
+                <div class="dca-hero__actions">
+                    <a class="button button--primary" href="#planner">Build today’s plan</a>
+                    <a class="button button--quiet" href="#method">Read the method</a>
+                </div>
+                <div class="market-strip" aria-label="Market data status">
+                    <div>
+                        <span class="market-strip__label">Tesla</span>
+                        <strong id="heroTslaPrice">Loading…</strong>
+                        <span id="heroTslaMove" class="market-move">—</span>
+                    </div>
+                    <div>
+                        <span class="market-strip__label">SpaceX</span>
+                        <strong id="heroSpcxPrice">Loading…</strong>
+                        <span id="heroSpcxMove" class="market-move">—</span>
+                    </div>
+                    <div class="market-strip__freshness">
+                        <span class="market-strip__label">Snapshot</span>
+                        <strong id="marketFreshness">Checking…</strong>
+                        <span id="marketTimestamp">Nasdaq market data</span>
+                    </div>
+                </div>
+                <p class="dca-hero__notice">
+                    Decision support, not financial advice or an order. Prices can be delayed; verify with your broker.
+                </p>
+            </div>
+        </header>
+
+        <section id="planner" class="dca-section" aria-labelledby="plannerTitle">
+            <div class="dca-shell">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">01 · Today’s plan</p>
+                        <h2 id="plannerTitle">One cap. Two allocations. No hidden guesswork.</h2>
+                    </div>
+                    <p>All personal values stay in this browser. Nothing is sent to a server.</p>
+                </div>
+
+                <div id="calculatorStatus" class="status-banner" role="status" aria-live="polite" hidden></div>
+
+                <div class="planner-grid">
+                    <form id="dcaForm" class="control-panel" novalidate>
+                        <fieldset class="control-group">
+                            <legend>Monthly pacing</legend>
+                            <div class="field-grid field-grid--two">
+                                <label class="field">
+                                    <span>Monthly investment cap</span>
+                                    <span class="money-input">
+                                        <span aria-hidden="true">$</span>
+                                        <input id="monthlyBudget" type="number" min="0" max="10000000" step="50" value="3000" inputmode="decimal">
+                                    </span>
+                                </label>
+                                <label class="field">
+                                    <span>Plan date <small>New York month</small></span>
+                                    <input id="planDate" type="date">
+                                </label>
+                            </div>
+
+                            <div class="allocation-control">
+                                <div class="allocation-control__header">
+                                    <label for="tslaAllocation">Target allocation</label>
+                                    <output id="allocationOutput" for="tslaAllocation">TSLA 70% · SPCX 30%</output>
+                                </div>
+                                <input id="tslaAllocation" class="allocation-range" type="range" min="0" max="100" step="5" value="70">
+                                <div class="allocation-legend" aria-hidden="true">
+                                    <span>Tesla</span>
+                                    <span>SpaceX</span>
+                                </div>
+                            </div>
+
+                            <div class="field-grid field-grid--two">
+                                <label class="field">
+                                    <span>TSLA invested this month</span>
+                                    <span class="money-input">
+                                        <span aria-hidden="true">$</span>
+                                        <input id="tslaInvested" type="number" min="0" max="10000000" step="1" value="0" inputmode="decimal">
+                                    </span>
+                                </label>
+                                <label class="field">
+                                    <span>SPCX invested this month</span>
+                                    <span class="money-input">
+                                        <span aria-hidden="true">$</span>
+                                        <input id="spcxInvested" type="number" min="0" max="10000000" step="1" value="0" inputmode="decimal">
+                                    </span>
+                                </label>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="control-group">
+                            <legend>Strategy</legend>
+                            <div class="preset-grid">
+                                <label class="preset-card">
+                                    <input type="radio" name="strategy" value="steady">
+                                    <span><strong>Steady</strong><small>0.85× floor · 1.60× max</small></span>
+                                </label>
+                                <label class="preset-card">
+                                    <input type="radio" name="strategy" value="balanced" checked>
+                                    <span><strong>Balanced</strong><small>0.70× floor · 2.25× max</small></span>
+                                </label>
+                                <label class="preset-card">
+                                    <input type="radio" name="strategy" value="aggressive">
+                                    <span><strong>Aggressive</strong><small>0.55× floor · 3.00× max</small></span>
+                                </label>
+                            </div>
+
+                            <details class="advanced-controls">
+                                <summary>Fine-tune the strategy <span id="strategyMode">Balanced preset</span></summary>
+                                <div class="range-field">
+                                    <label for="floorMultiplier">Good-day floor</label>
+                                    <output id="floorOutput" for="floorMultiplier">0.70×</output>
+                                    <input id="floorMultiplier" type="range" min="0.4" max="1" step="0.05" value="0.7">
+                                    <small>The calculator still buys this fraction of the adaptive baseline on extended days.</small>
+                                </div>
+                                <div class="range-field">
+                                    <label for="dipSensitivity">Dip sensitivity</label>
+                                    <output id="sensitivityOutput" for="dipSensitivity">1.35</output>
+                                    <input id="dipSensitivity" type="range" min="0" max="2.5" step="0.05" value="1.35">
+                                    <small>Controls how strongly normalized weakness moves budget forward.</small>
+                                </div>
+                                <div class="range-field">
+                                    <label for="maxMultiplier">Weak-day ceiling</label>
+                                    <output id="maxOutput" for="maxMultiplier">2.25×</output>
+                                    <input id="maxMultiplier" type="range" min="1" max="3.5" step="0.05" value="2.25">
+                                    <small>SPCX remains capped at 1.75× until it has 60 public sessions.</small>
+                                </div>
+                            </details>
+
+                            <label class="toggle-row">
+                                <span>
+                                    <strong>Fractional shares</strong>
+                                    <small>Turn off to round each suggestion down to whole shares.</small>
+                                </span>
+                                <input id="fractionalShares" type="checkbox" checked>
+                            </label>
+                        </fieldset>
+
+                        <fieldset class="control-group">
+                            <legend>Price reference</legend>
+                            <div class="price-grid">
+                                <div class="price-control">
+                                    <div class="price-control__title">
+                                        <span><strong>TSLA</strong> · Tesla</span>
+                                        <label><input id="tslaManualToggle" type="checkbox"> Manual</label>
+                                    </div>
+                                    <label class="money-input" aria-label="TSLA price">
+                                        <span aria-hidden="true">$</span>
+                                        <input id="tslaPrice" type="number" min="0.01" max="1000000" step="0.01" disabled>
+                                    </label>
+                                    <small id="tslaPriceMeta">Loading Nasdaq quote…</small>
+                                </div>
+                                <div class="price-control">
+                                    <div class="price-control__title">
+                                        <span><strong>SPCX</strong> · SpaceX</span>
+                                        <label><input id="spcxManualToggle" type="checkbox"> Manual</label>
+                                    </div>
+                                    <label class="money-input" aria-label="SPCX price">
+                                        <span aria-hidden="true">$</span>
+                                        <input id="spcxPrice" type="number" min="0.01" max="1000000" step="0.01" disabled>
+                                    </label>
+                                    <small id="spcxPriceMeta">Loading Nasdaq quote…</small>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                    <aside class="recommendation-panel" aria-labelledby="recommendationTitle">
+                        <div class="recommendation-panel__topline">
+                            <span id="nextSessionLabel">Next trading session</span>
+                            <span id="dataConfidence">Waiting for data</span>
+                        </div>
+                        <p class="recommendation-panel__kicker">Suggested total</p>
+                        <h3 id="recommendationTitle"><span id="totalRecommendation">—</span></h3>
+                        <p id="recommendationSummary" class="recommendation-panel__summary">
+                            Load market data to build the plan.
+                        </p>
+
+                        <div class="budget-progress" aria-label="Monthly budget progress">
+                            <div class="budget-progress__labels">
+                                <span><strong id="budgetInvested">$0</strong> invested</span>
+                                <span><strong id="budgetRemaining">—</strong> left</span>
+                            </div>
+                            <div class="budget-progress__track"><span id="budgetProgressFill"></span></div>
+                        </div>
+
+                        <div class="recommendation-assets">
+                            <article class="asset-order" data-symbol="TSLA">
+                                <div class="asset-order__heading">
+                                    <div><span class="asset-dot asset-dot--tsla"></span><strong>TSLA</strong><small>Tesla</small></div>
+                                    <span id="tslaSignalBadge" class="signal-badge">—</span>
+                                </div>
+                                <div class="asset-order__amount"><strong id="tslaRecommendation">—</strong><span id="tslaShares">— shares</span></div>
+                                <dl>
+                                    <div><dt>Adaptive baseline</dt><dd id="tslaBaseline">—</dd></div>
+                                    <div><dt>Applied weight</dt><dd id="tslaMultiplier">—</dd></div>
+                                    <div><dt>Asset budget left</dt><dd id="tslaRemaining">—</dd></div>
+                                </dl>
+                            </article>
+                            <article class="asset-order" data-symbol="SPCX">
+                                <div class="asset-order__heading">
+                                    <div><span class="asset-dot asset-dot--spcx"></span><strong>SPCX</strong><small>SpaceX</small></div>
+                                    <span id="spcxSignalBadge" class="signal-badge">—</span>
+                                </div>
+                                <div class="asset-order__amount"><strong id="spcxRecommendation">—</strong><span id="spcxShares">— shares</span></div>
+                                <dl>
+                                    <div><dt>Adaptive baseline</dt><dd id="spcxBaseline">—</dd></div>
+                                    <div><dt>Applied weight</dt><dd id="spcxMultiplier">—</dd></div>
+                                    <div><dt>Asset budget left</dt><dd id="spcxRemaining">—</dd></div>
+                                </dl>
+                            </article>
+                        </div>
+
+                        <div class="why-box">
+                            <h4>Why this amount</h4>
+                            <ul id="recommendationReasons">
+                                <li>The engine will explain the strongest price and pacing signals here.</li>
+                            </ul>
+                        </div>
+
+                        <div class="recommendation-actions">
+                            <button id="recordPurchase" class="button button--primary" type="button" disabled>Record as purchased</button>
+                            <button id="copyPlan" class="button button--quiet" type="button" disabled>Copy plan</button>
+                        </div>
+                        <p class="execution-note">Recording updates only this browser journal. It does not place a trade.</p>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <section id="signals" class="dca-section dca-section--tinted" aria-labelledby="signalsTitle">
+            <div class="dca-shell">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">02 · Signal desk</p>
+                        <h2 id="signalsTitle">See what the multiplier sees.</h2>
+                    </div>
+                    <p>Weakness is normalized by each asset’s own recent volatility. No indicator predicts the next move.</p>
+                </div>
+
+                <div class="signal-cards">
+                    <article class="signal-card">
+                        <div class="signal-card__header">
+                            <div><span class="asset-dot asset-dot--tsla"></span><h3>TSLA <small>Tesla</small></h3></div>
+                            <span id="tslaConfidenceBadge" class="confidence-badge">—</span>
+                        </div>
+                        <div id="tslaSparkline" class="sparkline" role="img" aria-label="Recent TSLA closing prices"></div>
+                        <dl class="indicator-grid" id="tslaIndicators"></dl>
+                    </article>
+                    <article class="signal-card">
+                        <div class="signal-card__header">
+                            <div><span class="asset-dot asset-dot--spcx"></span><h3>SPCX <small>SpaceX</small></h3></div>
+                            <span id="spcxConfidenceBadge" class="confidence-badge">—</span>
+                        </div>
+                        <div id="spcxSparkline" class="sparkline" role="img" aria-label="Recent SPCX closing prices"></div>
+                        <dl class="indicator-grid" id="spcxIndicators"></dl>
+                    </article>
+                </div>
+
+                <div class="identity-note">
+                    <strong>Ticker identity check:</strong> SPCX means Space Exploration Technologies Corp. on this page.
+                    The unrelated SPAC and New Issue ETF changed from SPCX to SPCK on 7 April 2026.
+                </div>
+            </div>
+        </section>
+
+        <section id="replay" class="dca-section" aria-labelledby="replayTitle">
+            <div class="dca-shell">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">03 · Same-budget replay</p>
+                        <h2 id="replayTitle">What would the last full month have done?</h2>
+                    </div>
+                    <p>Flat and adaptive schedules deploy the exact same dollars. This is a diagnostic, not a forecast.</p>
+                </div>
+                <div class="replay-grid">
+                    <article class="replay-card">
+                        <div class="replay-card__header"><h3>TSLA</h3><span id="tslaReplayMonth">—</span></div>
+                        <div class="replay-comparison">
+                            <div><span>Adaptive average</span><strong id="tslaAdaptiveAverage">—</strong><small id="tslaAdaptiveShares">—</small></div>
+                            <div><span>Flat DCA average</span><strong id="tslaFlatAverage">—</strong><small id="tslaFlatShares">—</small></div>
+                        </div>
+                        <p id="tslaReplayDelta">Waiting for market data.</p>
+                    </article>
+                    <article class="replay-card">
+                        <div class="replay-card__header"><h3>SPCX</h3><span id="spcxReplayMonth">—</span></div>
+                        <div class="replay-comparison">
+                            <div><span>Adaptive average</span><strong id="spcxAdaptiveAverage">—</strong><small id="spcxAdaptiveShares">—</small></div>
+                            <div><span>Flat DCA average</span><strong id="spcxFlatAverage">—</strong><small id="spcxFlatShares">—</small></div>
+                        </div>
+                        <p id="spcxReplayDelta">Waiting for market data.</p>
+                    </article>
+                </div>
+                <p class="replay-footnote">The replay uses closing prices, only information available up to each session, and the current strategy settings. Slippage, fees, taxes, and intraday execution are excluded.</p>
+            </div>
+        </section>
+
+        <section id="journal" class="dca-section dca-section--tinted" aria-labelledby="journalTitle">
+            <div class="dca-shell">
+                <div class="section-heading section-heading--actions">
+                    <div>
+                        <p class="eyebrow">04 · Local journal</p>
+                        <h2 id="journalTitle">Keep the plan accountable.</h2>
+                    </div>
+                    <div class="journal-actions">
+                        <button id="exportJournal" class="button button--quiet" type="button">Export CSV</button>
+                        <button id="resetMonth" class="button button--danger" type="button">Reset this month</button>
+                    </div>
+                </div>
+                <div class="journal-table-wrap">
+                    <table class="journal-table">
+                        <thead><tr><th>Date</th><th>Asset</th><th>Dollars</th><th>Price</th><th>Shares</th><th><span class="sr-only">Actions</span></th></tr></thead>
+                        <tbody id="journalBody"></tbody>
+                    </table>
+                    <p id="journalEmpty" class="empty-state">No purchases recorded in this browser yet.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="method" class="dca-section" aria-labelledby="methodTitle">
+            <div class="dca-shell method-layout">
+                <div>
+                    <p class="eyebrow">05 · Method and limits</p>
+                    <h2 id="methodTitle">Adaptive pacing, not price prediction.</h2>
+                    <p class="method-lede">
+                        Traditional dollar-cost averaging invests equal portions at regular intervals. This lab keeps
+                        that discipline but lets observable weakness change when a fixed monthly budget is deployed.
+                    </p>
+                </div>
+                <div class="method-steps">
+                    <article><span>1</span><div><h3>Fix the cap</h3><p>Monthly budget × allocation creates an asset target. Contributions already made are deducted first.</p></div></article>
+                    <article><span>2</span><div><h3>Find the baseline</h3><p>The remaining target is divided by remaining Nasdaq trading sessions, including the next eligible session.</p></div></article>
+                    <article><span>3</span><div><h3>Weight the day</h3><p>Daily and weekly returns, the 20-day trend, drawdown, RSI, and volatility produce a bounded multiplier.</p></div></article>
+                    <article><span>4</span><div><h3>Respect the month</h3><p>Strong days retain a floor buy, weak days cannot exceed the ceiling, and the final session catches up the remainder.</p></div></article>
+                </div>
+                <div class="risk-grid">
+                    <article><h3>Concentration risk</h3><p>TSLA and SPCX can both be highly volatile and share key-person and technology-sector risks. A pacing rule does not make a concentrated portfolio diversified.</p></article>
+                    <article><h3>Short SPCX history</h3><p>SPCX began trading in June 2026. Until 60 sessions exist, the engine pulls its signal toward neutral and caps weak-day sizing at 1.75×.</p></article>
+                    <article><h3>Data and execution</h3><p>Nasdaq data may be delayed. Manual price mode improves share estimates intraday, but the actual fill, fees, FX, and taxes remain broker-side.</p></article>
+                </div>
+                <div class="formula-card">
+                    <code>today = clamp((remaining budget ÷ remaining sessions) × signal, floor, ceiling)</code>
+                    <a href="https://www.investor.gov/introduction-investing/investing-basics/glossary/dollar-cost-averaging" target="_blank" rel="noopener noreferrer">Dollar-cost averaging definition at Investor.gov</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="dca-footer">
+        <div class="dca-shell">
+            <p>Built as transparent personal decision support. Not financial advice.</p>
+            <div><a href="conviction.html">Conviction</a><a href="../index.html">Portfolio</a><a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer">Source</a></div>
+        </div>
+    </footer>
+    <script src="../js/kofi-support.js?v=2026.08.19.2" data-auto-footer defer></script>
+    <script src="../js/version.js"></script>
+</body>
+</html>
