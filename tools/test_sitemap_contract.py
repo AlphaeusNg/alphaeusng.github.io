@@ -37,7 +37,11 @@ class SitemapContractTests(unittest.TestCase):
     def git(self, *arguments: str, commit_date: str | None = None) -> None:
         environment = os.environ.copy()
         if commit_date:
-            timestamp = f"{commit_date}T12:00:00+00:00"
+            timestamp = (
+                commit_date
+                if "T" in commit_date
+                else f"{commit_date}T12:00:00+00:00"
+            )
             environment["GIT_AUTHOR_DATE"] = timestamp
             environment["GIT_COMMITTER_DATE"] = timestamp
         subprocess.run(
@@ -76,6 +80,14 @@ class SitemapContractTests(unittest.TestCase):
                 current_date=date(2026, 3, 4),
             ),
             {"https://example.test/": "2026-03-04"},
+        )
+
+    def test_commit_timestamp_uses_the_site_timezone(self) -> None:
+        self.commit_inputs("2026-08-19T16:52:00+00:00")
+
+        self.assertEqual(
+            compute_lastmods(self.root, (self.route,)),
+            {"https://example.test/": "2026-08-20"},
         )
 
     def test_render_dates_only_repository_owned_routes(self) -> None:

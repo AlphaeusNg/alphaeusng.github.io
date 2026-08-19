@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import subprocess
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from xml.sax.saxutils import escape
+from zoneinfo import ZoneInfo
 
 SITEMAP_URL = "https://alphaeusng.github.io/sitemap.xml"
+SITE_TIMEZONE = ZoneInfo("Asia/Singapore")
 
 
 @dataclass(frozen=True)
@@ -49,6 +51,7 @@ SITEMAP_ROUTES = (
             "pages/conviction.html",
             "css/conviction.css",
             "js/conviction.js",
+            "js/dca-quotes.js",
             "js/kofi-support.js",
             "data/conviction_tsla_history.json",
         ),
@@ -62,6 +65,7 @@ SITEMAP_ROUTES = (
             "pages/dca-calculator.html",
             "css/dca-calculator.css",
             "js/dca-engine.js",
+            "js/dca-quotes.js",
             "js/dca-calculator.js",
             "js/kofi-support.js",
             "data/dca_market_history.json",
@@ -124,7 +128,7 @@ def compute_lastmods(
 ) -> dict[str, str]:
     """Return route dates from the newest committed or dirty deploy input."""
     root = root.resolve()
-    dirty_date = (current_date or date.today()).isoformat()
+    dirty_date = (current_date or datetime.now(SITE_TIMEZONE).date()).isoformat()
     lastmods: dict[str, str] = {}
 
     for route in routes:
@@ -143,19 +147,21 @@ def compute_lastmods(
             lastmods[route.url] = dirty_date
             continue
 
-        committed_date = _git(
-            root, "log", "-1", "--format=%cs", "--", *route.deploy_inputs
+        committed_timestamp = _git(
+            root, "log", "-1", "--format=%cI", "--", *route.deploy_inputs
         )
-        if not committed_date:
+        if not committed_timestamp:
             raise RuntimeError(
                 f"no Git history found for sitemap deploy inputs: {route.url}"
             )
         try:
-            date.fromisoformat(committed_date)
+            committed_date = datetime.fromisoformat(committed_timestamp).astimezone(
+                SITE_TIMEZONE
+            ).date().isoformat()
         except ValueError as error:
             raise RuntimeError(
-                f"invalid Git commit date for sitemap route {route.url}: "
-                f"{committed_date}"
+                f"invalid Git commit timestamp for sitemap route {route.url}: "
+                f"{committed_timestamp}"
             ) from error
         lastmods[route.url] = committed_date
 
