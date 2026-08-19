@@ -66,3 +66,83 @@ test('live loader returns null without disturbing the daily snapshot', async () 
   assert.equal(live, null);
   assert.equal(logged.length, 1);
 });
+
+test('Alpaca trade messages become normalized real-time ticks', () => {
+  const messages = quotes.parseAlpacaStreamMessage(JSON.stringify([
+    {
+      T: 't',
+      S: 'TSLA',
+      p: 351.42,
+      s: 25,
+      t: '2026-08-19T16:25:10.123456789Z',
+      x: 'V',
+    },
+    { T: 't', S: 'OTHER', p: 10, t: '2026-08-19T16:25:10Z' },
+  ]));
+  assert.deepEqual(messages, [{
+    type: 'trade',
+    symbol: 'TSLA',
+    price: 351.42,
+    asOf: '2026-08-19T16:25:10.123Z',
+    size: 25,
+    exchange: 'V',
+  }]);
+});
+
+test('Alpaca stream authenticates, subscribes, and emits trades', () => {
+  const sockets = [];
+  class FakeWebSocket {
+    static OPEN = 1;
+
+    constructor(url) {
+      this.url = url;
+      this.readyState = FakeWebSocket.OPEN;
+      this.sent = [];
+      sockets.push(this);
+    }
+
+    send(payload) {
+      this.sent.push(JSON.parse(payload));
+    }
+
+    close() {
+      this.readyState = 3;
+    }
+
+    emit(payload) {
+      this.onmessage({ data: JSON.stringify(payload) });
+    }
+  }
+
+  const states = [];
+  const trades = [];
+  const stream = quotes.createAlpacaStream({
+    keyId: 'key-id',
+    secret: 'secret-value',
+    feed: 'iex',
+    WebSocketImpl: FakeWebSocket,
+    onStatus: status => states.push(status.state),
+    onTrade: trade => trades.push(trade),
+  });
+
+  assert.equal(sockets[0].url, 'wss://stream.data.alpaca.markets/v2/iex');
+  sockets[0].onopen();
+  sockets[0].emit([{ T: 'success', msg: 'connected' }]);
+  sockets[0].emit([{ T: 'success', msg: 'authenticated' }]);
+  sockets[0].emit([{ T: 'subscription', trades: ['TSLA', 'SPCX'] }]);
+  sockets[0].emit([{
+    T: 't', S: 'SPCX', p: 141.25, s: 2, t: '2026-08-19T16:26:00Z', x: 'V',
+  }]);
+
+  assert.deepEqual(sockets[0].sent, [
+    { action: 'auth', key: 'key-id', secret: 'secret-value' },
+    { action: 'subscribe', trades: ['TSLA', 'SPCX'] },
+  ]);
+  assert.deepEqual(trades, [{
+    type: 'trade', symbol: 'SPCX', price: 141.25,
+    asOf: '2026-08-19T16:26:00.000Z', size: 2, exchange: 'V', feed: 'iex',
+  }]);
+  assert.ok(states.includes('streaming'));
+  stream.close();
+  assert.equal(states.at(-1), 'closed');
+});

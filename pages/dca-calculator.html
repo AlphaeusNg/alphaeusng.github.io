@@ -18,10 +18,10 @@
     <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/dca-calculator.css?v=2026.08.20.2">
-    <script src="../js/dca-engine.js?v=2026.08.20.2" defer></script>
-    <script src="../js/dca-quotes.js?v=2026.08.20.2" defer></script>
-    <script src="../js/dca-calculator.js?v=2026.08.20.2" defer></script>
+    <link rel="stylesheet" href="../css/dca-calculator.css?v=2026.08.20.3">
+    <script src="../js/dca-engine.js?v=2026.08.20.3" defer></script>
+    <script src="../js/dca-quotes.js?v=2026.08.20.3" defer></script>
+    <script src="../js/dca-calculator.js?v=2026.08.20.3" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#planner">Skip to calculator</a>
@@ -69,7 +69,10 @@
                         <span class="market-strip__label">Quotes</span>
                         <strong id="marketFreshness">Checking…</strong>
                         <span id="marketTimestamp">Nasdaq market data</span>
-                        <button id="refreshQuotes" class="market-strip__refresh" type="button" aria-label="Refresh recent Nasdaq quotes">Refresh</button>
+                        <div class="market-strip__actions">
+                            <button id="refreshQuotes" class="market-strip__refresh" type="button" aria-label="Refresh recent Nasdaq quotes">Refresh</button>
+                            <button id="enableRealtime" class="market-strip__refresh" type="button" aria-haspopup="dialog">Go real-time</button>
+                        </div>
                     </div>
                     <div class="market-strip__session">
                         <span class="market-strip__label">U.S. session</span>
@@ -82,6 +85,47 @@
                 </p>
             </div>
         </header>
+
+        <dialog id="realtimeDialog" class="realtime-dialog" aria-labelledby="realtimeTitle">
+            <form id="realtimeForm" class="realtime-dialog__panel">
+                <button id="closeRealtime" class="realtime-dialog__close" type="button" aria-label="Close real-time setup">×</button>
+                <p class="eyebrow">Optional live stream</p>
+                <h2 id="realtimeTitle">Stream every trade.</h2>
+                <p class="realtime-dialog__lede">
+                    Connect your Alpaca market-data keys directly from this tab. Nothing is committed or sent to this site.
+                </p>
+                <div class="realtime-dialog__grid">
+                    <label class="field" for="alpacaKeyId">
+                        API key ID
+                        <input id="alpacaKeyId" type="text" inputmode="text" autocomplete="off" spellcheck="false" required>
+                    </label>
+                    <label class="field" for="alpacaSecret">
+                        Secret key
+                        <input id="alpacaSecret" type="password" autocomplete="new-password" spellcheck="false" required>
+                    </label>
+                </div>
+                <label class="field" for="alpacaFeed">
+                    Market feed
+                    <select id="alpacaFeed">
+                        <option value="iex">IEX · free, partial U.S. coverage</option>
+                        <option value="sip">SIP · paid, full U.S. coverage</option>
+                    </select>
+                </label>
+                <label class="realtime-dialog__remember" for="rememberRealtime">
+                    <input id="rememberRealtime" type="checkbox">
+                    Keep credentials only until this tab closes
+                </label>
+                <p class="realtime-dialog__fineprint">
+                    IEX ticks are real-time but represent one exchange. SIP requires Alpaca’s paid market-data plan.
+                    <a href="https://app.alpaca.markets/signup" target="_blank" rel="noopener noreferrer">Get Alpaca keys</a>.
+                </p>
+                <p id="realtimeStatus" class="realtime-dialog__status" role="status" aria-live="polite"></p>
+                <div class="realtime-dialog__actions">
+                    <button id="disconnectRealtime" class="button button--quiet" type="button" hidden>Disconnect</button>
+                    <button id="connectRealtime" class="button button--primary" type="submit">Connect stream</button>
+                </div>
+            </form>
+        </dialog>
 
         <section id="planner" class="dca-section" aria-labelledby="plannerTitle">
             <div class="dca-shell">
@@ -465,7 +509,7 @@
             <div><a href="conviction.html">Conviction</a><a href="../index.html">Portfolio</a><a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer">Source</a></div>
         </div>
     </footer>
-    <script src="../js/kofi-support.js?v=2026.08.20.2" data-auto-footer defer></script>
+    <script src="../js/kofi-support.js?v=2026.08.20.3" data-auto-footer defer></script>
     <script src="../js/version.js"></script>
 </body>
 </html>

@@ -78,8 +78,16 @@ The DCA Lab reads daily history from `data/dca_market_history.json` and polls a
 CORS-open Nasdaq last-sale file on the `dca-live` branch. A weekday workflow
 refreshes the history snapshot after the U.S. close and publishes recent quotes
 about every ten minutes during the U.S. session. The committed snapshot and
-manual-price mode remain available if the live feed cannot be reached. To
-refresh the snapshot manually:
+manual-price mode remain available if the live feed cannot be reached.
+
+For tick-by-tick prices, visitors can optionally connect an
+[Alpaca market-data](https://docs.alpaca.markets/docs/streaming-market-data)
+WebSocket directly from the page. The free IEX feed is real-time with partial
+U.S. market coverage; SIP requires a paid Alpaca data plan. Keys are never
+committed or sent to this site, and are stored only in the current tab session
+when the visitor explicitly opts in.
+
+To refresh the snapshot manually:
 
 ```bash
 python3 tools/finance/generate_dca_market_data.py

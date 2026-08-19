@@ -60,6 +60,7 @@ input[type="radio"] { cursor: pointer; }
 
 button:focus-visible,
 input:focus-visible,
+select:focus-visible,
 a:focus-visible,
 summary:focus-visible {
     outline: 3px solid rgba(96, 165, 250, 0.75);
@@ -281,10 +282,15 @@ summary:focus-visible {
     position: relative;
 }
 
-.market-strip__refresh {
+.market-strip__actions {
+    display: flex;
     grid-column: 1 / -1;
-    justify-self: start;
+    gap: 0.85rem;
+    align-items: center;
     margin-top: 0.15rem;
+}
+
+.market-strip__refresh {
     padding: 0;
     border: 0;
     color: var(--dca-gold-light);
@@ -299,6 +305,10 @@ summary:focus-visible {
     cursor: wait;
     opacity: 0.55;
     text-decoration: none;
+}
+
+#enableRealtime.is-connected {
+    color: var(--dca-green);
 }
 
 #marketFreshness.is-live {
@@ -346,6 +356,112 @@ summary:focus-visible {
     margin: 1rem 0 0;
     color: var(--dca-dim);
     font-size: 0.78rem;
+}
+
+.realtime-dialog {
+    width: min(620px, calc(100% - 1.25rem));
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    overflow: auto;
+    border: 1px solid var(--dca-line-gold);
+    border-radius: var(--dca-radius);
+    color: var(--dca-text);
+    background: #0b192a;
+    box-shadow: 0 32px 110px rgba(0, 0, 0, 0.58);
+}
+
+.realtime-dialog::backdrop {
+    background: rgba(1, 7, 15, 0.78);
+    backdrop-filter: blur(5px);
+}
+
+.realtime-dialog__panel {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1.35rem, 5vw, 2.25rem);
+}
+
+.realtime-dialog__close {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--dca-line);
+    border-radius: 999px;
+    color: var(--dca-muted);
+    background: rgba(3, 10, 20, 0.38);
+    font-size: 1.25rem;
+}
+
+.realtime-dialog h2 {
+    margin: -0.25rem 0 0;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: clamp(2rem, 8vw, 3rem);
+    line-height: 1;
+}
+
+.realtime-dialog__lede,
+.realtime-dialog__fineprint,
+.realtime-dialog__status { margin: 0; }
+
+.realtime-dialog__lede {
+    max-width: 52ch;
+    color: var(--dca-muted);
+    line-height: 1.65;
+}
+
+.realtime-dialog__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.realtime-dialog .field input,
+.realtime-dialog .field select {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid var(--dca-line);
+    border-radius: 11px;
+    color: var(--dca-text);
+    background: rgba(3, 10, 20, 0.55);
+}
+
+.realtime-dialog__remember {
+    display: flex;
+    gap: 0.65rem;
+    align-items: center;
+    color: var(--dca-muted);
+    font-size: 0.8rem;
+}
+
+.realtime-dialog__remember input {
+    width: 1.15rem;
+    height: 1.15rem;
+    accent-color: var(--dca-gold);
+}
+
+.realtime-dialog__fineprint {
+    color: var(--dca-dim);
+    font-size: 0.75rem;
+    line-height: 1.55;
+}
+
+.realtime-dialog__status {
+    min-height: 1.35rem;
+    color: var(--dca-gold-light);
+    font-size: 0.78rem;
+}
+
+.realtime-dialog__status.is-error { color: var(--dca-red); }
+
+.realtime-dialog__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    justify-content: flex-end;
 }
 
 .dca-section {
@@ -1072,6 +1188,7 @@ summary:focus-visible {
     .method-rules article + article { border-top: 1px solid var(--dca-line); border-left: 0; }
     .formula-card { align-items: flex-start; flex-direction: column; }
     .dca-footer .dca-shell { align-items: flex-start; flex-direction: column; }
+    .realtime-dialog__grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 430px) {
@@ -1087,6 +1204,7 @@ summary:focus-visible {
     .chart-toolbar { align-items: flex-start; flex-direction: column-reverse; }
     .chart-ranges { align-self: flex-end; }
     .date-field { grid-template-columns: 1fr; }
+    .realtime-dialog__actions .button { width: 100%; }
 }
 
 @media (min-width: 701px) {
@@ -1099,6 +1217,7 @@ summary:focus-visible {
     .mobile-action-bar,
     .recommendation-actions,
     .journal-actions,
+    .realtime-dialog,
     .dca-footer { display: none !important; }
     .recommendation-panel { position: static; box-shadow: none; }
 }

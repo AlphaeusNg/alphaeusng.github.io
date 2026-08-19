@@ -710,6 +710,24 @@ def main() -> None:
             fail(f"DCA Lab {asset} cache key must match SITE_VERSION.id {site_version}")
     ok(f"DCA Lab asset cache keys match {site_version}")
 
+    for element_id in (
+        "enableRealtime",
+        "realtimeDialog",
+        "realtimeForm",
+        "alpacaKeyId",
+        "alpacaSecret",
+        "alpacaFeed",
+        "disconnectRealtime",
+    ):
+        if f'id="{element_id}"' not in dca_html:
+            fail(f"DCA Lab real-time control #{element_id} is missing")
+    if not re.search(r'id="alpacaSecret"\s+type="password"', dca_html):
+        fail("DCA Lab Alpaca secret must use a password input")
+    dca_quotes = (ROOT / "js" / "dca-quotes.js").read_text(encoding="utf-8")
+    if "wss://stream.data.alpaca.markets/v2/iex" not in dca_quotes:
+        fail("DCA Lab must retain the direct Alpaca IEX WebSocket endpoint")
+    ok("DCA Lab real-time controls and secure secret input present")
+
     home_html = (ROOT / "index.html").read_text(encoding="utf-8")
     if "data-auto-footer" not in home_html:
         fail("home page must mount the footer feedback strip")

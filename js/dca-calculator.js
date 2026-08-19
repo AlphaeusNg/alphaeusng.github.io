@@ -3,6 +3,7 @@
 
     const DATA_PATH = '../data/dca_market_history.json';
     const STORAGE_KEY = 'alphaeus-conviction-dca-lab-v1';
+    const REALTIME_SESSION_KEY = 'alphaeus-dca-realtime-session-v1';
     const SYMBOLS = ['TSLA', 'SPCX'];
     const engine = window.DcaEngine;
     const quotesApi = window.DcaQuotes;
@@ -16,6 +17,9 @@
     let clockTimer = null;
     let quoteTimer = null;
     let quoteRequest = null;
+    let realtimeStream = null;
+    let realtimeRecalcTimer = null;
+    let realtimeFeed = 'iex';
     let quoteFeed = { source: 'snapshot', generatedAt: null, fetchedAt: null };
     let journalThisMonthOnly = true;
     const chartRanges = { TSLA: '66', SPCX: '66' };
@@ -54,7 +58,10 @@
             'undoLast', 'copyPlanLink', 'mobileActionBar', 'mobileActionTotal',
             'mobileRecord', 'mobileCopy', 'journalSummary', 'importJournal',
             'importJournalButton', 'marketSession', 'marketClock',
-            'tslaSignalLabel', 'spcxSignalLabel', 'refreshQuotes'
+            'tslaSignalLabel', 'spcxSignalLabel', 'refreshQuotes', 'enableRealtime',
+            'realtimeDialog', 'realtimeForm', 'closeRealtime', 'alpacaKeyId',
+            'alpacaSecret', 'alpacaFeed', 'rememberRealtime', 'realtimeStatus',
+            'connectRealtime', 'disconnectRealtime'
         ].forEach((id) => { elements[id] = byId(id); });
         elements.strategyRadios = Array.from(document.querySelectorAll('input[name="strategy"]'));
         elements.chartRangeButtons = Array.from(document.querySelectorAll('[data-chart-range]'));
@@ -403,7 +410,7 @@
     }
 
     function applyLiveQuotes(live) {
-        if (!marketData || !live || !live.quotes) return false;
+        if (!marketData || !live || !live.quotes || realtimeStream) return false;
         let changed = false;
         let accepted = false;
         SYMBOLS.forEach((symbol) => {
@@ -436,7 +443,7 @@
     }
 
     function quotePollMs() {
-        if (typeof document !== 'undefined' && document.hidden) return null;
+        if (realtimeStream || (typeof document !== 'undefined' && document.hidden)) return null;
         const status = elements.marketSession ? elements.marketSession.textContent : '';
         if (status === 'Open') return 60_000;
         if (status === 'Pre-market' || status === 'After hours') return 120_000;
@@ -454,6 +461,7 @@
 
     async function refreshLiveQuotes({ force = false } = {}) {
         if (!quotesApi || !marketData) return;
+        if (realtimeStream) return;
         if (typeof document !== 'undefined' && document.hidden && !force) return;
         if (quoteRequest) return quoteRequest;
         if (elements.refreshQuotes) {
@@ -478,6 +486,138 @@
                 elements.refreshQuotes.disabled = false;
                 elements.refreshQuotes.removeAttribute('aria-busy');
             }
+        }
+    }
+
+    function readRealtimeSession() {
+        try {
+            const saved = JSON.parse(sessionStorage.getItem(REALTIME_SESSION_KEY));
+            if (!saved || !saved.keyId || !saved.secret) return null;
+            return {
+                keyId: String(saved.keyId),
+                secret: String(saved.secret),
+                feed: saved.feed === 'sip' ? 'sip' : 'iex'
+            };
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function setRealtimeUi(state, message = '') {
+        const active = ['connecting', 'connected', 'authenticating', 'subscribing', 'streaming', 'reconnecting'].includes(state);
+        if (elements.enableRealtime) {
+            elements.enableRealtime.textContent = state === 'streaming'
+                ? 'Live'
+                : active ? 'Connecting…' : 'Go real-time';
+            elements.enableRealtime.classList.toggle('is-connected', state === 'streaming');
+            elements.enableRealtime.setAttribute('aria-pressed', String(state === 'streaming'));
+        }
+        if (elements.realtimeStatus) {
+            elements.realtimeStatus.textContent = message;
+            elements.realtimeStatus.classList.toggle('is-error', state === 'error');
+        }
+        if (elements.connectRealtime) elements.connectRealtime.disabled = active;
+        if (elements.disconnectRealtime) elements.disconnectRealtime.hidden = !realtimeStream;
+    }
+
+    function openRealtimeDialog() {
+        if (!elements.realtimeDialog) return;
+        const saved = readRealtimeSession();
+        if (saved) {
+            elements.alpacaKeyId.value = saved.keyId;
+            elements.alpacaSecret.value = saved.secret;
+            elements.alpacaFeed.value = saved.feed;
+            elements.rememberRealtime.checked = true;
+        }
+        if (!elements.realtimeDialog.open) elements.realtimeDialog.showModal();
+    }
+
+    function scheduleRealtimeRecalculation() {
+        if (realtimeRecalcTimer) return;
+        realtimeRecalcTimer = window.setTimeout(() => {
+            realtimeRecalcTimer = null;
+            recalculate({ persist: false, preserveStatus: true });
+        }, 750);
+    }
+
+    function applyRealtimeTrade(trade) {
+        if (!marketData || !trade || !SYMBOLS.includes(trade.symbol)) return;
+        const timestamp = Date.parse(trade.asOf);
+        const age = Date.now() - timestamp;
+        if (!Number.isFinite(timestamp) || age < -15 * 60_000 || age > 36 * 3_600_000) return;
+        const current = marketData.symbols[trade.symbol].quote || {};
+        const previousClose = Number(current.previousClose)
+            || (Number(current.price) - Number(current.netChange))
+            || Number(current.price);
+        const netChange = trade.price - previousClose;
+        realtimeFeed = trade.feed === 'sip' ? 'sip' : 'iex';
+        marketData.symbols[trade.symbol].quote = {
+            ...current,
+            price: trade.price,
+            asOf: trade.asOf,
+            previousClose,
+            netChange,
+            percentChange: previousClose > 0 ? netChange / previousClose : 0,
+            marketStatus: elements.marketSession?.textContent || current.marketStatus || 'Open',
+            isRealTime: true,
+            source: `Alpaca ${realtimeFeed.toUpperCase()}`
+        };
+        quoteFeed = {
+            source: `alpaca-${realtimeFeed}`,
+            generatedAt: trade.asOf,
+            fetchedAt: new Date().toISOString()
+        };
+        renderMarketHeader();
+        scheduleRealtimeRecalculation();
+    }
+
+    function stopRealtime({ forget = true, restoreFallback = true } = {}) {
+        const stream = realtimeStream;
+        realtimeStream = null;
+        if (stream) stream.close();
+        if (realtimeRecalcTimer) window.clearTimeout(realtimeRecalcTimer);
+        realtimeRecalcTimer = null;
+        if (forget) {
+            try { sessionStorage.removeItem(REALTIME_SESSION_KEY); } catch (error) { /* no-op */ }
+            if (elements.rememberRealtime) elements.rememberRealtime.checked = false;
+        }
+        setRealtimeUi('closed', 'Real-time stream disconnected. Recent Nasdaq quotes remain available.');
+        if (restoreFallback) {
+            quoteFeed.source = 'alpaca-paused';
+            renderMarketHeader();
+            refreshLiveQuotes({ force: true }).finally(scheduleQuotePoll);
+        }
+    }
+
+    function startRealtime(credentials) {
+        if (!quotesApi || typeof quotesApi.createAlpacaStream !== 'function') {
+            setRealtimeUi('error', 'Real-time streaming is unavailable in this browser.');
+            return;
+        }
+        if (realtimeStream) stopRealtime({ forget: false, restoreFallback: false });
+        if (quoteTimer) window.clearTimeout(quoteTimer);
+        quoteTimer = null;
+        realtimeFeed = credentials.feed === 'sip' ? 'sip' : 'iex';
+        try {
+            realtimeStream = quotesApi.createAlpacaStream({
+                ...credentials,
+                feed: realtimeFeed,
+                symbols: SYMBOLS,
+                onTrade: applyRealtimeTrade,
+                onStatus: ({ state: streamState, message }) => {
+                    setRealtimeUi(streamState, message);
+                    if (streamState === 'streaming' && elements.realtimeDialog?.open) {
+                        elements.alpacaSecret.value = '';
+                        if (!elements.rememberRealtime.checked) elements.alpacaKeyId.value = '';
+                        elements.realtimeDialog.close();
+                    }
+                },
+                onError: (error) => console.warn('[DCA Lab] Real-time stream issue.', error)
+            });
+            setRealtimeUi('connecting', 'Opening real-time stream…');
+        } catch (error) {
+            realtimeStream = null;
+            setRealtimeUi('error', error.message || 'Could not start the real-time stream.');
         }
     }
 
@@ -507,9 +647,11 @@
             const move = elements[`hero${symbol === 'TSLA' ? 'Tsla' : 'Spcx'}Move`];
             move.textContent = formatPercent(quote.percentChange, 2);
             move.className = `market-move ${quote.percentChange >= 0 ? 'is-up' : 'is-down'}`;
-            const feed = quote.source === 'Nasdaq' && quoteFeed.source !== 'snapshot'
-                ? 'Nasdaq last sale'
-                : 'Nasdaq snapshot';
+            const feed = String(quote.source || '').startsWith('Alpaca ')
+                ? `${quote.source} trade`
+                : quote.source === 'Nasdaq' && quoteFeed.source !== 'snapshot'
+                    ? 'Nasdaq last sale'
+                    : 'Nasdaq snapshot';
             elements[`${lower}PriceMeta`].textContent = `${feed} · ${formatQuoteTimestamp(quote)} · ${quote.marketStatus}`;
             if (!elements[`${lower}ManualToggle`].checked) {
                 elements[`${lower}Price`].value = String(quote.price);
@@ -517,16 +659,24 @@
         });
         const ageHours = quoteAgeHours();
         const ageMs = ageHours * 3_600_000;
-        const recent = quoteFeed.source !== 'snapshot' && ageMs < 15 * 60_000;
+        const paused = quoteFeed.source === 'alpaca-paused';
+        const streaming = String(quoteFeed.source || '').startsWith('alpaca-')
+            && !paused;
+        const recent = !streaming && !paused && quoteFeed.source !== 'snapshot' && ageMs < 15 * 60_000;
         let freshness = 'Fresh snapshot';
-        if (recent && ageMs < 90_000) freshness = 'Recent last sale';
+        if (streaming && ageMs < 30_000) freshness = 'Live · streaming';
+        else if (streaming) freshness = 'Live · waiting for trade';
+        else if (paused) freshness = 'Stream paused';
+        else if (recent && ageMs < 90_000) freshness = 'Recent last sale';
         else if (recent) freshness = 'Recent · short delay';
         else if (quoteFeed.source !== 'snapshot' && ageHours <= 26) freshness = 'Latest market close';
         else if (ageHours > 96) freshness = 'Stale · use manual price';
         else if (ageHours > 26) freshness = 'Prior market snapshot';
         elements.marketFreshness.textContent = freshness;
-        elements.marketFreshness.classList.toggle('is-live', Boolean(recent));
-        const stampSource = quoteFeed.source !== 'snapshot' ? 'Feed updated' : 'Snapshot generated';
+        elements.marketFreshness.classList.toggle('is-live', Boolean(recent || streaming));
+        const stampSource = streaming || paused
+            ? 'Last tick'
+            : quoteFeed.source !== 'snapshot' ? 'Feed updated' : 'Snapshot generated';
         const stamp = quoteFeed.source !== 'snapshot'
             ? (quoteFeed.generatedAt || quoteFeed.fetchedAt || Date.now())
             : marketData.generatedAt;
@@ -1556,6 +1706,44 @@
         if (elements.refreshQuotes) {
             elements.refreshQuotes.addEventListener('click', () => refreshLiveQuotes({ force: true }));
         }
+        if (elements.enableRealtime) {
+            elements.enableRealtime.addEventListener('click', openRealtimeDialog);
+        }
+        if (elements.closeRealtime) {
+            elements.closeRealtime.addEventListener('click', () => elements.realtimeDialog.close());
+        }
+        if (elements.realtimeDialog) {
+            elements.realtimeDialog.addEventListener('click', (event) => {
+                if (event.target === elements.realtimeDialog) elements.realtimeDialog.close();
+            });
+        }
+        if (elements.realtimeForm) {
+            elements.realtimeForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const credentials = {
+                    keyId: elements.alpacaKeyId.value.trim(),
+                    secret: elements.alpacaSecret.value.trim(),
+                    feed: elements.alpacaFeed.value === 'sip' ? 'sip' : 'iex'
+                };
+                if (!credentials.keyId || !credentials.secret) {
+                    setRealtimeUi('error', 'Enter both your Alpaca key ID and secret key.');
+                    return;
+                }
+                try {
+                    if (elements.rememberRealtime.checked) {
+                        sessionStorage.setItem(REALTIME_SESSION_KEY, JSON.stringify(credentials));
+                    } else {
+                        sessionStorage.removeItem(REALTIME_SESSION_KEY);
+                    }
+                } catch (error) {
+                    setRealtimeUi('error', 'This browser could not save a tab-only session. You can still connect.');
+                }
+                startRealtime(credentials);
+            });
+        }
+        if (elements.disconnectRealtime) {
+            elements.disconnectRealtime.addEventListener('click', () => stopRealtime());
+        }
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
                 if (quoteTimer) window.clearTimeout(quoteTimer);
@@ -1567,6 +1755,7 @@
             flushPersist();
             if (clockTimer) window.clearInterval(clockTimer);
             if (quoteTimer) window.clearTimeout(quoteTimer);
+            if (realtimeStream) stopRealtime({ forget: false, restoreFallback: false });
         });
     }
 
@@ -1604,7 +1793,11 @@
             renderMarketHeader();
             clockTimer = window.setInterval(renderMarketClock, 30_000);
             recalculate({ persist: false });
-            refreshLiveQuotes().finally(scheduleQuotePoll);
+            const savedRealtime = readRealtimeSession();
+            refreshLiveQuotes().finally(() => {
+                if (savedRealtime) startRealtime(savedRealtime);
+                else scheduleQuotePoll();
+            });
             const investedOverCap = currentPlan
                 && (currentPlan.invested.TSLA + currentPlan.invested.SPCX) - currentPlan.monthlyBudget > 0.005;
             if (investedOverCap) {

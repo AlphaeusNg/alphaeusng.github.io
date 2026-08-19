@@ -88,6 +88,46 @@ async function mockDcaQuotes(page, { tsla = 347.07, spcx = 140.535 } = {}) {
   );
 }
 
+async function mockAlpacaStream(page, { tsla = 410.5, spcx = 91.25 } = {}) {
+  await page.addInitScript(({ tslaPrice, spcxPrice }) => {
+    window.__alpacaSent = [];
+    class MockAlpacaWebSocket {
+      constructor(url) {
+        this.url = url;
+        this.readyState = 1;
+        queueMicrotask(() => {
+          if (this.onopen) this.onopen();
+          this.emit([{ T: 'success', msg: 'connected' }]);
+        });
+      }
+
+      send(payload) {
+        const message = JSON.parse(payload);
+        window.__alpacaSent.push(message);
+        if (message.action === 'auth') {
+          queueMicrotask(() => this.emit([{ T: 'success', msg: 'authenticated' }]));
+        } else if (message.action === 'subscribe') {
+          queueMicrotask(() => this.emit([
+            { T: 'subscription', trades: message.trades },
+            { T: 't', S: 'TSLA', p: tslaPrice, s: 5, t: new Date().toISOString(), x: 'V' },
+            { T: 't', S: 'SPCX', p: spcxPrice, s: 3, t: new Date().toISOString(), x: 'V' },
+          ]));
+        }
+      }
+
+      emit(messages) {
+        if (this.onmessage) this.onmessage({ data: JSON.stringify(messages) });
+      }
+
+      close(code = 1000, reason = '') {
+        this.readyState = 3;
+        if (this.onclose) this.onclose({ code, reason });
+      }
+    }
+    window.WebSocket = MockAlpacaWebSocket;
+  }, { tslaPrice: tsla, spcxPrice: spcx });
+}
+
 test.beforeEach(async ({ page, baseURL }) => {
   const errors = [];
   const firstPartyOrigin = new URL(baseURL).origin;
@@ -502,6 +542,46 @@ test('DCA Lab replaces the snapshot with live last-sale quotes', async ({ page }
     'aria-label',
     'Refresh recent Nasdaq quotes'
   );
+});
+
+test('DCA Lab streams Alpaca trades without persisting credentials', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await mockAlpacaStream(page);
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+
+  await page.locator('#enableRealtime').click();
+  await expect(page.locator('#realtimeDialog')).toBeVisible();
+  await page.locator('#alpacaKeyId').fill('PKTEST-KEY');
+  await page.locator('#alpacaSecret').fill('test-secret-value');
+  await page.locator('#alpacaFeed').selectOption('iex');
+  await page.locator('#connectRealtime').click();
+
+  await expect(page.locator('#enableRealtime')).toHaveText('Live');
+  await expect(page.locator('#enableRealtime')).toHaveClass(/is-connected/);
+  await expect(page.locator('#heroTslaPrice')).toHaveText('$410.50');
+  await expect(page.locator('#heroSpcxPrice')).toHaveText('$91.25');
+  await expect(page.locator('#marketFreshness')).toHaveText('Live · streaming');
+  await expect(page.locator('#marketTimestamp')).toContainText('Last tick');
+  await expect(page.locator('#tslaPriceMeta')).toContainText('Alpaca IEX trade');
+  await expect(page.locator('#realtimeDialog')).toBeHidden();
+
+  expect(await page.evaluate(() => ({
+    local: Object.values(localStorage).join(' '),
+    session: Object.values(sessionStorage).join(' '),
+    sent: window.__alpacaSent,
+  }))).toEqual({
+    local: expect.not.stringContaining('test-secret-value'),
+    session: expect.not.stringContaining('test-secret-value'),
+    sent: [
+      { action: 'auth', key: 'PKTEST-KEY', secret: 'test-secret-value' },
+      { action: 'subscribe', trades: ['TSLA', 'SPCX'] },
+    ],
+  });
+
+  await page.locator('#enableRealtime').click();
+  await page.locator('#disconnectRealtime').click();
+  await expect(page.locator('#enableRealtime')).toHaveText('Go real-time');
+  await expect(page.locator('#realtimeStatus')).toContainText('disconnected');
 });
 
 test('DCA Lab imports a journal batch once and can undo it together', async ({ page }) => {
