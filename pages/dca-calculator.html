@@ -8,18 +8,23 @@
     <meta name="theme-color" content="#07111f">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://alphaeusng.github.io/pages/dca-calculator.html">
+    <meta property="og:title" content="Conviction DCA Lab">
+    <meta property="og:description" content="Turn a monthly cap into a daily TSLA and SPCX plan. Local-first, no brokerage execution.">
+    <meta property="og:url" content="https://alphaeusng.github.io/pages/dca-calculator.html">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/dca-calculator.css">
-    <script src="../js/dca-engine.js" defer></script>
-    <script src="../js/dca-calculator.js" defer></script>
+    <link rel="stylesheet" href="../css/dca-calculator.css?v=2026.08.20.1">
+    <script src="../js/dca-engine.js?v=2026.08.20.1" defer></script>
+    <script src="../js/dca-calculator.js?v=2026.08.20.1" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#planner">Skip to calculator</a>
 
-    <nav class="dca-nav" aria-label="Primary">
+    <nav id="dcaNav" class="dca-nav" aria-label="Primary">
         <div class="dca-nav__top">
             <a class="dca-brand" href="../index.html" aria-label="Alphaeus Ng portfolio home">
                 <span class="dca-brand__mark" aria-hidden="true">A</span>
@@ -63,6 +68,11 @@
                         <strong id="marketFreshness">Checking…</strong>
                         <span id="marketTimestamp">Nasdaq market data</span>
                     </div>
+                    <div class="market-strip__session">
+                        <span class="market-strip__label">U.S. session</span>
+                        <strong id="marketSession">Checking…</strong>
+                        <span id="marketClock">New York time</span>
+                    </div>
                 </div>
                 <p class="dca-hero__notice">
                     Decision support, not financial advice or an order. Prices can be delayed; verify with your broker.
@@ -95,8 +105,11 @@
                                     </span>
                                 </label>
                                 <label class="field">
-                                    <span>Plan date <small>New York month</small></span>
-                                    <input id="planDate" type="date">
+                                    <span>Plan date <small>New York session</small></span>
+                                    <span class="date-field">
+                                        <input id="planDate" type="date">
+                                        <button id="jumpToday" class="button button--quiet date-today" type="button" title="Next U.S. trading session (T)">Today</button>
+                                    </span>
                                 </label>
                             </div>
 
@@ -109,6 +122,11 @@
                                 <div class="allocation-legend" aria-hidden="true">
                                     <span>Tesla</span>
                                     <span>SpaceX</span>
+                                </div>
+                                <div class="allocation-presets" role="group" aria-label="Allocation presets">
+                                    <button type="button" data-alloc="70" aria-pressed="true">70/30</button>
+                                    <button type="button" data-alloc="50" aria-pressed="false">50/50</button>
+                                    <button type="button" data-alloc="80" aria-pressed="false">80/20</button>
                                 </div>
                             </div>
 
@@ -179,7 +197,7 @@
                         </fieldset>
 
                         <fieldset class="control-group">
-                            <legend>Price reference</legend>
+                            <legend class="legend-with-action">Price reference <button id="resetPrices" class="button button--quiet" type="button" hidden>Use snapshot</button></legend>
                             <div class="price-grid">
                                 <div class="price-control">
                                     <div class="price-control__title">
@@ -209,7 +227,10 @@
 
                     <aside class="recommendation-panel" aria-labelledby="recommendationTitle">
                         <div class="recommendation-panel__topline">
-                            <span id="nextSessionLabel">Next trading session</span>
+                            <span class="recommendation-panel__session">
+                                <span id="nextSessionLabel">Next trading session</span>
+                                <span id="catchUpBadge" class="catchup-badge" hidden>Last session · remainder</span>
+                            </span>
                             <span id="dataConfidence">Waiting for data</span>
                         </div>
                         <p class="recommendation-panel__kicker">Suggested total</p>
@@ -218,19 +239,23 @@
                             Load market data to build the plan.
                         </p>
 
-                        <div class="budget-progress" aria-label="Monthly budget progress">
+                        <div id="budgetProgress" class="budget-progress" role="progressbar" aria-label="Monthly budget progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                             <div class="budget-progress__labels">
-                                <span><strong id="budgetInvested">$0</strong> invested</span>
+                                <span><strong id="budgetInvested">$0</strong> invested <span id="budgetPercent" class="budget-progress__percent">—</span></span>
                                 <span><strong id="budgetRemaining">—</strong> left</span>
                             </div>
                             <div class="budget-progress__track"><span id="budgetProgressFill"></span></div>
+                            <p id="paceStatus" class="budget-progress__pace">Checking monthly pace…</p>
                         </div>
 
                         <div class="recommendation-assets">
                             <article class="asset-order" data-symbol="TSLA">
                                 <div class="asset-order__heading">
                                     <div><span class="asset-dot asset-dot--tsla"></span><strong>TSLA</strong><small>Tesla</small></div>
-                                    <span id="tslaSignalBadge" class="signal-badge">—</span>
+                                    <span class="signal-stack">
+                                        <span id="tslaSignalBadge" class="signal-badge">—</span>
+                                        <span id="tslaSignalLabel" class="signal-label"></span>
+                                    </span>
                                 </div>
                                 <div class="asset-order__amount"><strong id="tslaRecommendation">—</strong><span id="tslaShares">— shares</span></div>
                                 <dl>
@@ -242,7 +267,10 @@
                             <article class="asset-order" data-symbol="SPCX">
                                 <div class="asset-order__heading">
                                     <div><span class="asset-dot asset-dot--spcx"></span><strong>SPCX</strong><small>SpaceX</small></div>
-                                    <span id="spcxSignalBadge" class="signal-badge">—</span>
+                                    <span class="signal-stack">
+                                        <span id="spcxSignalBadge" class="signal-badge">—</span>
+                                        <span id="spcxSignalLabel" class="signal-label"></span>
+                                    </span>
                                 </div>
                                 <div class="asset-order__amount"><strong id="spcxRecommendation">—</strong><span id="spcxShares">— shares</span></div>
                                 <dl>
@@ -253,6 +281,8 @@
                             </article>
                         </div>
 
+                        <p id="unallocatedNote" class="unallocated-note" hidden></p>
+
                         <div class="why-box">
                             <h4>Why this amount</h4>
                             <ul id="recommendationReasons">
@@ -262,13 +292,25 @@
 
                         <div class="recommendation-actions">
                             <button id="recordPurchase" class="button button--primary" type="button" disabled>Record as purchased</button>
-                            <button id="copyPlan" class="button button--quiet" type="button" disabled>Copy plan</button>
+                            <button id="undoLast" class="button button--quiet" type="button" disabled>Undo last</button>
+                            <button id="copyPlan" class="button button--quiet" type="button" disabled title="Copy plan (C)">Copy plan</button>
+                            <button id="copyPlanLink" class="button button--quiet" type="button" disabled>Copy link</button>
+                            <button id="sharePlan" class="button button--quiet" type="button" hidden disabled>Share plan</button>
                         </div>
-                        <p class="execution-note">Recording updates only this browser journal. It does not place a trade.</p>
+                        <p class="execution-note">Recording updates only this browser journal. It does not place a trade. <span class="shortcut-hint">T today · C copy · R record</span></p>
                     </aside>
                 </div>
             </div>
         </section>
+
+        <div id="mobileActionBar" class="mobile-action-bar" hidden>
+            <div>
+                <span class="mobile-action-bar__kicker">Today</span>
+                <strong id="mobileActionTotal">—</strong>
+            </div>
+            <button id="mobileRecord" class="button button--primary" type="button" disabled>Record</button>
+            <button id="mobileCopy" class="button button--quiet" type="button" disabled>Copy</button>
+        </div>
 
         <section id="signals" class="dca-section dca-section--tinted" aria-labelledby="signalsTitle">
             <div class="dca-shell">
@@ -287,15 +329,16 @@
                             <span id="tslaConfidenceBadge" class="confidence-badge">—</span>
                         </div>
                         <div class="chart-toolbar">
-                            <span id="tslaChartSummary" class="chart-summary" aria-live="polite">Loading prices…</span>
+                            <span id="tslaChartSummary" class="chart-summary">Loading prices…</span>
                             <div class="chart-ranges" role="group" aria-label="TSLA chart range">
-                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="22" aria-pressed="false">1M</button>
-                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="66" aria-pressed="true">3M</button>
-                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="all" aria-pressed="false">All</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="22" aria-label="Show one month of TSLA prices" aria-pressed="false">1M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="66" aria-label="Show three months of TSLA prices" aria-pressed="true">3M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="132" aria-label="Show six months of TSLA prices" aria-pressed="false">6M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="TSLA" data-chart-range="all" aria-label="Show all available TSLA prices" aria-pressed="false">Max</button>
                             </div>
                         </div>
                         <div class="chart-stage">
-                            <div id="tslaSparkline" class="sparkline" role="img" tabindex="0" aria-label="Interactive TSLA closing price chart. Use left and right arrow keys to inspect sessions."></div>
+                            <div id="tslaSparkline" class="sparkline" role="slider" tabindex="0" aria-label="Inspect TSLA closing prices"></div>
                             <div id="tslaChartTooltip" class="chart-tooltip" hidden></div>
                         </div>
                         <dl class="indicator-grid" id="tslaIndicators"></dl>
@@ -306,15 +349,16 @@
                             <span id="spcxConfidenceBadge" class="confidence-badge">—</span>
                         </div>
                         <div class="chart-toolbar">
-                            <span id="spcxChartSummary" class="chart-summary" aria-live="polite">Loading prices…</span>
+                            <span id="spcxChartSummary" class="chart-summary">Loading prices…</span>
                             <div class="chart-ranges" role="group" aria-label="SPCX chart range">
-                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="22" aria-pressed="false">1M</button>
-                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="66" aria-pressed="true">3M</button>
-                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="all" aria-pressed="false">All</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="22" aria-label="Show one month of SPCX prices" aria-pressed="false">1M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="66" aria-label="Show three months of SPCX prices" aria-pressed="true">3M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="132" aria-label="Show six months of SPCX prices" aria-pressed="false">6M</button>
+                                <button class="chart-range-button" type="button" data-chart-symbol="SPCX" data-chart-range="all" aria-label="Show all available SPCX prices" aria-pressed="false">Max</button>
                             </div>
                         </div>
                         <div class="chart-stage">
-                            <div id="spcxSparkline" class="sparkline" role="img" tabindex="0" aria-label="Interactive SPCX closing price chart. Use left and right arrow keys to inspect sessions."></div>
+                            <div id="spcxSparkline" class="sparkline" role="slider" tabindex="0" aria-label="Inspect SPCX closing prices"></div>
                             <div id="spcxChartTooltip" class="chart-tooltip" hidden></div>
                         </div>
                         <dl class="indicator-grid" id="spcxIndicators"></dl>
@@ -367,10 +411,14 @@
                         <h2 id="journalTitle">Local purchase history.</h2>
                     </div>
                     <div class="journal-actions">
+                        <button id="journalScope" class="button button--quiet" type="button" aria-pressed="true">This month</button>
+                        <button id="importJournalButton" class="button button--quiet" type="button">Import CSV</button>
+                        <input id="importJournal" class="sr-only" type="file" accept=".csv,text/csv">
                         <button id="exportJournal" class="button button--quiet" type="button">Export CSV</button>
                         <button id="resetMonth" class="button button--danger" type="button">Reset this month</button>
                     </div>
                 </div>
+                <p id="journalSummary" class="journal-summary"></p>
                 <div class="journal-table-wrap">
                     <table class="journal-table">
                         <thead><tr><th>Date</th><th>Asset</th><th>Dollars</th><th>Price</th><th>Shares</th><th><span class="sr-only">Actions</span></th></tr></thead>
@@ -410,11 +458,11 @@
 
     <footer class="dca-footer">
         <div class="dca-shell">
-            <p>Built as transparent personal decision support. Not financial advice.</p>
+            <p>Built as transparent personal decision support. Not financial advice. <span id="site-version" class="font-mono">v—</span></p>
             <div><a href="conviction.html">Conviction</a><a href="../index.html">Portfolio</a><a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer">Source</a></div>
         </div>
     </footer>
-    <script src="../js/kofi-support.js?v=2026.08.19.3" data-auto-footer defer></script>
+    <script src="../js/kofi-support.js?v=2026.08.20.1" data-auto-footer defer></script>
     <script src="../js/version.js"></script>
 </body>
 </html>

@@ -48,9 +48,28 @@ a:hover, a:focus-visible { color: var(--gold-hover) !important; }
 a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }
 
 .conviction-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     border-bottom: 1px solid var(--nav-border, rgba(201, 162, 39, 0.28));
     background: rgba(8, 13, 23, 0.92);
     backdrop-filter: blur(14px);
+    transition: transform 0.22s ease;
+    will-change: transform;
+}
+
+.conviction-nav.is-scroll-hidden {
+    transform: translateY(calc(-100% - 1px));
+    pointer-events: none;
+}
+
+.conviction-nav:focus-within {
+    transform: none;
+    pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .conviction-nav { transition: none; }
 }
 
 .conviction-nav-row {
@@ -74,12 +93,14 @@ a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }
     justify-content: space-between;
     gap: 1rem;
     max-width: 46rem;
+    min-height: 3.5rem;
     margin-top: 1.5rem;
-    padding: 1rem 1.1rem;
+    padding: 1.05rem 1.2rem;
     border: 1px solid rgba(201, 162, 39, 0.34);
     border-radius: 1rem;
     background: linear-gradient(120deg, rgba(201, 162, 39, 0.1), rgba(96, 165, 250, 0.05));
     color: #F8FAFC !important;
+    text-decoration: none !important;
 }
 
 .dca-lab-cta:hover {
@@ -87,9 +108,16 @@ a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }
     color: #F8FAFC !important;
 }
 
+.dca-lab-cta:focus-visible {
+    outline: 3px solid rgba(96, 165, 250, 0.85);
+    outline-offset: 3px;
+    color: #F8FAFC !important;
+}
+
 .dca-lab-cta > span:first-child {
     display: grid;
     gap: 0.25rem;
+    min-width: 0;
 }
 
 .dca-lab-cta strong {
@@ -101,11 +129,15 @@ a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }
     line-height: 1.5;
 }
 
-.dca-lab-cta > span:last-child {
+.dca-lab-cta__action {
     flex-shrink: 0;
     color: #CBD5E1;
     font-size: 0.78rem;
     font-weight: 600;
+}
+
+.dca-lab-cta__action::after {
+    content: " →";
 }
 
 .conviction-nav .project-tabs-bar {
@@ -124,7 +156,15 @@ a.btn-solid, a.btn-solid:hover { color: var(--ink) !important; }
     }
 
     .dca-lab-cta {
+        width: 100%;
         align-items: flex-start;
         flex-direction: column;
+        gap: 0.65rem;
+        padding: 1.15rem 1.2rem;
+    }
+
+    .dca-lab-cta__action {
+        align-self: flex-start;
+        min-height: 1.5rem;
     }
 }

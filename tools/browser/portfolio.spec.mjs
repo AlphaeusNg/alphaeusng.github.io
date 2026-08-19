@@ -220,6 +220,23 @@ test('conviction page renders ledger data and switches benchmark views', async (
 
   await page.goto('/pages/conviction.html', { waitUntil: 'domcontentloaded' });
 
+  await expect(page.locator('.dca-lab-cta strong')).toHaveText('Conviction DCA Lab');
+  await expect(page.locator('.dca-lab-cta strong')).not.toContainText('New:');
+  await expect(page.locator('#dcaSnapshotMeta')).toContainText('Nasdaq snapshot');
+  await expect(page.locator('.dca-lab-cta')).toHaveAttribute(
+    'aria-label',
+    'Open Conviction DCA Lab calculator'
+  );
+  await expect(page.locator('.dca-lab-cta')).toHaveAttribute(
+    'href',
+    /dca-calculator\.html\?d=\d{4}-\d{2}-\d{2}#planner/
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('.dca-lab-cta')).toBeVisible();
+  const ctaBox = await page.locator('.dca-lab-cta').boundingBox();
+  expect(ctaBox?.height || 0).toBeGreaterThan(64);
+  await page.setViewportSize({ width: 1280, height: 720 });
+
   await expect(page.locator('#transactionWindow')).toHaveText(
     'November 19, 2020 -> May 7, 2026'
   );
@@ -288,14 +305,31 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
   await expect(page.locator('#tslaConfidenceBadge')).toContainText('sessions');
   await expect(page.locator('#spcxConfidenceBadge')).toContainText('limited');
   await expect(page.locator('#recommendationReasons')).toContainText('capped at 1.75×');
+  await expect(page.locator('#allocationOutput')).toHaveText('TSLA 70% · SPCX 30%');
+  await expect(page.locator('#budgetProgress')).toHaveAttribute('role', 'progressbar');
+  await expect(page.locator('#budgetProgress')).toHaveAttribute('aria-valuetext', /monthly cap invested/);
 
   const tslaChart = page.locator('#tslaSparkline');
   const tslaTooltip = page.locator('#tslaChartTooltip');
   const tslaAllRange = page.locator('[data-chart-symbol="TSLA"][data-chart-range="all"]');
   await expect(tslaChart.locator('svg polyline')).toBeVisible();
   await expect(page.locator('[data-chart-symbol="TSLA"][data-chart-range="66"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(tslaChart).toHaveAttribute('role', 'slider');
+  await expect(tslaChart).toHaveAttribute('aria-valuemax', /\d+/);
+  await expect(tslaAllRange).toHaveText('Max');
   await tslaAllRange.click();
   await expect(tslaAllRange).toHaveAttribute('aria-pressed', 'true');
+  expect(await tslaChart.evaluate(element => getComputedStyle(element).touchAction)).toBe('pan-y');
+  await tslaChart.evaluate(element => {
+    const bounds = element.getBoundingClientRect();
+    element.dispatchEvent(new PointerEvent('pointerdown', {
+      bubbles: true,
+      pointerType: 'touch',
+      clientX: bounds.left + (bounds.width * 0.3),
+      clientY: bounds.top + (bounds.height * 0.5),
+    }));
+  });
+  await expect(tslaTooltip).toBeVisible();
   await tslaChart.hover({ position: { x: 140, y: 70 } });
   await expect(tslaTooltip).toBeVisible();
   await expect(tslaTooltip).toContainText('$');
@@ -309,7 +343,44 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
   await page.locator('#tslaInvested').fill('0');
   await page.locator('#spcxInvested').fill('0');
   await expect(page.locator('#nextSessionLabel')).toContainText('Aug 18, 2026');
+  await expect(page.locator('#nextSessionLabel')).toContainText('sessions left');
+  await expect(page.locator('#catchUpBadge')).toBeHidden();
+  await expect(page.locator('#budgetPercent')).toContainText('% of cap');
+  await expect(page.locator('#paceStatus')).toContainText('daily pace');
+  await expect(page.locator('#jumpToday')).toBeVisible();
+  await expect(page.locator('#marketSession')).not.toHaveText('Checking…');
+  await expect(page.locator('#marketClock')).toContainText(/ET|EDT|EST/);
+  await expect(page.locator('#tslaSignalLabel')).not.toHaveText('');
+  await expect(page.locator('[data-chart-symbol="TSLA"][data-chart-range="132"]')).toHaveText('6M');
+  await page.locator('[data-alloc="50"]').click();
+  await expect(page.locator('#allocationOutput')).toHaveText('TSLA 50% · SPCX 50%');
+  await page.locator('[data-alloc="70"]').click();
   await expect(page.locator('#allocationOutput')).toHaveText('TSLA 70% · SPCX 30%');
+
+  await page.locator('#planDate').fill('2026-08-31');
+  await expect(page.locator('#nextSessionLabel')).toContainText('last session');
+  await expect(page.locator('#catchUpBadge')).toBeVisible();
+  await page.locator('#planDate').fill('2026-08-18');
+  await expect(page.locator('#catchUpBadge')).toBeHidden();
+  await expect(page.locator('#allocationOutput')).toHaveText('TSLA 70% · SPCX 30%');
+
+  await page.locator('#tslaInvested').fill('2500');
+  await page.locator('#spcxInvested').fill('800');
+  await expect(page.locator('#calculatorStatus')).toContainText('over the $3,000.00 cap');
+  await expect(page.locator('#budgetProgress')).toHaveClass(/is-over/);
+  await page.locator('#tslaInvested').fill('0');
+  await page.locator('#spcxInvested').fill('0');
+
+  await page.locator('#planDate').fill('2026-08-31');
+  await page.locator('#tslaInvested').fill('2500');
+  await page.locator('#spcxInvested').fill('0');
+  await expect(page.locator('#budgetRemaining')).toHaveText('$500.00');
+  await expect(page.locator('#tslaRecommendation')).toHaveText('$0.00');
+  await expect(page.locator('#spcxRecommendation')).toHaveText('$500.00');
+  await expect(page.locator('#recommendationReasons')).toContainText('underweight holding');
+  await page.locator('#planDate').fill('2026-08-18');
+  await page.locator('#tslaInvested').fill('0');
+  await page.locator('#spcxInvested').fill('0');
 
   const suggested = Number(
     (await page.locator('#totalRecommendation').textContent()).replace(/[$,]/g, '')
@@ -318,8 +389,14 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
   expect(suggested).toBeLessThanOrEqual(3000);
 
   await expect(page.locator('#tslaPrice')).toBeDisabled();
+  await expect(page.locator('#resetPrices')).toBeHidden();
   await page.locator('#tslaManualToggle').check();
   await expect(page.locator('#tslaPrice')).toBeEnabled();
+  await expect(page.locator('#resetPrices')).toBeVisible();
+  await page.locator('#resetPrices').click();
+  await expect(page.locator('#tslaPrice')).toBeDisabled();
+  await expect(page.locator('#resetPrices')).toBeHidden();
+  await page.locator('#tslaManualToggle').check();
   await page.locator('#tslaPrice').fill('340.25');
   await expect(page.locator('#tslaShares')).toContainText('@ $340.25');
   await tslaChart.focus();
@@ -328,11 +405,75 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
 
   await page.locator('#recordPurchase').click();
   await expect(page.locator('#journalBody tr')).toHaveCount(2);
+  await expect(page.locator('#journalSummary')).toContainText('recorded');
   await expect(page.locator('#calculatorStatus')).toContainText('No brokerage order was placed');
+  await page.locator('#undoLast').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(0);
+  await expect(page.locator('#calculatorStatus')).toContainText('Last recorded session was removed');
+  await page.locator('#recordPurchase').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
 
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#journalBody tr')).toHaveCount(2);
   await expect(page.locator('#budgetInvested')).not.toHaveText('$0.00');
+  await expect(page.locator('#journalScope')).toContainText('This month');
+
+  await page.evaluate(() => {
+    const key = 'alphaeus-conviction-dca-lab-v1';
+    const saved = JSON.parse(localStorage.getItem(key));
+    saved.ledger.push({
+      id: 'old-entry',
+      date: '2024-01-02',
+      symbol: 'TSLA',
+      amount: 100,
+      price: 250,
+      shares: 0.4,
+      multiplier: 1,
+      priceMode: 'manual',
+    });
+    saved.months['2024-01'] = { TSLA: 100, SPCX: 0 };
+    localStorage.setItem(key, JSON.stringify(saved));
+  });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.locator('#journalScope').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(3);
+  await page.locator('#monthlyBudget').fill('3100');
+  await expect.poll(() => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('alphaeus-conviction-dca-lab-v1'));
+    return saved.ledger.some(entry => entry.id === 'old-entry');
+  })).toBe(true);
+
+  await page.goto('/pages/dca-calculator.html?d=2026-08-15&budget=4500', {
+    waitUntil: 'domcontentloaded',
+  });
+  await expect(page.locator('#planDate')).toHaveValue('2026-08-17');
+  await expect(page.locator('#monthlyBudget')).toHaveValue('4500');
+  await expect(page.locator('#calculatorStatus')).toContainText('next U.S. trading session');
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#monthlyBudget')).toHaveValue('3100');
+});
+
+test('DCA Lab imports a journal batch once and can undo it together', async ({ page }) => {
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+  const csv = [
+    'date,symbol,dollars_usd,price_usd,shares,signal_multiplier,price_mode',
+    '2026-08-18,TSLA,200,400,0.5,1,manual',
+    '2026-08-18,SPCX,100,100,1,1,manual',
+    '',
+  ].join('\n');
+  const file = { name: 'journal.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) };
+
+  await page.locator('#importJournal').setInputFiles(file);
+  await expect(page.locator('#calculatorStatus')).toContainText('Imported 2 journal rows');
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
+  await expect(page.locator('#journalSummary')).toContainText('$300.00');
+
+  await page.locator('#importJournal').setInputFiles(file);
+  await expect(page.locator('#calculatorStatus')).toContainText('No new rows were imported');
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
+
+  await page.locator('#undoLast').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(0);
 });
 
 test('feedback sanitizes its source and handles submission lifecycle', async ({ page }) => {

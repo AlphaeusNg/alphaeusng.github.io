@@ -130,6 +130,17 @@
         return !marketHolidaySet(date.getUTCFullYear()).has(isoDate(date));
     }
 
+    function nextTradingDay(dateText, options = {}) {
+        const inclusive = options.inclusive !== false;
+        let cursor = parseDate(dateText);
+        if (!inclusive) cursor = addDays(cursor, 1);
+        for (let attempt = 0; attempt < 21; attempt += 1) {
+            if (isTradingDay(cursor)) return isoDate(cursor);
+            cursor = addDays(cursor, 1);
+        }
+        throw new Error(`No U.S. trading session found near ${dateText}`);
+    }
+
     function tradingSessionsRemaining(planDateText) {
         const planDate = parseDate(planDateText);
         const finalDate = new Date(Date.UTC(planDate.getUTCFullYear(), planDate.getUTCMonth() + 1, 0));
@@ -138,6 +149,86 @@
             if (isTradingDay(cursor)) sessions.push(isoDate(cursor));
         }
         return sessions;
+    }
+
+    function allocateRemainingBudget(monthlyBudgetInput, allocationsInput, investedInput) {
+        const monthlyBudget = roundMoney(Math.max(0, Number(monthlyBudgetInput) || 0));
+        const allocations = allocationsInput && typeof allocationsInput === 'object'
+            ? allocationsInput
+            : {};
+        const invested = investedInput && typeof investedInput === 'object'
+            ? investedInput
+            : {};
+        const symbols = Object.keys(allocations);
+        const investedTotal = roundMoney(symbols.reduce(
+            (total, symbol) => total + Math.max(0, Number(invested[symbol]) || 0),
+            0
+        ));
+        const portfolioRemaining = roundMoney(Math.max(0, monthlyBudget - investedTotal));
+        const targetShortfalls = Object.fromEntries(symbols.map((symbol) => {
+            const target = monthlyBudget * clamp(Number(allocations[symbol]) || 0, 0, 1);
+            return [symbol, Math.max(0, target - Math.max(0, Number(invested[symbol]) || 0))];
+        }));
+        const shortfallTotal = symbols.reduce((total, symbol) => total + targetShortfalls[symbol], 0);
+        const effectiveRemaining = Object.fromEntries(symbols.map((symbol) => [symbol, 0]));
+
+        if (portfolioRemaining > 0 && shortfallTotal > 0) {
+            const availableCents = Math.round(portfolioRemaining * 100);
+            const weighted = symbols.map((symbol) => {
+                const exactCents = (targetShortfalls[symbol] / shortfallTotal) * availableCents;
+                return {
+                    symbol,
+                    cents: Math.floor(exactCents),
+                    remainder: exactCents - Math.floor(exactCents)
+                };
+            });
+            let spareCents = availableCents - weighted.reduce((total, item) => total + item.cents, 0);
+            [...weighted]
+                .sort((left, right) => right.remainder - left.remainder)
+                .forEach((item) => {
+                    if (spareCents <= 0) return;
+                    weighted.find((candidate) => candidate.symbol === item.symbol).cents += 1;
+                    spareCents -= 1;
+                });
+            weighted.forEach((item) => {
+                effectiveRemaining[item.symbol] = item.cents / 100;
+            });
+        }
+
+        return {
+            monthlyBudget,
+            investedTotal,
+            portfolioRemaining,
+            targetShortfalls,
+            effectiveRemaining,
+            allocationAdjusted: shortfallTotal - portfolioRemaining > 0.005
+        };
+    }
+
+    function tradingSessionsInMonth(dateText) {
+        const date = parseDate(dateText);
+        const start = isoDate(new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)));
+        return tradingSessionsRemaining(start);
+    }
+
+    function paceVsEven(options = {}) {
+        const monthlyBudget = Math.max(0, Number(options.monthlyBudget) || 0);
+        const invested = Math.max(0, Number(options.invested) || 0);
+        const planDate = String(options.planDate || '');
+        const monthSessions = tradingSessionsInMonth(planDate);
+        const remaining = tradingSessionsRemaining(planDate);
+        const elapsed = monthSessions.filter((session) => session < planDate).length;
+        const evenInvested = monthSessions.length
+            ? roundMoney(monthlyBudget * (elapsed / monthSessions.length))
+            : 0;
+        return {
+            monthSessions: monthSessions.length,
+            elapsed,
+            remaining: remaining.length,
+            evenInvested,
+            invested: roundMoney(invested),
+            delta: roundMoney(invested - evenInvested)
+        };
     }
 
     function normalizeHistory(history, currentPrice, currentDate) {
@@ -394,12 +485,16 @@
 
     return Object.freeze({
         STRATEGIES,
+        allocateRemainingBudget,
         calculateIndicators,
         calculateSignal,
         isTradingDay,
         marketHolidaySet,
+        nextTradingDay,
+        paceVsEven,
         recommendAsset,
         replayCompletedMonth,
+        tradingSessionsInMonth,
         tradingSessionsRemaining
     });
 }));

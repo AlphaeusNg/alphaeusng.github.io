@@ -7,9 +7,13 @@
     const engine = window.DcaEngine;
 
     const elements = {};
+    const PAGE_TITLE = 'Conviction DCA Lab • Alphaeus Ng';
     let marketData = null;
     let currentPlan = null;
     let state = loadState();
+    let persistTimer = null;
+    let clockTimer = null;
+    let journalThisMonthOnly = true;
     const chartRanges = { TSLA: '66', SPCX: '66' };
     const chartModels = {};
 
@@ -40,10 +44,17 @@
             'spcxAdaptiveAverage', 'tslaFlatAverage', 'spcxFlatAverage',
             'tslaAdaptiveShares', 'spcxAdaptiveShares', 'tslaFlatShares',
             'spcxFlatShares', 'tslaReplayDelta', 'spcxReplayDelta', 'journalBody',
-            'journalEmpty', 'exportJournal', 'resetMonth'
+            'journalEmpty', 'exportJournal', 'resetMonth', 'jumpToday', 'sharePlan',
+            'journalScope', 'catchUpBadge', 'unallocatedNote', 'budgetPercent',
+            'budgetProgress', 'paceStatus', 'dcaNav', 'dcaForm', 'resetPrices',
+            'undoLast', 'copyPlanLink', 'mobileActionBar', 'mobileActionTotal',
+            'mobileRecord', 'mobileCopy', 'journalSummary', 'importJournal',
+            'importJournalButton', 'marketSession', 'marketClock',
+            'tslaSignalLabel', 'spcxSignalLabel'
         ].forEach((id) => { elements[id] = byId(id); });
         elements.strategyRadios = Array.from(document.querySelectorAll('input[name="strategy"]'));
         elements.chartRangeButtons = Array.from(document.querySelectorAll('[data-chart-range]'));
+        elements.allocationPresets = Array.from(document.querySelectorAll('[data-alloc]'));
     }
 
     function defaultState() {
@@ -96,6 +107,21 @@
             console.warn('[DCA Lab] Browser state could not be saved.', error);
             showStatus('Your browser blocked local saving. The current calculation still works.', 'error');
         }
+    }
+
+    function schedulePersist() {
+        window.clearTimeout(persistTimer);
+        persistTimer = window.setTimeout(() => {
+            persistControls();
+            persistTimer = null;
+        }, 280);
+    }
+
+    function flushPersist() {
+        if (!persistTimer) return;
+        window.clearTimeout(persistTimer);
+        persistTimer = null;
+        persistControls();
     }
 
     function numberValue(element, fallback = 0) {
@@ -180,12 +206,20 @@
     }
 
     function strategySettings() {
+        const id = selectedStrategyId();
+        const preset = engine.STRATEGIES[id] || engine.STRATEGIES.balanced;
+        const floorMultiplier = numberValue(elements.floorMultiplier, preset.floorMultiplier);
+        const dipSensitivity = numberValue(elements.dipSensitivity, preset.dipSensitivity);
+        const maxMultiplier = numberValue(elements.maxMultiplier, preset.maxMultiplier);
+        const isCustom = floorMultiplier !== preset.floorMultiplier
+            || dipSensitivity !== preset.dipSensitivity
+            || maxMultiplier !== preset.maxMultiplier;
         return {
-            id: selectedStrategyId(),
-            label: selectedStrategyId() === 'balanced' ? 'Balanced' : selectedStrategyId(),
-            floorMultiplier: numberValue(elements.floorMultiplier, 0.7),
-            dipSensitivity: numberValue(elements.dipSensitivity, 1.35),
-            maxMultiplier: numberValue(elements.maxMultiplier, 2.25)
+            id: isCustom ? 'custom' : id,
+            label: isCustom ? 'Custom' : preset.label,
+            floorMultiplier,
+            dipSensitivity,
+            maxMultiplier
         };
     }
 
@@ -230,9 +264,79 @@
         loadMonthInputs();
     }
 
+    function applyQueryOverrides() {
+        const params = new URLSearchParams(window.location.search);
+        let applied = false;
+        const date = params.get('d') || params.get('date');
+        const budget = Number(params.get('budget'));
+        const strategy = params.get('strategy');
+        if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            elements.planDate.value = date;
+            applied = true;
+        }
+        if (Number.isFinite(budget) && budget > 0) {
+            elements.monthlyBudget.value = String(clamp(budget, 1, 10_000_000));
+            applied = true;
+        }
+        if (strategy && engine.STRATEGIES[strategy]) {
+            const radio = elements.strategyRadios.find((item) => item.value === strategy);
+            if (radio) {
+                radio.checked = true;
+                applyStrategyPreset(strategy);
+                applied = true;
+            }
+        }
+        const allocationParam = params.get('tsla') ?? params.get('alloc');
+        const tsla = Number(allocationParam);
+        if (allocationParam !== null && Number.isFinite(tsla) && tsla >= 0 && tsla <= 100) {
+            elements.tslaAllocation.value = String(Math.round(tsla / 5) * 5);
+            applied = true;
+        }
+        const tuning = [
+            ['floor', elements.floorMultiplier, 0.25, 1],
+            ['dip', elements.dipSensitivity, 0, 3],
+            ['max', elements.maxMultiplier, 1, 4]
+        ];
+        tuning.forEach(([name, element, minimum, maximum]) => {
+            const raw = params.get(name);
+            const value = Number(raw);
+            if (raw !== null && Number.isFinite(value) && value >= minimum && value <= maximum) {
+                element.value = String(value);
+                applied = true;
+            }
+        });
+        if (params.get('fractional') === '0') {
+            elements.fractionalShares.checked = false;
+            applied = true;
+        }
+        return applied;
+    }
+
+    function snapPlanDate() {
+        if (!engine || !/^\d{4}-\d{2}-\d{2}$/.test(elements.planDate.value)) return null;
+        const snapped = engine.nextTradingDay(elements.planDate.value);
+        if (snapped === elements.planDate.value) return null;
+        elements.planDate.value = snapped;
+        return snapped;
+    }
+
+    function jumpToToday() {
+        elements.planDate.value = newYorkDate();
+        const snapped = snapPlanDate();
+        loadMonthInputs();
+        recalculate();
+        showStatus(
+            `Plan date set to ${formatDate(elements.planDate.value, { short: true })}${snapped ? ', the next U.S. trading session' : ''}.`,
+            'info'
+        );
+    }
+
     function updateAllocationOutput() {
         const tsla = clamp(numberValue(elements.tslaAllocation, 70), 0, 100);
         elements.allocationOutput.textContent = `TSLA ${tsla}% · SPCX ${100 - tsla}%`;
+        (elements.allocationPresets || []).forEach((button) => {
+            button.setAttribute('aria-pressed', String(Number(button.dataset.alloc) === tsla));
+        });
     }
 
     function loadMonthInputs() {
@@ -280,6 +384,17 @@
                 input.value = String(marketData.symbols[symbol].quote.price);
             }
         });
+        if (elements.resetPrices) {
+            elements.resetPrices.hidden = !(elements.tslaManualToggle.checked || elements.spcxManualToggle.checked);
+        }
+    }
+
+    function resetSnapshotPrices() {
+        elements.tslaManualToggle.checked = false;
+        elements.spcxManualToggle.checked = false;
+        updatePriceControls();
+        recalculate();
+        showStatus('Prices restored from the Nasdaq snapshot.', 'info');
     }
 
     function quoteAgeHours() {
@@ -321,7 +436,38 @@
         elements.marketTimestamp.textContent = `Generated ${new Intl.DateTimeFormat('en-US', {
             month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
         }).format(new Date(marketData.generatedAt))}`;
+        renderMarketClock();
         updatePriceControls();
+    }
+
+    function renderMarketClock() {
+        if (!elements.marketSession || !engine) return;
+        const today = newYorkDate();
+        const hour = Number(new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/New_York',
+            hour: 'numeric',
+            hourCycle: 'h23'
+        }).format(new Date()));
+        const minute = Number(new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/New_York',
+            minute: '2-digit'
+        }).format(new Date()));
+        const minutes = (hour * 60) + minute;
+        const trading = engine.isTradingDay(today);
+        let label = 'Closed';
+        if (trading && minutes >= (9 * 60) + 30 && minutes < (16 * 60)) label = 'Open';
+        else if (trading && minutes >= (4 * 60) && minutes < (9 * 60) + 30) label = 'Pre-market';
+        else if (trading && minutes >= (16 * 60) && minutes < (20 * 60)) label = 'After hours';
+        elements.marketSession.textContent = label;
+        if (elements.marketClock) {
+            elements.marketClock.textContent = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/New_York',
+                weekday: 'short',
+                hour: 'numeric',
+                minute: '2-digit',
+                timeZoneName: 'short'
+            }).format(new Date());
+        }
     }
 
     function marketPrice(symbol) {
@@ -367,6 +513,7 @@
             TSLA: Math.max(0, numberValue(elements.tslaInvested)),
             SPCX: Math.max(0, numberValue(elements.spcxInvested))
         };
+        const pacing = engine.allocateRemainingBudget(monthlyBudget, allocations, invested);
         const sessions = engine.tradingSessionsRemaining(elements.planDate.value);
         if (!sessions.length) {
             showStatus('There are no remaining U.S. trading sessions in this month. Choose a date in the next month.', 'info');
@@ -382,8 +529,9 @@
             });
             const signal = engine.calculateSignal(indicators, strategy);
             const targetBudget = monthlyBudget * allocations[symbol];
+            const effectiveBudget = invested[symbol] + pacing.effectiveRemaining[symbol];
             const recommendation = engine.recommendAsset({
-                monthlyBudget: targetBudget,
+                monthlyBudget: effectiveBudget,
                 invested: invested[symbol],
                 daysRemaining: sessions.length,
                 price: price.value,
@@ -392,12 +540,21 @@
                 maxMultiplier: strategy.maxMultiplier,
                 fractional: elements.fractionalShares.checked
             });
-            assets[symbol] = { record, price, indicators, signal, targetBudget, recommendation };
+            assets[symbol] = {
+                record,
+                price,
+                indicators,
+                signal,
+                targetBudget,
+                effectiveBudget,
+                recommendation
+            };
         });
         return {
             monthlyBudget,
             allocations,
             invested,
+            pacing,
             sessions,
             strategy,
             assets,
@@ -441,6 +598,9 @@
         if (plan.assets.SPCX.signal.historyCapApplied) {
             reasons.push(`SPCX has ${plan.assets.SPCX.indicators.sessions} observed sessions, so its signal is pulled toward neutral and capped at 1.75×.`);
         }
+        if (plan.pacing.allocationAdjusted) {
+            reasons.push('Earlier contributions moved the portfolio away from its target mix, so remaining dollars are directed toward the underweight holding without exceeding the monthly cap.');
+        }
         const unallocated = SYMBOLS.reduce((total, symbol) => total + plan.assets[symbol].recommendation.unallocatedToday, 0);
         if (unallocated > 0) {
             reasons.push(`Whole-share rounding leaves ${formatCurrency(unallocated, 2)} undeployed today; it remains in the monthly balance.`);
@@ -455,19 +615,60 @@
     function renderRecommendation(plan) {
         const total = SYMBOLS.reduce((sum, symbol) => sum + plan.assets[symbol].recommendation.amount, 0);
         const totalInvested = plan.invested.TSLA + plan.invested.SPCX;
-        const totalRemaining = SYMBOLS.reduce((sum, symbol) => sum + plan.assets[symbol].recommendation.remaining, 0);
+        const totalRemaining = plan.pacing.portfolioRemaining;
+        const overBudget = totalInvested - plan.monthlyBudget;
+        const investedPercent = plan.monthlyBudget ? (totalInvested / plan.monthlyBudget) * 100 : 0;
+        const sessionCount = plan.sessions.length;
+        const lastSession = sessionCount === 1;
         elements.totalRecommendation.textContent = formatCurrency(total, 2);
-        elements.nextSessionLabel.textContent = plan.sessions.length
-            ? `${formatDate(plan.sessions[0], { short: true })} · next session`
+        elements.nextSessionLabel.textContent = sessionCount
+            ? `${formatDate(plan.sessions[0], { short: true })} · ${lastSession ? 'last session' : `${sessionCount} sessions left`}`
             : 'Month has no sessions left';
+        elements.catchUpBadge.hidden = !lastSession;
         const age = quoteAgeHours();
-        elements.dataConfidence.textContent = age > 96 ? 'Stale market snapshot' : 'Budget checked';
-        elements.recommendationSummary.textContent = plan.sessions.length
-            ? `${formatCurrency(totalRemaining, 2)} remains across ${plan.sessions.length} U.S. trading sessions before today’s recorded purchase.`
+        const alreadyRecorded = sessionCount ? sessionAlreadyRecorded(plan.sessions[0]) : false;
+        elements.dataConfidence.textContent = overBudget > 0.005
+            ? 'Over monthly cap'
+            : alreadyRecorded ? 'Already recorded'
+            : age > 96 ? 'Stale market snapshot' : 'Budget checked';
+        if (overBudget > 0.005) {
+            showStatus(
+                `Month-to-date contributions are ${formatCurrency(overBudget, 2)} over the ${formatCurrency(plan.monthlyBudget, 2)} cap. Raise the cap or reduce recorded totals before today’s suggestion can deploy.`,
+                'error'
+            );
+        }
+        elements.recommendationSummary.textContent = sessionCount
+            ? `${formatCurrency(totalRemaining, 2)} remains across ${sessionCount} U.S. trading session${sessionCount === 1 ? '' : 's'}, including today.`
             : 'Move the plan date into a month with an eligible U.S. trading session.';
         elements.budgetInvested.textContent = formatCurrency(totalInvested, 2);
-        elements.budgetRemaining.textContent = formatCurrency(totalRemaining, 2);
-        elements.budgetProgressFill.style.width = `${clamp((totalInvested / plan.monthlyBudget) * 100, 0, 100)}%`;
+        elements.budgetRemaining.textContent = formatCurrency(Math.max(0, totalRemaining), 2);
+        elements.budgetPercent.textContent = `${Math.round(investedPercent)}% of cap`;
+        elements.budgetProgressFill.style.width = `${clamp(investedPercent, 0, 100)}%`;
+        elements.budgetProgressFill.classList.toggle('is-over', investedPercent > 100);
+        if (elements.budgetProgress) {
+            elements.budgetProgress.classList.toggle('is-over', investedPercent > 100);
+            elements.budgetProgress.setAttribute('aria-valuenow', String(Math.round(clamp(investedPercent, 0, 100))));
+            elements.budgetProgress.setAttribute(
+                'aria-valuetext',
+                `${Math.round(investedPercent)}% of the monthly cap invested`
+            );
+        }
+        const pace = engine.paceVsEven({
+            monthlyBudget: plan.monthlyBudget,
+            invested: totalInvested,
+            planDate: plan.planDate
+        });
+        const paceTolerance = Math.max(1, plan.monthlyBudget * 0.005);
+        elements.paceStatus.className = 'budget-progress__pace';
+        if (pace.delta > paceTolerance) {
+            elements.paceStatus.textContent = `${formatCurrency(pace.delta, 0)} ahead of an even daily pace`;
+            elements.paceStatus.classList.add('is-ahead');
+        } else if (pace.delta < -paceTolerance) {
+            elements.paceStatus.textContent = `${formatCurrency(Math.abs(pace.delta), 0)} behind an even daily pace`;
+            elements.paceStatus.classList.add('is-behind');
+        } else {
+            elements.paceStatus.textContent = 'On an even daily pace';
+        }
 
         SYMBOLS.forEach((symbol) => {
             const lower = symbol.toLowerCase();
@@ -479,10 +680,32 @@
             elements[`${lower}Multiplier`].textContent = `${recommendation.appliedMultiplier.toFixed(2)}×`;
             elements[`${lower}Remaining`].textContent = formatCurrency(recommendation.remaining, 2);
             setSignalBadge(elements[`${lower}SignalBadge`], asset.signal);
+            if (elements[`${lower}SignalLabel`]) {
+                elements[`${lower}SignalLabel`].textContent = asset.signal.label;
+            }
         });
+        const leftover = SYMBOLS.reduce((sum, symbol) => sum + plan.assets[symbol].recommendation.unallocatedToday, 0);
+        if (leftover > 0) {
+            elements.unallocatedNote.hidden = false;
+            elements.unallocatedNote.textContent = `Whole-share rounding leaves ${formatCurrency(leftover, 2)} undeployed today. It stays in the monthly remainder.`;
+        } else {
+            elements.unallocatedNote.hidden = true;
+            elements.unallocatedNote.textContent = '';
+        }
         renderReasons(plan);
-        elements.recordPurchase.disabled = total <= 0 || !plan.sessions.length;
-        elements.copyPlan.disabled = total <= 0 || !plan.sessions.length;
+        const canAct = total > 0 && sessionCount > 0;
+        elements.recordPurchase.disabled = !canAct;
+        elements.copyPlan.disabled = !canAct;
+        if (elements.sharePlan) elements.sharePlan.disabled = !canAct;
+        if (elements.copyPlanLink) elements.copyPlanLink.disabled = !sessionCount;
+        if (elements.undoLast) elements.undoLast.disabled = !state.ledger.length;
+        if (elements.mobileActionTotal) {
+            elements.mobileActionTotal.textContent = formatCurrency(total, 2);
+        }
+        if (elements.mobileRecord) elements.mobileRecord.disabled = !canAct;
+        if (elements.mobileCopy) elements.mobileCopy.disabled = !canAct;
+        if (elements.mobileActionBar) elements.mobileActionBar.hidden = !canAct;
+        document.title = canAct ? `${formatCurrency(total, 0)} today · Conviction DCA Lab` : PAGE_TITLE;
     }
 
     function indicatorClass(value) {
@@ -587,7 +810,10 @@
         tooltip.replaceChildren(price, detail);
         tooltip.style.left = `${clamp((point.x / model.width) * 100, 18, 82)}%`;
         tooltip.hidden = false;
+        const valueText = `${formatDate(point.row.date, { short: true })}, ${formatCurrency(point.row.close, 2)}${Number.isFinite(sessionMove) ? `, ${formatPercent(sessionMove)}` : ''}`;
         elements[`${lower}ChartSummary`].textContent = `${shortChartDate(point.row.date)} · ${formatCurrency(point.row.close, 2)}${Number.isFinite(sessionMove) ? ` · ${formatPercent(sessionMove)}` : ''}`;
+        chart.setAttribute('aria-valuenow', String(index));
+        chart.setAttribute('aria-valuetext', valueText);
         model.selectedIndex = index;
     }
 
@@ -663,10 +889,15 @@
         startLabel.textContent = shortChartDate(rows[0].date);
         endLabel.textContent = shortChartDate(rows[rows.length - 1].date);
         svg.append(defs, grid, area, line, crosshair, focus, startLabel, endLabel);
-        elements[`${lower}Sparkline`].replaceChildren(svg);
+        const chart = elements[`${lower}Sparkline`];
+        chart.replaceChildren(svg);
         const totalReturn = (rows[rows.length - 1].close / rows[0].close) - 1;
         const summary = `${shortChartDate(rows[0].date)}–${shortChartDate(rows[rows.length - 1].date)} · ${formatPercent(totalReturn)}`;
         chartModels[symbol] = { rows, points, width, summary, selectedIndex: null };
+        chart.setAttribute('aria-valuemin', '0');
+        chart.setAttribute('aria-valuemax', String(points.length - 1));
+        chart.setAttribute('aria-valuenow', String(points.length - 1));
+        chart.setAttribute('aria-valuetext', `${formatDate(rows[rows.length - 1].date, { short: true })}, ${formatCurrency(rows[rows.length - 1].close, 2)}`);
         elements[`${lower}ChartSummary`].textContent = summary;
         elements[`${lower}ChartTooltip`].hidden = true;
         elements.chartRangeButtons
@@ -687,7 +918,8 @@
         elements[`${lower}FlatShares`].textContent = `${formatShares(replay.flat.shares)} shares`;
         const shareDifference = replay.adaptive.shares - replay.flat.shares;
         const averageDifference = replay.adaptive.averagePrice - replay.flat.averagePrice;
-        elements[`${lower}ReplayDelta`].textContent = `${shareDifference >= 0 ? '+' : ''}${formatShares(shareDifference)} shares versus flat DCA; adaptive average was ${averageDifference <= 0 ? formatCurrency(Math.abs(averageDifference), 2) + ' lower' : formatCurrency(averageDifference, 2) + ' higher'}. Both deployed ${formatCurrency(replay.budget, 2)}.`;
+        const extraNotional = shareDifference * (replay.adaptive.averagePrice || 0);
+        elements[`${lower}ReplayDelta`].textContent = `${shareDifference >= 0 ? '+' : ''}${formatShares(shareDifference)} shares versus flat DCA; adaptive average was ${averageDifference <= 0 ? formatCurrency(Math.abs(averageDifference), 2) + ' lower' : formatCurrency(averageDifference, 2) + ' higher'}. ${shareDifference !== 0 ? `That is about ${formatCurrency(Math.abs(extraNotional), 0)} ${shareDifference > 0 ? 'more' : 'less'} ${symbol} at the adaptive average. ` : ''}Both deployed ${formatCurrency(replay.budget, 2)}.`;
     }
 
     function renderReplay(plan) {
@@ -703,8 +935,9 @@
 
     function recalculate({ persist = true } = {}) {
         updateAllocationOutput();
-        updateRangeOutputs(elements.strategyMode.textContent === 'Custom settings');
-        if (persist) persistControls();
+        updateRangeOutputs(strategySettings().id === 'custom');
+        if (persist === true) persistControls();
+        else if (persist === 'debounce') schedulePersist();
         currentPlan = buildPlan();
         if (!currentPlan) return;
         renderRecommendation(currentPlan);
@@ -720,15 +953,38 @@
         return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
+    function sessionAlreadyRecorded(date) {
+        return state.ledger.some((entry) => entry.date === date);
+    }
+
+    function advancePlanDate(fromDate) {
+        try {
+            const next = engine.nextTradingDay(fromDate, { inclusive: false });
+            if (next.slice(0, 7) === fromDate.slice(0, 7)) {
+                elements.planDate.value = next;
+            }
+        } catch (error) {
+            console.warn('[DCA Lab] Could not advance the plan date.', error);
+        }
+    }
+
     function recordPurchase() {
         if (!currentPlan || !currentPlan.sessions.length) return;
         const date = currentPlan.sessions[0];
+        if (sessionAlreadyRecorded(date)) {
+            const confirmed = window.confirm(
+                `A purchase is already recorded for ${formatDate(date, { short: true })}. Record another for the same session?`
+            );
+            if (!confirmed) return;
+        }
         const recorded = [];
+        const batchId = ledgerId();
         SYMBOLS.forEach((symbol) => {
             const asset = currentPlan.assets[symbol];
             if (asset.recommendation.amount <= 0) return;
             const entry = {
                 id: ledgerId(),
+                batchId,
                 date,
                 symbol,
                 amount: asset.recommendation.amount,
@@ -744,15 +1000,14 @@
             recorded.push(symbol);
         });
         saveState();
+        advancePlanDate(date);
         loadMonthInputs();
         renderJournal();
         recalculate();
         showStatus(`Recorded ${recorded.join(' and ')} in this browser journal. No brokerage order was placed.`, 'info');
     }
 
-    function deleteEntry(id) {
-        const entry = state.ledger.find((candidate) => candidate.id === id);
-        if (!entry) return;
+    function applyLedgerRemoval(entry) {
         const entryMonth = entry.date.slice(0, 7);
         if (state.months[entryMonth]) {
             state.months[entryMonth][entry.symbol] = Math.max(
@@ -760,7 +1015,14 @@
                 Number(state.months[entryMonth][entry.symbol] || 0) - Number(entry.amount || 0)
             );
         }
-        state.ledger = state.ledger.filter((candidate) => candidate.id !== id);
+        state.ledger = state.ledger.filter((candidate) => candidate.id !== entry.id);
+        return entryMonth;
+    }
+
+    function deleteEntry(id) {
+        const entry = state.ledger.find((candidate) => candidate.id === id);
+        if (!entry) return;
+        const entryMonth = applyLedgerRemoval(entry);
         saveState();
         if (entryMonth === monthKey()) loadMonthInputs();
         renderJournal();
@@ -768,12 +1030,51 @@
         showStatus('Journal entry removed and the month-to-date total was adjusted.', 'info');
     }
 
+    function undoLastRecording() {
+        if (!state.ledger.length) return;
+        const last = state.ledger[state.ledger.length - 1];
+        const batch = last.batchId
+            ? state.ledger.filter((entry) => entry.batchId === last.batchId)
+            : [last];
+        let touchedCurrentMonth = false;
+        batch.forEach((entry) => {
+            const entryMonth = applyLedgerRemoval(entry);
+            if (entryMonth === monthKey()) touchedCurrentMonth = true;
+        });
+        saveState();
+        if (touchedCurrentMonth) loadMonthInputs();
+        renderJournal();
+        recalculate();
+        showStatus('Last recorded session was removed from this browser journal.', 'info');
+    }
+
     function renderJournal() {
         elements.journalBody.replaceChildren();
-        const rows = [...state.ledger].sort((left, right) => right.date.localeCompare(left.date));
+        const currentMonth = monthKey();
+        const monthRows = state.ledger.filter((entry) => String(entry.date || '').startsWith(currentMonth));
+        const rows = [...(journalThisMonthOnly ? monthRows : state.ledger)]
+            .sort((left, right) => right.date.localeCompare(left.date));
+        if (elements.journalScope) {
+            elements.journalScope.setAttribute('aria-pressed', String(journalThisMonthOnly));
+            elements.journalScope.textContent = journalThisMonthOnly
+                ? `This month (${monthRows.length})`
+                : `All entries (${state.ledger.length})`;
+        }
         elements.journalEmpty.hidden = rows.length > 0;
+        elements.journalEmpty.textContent = state.ledger.length
+            ? 'No purchases recorded in this month. Switch to all entries to see older sessions.'
+            : 'No purchases recorded in this browser yet.';
+        if (elements.journalSummary) {
+            const spent = monthRows.reduce((total, entry) => total + Number(entry.amount || 0), 0);
+            const sessions = new Set(monthRows.map((entry) => entry.date)).size;
+            elements.journalSummary.textContent = monthRows.length
+                ? `${formatMonth(currentMonth)}: ${formatCurrency(spent, 2)} recorded across ${sessions} session${sessions === 1 ? '' : 's'} (${monthRows.length} fill${monthRows.length === 1 ? '' : 's'}).`
+                : `${formatMonth(currentMonth)}: no fills recorded yet.`;
+        }
+        const sessionDate = currentPlan?.sessions?.[0] || elements.planDate.value;
         rows.forEach((entry) => {
             const row = document.createElement('tr');
+            if (entry.date === sessionDate) row.classList.add('is-session');
             [
                 formatDate(entry.date, { short: true }),
                 entry.symbol,
@@ -837,20 +1138,41 @@
         showStatus(`${formatMonth(currentMonth)} was reset in this browser.`, 'info');
     }
 
-    async function copyPlan() {
-        if (!currentPlan || !currentPlan.sessions.length) return;
-        const lines = [
+    function planText() {
+        const leftover = SYMBOLS.reduce((sum, symbol) => sum + currentPlan.assets[symbol].recommendation.unallocatedToday, 0);
+        return [
             `Conviction DCA plan · ${currentPlan.sessions[0]}`,
+            `Strategy: ${currentPlan.strategy.label}`,
             `Total: ${formatCurrency(SYMBOLS.reduce((sum, symbol) => sum + currentPlan.assets[symbol].recommendation.amount, 0), 2)}`,
             ...SYMBOLS.map((symbol) => {
                 const asset = currentPlan.assets[symbol];
                 return `${symbol}: ${formatCurrency(asset.recommendation.amount, 2)} · ${formatShares(asset.recommendation.shares)} shares @ ${formatCurrency(asset.price.value, 2)} · ${asset.recommendation.appliedMultiplier.toFixed(2)}×`;
             }),
-            `Monthly cap: ${formatCurrency(currentPlan.monthlyBudget, 2)} · ${currentPlan.sessions.length} sessions remain`,
+            `Monthly cap: ${formatCurrency(currentPlan.monthlyBudget, 2)} · ${currentPlan.sessions.length} session${currentPlan.sessions.length === 1 ? '' : 's'} remain`,
+            leftover > 0 ? `Whole-share leftover today: ${formatCurrency(leftover, 2)}` : null,
             'Decision support only; verify the price and order with a broker.'
-        ];
+        ].filter(Boolean).join('\n');
+    }
+
+    function planUrl() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('d', currentPlan.planDate);
+        url.searchParams.set('budget', String(currentPlan.monthlyBudget));
+        url.searchParams.set('strategy', selectedStrategyId());
+        url.searchParams.set('tsla', String(Math.round(currentPlan.allocations.TSLA * 100)));
+        url.searchParams.set('floor', String(numberValue(elements.floorMultiplier)));
+        url.searchParams.set('dip', String(numberValue(elements.dipSensitivity)));
+        url.searchParams.set('max', String(numberValue(elements.maxMultiplier)));
+        if (!elements.fractionalShares.checked) url.searchParams.set('fractional', '0');
+        else url.searchParams.delete('fractional');
+        url.hash = 'planner';
+        return `${url.pathname}${url.search}${url.hash}`;
+    }
+
+    async function copyPlan() {
+        if (!currentPlan || !currentPlan.sessions.length) return;
         try {
-            await navigator.clipboard.writeText(lines.join('\n'));
+            await navigator.clipboard.writeText(planText());
             showStatus('Plan copied to the clipboard.', 'info');
         } catch (error) {
             console.warn('[DCA Lab] Clipboard write failed.', error);
@@ -858,16 +1180,165 @@
         }
     }
 
+    async function copyPlanLink() {
+        if (!currentPlan) return;
+        try {
+            const absolute = new URL(planUrl(), window.location.origin).toString();
+            await navigator.clipboard.writeText(absolute);
+            showStatus('Plan link copied. It excludes journal amounts and manual prices.', 'info');
+        } catch (error) {
+            console.warn('[DCA Lab] Link copy failed.', error);
+            showStatus('Clipboard access was blocked by the browser.', 'error');
+        }
+    }
+
+    function splitCsvLine(line) {
+        const out = [];
+        let current = '';
+        let quoted = false;
+        for (let index = 0; index < line.length; index += 1) {
+            const character = line[index];
+            if (quoted) {
+                if (character === '"' && line[index + 1] === '"') {
+                    current += '"';
+                    index += 1;
+                } else if (character === '"') {
+                    quoted = false;
+                } else {
+                    current += character;
+                }
+            } else if (character === '"') {
+                quoted = true;
+            } else if (character === ',') {
+                out.push(current);
+                current = '';
+            } else {
+                current += character;
+            }
+        }
+        out.push(current);
+        return out;
+    }
+
+    function importJournalText(text) {
+        const lines = String(text || '').replace(/^\uFEFF/, '').trim().split(/\r?\n/).filter(Boolean);
+        if (lines.length < 2) throw new Error('The CSV file did not contain any rows.');
+        if (lines.length > 10_001) throw new Error('Import at most 10,000 journal rows at a time.');
+        const header = splitCsvLine(lines[0]).map((cell) => cell.trim());
+        const indexOf = (name) => header.indexOf(name);
+        const dateIndex = indexOf('date');
+        const symbolIndex = indexOf('symbol');
+        const amountIndex = indexOf('dollars_usd');
+        const priceIndex = indexOf('price_usd');
+        const sharesIndex = indexOf('shares');
+        if (dateIndex < 0 || symbolIndex < 0 || amountIndex < 0) {
+            throw new Error('CSV must include date, symbol, and dollars_usd columns.');
+        }
+        let imported = 0;
+        const importBatchId = `import-${ledgerId()}`;
+        lines.slice(1).forEach((line) => {
+            const cells = splitCsvLine(line);
+            const date = String(cells[dateIndex] || '').slice(0, 10);
+            const symbol = String(cells[symbolIndex] || '').toUpperCase();
+            const amount = Number(cells[amountIndex]);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !SYMBOLS.includes(symbol) || !Number.isFinite(amount) || amount <= 0) {
+                return;
+            }
+            const parsedShares = Number(cells[sharesIndex]);
+            const shares = Number.isFinite(parsedShares) && parsedShares >= 0 ? parsedShares : 0;
+            const duplicate = state.ledger.some((entry) => (
+                entry.date === date
+                && entry.symbol === symbol
+                && Number(entry.amount) === amount
+                && Number(entry.shares || 0) === shares
+            ));
+            if (duplicate) return;
+            const month = date.slice(0, 7);
+            state.ledger.push({
+                id: ledgerId(),
+                batchId: importBatchId,
+                date,
+                symbol,
+                amount,
+                price: Math.max(0, Number(cells[priceIndex]) || 0),
+                shares,
+                multiplier: 1,
+                priceMode: 'imported'
+            });
+            state.months[month] = state.months[month] || { TSLA: 0, SPCX: 0 };
+            state.months[month][symbol] = Number(state.months[month][symbol] || 0) + amount;
+            imported += 1;
+        });
+        if (!imported) throw new Error('No new rows were imported.');
+        saveState();
+        loadMonthInputs();
+        renderJournal();
+        recalculate();
+        showStatus(`Imported ${imported} journal row${imported === 1 ? '' : 's'} into this browser.`, 'info');
+    }
+
+    async function sharePlan() {
+        if (!currentPlan || !currentPlan.sessions.length) return;
+        const text = planText();
+        if (typeof navigator.share === 'function') {
+            try {
+                await navigator.share({ title: 'Conviction DCA plan', text });
+                showStatus('Plan shared.', 'info');
+                return;
+            } catch (error) {
+                if (error && error.name === 'AbortError') return;
+                console.warn('[DCA Lab] Share failed.', error);
+            }
+        }
+        await copyPlan();
+    }
+
+    function isTypingTarget(target) {
+        if (!target || !target.tagName) return false;
+        const tag = target.tagName;
+        return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
+    }
+
+    function bindAutoHideNav() {
+        const nav = elements.dcaNav;
+        if (!nav) return;
+        let lastScrollY = Math.max(0, window.scrollY);
+        let ticking = false;
+        function handleScroll() {
+            const scrollY = Math.max(0, window.scrollY);
+            const delta = scrollY - lastScrollY;
+            if (scrollY <= 16 || delta < 0 || nav.matches(':focus-within')) {
+                nav.classList.remove('is-scroll-hidden');
+            } else if (delta > 0 && scrollY > nav.offsetHeight) {
+                nav.classList.add('is-scroll-hidden');
+            }
+            lastScrollY = scrollY;
+            ticking = false;
+        }
+        function queueUpdate() {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(handleScroll);
+        }
+        nav.addEventListener('focusin', () => nav.classList.remove('is-scroll-hidden'));
+        window.addEventListener('scroll', queueUpdate, { passive: true });
+        handleScroll();
+    }
+
     function bindEvents() {
-        const recalcInputs = [
-            elements.monthlyBudget, elements.tslaAllocation, elements.tslaInvested,
-            elements.spcxInvested, elements.fractionalShares, elements.tslaPrice,
-            elements.spcxPrice
+        const immediateInputs = [
+            elements.monthlyBudget, elements.tslaInvested, elements.spcxInvested,
+            elements.fractionalShares, elements.tslaPrice, elements.spcxPrice
         ];
-        recalcInputs.forEach((element) => element.addEventListener('input', () => recalculate()));
+        immediateInputs.forEach((element) => element.addEventListener('input', () => recalculate()));
+        elements.tslaAllocation.addEventListener('input', () => recalculate({ persist: 'debounce' }));
         elements.planDate.addEventListener('change', () => {
+            const snapped = snapPlanDate();
             loadMonthInputs();
             recalculate();
+            if (snapped) {
+                showStatus(`Weekend and holiday dates snap to the next U.S. session (${formatDate(snapped, { short: true })}).`, 'info');
+            }
         });
         elements.strategyRadios.forEach((radio) => {
             radio.addEventListener('change', () => {
@@ -878,7 +1349,7 @@
         [elements.floorMultiplier, elements.dipSensitivity, elements.maxMultiplier].forEach((element) => {
             element.addEventListener('input', () => {
                 updateRangeOutputs(true);
-                recalculate();
+                recalculate({ persist: 'debounce' });
             });
         });
         [elements.tslaManualToggle, elements.spcxManualToggle].forEach((toggle) => {
@@ -897,13 +1368,15 @@
         SYMBOLS.forEach((symbol) => {
             const lower = symbol.toLowerCase();
             const chart = elements[`${lower}Sparkline`];
-            chart.addEventListener('pointermove', (event) => {
+            const inspectPointer = (event) => {
                 const model = chartModels[symbol];
                 if (!model) return;
                 const bounds = chart.getBoundingClientRect();
                 const ratio = clamp((event.clientX - bounds.left) / bounds.width, 0, 1);
                 showChartPoint(symbol, ratio * (model.points.length - 1));
-            });
+            };
+            chart.addEventListener('pointerdown', inspectPointer);
+            chart.addEventListener('pointermove', inspectPointer);
             chart.addEventListener('pointerleave', (event) => {
                 if (event.pointerType !== 'touch') hideChartPoint(symbol);
             });
@@ -929,10 +1402,64 @@
                 showChartPoint(symbol, next);
             });
         });
+        if (elements.dcaForm) {
+            elements.dcaForm.addEventListener('submit', (event) => event.preventDefault());
+        }
+        (elements.allocationPresets || []).forEach((button) => {
+            button.addEventListener('click', () => {
+                elements.tslaAllocation.value = button.dataset.alloc;
+                recalculate();
+            });
+        });
+        if (elements.resetPrices) elements.resetPrices.addEventListener('click', resetSnapshotPrices);
         elements.recordPurchase.addEventListener('click', recordPurchase);
+        if (elements.undoLast) elements.undoLast.addEventListener('click', undoLastRecording);
         elements.copyPlan.addEventListener('click', copyPlan);
+        if (elements.copyPlanLink) elements.copyPlanLink.addEventListener('click', copyPlanLink);
+        if (elements.sharePlan) elements.sharePlan.addEventListener('click', sharePlan);
+        if (elements.jumpToday) elements.jumpToday.addEventListener('click', jumpToToday);
+        if (elements.mobileRecord) elements.mobileRecord.addEventListener('click', recordPurchase);
+        if (elements.mobileCopy) elements.mobileCopy.addEventListener('click', copyPlan);
+        if (elements.journalScope) {
+            elements.journalScope.addEventListener('click', () => {
+                journalThisMonthOnly = !journalThisMonthOnly;
+                renderJournal();
+            });
+        }
+        if (elements.importJournalButton && elements.importJournal) {
+            elements.importJournalButton.addEventListener('click', () => elements.importJournal.click());
+            elements.importJournal.addEventListener('change', async (event) => {
+                const file = event.target.files && event.target.files[0];
+                event.target.value = '';
+                if (!file) return;
+                try {
+                    importJournalText(await file.text());
+                } catch (error) {
+                    showStatus(error.message || 'The CSV file could not be imported.', 'error');
+                }
+            });
+        }
         elements.exportJournal.addEventListener('click', exportJournal);
         elements.resetMonth.addEventListener('click', resetMonth);
+        window.addEventListener('keydown', (event) => {
+            if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+            if (isTypingTarget(event.target)) return;
+            const key = event.key.toLowerCase();
+            if (key === 't') {
+                event.preventDefault();
+                jumpToToday();
+            } else if (key === 'c') {
+                event.preventDefault();
+                copyPlan();
+            } else if (key === 'r') {
+                event.preventDefault();
+                recordPurchase();
+            }
+        });
+        window.addEventListener('pagehide', () => {
+            flushPersist();
+            if (clockTimer) window.clearInterval(clockTimer);
+        });
     }
 
     async function loadMarketData() {
@@ -952,13 +1479,30 @@
         }
         cacheElements();
         applySavedSettings();
+        applyQueryOverrides();
+        const snappedOnLoad = snapPlanDate();
+        loadMonthInputs();
         bindEvents();
+        bindAutoHideNav();
+        if (typeof navigator.share === 'function' && elements.sharePlan) {
+            elements.sharePlan.hidden = false;
+        }
+        if (window.location.hash === '#planner' && elements.monthlyBudget) {
+            elements.monthlyBudget.focus();
+        }
         renderJournal();
         try {
             marketData = await loadMarketData();
             renderMarketHeader();
+            clockTimer = window.setInterval(renderMarketClock, 30_000);
             recalculate({ persist: false });
-            if (quoteAgeHours() > 96) {
+            const investedOverCap = currentPlan
+                && (currentPlan.invested.TSLA + currentPlan.invested.SPCX) - currentPlan.monthlyBudget > 0.005;
+            if (investedOverCap) {
+                // Over-cap status is already shown by renderRecommendation.
+            } else if (snappedOnLoad) {
+                showStatus(`Plan date snapped to ${formatDate(snappedOnLoad, { short: true })}, the next U.S. trading session.`, 'info');
+            } else if (quoteAgeHours() > 96) {
                 showStatus('The automatic market snapshot is more than four days old. Turn on Manual price before acting on the share estimate.', 'info');
             }
         } catch (error) {

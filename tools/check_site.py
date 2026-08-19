@@ -698,6 +698,16 @@ def main() -> None:
             )
     ok(f"kofi-support cache keys match {site_version}")
 
+    dca_html = (ROOT / "pages" / "dca-calculator.html").read_text(encoding="utf-8")
+    for asset, pattern in (
+        ("css", rf'href="\.\./css/dca-calculator\.css\?v={re.escape(site_version)}"'),
+        ("engine", rf'src="\.\./js/dca-engine\.js\?v={re.escape(site_version)}"'),
+        ("calculator", rf'src="\.\./js/dca-calculator\.js\?v={re.escape(site_version)}"'),
+    ):
+        if not re.search(pattern, dca_html):
+            fail(f"DCA Lab {asset} cache key must match SITE_VERSION.id {site_version}")
+    ok(f"DCA Lab asset cache keys match {site_version}")
+
     home_html = (ROOT / "index.html").read_text(encoding="utf-8")
     if "data-auto-footer" not in home_html:
         fail("home page must mount the footer feedback strip")

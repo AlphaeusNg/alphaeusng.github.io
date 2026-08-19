@@ -530,7 +530,78 @@ function waitForChart(timeoutMs = 8000) {
     });
 }
 
+function bindAutoHideNav() {
+    const nav = document.querySelector('.conviction-nav');
+    if (!nav) return;
+    let lastScrollY = Math.max(0, window.scrollY);
+    let ticking = false;
+
+    function handleScroll() {
+        const scrollY = Math.max(0, window.scrollY);
+        const delta = scrollY - lastScrollY;
+        if (scrollY <= 16 || delta < 0 || nav.matches(':focus-within')) {
+            nav.classList.remove('is-scroll-hidden');
+        } else if (delta > 0 && scrollY > nav.offsetHeight) {
+            nav.classList.add('is-scroll-hidden');
+        }
+        lastScrollY = scrollY;
+        ticking = false;
+    }
+
+    function queueUpdate() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(handleScroll);
+    }
+
+    nav.addEventListener('focusin', () => nav.classList.remove('is-scroll-hidden'));
+    window.addEventListener('scroll', queueUpdate, { passive: true });
+    handleScroll();
+}
+
+function newYorkDate() {
+    const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).formatToParts(new Date());
+    const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    return `${values.year}-${values.month}-${values.day}`;
+}
+
+function wireDcaCta() {
+    const cta = document.querySelector('.dca-lab-cta');
+    if (!cta) return;
+    cta.href = `dca-calculator.html?d=${encodeURIComponent(newYorkDate())}#planner`;
+}
+
+function populateDcaSnapshot() {
+    const meta = document.getElementById('dcaSnapshotMeta');
+    if (!meta) return;
+    fetch('../data/dca_market_history.json', { cache: 'no-store' })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((payload) => {
+            if (!payload) return;
+            const stamp = payload.symbols?.TSLA?.quote?.asOf || payload.generatedAt;
+            if (!stamp) return;
+            const formatted = new Intl.DateTimeFormat('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                timeZone: 'America/New_York'
+            }).format(new Date(stamp));
+            meta.textContent = `Nasdaq snapshot ${formatted}.`;
+        })
+        .catch((error) => {
+            console.warn('[Conviction] DCA snapshot could not be loaded.', error);
+        });
+}
+
 async function initConvictionPage() {
+    bindAutoHideNav();
+    wireDcaCta();
+    populateDcaSnapshot();
     try {
         await waitForChart();
         const response = await fetch(CONVICTION_DATA_PATH, { cache: 'no-store' });

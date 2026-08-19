@@ -30,6 +30,29 @@ test('remaining sessions exclude weekends and U.S. exchange holidays', () => {
   );
 });
 
+test('next trading day snaps weekends and holidays and can skip the current session', () => {
+  assert.equal(engine.nextTradingDay('2026-08-15'), '2026-08-17');
+  assert.equal(engine.nextTradingDay('2026-09-07'), '2026-09-08');
+  assert.equal(engine.nextTradingDay('2026-08-18'), '2026-08-18');
+  assert.equal(engine.nextTradingDay('2026-08-18', { inclusive: false }), '2026-08-19');
+});
+
+test('portfolio pacing preserves the hard cap when prior contributions drift from targets', () => {
+  const normal = engine.allocateRemainingBudget(3000, { TSLA: 0.7, SPCX: 0.3 }, { TSLA: 700, SPCX: 300 });
+  assert.deepEqual(normal.effectiveRemaining, { TSLA: 1400, SPCX: 600 });
+  assert.equal(normal.allocationAdjusted, false);
+
+  const drifted = engine.allocateRemainingBudget(3000, { TSLA: 0.7, SPCX: 0.3 }, { TSLA: 2500, SPCX: 0 });
+  assert.equal(drifted.portfolioRemaining, 500);
+  assert.deepEqual(drifted.effectiveRemaining, { TSLA: 0, SPCX: 500 });
+  assert.equal(drifted.allocationAdjusted, true);
+  assert.equal(Object.values(drifted.effectiveRemaining).reduce((total, value) => total + value, 0), 500);
+
+  const overCap = engine.allocateRemainingBudget(3000, { TSLA: 0.7, SPCX: 0.3 }, { TSLA: 2500, SPCX: 800 });
+  assert.equal(overCap.portfolioRemaining, 0);
+  assert.deepEqual(overCap.effectiveRemaining, { TSLA: 0, SPCX: 0 });
+});
+
 test('weak trends receive more weight while strong trends retain a floor buy', () => {
   const strategy = engine.STRATEGIES.balanced;
   const weak = engine.calculateSignal(engine.calculateIndicators(history('down')), strategy);
@@ -92,6 +115,28 @@ test('whole-share mode reports cash that could not be deployed today', () => {
   assert.equal(result.shares, 1);
   assert.equal(result.amount, 70);
   assert.equal(result.unallocatedToday, 30);
+});
+
+test('pace versus even DCA counts elapsed month sessions', () => {
+  const start = engine.paceVsEven({
+    monthlyBudget: 3100,
+    invested: 0,
+    planDate: '2026-08-03',
+  });
+  assert.equal(start.elapsed, 0);
+  assert.equal(start.evenInvested, 0);
+  assert.ok(start.monthSessions >= 20);
+  assert.equal(start.elapsed + start.remaining, start.monthSessions);
+
+  const mid = engine.paceVsEven({
+    monthlyBudget: 3100,
+    invested: 1550,
+    planDate: '2026-08-17',
+  });
+  assert.equal(mid.elapsed + mid.remaining, mid.monthSessions);
+  assert.ok(mid.elapsed > 0);
+  assert.ok(mid.evenInvested > 0);
+  assert.equal(engine.tradingSessionsInMonth('2026-08-17').length, mid.monthSessions);
 });
 
 test('historical replay deploys equal budgets for a fair comparison', () => {
