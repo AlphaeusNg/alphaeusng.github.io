@@ -74,9 +74,12 @@ python3 tools/finance/generate_tsla_vs_spy.py
 
 The generator reads `tools/finance/tsla_trades_anonymized.csv` and writes the legacy monthly TSLA/SPY snapshot to `tools/finance/tsla-vs-spy.json`.
 
-The DCA Lab reads its public market snapshot from
-`data/dca_market_history.json`. A weekday workflow refreshes it after the U.S.
-close and commits only when the market payload changes. To refresh it manually:
+The DCA Lab reads daily history from `data/dca_market_history.json` and polls a
+CORS-open Nasdaq last-sale file on the `dca-live` branch. A weekday workflow
+refreshes the history snapshot after the U.S. close and publishes recent quotes
+about every ten minutes during the U.S. session. The committed snapshot and
+manual-price mode remain available if the live feed cannot be reached. To
+refresh the snapshot manually:
 
 ```bash
 python3 tools/finance/generate_dca_market_data.py

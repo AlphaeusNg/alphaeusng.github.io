@@ -5,6 +5,7 @@
     const STORAGE_KEY = 'alphaeus-conviction-dca-lab-v1';
     const SYMBOLS = ['TSLA', 'SPCX'];
     const engine = window.DcaEngine;
+    const quotesApi = window.DcaQuotes;
 
     const elements = {};
     const PAGE_TITLE = 'Conviction DCA Lab • Alphaeus Ng';
@@ -13,6 +14,9 @@
     let state = loadState();
     let persistTimer = null;
     let clockTimer = null;
+    let quoteTimer = null;
+    let quoteRequest = null;
+    let quoteFeed = { source: 'snapshot', generatedAt: null, fetchedAt: null };
     let journalThisMonthOnly = true;
     const chartRanges = { TSLA: '66', SPCX: '66' };
     const chartModels = {};
@@ -50,7 +54,7 @@
             'undoLast', 'copyPlanLink', 'mobileActionBar', 'mobileActionTotal',
             'mobileRecord', 'mobileCopy', 'journalSummary', 'importJournal',
             'importJournalButton', 'marketSession', 'marketClock',
-            'tslaSignalLabel', 'spcxSignalLabel'
+            'tslaSignalLabel', 'spcxSignalLabel', 'refreshQuotes'
         ].forEach((id) => { elements[id] = byId(id); });
         elements.strategyRadios = Array.from(document.querySelectorAll('input[name="strategy"]'));
         elements.chartRangeButtons = Array.from(document.querySelectorAll('[data-chart-range]'));
@@ -394,7 +398,87 @@
         elements.spcxManualToggle.checked = false;
         updatePriceControls();
         recalculate();
-        showStatus('Prices restored from the Nasdaq snapshot.', 'info');
+        showStatus('Prices restored from the latest market quote.', 'info');
+        refreshLiveQuotes({ force: true });
+    }
+
+    function applyLiveQuotes(live) {
+        if (!marketData || !live || !live.quotes) return false;
+        let changed = false;
+        let accepted = false;
+        SYMBOLS.forEach((symbol) => {
+            const incoming = live.quotes[symbol];
+            if (!incoming || !(incoming.price > 0)) return;
+            const incomingTime = Date.parse(incoming.asOf);
+            const incomingAge = Date.now() - incomingTime;
+            if (!Number.isFinite(incomingTime)
+                || incomingAge < -15 * 60_000
+                || incomingAge > 36 * 3_600_000) {
+                return;
+            }
+            accepted = true;
+            const current = marketData.symbols[symbol].quote || {};
+            if (current.price !== incoming.price || current.asOf !== incoming.asOf) {
+                changed = true;
+            }
+            marketData.symbols[symbol].quote = {
+                ...current,
+                ...incoming
+            };
+        });
+        if (!accepted) return false;
+        quoteFeed = {
+            source: live.feed || 'live',
+            generatedAt: live.generatedAt || null,
+            fetchedAt: live.fetchedAt || new Date().toISOString()
+        };
+        return changed;
+    }
+
+    function quotePollMs() {
+        if (typeof document !== 'undefined' && document.hidden) return null;
+        const status = elements.marketSession ? elements.marketSession.textContent : '';
+        if (status === 'Open') return 60_000;
+        if (status === 'Pre-market' || status === 'After hours') return 120_000;
+        return 300_000;
+    }
+
+    function scheduleQuotePoll() {
+        if (quoteTimer) window.clearTimeout(quoteTimer);
+        const wait = quotePollMs();
+        if (!wait) return;
+        quoteTimer = window.setTimeout(() => {
+            refreshLiveQuotes().finally(scheduleQuotePoll);
+        }, wait);
+    }
+
+    async function refreshLiveQuotes({ force = false } = {}) {
+        if (!quotesApi || !marketData) return;
+        if (typeof document !== 'undefined' && document.hidden && !force) return;
+        if (quoteRequest) return quoteRequest;
+        if (elements.refreshQuotes) {
+            elements.refreshQuotes.disabled = true;
+            elements.refreshQuotes.setAttribute('aria-busy', 'true');
+        }
+        quoteRequest = quotesApi.loadLiveQuotes({
+            symbols: SYMBOLS,
+            logger: (error) => console.warn('[DCA Lab] Recent quote feed skipped.', error)
+        });
+        try {
+            const live = await quoteRequest;
+            if (!live) return;
+            const changed = applyLiveQuotes(live);
+            renderMarketHeader();
+            if (changed || force) recalculate({ persist: false, preserveStatus: true });
+        } catch (error) {
+            console.warn('[DCA Lab] Recent quotes unavailable.', error);
+        } finally {
+            quoteRequest = null;
+            if (elements.refreshQuotes) {
+                elements.refreshQuotes.disabled = false;
+                elements.refreshQuotes.removeAttribute('aria-busy');
+            }
+        }
     }
 
     function quoteAgeHours() {
@@ -423,19 +507,32 @@
             const move = elements[`hero${symbol === 'TSLA' ? 'Tsla' : 'Spcx'}Move`];
             move.textContent = formatPercent(quote.percentChange, 2);
             move.className = `market-move ${quote.percentChange >= 0 ? 'is-up' : 'is-down'}`;
-            elements[`${lower}PriceMeta`].textContent = `Nasdaq snapshot · ${formatQuoteTimestamp(quote)} · ${quote.marketStatus}`;
+            const feed = quote.source === 'Nasdaq' && quoteFeed.source !== 'snapshot'
+                ? 'Nasdaq last sale'
+                : 'Nasdaq snapshot';
+            elements[`${lower}PriceMeta`].textContent = `${feed} · ${formatQuoteTimestamp(quote)} · ${quote.marketStatus}`;
             if (!elements[`${lower}ManualToggle`].checked) {
                 elements[`${lower}Price`].value = String(quote.price);
             }
         });
-        const age = quoteAgeHours();
+        const ageHours = quoteAgeHours();
+        const ageMs = ageHours * 3_600_000;
+        const recent = quoteFeed.source !== 'snapshot' && ageMs < 15 * 60_000;
         let freshness = 'Fresh snapshot';
-        if (age > 96) freshness = 'Stale · use manual price';
-        else if (age > 26) freshness = 'Prior market snapshot';
+        if (recent && ageMs < 90_000) freshness = 'Recent last sale';
+        else if (recent) freshness = 'Recent · short delay';
+        else if (quoteFeed.source !== 'snapshot' && ageHours <= 26) freshness = 'Latest market close';
+        else if (ageHours > 96) freshness = 'Stale · use manual price';
+        else if (ageHours > 26) freshness = 'Prior market snapshot';
         elements.marketFreshness.textContent = freshness;
-        elements.marketTimestamp.textContent = `Generated ${new Intl.DateTimeFormat('en-US', {
+        elements.marketFreshness.classList.toggle('is-live', Boolean(recent));
+        const stampSource = quoteFeed.source !== 'snapshot' ? 'Feed updated' : 'Snapshot generated';
+        const stamp = quoteFeed.source !== 'snapshot'
+            ? (quoteFeed.generatedAt || quoteFeed.fetchedAt || Date.now())
+            : marketData.generatedAt;
+        elements.marketTimestamp.textContent = `${stampSource} ${new Intl.DateTimeFormat('en-US', {
             month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
-        }).format(new Date(marketData.generatedAt))}`;
+        }).format(new Date(stamp))}`;
         renderMarketClock();
         updatePriceControls();
     }
@@ -498,14 +595,14 @@
         return errors;
     }
 
-    function buildPlan() {
+    function buildPlan({ preserveStatus = false } = {}) {
         if (!marketData) return null;
         const errors = validateInputs();
         if (errors.length) {
             showStatus(errors.join(' '));
             return null;
         }
-        clearStatus();
+        if (!preserveStatus) clearStatus();
         const monthlyBudget = numberValue(elements.monthlyBudget);
         const tslaAllocation = clamp(numberValue(elements.tslaAllocation), 0, 100) / 100;
         const allocations = { TSLA: tslaAllocation, SPCX: 1 - tslaAllocation };
@@ -933,12 +1030,12 @@
         });
     }
 
-    function recalculate({ persist = true } = {}) {
+    function recalculate({ persist = true, preserveStatus = false } = {}) {
         updateAllocationOutput();
         updateRangeOutputs(strategySettings().id === 'custom');
         if (persist === true) persistControls();
         else if (persist === 'debounce') schedulePersist();
-        currentPlan = buildPlan();
+        currentPlan = buildPlan({ preserveStatus });
         if (!currentPlan) return;
         renderRecommendation(currentPlan);
         SYMBOLS.forEach((symbol) => {
@@ -1456,9 +1553,20 @@
                 recordPurchase();
             }
         });
+        if (elements.refreshQuotes) {
+            elements.refreshQuotes.addEventListener('click', () => refreshLiveQuotes({ force: true }));
+        }
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (quoteTimer) window.clearTimeout(quoteTimer);
+                return;
+            }
+            refreshLiveQuotes().finally(scheduleQuotePoll);
+        });
         window.addEventListener('pagehide', () => {
             flushPersist();
             if (clockTimer) window.clearInterval(clockTimer);
+            if (quoteTimer) window.clearTimeout(quoteTimer);
         });
     }
 
@@ -1496,14 +1604,15 @@
             renderMarketHeader();
             clockTimer = window.setInterval(renderMarketClock, 30_000);
             recalculate({ persist: false });
+            refreshLiveQuotes().finally(scheduleQuotePoll);
             const investedOverCap = currentPlan
                 && (currentPlan.invested.TSLA + currentPlan.invested.SPCX) - currentPlan.monthlyBudget > 0.005;
             if (investedOverCap) {
                 // Over-cap status is already shown by renderRecommendation.
             } else if (snappedOnLoad) {
                 showStatus(`Plan date snapped to ${formatDate(snappedOnLoad, { short: true })}, the next U.S. trading session.`, 'info');
-            } else if (quoteAgeHours() > 96) {
-                showStatus('The automatic market snapshot is more than four days old. Turn on Manual price before acting on the share estimate.', 'info');
+            } else if (quoteAgeHours() > 96 && quoteFeed.source === 'snapshot') {
+                showStatus('The automatic market snapshot is more than four days old. Live quotes will replace it if this network can reach a last-sale feed; otherwise turn on Manual price.', 'info');
             }
         } catch (error) {
             console.error('[DCA Lab]', error);

@@ -55,6 +55,39 @@ const FIREBASE_APP_STUB = `
   };
 `;
 
+async function mockDcaQuotes(page, { tsla = 347.07, spcx = 140.535 } = {}) {
+  const asOf = new Date().toISOString();
+  await page.route(
+    'https://raw.githubusercontent.com/AlphaeusNg/alphaeusng.github.io/dca-live/data/dca_live_quotes.json**',
+    route => route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        schemaVersion: 1,
+        generatedAt: asOf,
+        marketTimezone: 'America/New_York',
+        symbols: {
+          TSLA: {
+            price: tsla,
+            asOf,
+            marketStatus: 'Open',
+            isRealTime: true,
+            netChange: 4.12,
+            percentChange: 0.0104,
+          },
+          SPCX: {
+            price: spcx,
+            asOf,
+            marketStatus: 'Open',
+            isRealTime: true,
+            netChange: 0.4,
+            percentChange: 0.0045,
+          },
+        },
+      }),
+    })
+  );
+}
+
 test.beforeEach(async ({ page, baseURL }) => {
   const errors = [];
   const firstPartyOrigin = new URL(baseURL).origin;
@@ -211,6 +244,7 @@ test('hash navigation clears the sticky header and moves mobile focus to content
 });
 
 test('conviction page renders ledger data and switches benchmark views', async ({ page }) => {
+  await mockDcaQuotes(page);
   await page.route('https://cdn.jsdelivr.net/npm/chart.js', route =>
     route.fulfill({ contentType: 'application/javascript', body: CHART_STUB })
   );
@@ -222,7 +256,7 @@ test('conviction page renders ledger data and switches benchmark views', async (
 
   await expect(page.locator('.dca-lab-cta strong')).toHaveText('Conviction DCA Lab');
   await expect(page.locator('.dca-lab-cta strong')).not.toContainText('New:');
-  await expect(page.locator('#dcaSnapshotMeta')).toContainText('Nasdaq snapshot');
+  await expect(page.locator('#dcaSnapshotMeta')).toHaveText(/Nasdaq snapshot|Recent TSLA/);
   await expect(page.locator('.dca-lab-cta')).toHaveAttribute(
     'aria-label',
     'Open Conviction DCA Lab calculator'
@@ -296,6 +330,7 @@ test('conviction page renders ledger data and switches benchmark views', async (
 });
 
 test('DCA Lab builds a budget-capped plan and persists its local journal', async ({ page }) => {
+  await mockDcaQuotes(page);
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
 
@@ -453,7 +488,24 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
   await expect(page.locator('#monthlyBudget')).toHaveValue('3100');
 });
 
+test('DCA Lab replaces the snapshot with live last-sale quotes', async ({ page }) => {
+  await mockDcaQuotes(page, { tsla: 401.25, spcx: 88.5 });
+
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#heroTslaPrice')).toHaveText('$401.25');
+  await expect(page.locator('#heroSpcxPrice')).toHaveText('$88.50');
+  await expect(page.locator('#marketFreshness')).toHaveText('Recent last sale');
+  await expect(page.locator('#marketFreshness')).toHaveClass(/is-live/);
+  await expect(page.locator('#marketTimestamp')).toContainText('Feed updated');
+  await expect(page.locator('#tslaPriceMeta')).toContainText('Nasdaq last sale');
+  await expect(page.locator('#refreshQuotes')).toHaveAttribute(
+    'aria-label',
+    'Refresh recent Nasdaq quotes'
+  );
+});
+
 test('DCA Lab imports a journal batch once and can undo it together', async ({ page }) => {
+  await mockDcaQuotes(page);
   await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
   const csv = [
     'date,symbol,dollars_usd,price_usd,shares,signal_multiplier,price_mode',

@@ -8,9 +8,11 @@ from pathlib import Path
 
 from tools.finance.generate_dca_market_data import (
     build_payload,
+    build_quotes_payload,
     parse_history_payload,
     parse_quote_payload,
     validate_payload,
+    validate_quotes_payload,
     write_if_changed,
 )
 
@@ -81,6 +83,15 @@ class DcaMarketDataTests(unittest.TestCase):
         self.assertEqual(quote["price"], 103.25)
         self.assertEqual(quote["percentChange"], -0.0072)
         self.assertEqual(quote["asOf"], "2026-08-18T11:46:00-04:00")
+
+    def test_live_quote_payload_contains_both_symbols(self) -> None:
+        quote = parse_quote_payload(QUOTE, "TSLA")
+        payload = build_quotes_payload(
+            {"TSLA": quote, "SPCX": quote},
+            generated_at="2026-08-18T16:05:00+00:00",
+        )
+        self.assertEqual(validate_quotes_payload(payload), [])
+        self.assertEqual(payload["symbols"]["TSLA"]["price"], 103.25)
 
     def test_invalid_history_and_latest_are_reported(self) -> None:
         broken = copy.deepcopy(self.payload)

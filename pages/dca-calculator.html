@@ -15,11 +15,13 @@
     <meta name="twitter:card" content="summary">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/dca-calculator.css?v=2026.08.20.1">
-    <script src="../js/dca-engine.js?v=2026.08.20.1" defer></script>
-    <script src="../js/dca-calculator.js?v=2026.08.20.1" defer></script>
+    <link rel="stylesheet" href="../css/dca-calculator.css?v=2026.08.20.2">
+    <script src="../js/dca-engine.js?v=2026.08.20.2" defer></script>
+    <script src="../js/dca-quotes.js?v=2026.08.20.2" defer></script>
+    <script src="../js/dca-calculator.js?v=2026.08.20.2" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#planner">Skip to calculator</a>
@@ -64,9 +66,10 @@
                         <span id="heroSpcxMove" class="market-move">—</span>
                     </div>
                     <div class="market-strip__freshness">
-                        <span class="market-strip__label">Snapshot</span>
+                        <span class="market-strip__label">Quotes</span>
                         <strong id="marketFreshness">Checking…</strong>
                         <span id="marketTimestamp">Nasdaq market data</span>
+                        <button id="refreshQuotes" class="market-strip__refresh" type="button" aria-label="Refresh recent Nasdaq quotes">Refresh</button>
                     </div>
                     <div class="market-strip__session">
                         <span class="market-strip__label">U.S. session</span>
@@ -75,7 +78,7 @@
                     </div>
                 </div>
                 <p class="dca-hero__notice">
-                    Decision support, not financial advice or an order. Prices can be delayed; verify with your broker.
+                    Decision support, not financial advice or an order. Recent last-sale quotes can be delayed; verify the print with your broker.
                 </p>
             </div>
         </header>
@@ -462,7 +465,7 @@
             <div><a href="conviction.html">Conviction</a><a href="../index.html">Portfolio</a><a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer">Source</a></div>
         </div>
     </footer>
-    <script src="../js/kofi-support.js?v=2026.08.20.1" data-auto-footer defer></script>
+    <script src="../js/kofi-support.js?v=2026.08.20.2" data-auto-footer defer></script>
     <script src="../js/version.js"></script>
 </body>
 </html>

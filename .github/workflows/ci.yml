@@ -43,7 +43,9 @@ jobs:
       - name: Check site contracts
         run: python3 tools/check_site.py
       - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+        # GitHub-hosted runners already include Chrome's Linux libraries. Avoid
+        # apt here so an unavailable Ubuntu mirror cannot block the entire job.
+        run: npx playwright install chromium
       - name: Test browser interactions
         run: npm run test:browser
       - name: Compile Python tools

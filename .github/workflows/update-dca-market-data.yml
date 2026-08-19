@@ -2,7 +2,9 @@ name: update DCA market data
 
 on:
   schedule:
-    # 22:30 UTC is safely after the regular Nasdaq close in both U.S. DST states.
+    # Intraday last-sale file for the browser live feed. GitHub cron is UTC.
+    - cron: "*/10 13-21 * * 1-5"
+    # Full history snapshot after the regular Nasdaq close in both U.S. DST states.
     - cron: "30 22 * * 1-5"
   workflow_dispatch:
 
@@ -14,7 +16,50 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  refresh:
+  live-quotes:
+    name: Publish live last-sale quotes
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '*/10 13-21 * * 1-5'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Fetch Nasdaq last sale
+        run: python3 tools/finance/generate_dca_market_data.py --quotes-only --output data/dca_live_quotes.json
+      - name: Publish CORS-open live quote branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --heads origin dca-live >/dev/null 2>&1; then
+            git fetch origin dca-live:refs/remotes/origin/dca-live
+            if git show origin/dca-live:data/dca_live_quotes.json >/tmp/previous-live-quotes.json 2>/dev/null; then
+              if python3 -c 'import json, pathlib, sys; current = json.loads(pathlib.Path("data/dca_live_quotes.json").read_text()); previous = json.loads(pathlib.Path("/tmp/previous-live-quotes.json").read_text()); current.pop("generatedAt", None); previous.pop("generatedAt", None); sys.exit(0 if current != previous else 42)'; then
+                :
+              else
+                if [ "$?" -eq 42 ]; then
+                  echo "Live quotes unchanged; skipped dca-live push."
+                  exit 0
+                fi
+                exit 1
+              fi
+            fi
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --orphan dca-live-publish
+          git add data/dca_live_quotes.json
+          git commit -m "Update live DCA quotes [skip ci]"
+          git push --force origin HEAD:dca-live
+
+  history-snapshot:
+    name: Publish end-of-day history snapshot
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '30 22 * * 1-5'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

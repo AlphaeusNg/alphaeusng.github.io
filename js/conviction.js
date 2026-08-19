@@ -576,6 +576,17 @@ function wireDcaCta() {
     cta.href = `dca-calculator.html?d=${encodeURIComponent(newYorkDate())}#planner`;
 }
 
+function formatQuoteStamp(value) {
+    return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: 'America/New_York'
+    }).format(new Date(value));
+}
+
 function populateDcaSnapshot() {
     const meta = document.getElementById('dcaSnapshotMeta');
     if (!meta) return;
@@ -585,16 +596,28 @@ function populateDcaSnapshot() {
             if (!payload) return;
             const stamp = payload.symbols?.TSLA?.quote?.asOf || payload.generatedAt;
             if (!stamp) return;
-            const formatted = new Intl.DateTimeFormat('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                timeZone: 'America/New_York'
-            }).format(new Date(stamp));
-            meta.textContent = `Nasdaq snapshot ${formatted}.`;
+            meta.textContent = `Nasdaq snapshot ${formatQuoteStamp(stamp)}.`;
         })
         .catch((error) => {
             console.warn('[Conviction] DCA snapshot could not be loaded.', error);
+        });
+    if (!window.DcaQuotes) return;
+    window.DcaQuotes.loadLiveQuotes({ symbols: ['TSLA'] })
+        .then((live) => {
+            const quote = live && live.quotes && live.quotes.TSLA;
+            if (!quote) return;
+            const quoteAge = Date.now() - Date.parse(quote.asOf);
+            if (!Number.isFinite(quoteAge) || quoteAge > 36 * 3_600_000) return;
+            const price = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(quote.price);
+            meta.textContent = `Recent TSLA ${price} · ${formatQuoteStamp(quote.asOf)}.`;
+        })
+        .catch((error) => {
+            console.warn('[Conviction] Live DCA quote could not be loaded.', error);
         });
 }
 

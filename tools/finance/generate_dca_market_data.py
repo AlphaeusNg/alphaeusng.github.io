@@ -4,7 +4,8 @@
 The browser reads a committed snapshot because Nasdaq's public market endpoint
 does not permit cross-origin browser requests. A scheduled GitHub Action runs
 this helper after the U.S. close and commits only when the market payload has
-actually changed.
+actually changed. `--quotes-only` writes a small last-sale file for the
+intraday live-quote branch.
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ from zoneinfo import ZoneInfo
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUTPUT = REPO_ROOT / "data" / "dca_market_history.json"
+DEFAULT_QUOTES_OUTPUT = REPO_ROOT / "data" / "dca_live_quotes.json"
 NASDAQ_API = "https://api.nasdaq.com/api/quote/{symbol}/historical"
 NASDAQ_QUOTE_API = "https://api.nasdaq.com/api/quote/{symbol}/info?assetclass=stocks"
 USER_AGENT = (
@@ -250,6 +252,55 @@ def build_payload(
     return payload
 
 
+def validate_quotes_payload(payload: object) -> list[str]:
+    issues: list[str] = []
+    if not isinstance(payload, dict):
+        return ["live quote payload must be an object"]
+    if payload.get("schemaVersion") != 1:
+        issues.append("schemaVersion must be 1")
+    if payload.get("marketTimezone") != "America/New_York":
+        issues.append("marketTimezone must be America/New_York")
+    symbols = payload.get("symbols")
+    if not isinstance(symbols, dict) or set(symbols) != set(SYMBOLS):
+        return issues + ["symbols must contain exactly TSLA and SPCX"]
+    for symbol in SYMBOLS:
+        quote = symbols.get(symbol)
+        if not isinstance(quote, dict):
+            issues.append(f"{symbol} quote must be an object")
+            continue
+        try:
+            if float(quote.get("price", 0)) <= 0:
+                raise ValueError
+            datetime.fromisoformat(str(quote.get("asOf")))
+            float(quote.get("netChange"))
+            float(quote.get("percentChange"))
+        except (TypeError, ValueError):
+            issues.append(f"{symbol} quote has invalid values")
+    return issues
+
+
+def build_quotes_payload(
+    quotes: dict[str, dict[str, object]],
+    *,
+    generated_at: str,
+) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "schemaVersion": 1,
+        "generatedAt": generated_at,
+        "marketTimezone": "America/New_York",
+        "source": {
+            "name": "Nasdaq",
+            "type": "intraday last-sale snapshot",
+            "terms": "Displayed for personal decision support; verify prices with a broker.",
+        },
+        "symbols": quotes,
+    }
+    issues = validate_quotes_payload(payload)
+    if issues:
+        raise ValueError("; ".join(issues))
+    return payload
+
+
 def validate_payload(payload: object) -> list[str]:
     issues: list[str] = []
     if not isinstance(payload, dict):
@@ -340,7 +391,12 @@ def write_if_changed(path: Path, payload: dict[str, object]) -> bool:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument(
+        "--quotes-only",
+        action="store_true",
+        help="Write only the last-sale quote file used by the live browser feed.",
+    )
     parser.add_argument(
         "--as-of",
         type=date.fromisoformat,
@@ -358,19 +414,25 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    quotes = {symbol: fetch_quote(symbol) for symbol in SYMBOLS}
+    if args.quotes_only:
+        payload = build_quotes_payload(quotes, generated_at=generated_at)
+        output = args.output or DEFAULT_QUOTES_OUTPUT
+        write_if_changed(output, payload)
+        return
     if args.lookback_days < 300:
         raise SystemExit("--lookback-days must be at least 300")
     start = args.as_of - timedelta(days=args.lookback_days)
     histories = {
         symbol: fetch_history(symbol, start, args.as_of) for symbol in SYMBOLS
     }
-    quotes = {symbol: fetch_quote(symbol) for symbol in SYMBOLS}
     payload = build_payload(
         histories,
-        generated_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        generated_at=generated_at,
         quotes=quotes,
     )
-    write_if_changed(args.output, payload)
+    write_if_changed(args.output or DEFAULT_OUTPUT, payload)
 
 
 if __name__ == "__main__":

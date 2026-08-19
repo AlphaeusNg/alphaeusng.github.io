@@ -632,6 +632,7 @@ def main() -> None:
         ROOT / "js" / "modals.js",
         ROOT / "js" / "conviction.js",
         ROOT / "js" / "dca-engine.js",
+        ROOT / "js" / "dca-quotes.js",
         ROOT / "js" / "dca-calculator.js",
         ROOT / "pages" / "conviction.html",
         ROOT / "pages" / "dca-calculator.html",
@@ -702,6 +703,7 @@ def main() -> None:
     for asset, pattern in (
         ("css", rf'href="\.\./css/dca-calculator\.css\?v={re.escape(site_version)}"'),
         ("engine", rf'src="\.\./js/dca-engine\.js\?v={re.escape(site_version)}"'),
+        ("quotes", rf'src="\.\./js/dca-quotes\.js\?v={re.escape(site_version)}"'),
         ("calculator", rf'src="\.\./js/dca-calculator\.js\?v={re.escape(site_version)}"'),
     ):
         if not re.search(pattern, dca_html):
@@ -752,8 +754,9 @@ def main() -> None:
         "supported Node action": "actions/setup-node@v7" in workflow,
         "Node 24 baseline": re.search(r"node-version:\s*[\"']?24", workflow),
         "deterministic Node install": "npm ci" in workflow,
-        "Chromium browser install": (
-            "npx playwright install --with-deps chromium" in workflow
+        "Chromium browser install without apt": (
+            "npx playwright install chromium" in workflow
+            and "npx playwright install --with-deps chromium" not in workflow
         ),
         "contract unit tests": (
             "python3 -m unittest discover -s tools -p 'test_*.py'" in workflow
