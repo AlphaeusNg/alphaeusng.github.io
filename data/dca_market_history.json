@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-20T00:14:56+00:00",
+  "generatedAt": "2026-08-20T22:52:56+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -21,16 +21,16 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-08-18",
-        "price": 336.87
+        "date": "2026-08-19",
+        "price": 351.12
       },
       "quote": {
-        "price": 350.7982,
-        "asOf": "2026-08-19T19:59:00-04:00",
+        "price": 346.3,
+        "asOf": "2026-08-20T18:52:00-04:00",
         "marketStatus": "After-Hours",
         "isRealTime": true,
-        "netChange": -0.3218,
-        "percentChange": -0.0009
+        "netChange": 1.17,
+        "percentChange": 0.0034
       },
       "history": [
         {
@@ -2336,6 +2336,14 @@
           "low": 331.12,
           "close": 336.87,
           "volume": 27994470
+        },
+        {
+          "date": "2026-08-19",
+          "open": 338.89,
+          "high": 351.62,
+          "low": 335.7,
+          "close": 351.12,
+          "volume": 36735430
         }
       ]
     },
@@ -2349,16 +2357,16 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-08-18",
-        "price": 143.34
+        "date": "2026-08-19",
+        "price": 139.65
       },
       "quote": {
-        "price": 139.35,
-        "asOf": "2026-08-19T19:59:00-04:00",
+        "price": 133.7,
+        "asOf": "2026-08-20T18:53:00-04:00",
         "marketStatus": "After-Hours",
         "isRealTime": true,
         "netChange": -0.3,
-        "percentChange": -0.0021
+        "percentChange": -0.0022
       },
       "history": [
         {
@@ -2728,6 +2736,14 @@
           "low": 139.4101,
           "close": 143.34,
           "volume": 84190980
+        },
+        {
+          "date": "2026-08-19",
+          "open": 144.96,
+          "high": 145.01,
+          "low": 136.72,
+          "close": 139.65,
+          "volume": 76612320
         }
       ]
     }
