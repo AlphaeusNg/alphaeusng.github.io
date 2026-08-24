@@ -471,6 +471,7 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
   await page.locator('#resetPrices').click();
   await expect(page.locator('#tslaPrice')).toBeDisabled();
   await expect(page.locator('#resetPrices')).toBeHidden();
+  await page.locator('#jumpToday').click();
   await page.locator('#tslaManualToggle').check();
   await page.locator('#tslaPrice').fill('340.25');
   await expect(page.locator('#tslaShares')).toContainText('@ $340.25');
@@ -616,6 +617,71 @@ test('DCA Lab keeps denied journal writes visibly session-only and recovers', as
 
   await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('#journalBody tr')).toHaveCount(2);
+});
+
+test('DCA Lab quarantines malformed saved state and persists its repair', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem('dca-malformed-state-seeded')) return;
+    sessionStorage.setItem('dca-malformed-state-seeded', '1');
+    localStorage.setItem('alphaeus-conviction-dca-lab-v1', JSON.stringify({
+      settings: {
+        monthlyBudget: 'not-a-budget',
+        tslaAllocation: 500,
+        strategyId: 'invented',
+        manualPrices: { TSLA: { enabled: true, value: 'not-a-price' } },
+      },
+      months: {
+        '2026-08': { TSLA: 100, SPCX: 0 },
+        '2026-99': { TSLA: 500, SPCX: 500 },
+        broken: { TSLA: 500, SPCX: 500 },
+      },
+      ledger: [
+        {
+          id: 'valid-entry',
+          date: '2026-08-18',
+          symbol: 'TSLA',
+          amount: 100,
+          price: 300,
+          shares: 0.333333,
+          multiplier: 1,
+          priceMode: 'manual',
+        },
+        null,
+        { id: 'broken-entry', date: null, symbol: 'SPCX', amount: 'many' },
+        {
+          id: 'invalid-date-entry',
+          date: '2026-99-99',
+          symbol: 'SPCX',
+          amount: 50,
+          price: 100,
+          shares: 0.5,
+        },
+      ],
+    }));
+  });
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#totalRecommendation')).not.toHaveText('—');
+  await expect(page.locator('#monthlyBudget')).toHaveValue('3000');
+  await expect(page.locator('#allocationOutput')).toHaveText('TSLA 70% · SPCX 30%');
+  await expect(page.locator('#tslaManualToggle')).not.toBeChecked();
+  await expect(page.locator('#journalBody tr')).toHaveCount(1);
+  await expect(page.locator('#storageNotice')).toContainText('invalid saved data');
+
+  await page.locator('#monthlyBudget').fill('3100');
+  await expect(page.locator('#storageNotice')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('alphaeus-conviction-dca-lab-v1'));
+    return {
+      budget: saved.settings.monthlyBudget,
+      ledgerIds: saved.ledger.map((entry) => entry.id),
+      monthKeys: Object.keys(saved.months),
+    };
+  })).toEqual({ budget: 3100, ledgerIds: ['valid-entry'], monthKeys: ['2026-08'] });
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#journalBody tr')).toHaveCount(1);
+  await expect(page.locator('#storageNotice')).toBeHidden();
 });
 
 test('DCA Lab imports a journal batch once and can undo it together', async ({ page }) => {

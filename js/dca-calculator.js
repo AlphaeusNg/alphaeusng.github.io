@@ -12,6 +12,8 @@
     const PAGE_TITLE = 'Conviction DCA Lab • Alphaeus Ng';
     let marketData = null;
     let currentPlan = null;
+    let storageRecoveryMessage = '';
+    let storageWriteBlocked = false;
     let state = loadState();
     let persistTimer = null;
     let clockTimer = null;
@@ -66,6 +68,7 @@
         elements.strategyRadios = Array.from(document.querySelectorAll('input[name="strategy"]'));
         elements.chartRangeButtons = Array.from(document.querySelectorAll('[data-chart-range]'));
         elements.allocationPresets = Array.from(document.querySelectorAll('[data-alloc]'));
+        renderStorageNotice();
     }
 
     function defaultState() {
@@ -93,34 +96,162 @@
         try {
             const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
             if (!saved || typeof saved !== 'object') return fallback;
-            return {
-                settings: {
-                    ...fallback.settings,
-                    ...(saved.settings || {}),
-                    manualPrices: {
-                        ...fallback.settings.manualPrices,
-                        ...((saved.settings || {}).manualPrices || {})
+            let repaired = false;
+            const isRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+            const isCalendarMonth = (value) => /^\d{4}-(0[1-9]|1[0-2])$/.test(value);
+            const isCalendarDate = (value) => {
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+                const parsed = new Date(`${value}T00:00:00Z`);
+                return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+            };
+            const savedSettings = isRecord(saved.settings) ? saved.settings : {};
+            if (saved.settings !== undefined && !isRecord(saved.settings)) repaired = true;
+            const savedNumber = (source, key, minimum, maximum, fallbackValue) => {
+                if (!(key in source)) return fallbackValue;
+                const value = Number(source[key]);
+                if (!Number.isFinite(value) || value < minimum || value > maximum) {
+                    repaired = true;
+                    return fallbackValue;
+                }
+                return value;
+            };
+            const savedBoolean = (source, key, fallbackValue) => {
+                if (!(key in source)) return fallbackValue;
+                if (typeof source[key] !== 'boolean') {
+                    repaired = true;
+                    return fallbackValue;
+                }
+                return source[key];
+            };
+            const manualPrices = {};
+            const savedManual = isRecord(savedSettings.manualPrices)
+                ? savedSettings.manualPrices
+                : {};
+            if (savedSettings.manualPrices !== undefined && !isRecord(savedSettings.manualPrices)) repaired = true;
+            SYMBOLS.forEach((symbol) => {
+                const source = isRecord(savedManual[symbol]) ? savedManual[symbol] : {};
+                if (savedManual[symbol] !== undefined && !isRecord(savedManual[symbol])) repaired = true;
+                const enabled = savedBoolean(source, 'enabled', false);
+                let value = null;
+                if (source.value !== undefined && source.value !== null && source.value !== '') {
+                    const parsed = Number(source.value);
+                    if (Number.isFinite(parsed) && parsed > 0) value = parsed;
+                    else if (enabled) repaired = true;
+                }
+                if (enabled && value === null) repaired = true;
+                manualPrices[symbol] = {
+                    enabled: enabled && value !== null,
+                    value
+                };
+            });
+            const settings = {
+                monthlyBudget: savedNumber(savedSettings, 'monthlyBudget', 0, 10_000_000, fallback.settings.monthlyBudget),
+                tslaAllocation: savedNumber(savedSettings, 'tslaAllocation', 0, 100, fallback.settings.tslaAllocation),
+                strategyId: fallback.settings.strategyId,
+                floorMultiplier: savedNumber(savedSettings, 'floorMultiplier', 0.25, 1, fallback.settings.floorMultiplier),
+                dipSensitivity: savedNumber(savedSettings, 'dipSensitivity', 0, 3, fallback.settings.dipSensitivity),
+                maxMultiplier: savedNumber(savedSettings, 'maxMultiplier', 1, 4, fallback.settings.maxMultiplier),
+                fractional: savedBoolean(savedSettings, 'fractional', fallback.settings.fractional),
+                manualPrices
+            };
+            if ('strategyId' in savedSettings) {
+                if (typeof savedSettings.strategyId === 'string' && engine.STRATEGIES[savedSettings.strategyId]) {
+                    settings.strategyId = savedSettings.strategyId;
+                } else {
+                    repaired = true;
+                }
+            }
+            const months = {};
+            if (saved.months !== undefined && !isRecord(saved.months)) repaired = true;
+            if (isRecord(saved.months)) {
+                Object.entries(saved.months).forEach(([month, totals]) => {
+                    if (!isCalendarMonth(month) || !isRecord(totals)) {
+                        repaired = true;
+                        return;
                     }
-                },
-                months: saved.months && typeof saved.months === 'object' ? saved.months : {},
-                ledger: Array.isArray(saved.ledger) ? saved.ledger : []
+                    months[month] = {
+                        TSLA: savedNumber(totals, 'TSLA', 0, Number.MAX_SAFE_INTEGER, 0),
+                        SPCX: savedNumber(totals, 'SPCX', 0, Number.MAX_SAFE_INTEGER, 0)
+                    };
+                });
+            }
+            const ledger = [];
+            const ids = new Set();
+            if (saved.ledger !== undefined && !Array.isArray(saved.ledger)) repaired = true;
+            (Array.isArray(saved.ledger) ? saved.ledger : []).forEach((entry) => {
+                const id = typeof entry?.id === 'string' ? entry.id.trim() : '';
+                const date = typeof entry?.date === 'string' ? entry.date : '';
+                const symbol = typeof entry?.symbol === 'string' ? entry.symbol : '';
+                const amount = Number(entry?.amount);
+                const price = Number(entry?.price);
+                const shares = Number(entry?.shares);
+                if (!isRecord(entry)
+                    || !id
+                    || ids.has(id)
+                    || !isCalendarDate(date)
+                    || !SYMBOLS.includes(symbol)
+                    || !Number.isFinite(amount)
+                    || amount <= 0
+                    || !Number.isFinite(price)
+                    || price < 0
+                    || !Number.isFinite(shares)
+                    || shares < 0) {
+                    repaired = true;
+                    return;
+                }
+                ids.add(id);
+                const multiplier = Number(entry.multiplier);
+                ledger.push({
+                    id,
+                    ...(typeof entry.batchId === 'string' && entry.batchId.trim()
+                        ? { batchId: entry.batchId.trim() }
+                        : {}),
+                    date,
+                    symbol,
+                    amount,
+                    price,
+                    shares,
+                    multiplier: Number.isFinite(multiplier) && multiplier > 0 ? multiplier : 1,
+                    priceMode: typeof entry.priceMode === 'string' && entry.priceMode.trim()
+                        ? entry.priceMode.trim()
+                        : 'saved'
+                });
+            });
+            if (repaired) {
+                storageRecoveryMessage = 'Some invalid saved data was ignored. Your valid plan and journal entries are still available; the repair will be saved with your next change.';
+            }
+            return {
+                settings,
+                months,
+                ledger
             };
         } catch (error) {
             console.warn('[DCA Lab] Browser state could not be loaded.', error);
+            storageRecoveryMessage = 'Saved DCA data could not be read, so safe defaults are in use. Your next change will replace the unreadable browser data.';
             return fallback;
         }
+    }
+
+    function renderStorageNotice() {
+        if (!elements.storageNotice) return;
+        const message = storageWriteBlocked
+            ? 'Browser storage is blocked. Your plan and journal changes remain available only until this tab closes.'
+            : storageRecoveryMessage;
+        elements.storageNotice.textContent = message;
+        elements.storageNotice.hidden = !message;
     }
 
     function saveState() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            elements.storageNotice.hidden = true;
-            elements.storageNotice.textContent = '';
+            storageWriteBlocked = false;
+            storageRecoveryMessage = '';
+            renderStorageNotice();
             return true;
         } catch (error) {
             console.warn('[DCA Lab] Browser state could not be saved.', error);
-            elements.storageNotice.textContent = 'Browser storage is blocked. Your plan and journal changes remain available only until this tab closes.';
-            elements.storageNotice.hidden = false;
+            storageWriteBlocked = true;
+            renderStorageNotice();
             return false;
         }
     }

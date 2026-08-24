@@ -6,9 +6,9 @@ Last updated: 2026-08-25
 
 - Branch: `main`; tracked files were clean and aligned with `origin/main` at cycle start. One untracked owner screenshot was preserved and excluded.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.25.1`.
+- Deployment version: `2026.08.25.2`.
 - Local verification: 31 Python tests, 14 DCA engine tests, non-writing
-  conviction and sitemap generator checks, 12 Chromium journeys with shared
+  conviction and sitemap generator checks, 13 Chromium journeys with shared
   runtime-error and same-origin HTTP-failure monitoring, deterministic external
   boundaries, `tools/check_site.py`, Python compilation, and syntax checks for
   every first-party JavaScript file.
@@ -17,7 +17,58 @@ Last updated: 2026-08-25
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: make denied DCA journal writes visibly temporary
+## Latest cycle: quarantine malformed DCA browser state
+
+### Why this was selected
+
+The DCA loader merged arbitrary parsed browser data into live settings and
+accepted every array item as a ledger row. A single persisted `null` entry
+crashed journal rendering before market data or a recommendation could load.
+
+### Changes
+
+- Validate saved settings, manual prices, strategy, month totals, calendar
+  months/dates, ledger identities, symbols, and numeric fields at load time.
+- Preserve valid month totals and journal rows while ignoring invalid or
+  duplicate records; never feed malformed values into rendering or plan math.
+- Explain that invalid saved data was ignored and retain the notice until a
+  successful user change persists the repaired state.
+- Add a real Chromium regression covering a fatal null row, invalid settings,
+  impossible dates/months, valid history preservation, sanitized persistence,
+  and warning-free reload.
+
+### Verification and scores
+
+- Test-first evidence: the adversarial state raised `Cannot read properties of
+  null (reading 'date')` and left the recommendation blank. A follow-up fixture
+  also proved regex-shaped `2026-99` / `2026-99-99` values survived until
+  calendar validation was added.
+- The focused recovery journey and complete 13-journey Chromium suite pass.
+  Thirty-one Python tests, 14 DCA engine/quote tests, 42-file site contracts,
+  sitemap freshness, Python compilation, every first-party JavaScript syntax
+  check, zero production npm vulnerabilities, and diff whitespace also pass.
+- Correctness/reliability: 4/10 → 9/10; observability/verifiability: 5/10 →
+  10/10; maintainability: 7/10 → 9/10; performance: 9/10 → 9/10;
+  security/robustness: 6/10 → 9/10; user experience: 3/10 → 9/10.
+
+### Lessons and process improvements
+
+- JSON parsing proves syntax, not domain shape; persisted state is an untrusted
+  boundary even when only this application normally writes it.
+- Date validation needs calendar round-tripping, not only a digit pattern.
+- Recovery tests should preserve one valid record and reload the saved repair,
+  not merely prove that invalid input no longer throws.
+- A moving market fixture exposed a chart-test precondition: a manual price is
+  the final chart point only when its plan date is current. The journey now
+  explicitly jumps to today before asserting End-key behavior rather than
+  weakening the price assertion.
+
+### Explicit next opportunity
+
+Bound DCA CSV import and persisted text fields by decoded size/length so a
+locally supplied file cannot create an unnecessarily expensive DOM journal.
+
+## Previous cycle: make denied DCA journal writes visibly temporary
 
 ### Why this was selected
 
