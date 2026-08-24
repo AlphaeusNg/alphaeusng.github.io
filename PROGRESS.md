@@ -52,6 +52,9 @@ viewer with “Could not load vault-data.json: URI malformed.”
   cache-stamp checks, and whitespace checks passed.
 - `npm ci` reproduced the lockfile graph and `npm audit` reported zero known
   vulnerabilities across all 42 installed packages.
+- Hosted CI run `32776789402` passed the complete gate in 44 seconds and Pages
+  run `32776788473` deployed successfully. Live responses expose version
+  `2026.08.25.4`, the safe decoder, and the matching viewer cache stamp.
 - Correctness/reliability: 4/10 → 9/10; observability/verifiability: 2/10 →
   10/10; maintainability: 7/10 → 9/10; performance: 9/10 → 9/10;
   security/robustness: 6/10 → 9/10; user experience: 3/10 → 9/10.
