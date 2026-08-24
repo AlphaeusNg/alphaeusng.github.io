@@ -6,9 +6,9 @@ Last updated: 2026-08-25
 
 - Branch: `main`; tracked files were clean and aligned with `origin/main` at cycle start. One untracked owner screenshot was preserved and excluded.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.25.3`.
+- Deployment version: `2026.08.25.4`.
 - Local verification: 31 Python tests, 14 DCA engine tests, non-writing
-  conviction and sitemap generator checks, 13 Chromium journeys with shared
+  conviction and sitemap generator checks, 17 Chromium journeys with shared
   runtime-error and same-origin HTTP-failure monitoring, deterministic external
   boundaries, `tools/check_site.py`, Python compilation, and syntax checks for
   every first-party JavaScript file.
@@ -17,7 +17,60 @@ Last updated: 2026-08-25
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: bound DCA import, saved state, and journal rendering
+## Latest cycle: tolerate literal percent signs in vault paths
+
+### Why this was selected
+
+The canonical viewer decoded every note lookup key with raw
+`decodeURIComponent`. A standards-valid vault note such as `100% Truth.md`
+therefore raised `URIError` while indexes were built and replaced the entire
+viewer with “Could not load vault-data.json: URI malformed.”
+
+### Changes
+
+- Added one fail-safe URI-component decoder and reused it for dataset lookup
+  keys, note-link resolution, and hash paths. Valid percent escapes still
+  decode; malformed percent text remains literal and comparable.
+- Added the first dedicated Chromium vault-viewer journey. It injects a
+  relationship-consistent `100% Truth.md` fixture, loads all 55 notes, searches
+  and opens the note, and verifies the encoded `#\/100%25%20Truth.md` deep link.
+- Pinned D3 7.9 as a dev-only test dependency and serves that local bundle into
+  the production CDN URL during the journey. Tailwind, Markdown, DOMPurify,
+  Firebase, and live-note fetches are also controlled, so the regression does
+  not depend on third-party availability.
+- Bumped all coupled cache keys and the deployment stamp to `2026.08.25.4`.
+  The owner-provided untracked screenshot was preserved and excluded.
+
+### Verification and scores
+
+- Test-first: the new production-page journey failed with
+  `Could not load vault-data.json: URI malformed`; it passes after the shared
+  decoder and opens the exact encoded deep link.
+- Complete local gate: 17/17 Chromium journeys (up from 16), 31 Python tests,
+  14 DCA engine/quote tests, conviction and sitemap freshness, 42-file site
+  contracts, Python compilation, every first-party JavaScript syntax check,
+  cache-stamp checks, and whitespace checks passed.
+- `npm ci` reproduced the lockfile graph and `npm audit` reported zero known
+  vulnerabilities across all 42 installed packages.
+- Correctness/reliability: 4/10 → 9/10; observability/verifiability: 2/10 →
+  10/10; maintainability: 7/10 → 9/10; performance: 9/10 → 9/10;
+  security/robustness: 6/10 → 9/10; user experience: 3/10 → 9/10.
+
+### Lessons and process improvements
+
+- URI decoding is an untrusted operation even for repository-authored paths;
+  malformed percent text is valid filename content and must not be fatal.
+- A browser fixture that mutates a node identity must update its incident link
+  endpoints too, or graph-integrity failures obscure the boundary under test.
+- Browser coverage for CDN-backed pages should fulfill runtime libraries from
+  pinned local test dependencies rather than relying on the network.
+
+### Explicit next opportunity
+
+Rotate to the GitHub profile repository and audit its public claims and link
+integrity; no higher-impact unblocked portfolio item is currently recorded.
+
+## Previous cycle: bound DCA import, saved state, and journal rendering
 
 ### Why this was selected
 
@@ -804,6 +857,7 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
+| — | Tolerate literal percent signs in public vault paths | Correctness / test | Medium-high | Small / low | A deterministic production-page Chromium fixture proves load, search, selection, and encoded deep linking | Completed in the 2026.08.25.4 cycle |
 | — | Bound DCA CSV/state ingestion and journal DOM work | Reliability / performance | Medium-high | Small-medium / low | Four browser paths cover file, decoded text, raw state, metadata, dates, and 500-row rendering | Completed in the 2026.08.25.3 cycle |
 | — | Align remaining kofi-support cache keys with the deploy stamp | Maintainability / UX | Low | Small / low | Home, conviction, and viewer cache keys are coupled to the deployment stamp | Completed in the 2026.08.18.3 cycle |
 | — | Couple feedback CSS and JS cache keys to SITE_VERSION | Maintainability / reliability | Low-medium | Small / low | check_site now requires both feedback assets to match the deploy stamp | Completed in Cycle 161 |
@@ -817,5 +871,6 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Next cycle
 
-No higher-impact unblocked local item is recorded. Workspace next: continue
-rotation and skip externally blocked model, device, and content decisions.
+No higher-impact unblocked local item is recorded. Workspace next: audit the
+GitHub profile repository, then continue rotation around externally blocked
+model, physical-device, and content-owner decisions.
