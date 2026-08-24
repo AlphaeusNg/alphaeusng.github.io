@@ -584,6 +584,40 @@ test('DCA Lab streams Alpaca trades without persisting credentials', async ({ pa
   await expect(page.locator('#realtimeStatus')).toContainText('disconnected');
 });
 
+test('DCA Lab keeps denied journal writes visibly session-only and recovers', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.addInitScript(() => {
+    window.__denyDcaStorage = true;
+    const originalSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function setItem(key, value) {
+      if (this === localStorage
+          && key === 'alphaeus-conviction-dca-lab-v1'
+          && window.__denyDcaStorage) {
+        throw new DOMException('Storage denied for test', 'QuotaExceededError');
+      }
+      return originalSetItem.call(this, key, value);
+    };
+  });
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+
+  await page.locator('#recordPurchase').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
+  await expect(page.locator('#calculatorStatus')).toContainText('No brokerage order was placed');
+  await expect(page.locator('#storageNotice')).toContainText('only until this tab closes');
+  expect(await page.evaluate(() => localStorage.getItem('alphaeus-conviction-dca-lab-v1'))).toBeNull();
+
+  await page.evaluate(() => { window.__denyDcaStorage = false; });
+  await page.locator('#monthlyBudget').fill('3100');
+  await expect(page.locator('#storageNotice')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => {
+    const saved = JSON.parse(localStorage.getItem('alphaeus-conviction-dca-lab-v1'));
+    return saved?.ledger?.length;
+  })).toBe(2);
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
+});
+
 test('DCA Lab imports a journal batch once and can undo it together', async ({ page }) => {
   await mockDcaQuotes(page);
   await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });

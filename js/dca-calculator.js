@@ -36,7 +36,7 @@
             'maxMultiplier', 'floorOutput', 'sensitivityOutput', 'maxOutput',
             'strategyMode', 'fractionalShares', 'tslaManualToggle', 'spcxManualToggle',
             'tslaPrice', 'spcxPrice', 'tslaPriceMeta', 'spcxPriceMeta',
-            'calculatorStatus', 'nextSessionLabel', 'dataConfidence',
+            'calculatorStatus', 'storageNotice', 'nextSessionLabel', 'dataConfidence',
             'totalRecommendation', 'recommendationSummary', 'budgetInvested',
             'budgetRemaining', 'budgetProgressFill', 'tslaRecommendation',
             'spcxRecommendation', 'tslaShares', 'spcxShares', 'tslaBaseline',
@@ -114,9 +114,14 @@
     function saveState() {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            elements.storageNotice.hidden = true;
+            elements.storageNotice.textContent = '';
+            return true;
         } catch (error) {
             console.warn('[DCA Lab] Browser state could not be saved.', error);
-            showStatus('Your browser blocked local saving. The current calculation still works.', 'error');
+            elements.storageNotice.textContent = 'Browser storage is blocked. Your plan and journal changes remain available only until this tab closes.';
+            elements.storageNotice.hidden = false;
+            return false;
         }
     }
 

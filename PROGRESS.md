@@ -1,25 +1,72 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-18 (Cycle 166 across the projects workspace)
+Last updated: 2026-08-25
 
 ## Current state
 
-- Branch: `main`; working tree was clean and aligned with `origin/main` at cycle start.
+- Branch: `main`; tracked files were clean and aligned with `origin/main` at cycle start. One untracked owner screenshot was preserved and excluded.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.18.6`.
-- Local verification: 24 mutation/fixture/freshness tests, non-writing
-  conviction and sitemap generator checks, six Chromium interaction tests / 83
-  encoded assertion sites
-  with shared runtime-error and same-origin HTTP-failure monitoring,
-  deterministic font delivery, and local Chart.js/Firebase doubles,
-  `tools/check_site.py`, Python
-  compilation, and syntax checks for every first-party JavaScript file.
+- Deployment version: `2026.08.25.1`.
+- Local verification: 31 Python tests, 14 DCA engine tests, non-writing
+  conviction and sitemap generator checks, 12 Chromium journeys with shared
+  runtime-error and same-origin HTTP-failure monitoring, deterministic external
+  boundaries, `tools/check_site.py`, Python compilation, and syntax checks for
+  every first-party JavaScript file.
 - Automated verification: least-privilege GitHub Actions checks out complete
   route history, runs cheap data/site gates before installing Chromium, then
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: align Ko-fi card and restore footer Feedback
+## Latest cycle: make denied DCA journal writes visibly temporary
+
+### Why this was selected
+
+The DCA Lab caught browser-storage failures, but a later “Recorded” message
+replaced the error. A purchase could therefore look durable even though it
+would disappear when the tab closed.
+
+### Changes
+
+- Keep storage durability in a dedicated live status that is not overwritten
+  by calculation or journal action messages.
+- State plainly that blocked writes remain available only until the tab closes.
+- Clear the warning after the browser accepts a later write; that recovery
+  persists the full in-memory journal, not just the latest control change.
+- Add a controlled Chromium regression for denial, in-session continuity,
+  recovery, persistence, and reload.
+- Reconcile the portfolio state log with the already-shipped DCA Lab and its
+  expanded local verification surface.
+
+### Verification and scores
+
+- Test-first evidence: the new browser journey failed because no durable
+  storage notice survived the journal success message.
+- Focused browser journey passes after the change. The complete gate passed:
+  12 Chromium journeys, 31 Python tests, 14 DCA engine/quote tests, 42-file
+  site contracts, sitemap freshness, Python compilation, every first-party
+  JavaScript syntax check, zero production npm vulnerabilities, and clean diff
+  whitespace.
+- Correctness/reliability: 7/10 → 9/10 (temporary journal state is no longer
+  presented without a durability warning).
+- Observability/verifiability: 7/10 → 10/10 (denial and recovery are executed
+  against the production page).
+- Maintainability: 8/10 → 9/10 (durability has one independent status surface).
+- Performance: 9/10 → 9/10; security/robustness: 8/10 → 9/10; user experience:
+  7/10 → 9/10.
+
+### Lessons and process improvements
+
+- Operation success and storage durability are separate outcomes and need
+  separate status lifetimes.
+- A recovery test should prove the entire in-memory journal reaches storage,
+  then reload it, rather than checking only that `setItem` stopped throwing.
+
+### Explicit next opportunity
+
+Validate and recover malformed persisted DCA state so structurally invalid
+settings or ledger rows cannot poison later calculations and rendering.
+
+## Previous cycle: align Ko-fi card and restore footer Feedback
 
 ### Why this was selected
 
