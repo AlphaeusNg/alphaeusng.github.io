@@ -657,6 +657,24 @@ test('DCA Lab quarantines malformed saved state and persists its repair', async 
           price: 100,
           shares: 0.5,
         },
+        {
+          id: 'x'.repeat(200),
+          date: '2026-08-19',
+          symbol: 'SPCX',
+          amount: 50,
+          price: 100,
+          shares: 0.5,
+        },
+        {
+          id: 'bounded-entry',
+          batchId: 'b'.repeat(200),
+          date: '2026-08-20',
+          symbol: 'SPCX',
+          amount: 50,
+          price: 100,
+          shares: 0.5,
+          priceMode: 'm'.repeat(200),
+        },
       ],
     }));
   });
@@ -666,7 +684,7 @@ test('DCA Lab quarantines malformed saved state and persists its repair', async 
   await expect(page.locator('#monthlyBudget')).toHaveValue('3000');
   await expect(page.locator('#allocationOutput')).toHaveText('TSLA 70% · SPCX 30%');
   await expect(page.locator('#tslaManualToggle')).not.toBeChecked();
-  await expect(page.locator('#journalBody tr')).toHaveCount(1);
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
   await expect(page.locator('#storageNotice')).toContainText('invalid saved data');
 
   await page.locator('#monthlyBudget').fill('3100');
@@ -675,13 +693,74 @@ test('DCA Lab quarantines malformed saved state and persists its repair', async 
     const saved = JSON.parse(localStorage.getItem('alphaeus-conviction-dca-lab-v1'));
     return {
       budget: saved.settings.monthlyBudget,
-      ledgerIds: saved.ledger.map((entry) => entry.id),
+      ledger: saved.ledger.map((entry) => ({
+        id: entry.id,
+        batchId: entry.batchId || null,
+        priceMode: entry.priceMode,
+      })),
       monthKeys: Object.keys(saved.months),
     };
-  })).toEqual({ budget: 3100, ledgerIds: ['valid-entry'], monthKeys: ['2026-08'] });
+  })).toEqual({
+    budget: 3100,
+    ledger: [
+      { id: 'valid-entry', batchId: null, priceMode: 'manual' },
+      { id: 'bounded-entry', batchId: null, priceMode: 'saved' },
+    ],
+    monthKeys: ['2026-08'],
+  });
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('#journalBody tr')).toHaveCount(1);
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
   await expect(page.locator('#storageNotice')).toBeHidden();
+});
+
+test('DCA Lab rejects oversized persisted state before parsing it', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.addInitScript(() => {
+    localStorage.setItem('alphaeus-conviction-dca-lab-v1', JSON.stringify({
+      settings: { monthlyBudget: 9999 },
+      padding: 'x'.repeat(2_100_000),
+    }));
+  });
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#monthlyBudget')).toHaveValue('3000');
+  await expect(page.locator('#storageNotice')).toContainText('exceeded safe browser limits');
+  await page.locator('#monthlyBudget').fill('3100');
+  await expect(page.locator('#storageNotice')).toBeHidden();
+  await expect.poll(() => page.evaluate(() => (
+    localStorage.getItem('alphaeus-conviction-dca-lab-v1')?.length || 0
+  ))).toBeLessThan(10_000);
+});
+
+test('DCA Lab bounds the rendered journal while retaining its full saved history', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.addInitScript(() => {
+    const ledger = Array.from({ length: 501 }, (_, index) => ({
+      id: `entry-${index}`,
+      date: '2026-08-18',
+      symbol: index % 2 ? 'TSLA' : 'SPCX',
+      amount: 1,
+      price: 1,
+      shares: 1,
+      multiplier: 1,
+      priceMode: 'saved',
+    }));
+    localStorage.setItem('alphaeus-conviction-dca-lab-v1', JSON.stringify({
+      settings: {},
+      months: { '2026-08': { TSLA: 250, SPCX: 251 } },
+      ledger,
+    }));
+  });
+  await page.goto('/pages/dca-calculator.html?d=2026-08-18', {
+    waitUntil: 'domcontentloaded',
+  });
+
+  await expect(page.locator('#journalScope')).toContainText('This month (501)');
+  await expect(page.locator('#journalBody tr')).toHaveCount(500);
+  await expect(page.locator('#journalSummary')).toContainText('Showing latest 500 of 501 entries');
+  expect(await page.evaluate(() => (
+    JSON.parse(localStorage.getItem('alphaeus-conviction-dca-lab-v1')).ledger.length
+  ))).toBe(501);
 });
 
 test('DCA Lab imports a journal batch once and can undo it together', async ({ page }) => {
@@ -705,6 +784,48 @@ test('DCA Lab imports a journal batch once and can undo it together', async ({ p
   await expect(page.locator('#journalBody tr')).toHaveCount(2);
 
   await page.locator('#undoLast').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(0);
+});
+
+test('DCA Lab rejects oversized and impossible-date CSV imports without mutation', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+  const header = 'date,symbol,dollars_usd,price_usd,shares\n';
+  await page.locator('#importJournal').setInputFiles({
+    name: 'oversized.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(header + 'x'.repeat(1_048_577)),
+  });
+  await expect(page.locator('#calculatorStatus')).toContainText('Import CSV files up to 1 MB');
+
+  await page.evaluate(() => {
+    const originalText = File.prototype.text;
+    File.prototype.text = function boundedImportFixture() {
+      if (this.name === 'decoded-oversized.csv') {
+        return Promise.resolve('x'.repeat(1_000_001));
+      }
+      return originalText.call(this);
+    };
+  });
+  await page.locator('#importJournal').setInputFiles({
+    name: 'decoded-oversized.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(header + '2026-08-18,TSLA,100,200,0.5\n'),
+  });
+  await expect(page.locator('#calculatorStatus')).toContainText(
+    'Import decoded CSV text up to 1,000,000 characters',
+  );
+
+  await page.locator('#importJournal').setInputFiles({
+    name: 'invalid-date.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(header + '2026-02-30,TSLA,100,200,0.5\n'),
+  });
+  await expect(page.locator('#calculatorStatus')).toContainText('No new rows were imported');
+  expect(await page.evaluate(() => {
+    const raw = localStorage.getItem('alphaeus-conviction-dca-lab-v1');
+    return raw ? JSON.parse(raw).ledger.length : 0;
+  })).toBe(0);
   await expect(page.locator('#journalBody tr')).toHaveCount(0);
 });
 

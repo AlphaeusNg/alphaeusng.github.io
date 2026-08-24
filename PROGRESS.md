@@ -6,7 +6,7 @@ Last updated: 2026-08-25
 
 - Branch: `main`; tracked files were clean and aligned with `origin/main` at cycle start. One untracked owner screenshot was preserved and excluded.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.25.2`.
+- Deployment version: `2026.08.25.3`.
 - Local verification: 31 Python tests, 14 DCA engine tests, non-writing
   conviction and sitemap generator checks, 13 Chromium journeys with shared
   runtime-error and same-origin HTTP-failure monitoring, deterministic external
@@ -17,7 +17,59 @@ Last updated: 2026-08-25
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: quarantine malformed DCA browser state
+## Latest cycle: bound DCA import, saved state, and journal rendering
+
+### Why this was selected
+
+CSV import limited row count only after decoding the entire file, persisted
+ledger text had no length limits, and the journal created one table row for
+every saved entry. An oversized local file or browser value could therefore do
+unbounded parsing/rendering work. The import's date check also accepted
+regex-shaped impossible dates such as 30 February into live state.
+
+### Changes
+
+- Reject CSV files over 1 MiB before `file.text()`, reject decoded input over
+  one million characters, and retain the existing 10,000-row ceiling.
+- Reuse real calendar-date validation for imported rows, so impossible dates
+  cannot mutate journal or monthly totals.
+- Refuse to parse persisted state over two million characters; cap hydrated
+  rows at the newest 10,000 and bound IDs plus optional ledger metadata.
+- Render at most the newest 500 journal rows while retaining and reporting the
+  full saved count, preventing one large table from monopolizing the page.
+- Add real Chromium paths for every boundary, including full-history retention
+  after render limiting and repair of oversized metadata.
+- Bumped the deployment and cache stamp to `2026.08.25.3`.
+
+### Verification and scores
+
+- Test-first evidence: the old app accepted all oversized ledger text, parsed
+  a 2.1M-character payload, rendered 501 rows, and handled a >1 MiB CSV only
+  after decoding it; the impossible-date import also mutated saved state.
+- Four focused Chromium regressions and the complete 16-journey suite pass
+  after the bounded implementation.
+- Thirty-one Python tests, 14 DCA engine/quote tests, 42-file site contracts,
+  cache-stamp and sitemap checks, Python compilation, every first-party
+  JavaScript syntax check, zero production npm vulnerabilities, and diff
+  whitespace all pass.
+- Correctness/reliability: 5/10 → 10/10; observability/verifiability: 5/10 →
+  10/10; maintainability: 7/10 → 9/10; performance/resources: 4/10 → 9/10;
+  security/robustness: 5/10 → 9/10; user experience: 6/10 → 9/10.
+
+### Lessons and process improvements
+
+- Bound files before decoding, decoded text before splitting, hydrated state
+  before iterating, and DOM output before rendering; each is a distinct cost.
+- Reuse semantic calendar validation at every ingestion boundary instead of
+  allowing one path to rely on later reload-time repair.
+- A render cap must disclose truncation and preserve the complete stored state.
+
+### Explicit next opportunity
+
+No higher-impact unblocked local item is currently recorded. Rotate repositories
+and return when new evidence appears.
+
+## Previous cycle: quarantine malformed DCA browser state
 
 ### Why this was selected
 
@@ -752,7 +804,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
-| 1 | Align remaining kofi-support cache keys with the deploy stamp | Maintainability / UX | Low | Small / low | Home, conviction, and viewer still pin older kofi-support query strings |
+| — | Bound DCA CSV/state ingestion and journal DOM work | Reliability / performance | Medium-high | Small-medium / low | Four browser paths cover file, decoded text, raw state, metadata, dates, and 500-row rendering | Completed in the 2026.08.25.3 cycle |
+| — | Align remaining kofi-support cache keys with the deploy stamp | Maintainability / UX | Low | Small / low | Home, conviction, and viewer cache keys are coupled to the deployment stamp | Completed in the 2026.08.18.3 cycle |
 | — | Couple feedback CSS and JS cache keys to SITE_VERSION | Maintainability / reliability | Low-medium | Small / low | check_site now requires both feedback assets to match the deploy stamp | Completed in Cycle 161 |
 | — | Offer a privacy-safe fallback when Firebase cannot initialize | Reliability / UX | Medium | Small-medium / low | Init and write failures both reveal a GitHub draft that omits email | Completed in Cycle 152 |
 | — | Add a deterministic feedback-page browser journey | Test / reliability | Medium-high | Medium / low | Five Chromium paths now cover source trust, validation, success payload, cooldown, and private fallback | Completed in Cycle 142 |
@@ -764,5 +817,5 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Next cycle
 
-Inspect remaining kofi-support cache keys on home, conviction, and viewer
-pages. Workspace next: continue rotation and skip Car-Type-Classification-Service.
+No higher-impact unblocked local item is recorded. Workspace next: continue
+rotation and skip externally blocked model, device, and content decisions.

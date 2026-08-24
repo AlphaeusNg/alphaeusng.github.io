@@ -5,6 +5,13 @@
     const STORAGE_KEY = 'alphaeus-conviction-dca-lab-v1';
     const REALTIME_SESSION_KEY = 'alphaeus-dca-realtime-session-v1';
     const SYMBOLS = ['TSLA', 'SPCX'];
+    const MAX_CSV_FILE_BYTES = 1_048_576;
+    const MAX_CSV_TEXT_CHARS = 1_000_000;
+    const MAX_PERSISTED_STATE_CHARS = 2_000_000;
+    const MAX_PERSISTED_LEDGER_ROWS = 10_000;
+    const MAX_RENDERED_JOURNAL_ROWS = 500;
+    const MAX_LEDGER_ID_CHARS = 128;
+    const MAX_LEDGER_META_CHARS = 64;
     const engine = window.DcaEngine;
     const quotesApi = window.DcaQuotes;
 
@@ -91,19 +98,29 @@
         };
     }
 
+    function isCalendarMonth(value) {
+        return /^\d{4}-(0[1-9]|1[0-2])$/.test(value);
+    }
+
+    function isCalendarDate(value) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+        const parsed = new Date(`${value}T00:00:00Z`);
+        return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+    }
+
     function loadState() {
         const fallback = defaultState();
         try {
-            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            const rawState = localStorage.getItem(STORAGE_KEY);
+            if (rawState && rawState.length > MAX_PERSISTED_STATE_CHARS) {
+                console.warn('[DCA Lab] Saved browser state exceeded the safe decoded-size limit.');
+                storageRecoveryMessage = 'Saved DCA data exceeded safe browser limits, so safe defaults are in use. Your next change will replace the oversized browser data.';
+                return fallback;
+            }
+            const saved = JSON.parse(rawState);
             if (!saved || typeof saved !== 'object') return fallback;
             let repaired = false;
             const isRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-            const isCalendarMonth = (value) => /^\d{4}-(0[1-9]|1[0-2])$/.test(value);
-            const isCalendarDate = (value) => {
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-                const parsed = new Date(`${value}T00:00:00Z`);
-                return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
-            };
             const savedSettings = isRecord(saved.settings) ? saved.settings : {};
             if (saved.settings !== undefined && !isRecord(saved.settings)) repaired = true;
             const savedNumber = (source, key, minimum, maximum, fallbackValue) => {
@@ -178,7 +195,9 @@
             const ledger = [];
             const ids = new Set();
             if (saved.ledger !== undefined && !Array.isArray(saved.ledger)) repaired = true;
-            (Array.isArray(saved.ledger) ? saved.ledger : []).forEach((entry) => {
+            const savedLedger = Array.isArray(saved.ledger) ? saved.ledger : [];
+            if (savedLedger.length > MAX_PERSISTED_LEDGER_ROWS) repaired = true;
+            savedLedger.slice(-MAX_PERSISTED_LEDGER_ROWS).forEach((entry) => {
                 const id = typeof entry?.id === 'string' ? entry.id.trim() : '';
                 const date = typeof entry?.date === 'string' ? entry.date : '';
                 const symbol = typeof entry?.symbol === 'string' ? entry.symbol : '';
@@ -187,6 +206,7 @@
                 const shares = Number(entry?.shares);
                 if (!isRecord(entry)
                     || !id
+                    || id.length > MAX_LEDGER_ID_CHARS
                     || ids.has(id)
                     || !isCalendarDate(date)
                     || !SYMBOLS.includes(symbol)
@@ -201,10 +221,15 @@
                 }
                 ids.add(id);
                 const multiplier = Number(entry.multiplier);
+                const batchId = typeof entry.batchId === 'string' ? entry.batchId.trim() : '';
+                const priceMode = typeof entry.priceMode === 'string' ? entry.priceMode.trim() : '';
+                if (batchId.length > MAX_LEDGER_META_CHARS || priceMode.length > MAX_LEDGER_META_CHARS) {
+                    repaired = true;
+                }
                 ledger.push({
                     id,
-                    ...(typeof entry.batchId === 'string' && entry.batchId.trim()
-                        ? { batchId: entry.batchId.trim() }
+                    ...(batchId && batchId.length <= MAX_LEDGER_META_CHARS
+                        ? { batchId }
                         : {}),
                     date,
                     symbol,
@@ -212,8 +237,8 @@
                     price,
                     shares,
                     multiplier: Number.isFinite(multiplier) && multiplier > 0 ? multiplier : 1,
-                    priceMode: typeof entry.priceMode === 'string' && entry.priceMode.trim()
-                        ? entry.priceMode.trim()
+                    priceMode: priceMode && priceMode.length <= MAX_LEDGER_META_CHARS
+                        ? priceMode
                         : 'saved'
                 });
             });
@@ -1435,8 +1460,13 @@
         elements.journalBody.replaceChildren();
         const currentMonth = monthKey();
         const monthRows = state.ledger.filter((entry) => String(entry.date || '').startsWith(currentMonth));
-        const rows = [...(journalThisMonthOnly ? monthRows : state.ledger)]
-            .sort((left, right) => right.date.localeCompare(left.date));
+        const sourceRows = (journalThisMonthOnly ? monthRows : state.ledger)
+            .map((entry, index) => ({ entry, index }))
+            .sort((left, right) => (
+                right.entry.date.localeCompare(left.entry.date) || right.index - left.index
+            ))
+            .map(({ entry }) => entry);
+        const rows = sourceRows.slice(0, MAX_RENDERED_JOURNAL_ROWS);
         if (elements.journalScope) {
             elements.journalScope.setAttribute('aria-pressed', String(journalThisMonthOnly));
             elements.journalScope.textContent = journalThisMonthOnly
@@ -1450,9 +1480,12 @@
         if (elements.journalSummary) {
             const spent = monthRows.reduce((total, entry) => total + Number(entry.amount || 0), 0);
             const sessions = new Set(monthRows.map((entry) => entry.date)).size;
-            elements.journalSummary.textContent = monthRows.length
+            const summary = monthRows.length
                 ? `${formatMonth(currentMonth)}: ${formatCurrency(spent, 2)} recorded across ${sessions} session${sessions === 1 ? '' : 's'} (${monthRows.length} fill${monthRows.length === 1 ? '' : 's'}).`
                 : `${formatMonth(currentMonth)}: no fills recorded yet.`;
+            elements.journalSummary.textContent = sourceRows.length > rows.length
+                ? `${summary} Showing latest ${rows.length} of ${sourceRows.length} entries.`
+                : summary;
         }
         const sessionDate = currentPlan?.sessions?.[0] || elements.planDate.value;
         rows.forEach((entry) => {
@@ -1604,7 +1637,11 @@
     }
 
     function importJournalText(text) {
-        const lines = String(text || '').replace(/^\uFEFF/, '').trim().split(/\r?\n/).filter(Boolean);
+        const source = String(text || '');
+        if (source.length > MAX_CSV_TEXT_CHARS) {
+            throw new Error('Import decoded CSV text up to 1,000,000 characters.');
+        }
+        const lines = source.replace(/^\uFEFF/, '').trim().split(/\r?\n/).filter(Boolean);
         if (lines.length < 2) throw new Error('The CSV file did not contain any rows.');
         if (lines.length > 10_001) throw new Error('Import at most 10,000 journal rows at a time.');
         const header = splitCsvLine(lines[0]).map((cell) => cell.trim());
@@ -1624,7 +1661,7 @@
             const date = String(cells[dateIndex] || '').slice(0, 10);
             const symbol = String(cells[symbolIndex] || '').toUpperCase();
             const amount = Number(cells[amountIndex]);
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !SYMBOLS.includes(symbol) || !Number.isFinite(amount) || amount <= 0) {
+            if (!isCalendarDate(date) || !SYMBOLS.includes(symbol) || !Number.isFinite(amount) || amount <= 0) {
                 return;
             }
             const parsedShares = Number(cells[sharesIndex]);
@@ -1816,6 +1853,9 @@
                 event.target.value = '';
                 if (!file) return;
                 try {
+                    if (file.size > MAX_CSV_FILE_BYTES) {
+                        throw new Error('Import CSV files up to 1 MB.');
+                    }
                     importJournalText(await file.text());
                 } catch (error) {
                     showStatus(error.message || 'The CSV file could not be imported.', 'error');
