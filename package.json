@@ -6,6 +6,7 @@
     "test:dca": "node --test tools/test_dca_engine.mjs tools/test_dca_quotes.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1"
+    "@playwright/test": "1.62.1",
+    "d3": "7.9.0"
   }
 }

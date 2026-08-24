@@ -1,7 +1,16 @@
 import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 
 const HIDDEN_CLASS = /(^|\s)hidden(\s|$)/;
 const runtimeErrors = new WeakMap();
+const VAULT_FIXTURE = JSON.parse(readFileSync(
+  new URL('../../pages/seeking-biblical-truth/vault-data.json', import.meta.url),
+  'utf8'
+));
+const D3_RUNTIME = readFileSync(
+  new URL('../../node_modules/d3/dist/d3.min.js', import.meta.url),
+  'utf8'
+);
 const CHART_STUB = `
   window.__chartInstances = [];
   window.Chart = class {
@@ -281,6 +290,49 @@ test('hash navigation clears the sticky header and moves mobile focus to content
 
   await page.goto('/#%', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#nav')).toBeVisible();
+});
+
+test('vault viewer indexes and opens note paths containing a literal percent sign', async ({ page }) => {
+  const payload = structuredClone(VAULT_FIXTURE);
+  const fixtureNote = payload.nodes.find(node => node.type === 'note');
+  const previousId = fixtureNote.id;
+  fixtureNote.id = '100% Truth.md';
+  fixtureNote.path = fixtureNote.id;
+  fixtureNote.title = '100% Truth';
+  payload.links.forEach(link => {
+    if (link.source === previousId) link.source = fixtureNote.id;
+    if (link.target === previousId) link.target = fixtureNote.id;
+  });
+
+  await page.route('https://cdn.tailwindcss.com/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://d3js.org/d3.v7.min.js', route =>
+    route.fulfill({ contentType: 'application/javascript', body: D3_RUNTIME })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/markdown-it/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/dompurify/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://www.gstatic.com/firebasejs/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://raw.githubusercontent.com/AlphaeusNg/Seeking-Biblical-Truth/main/**', route =>
+    route.fulfill({ contentType: 'text/markdown', body: '# Local test note\n' })
+  );
+  await page.route('**/pages/seeking-biblical-truth/vault-data.json', route =>
+    route.fulfill({ contentType: 'application/json', body: JSON.stringify(payload) })
+  );
+
+  await page.goto('/pages/seeking-biblical-truth/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#vault-summary')).toContainText('55 Markdown notes');
+  await page.locator('#search').fill('100% Truth');
+  await page.getByRole('button', { name: '100% Truth', exact: true }).click();
+
+  await expect(page.locator('#note-panel h2')).toHaveText('100% Truth');
+  await expect(page).toHaveURL(/#\/100%25%20Truth\.md$/);
 });
 
 test('conviction page renders ledger data and switches benchmark views', async ({ page }) => {

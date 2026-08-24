@@ -26,6 +26,15 @@ const markdown = window.markdownit
 
 const esc = (s = '') => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
+function decodeURIComponentSafely(value = '') {
+  const text = String(value ?? '');
+  try {
+    return decodeURIComponent(text);
+  } catch {
+    return text;
+  }
+}
+
 function bindAutoHideHeader() {
   const header = document.querySelector('.vault-header');
   if (!header) return;
@@ -53,7 +62,7 @@ function bindAutoHideHeader() {
 }
 
 function normalizeLookupKey(value = '') {
-  return decodeURIComponent(value)
+  return decodeURIComponentSafely(value)
     .replace(/\\/g, '/')
     .replace(/^\.?\//, '')
     .replace(/\.md$/i, '')
@@ -157,7 +166,7 @@ function applyCalloutMarkup(html = '') {
 }
 
 function resolveNoteReference(reference, currentNode) {
-  const cleaned = decodeURIComponent((reference || '').replace(/^note:/, '')).split('#')[0].trim();
+  const cleaned = decodeURIComponentSafely((reference || '').replace(/^note:/, '')).split('#')[0].trim();
   if (!cleaned) return null;
 
   const candidates = new Set([cleaned]);
@@ -415,11 +424,7 @@ function noteHash(path) {
 function pathFromHash() {
   const raw = (location.hash || '').replace(/^#\/?/, '');
   if (!raw) return '';
-  try {
-    return decodeURIComponent(raw);
-  } catch {
-    return raw;
-  }
+  return decodeURIComponentSafely(raw);
 }
 
 function findNoteByPath(path) {
