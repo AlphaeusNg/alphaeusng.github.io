@@ -51,6 +51,7 @@ robots.txt  sitemap.xml  .nojekyll
 
 | Project | Local path | URL |
 |---|---|---|
+| AIly | `/home/alph/projects/AIly` | https://alphaeusng.github.io/AIly/ |
 | KoboForge | `/home/alph/projects/KoboForge` | https://alphaeusng.github.io/KoboForge/ |
 | AlpArcade | `/home/alph/projects/AlpArcade` | https://alphaeusng.github.io/AlpArcade/ |
 | VerseKeep | `/home/alph/projects/VerseKeep` | https://alphaeusng.github.io/VerseKeep/ |
@@ -58,7 +59,7 @@ robots.txt  sitemap.xml  .nojekyll
 | CardFitSG | `/home/alph/projects/CardFitSG` | https://alphaeusng.github.io/CardFitSG/ |
 | Vault source | `/home/alph/projects/Seeking-Biblical-Truth` | (content repo; viewer is under `pages/seeking-biblical-truth/`) |
 
-Do **not** implement KoboForge, arcade, VerseKeep, ChristoDay, or CardFitSG
+Do **not** implement KoboForge, AIly, arcade, VerseKeep, ChristoDay, or CardFitSG
 features in this repo — only links, compatibility redirects, and portfolio
 cards.
 

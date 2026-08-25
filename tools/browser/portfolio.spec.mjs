@@ -292,6 +292,39 @@ test('hash navigation clears the sticky header and moves mobile focus to content
   await expect(page.locator('#nav')).toBeVisible();
 });
 
+test('home surfaces AIly in tabs, craft, mobile, and footer', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#project-tabs a[href="https://alphaeusng.github.io/AIly/"]')).toBeVisible();
+  await expect(page.locator('#craft a[href="https://alphaeusng.github.io/AIly/"]')).toHaveText(/Open AIly/);
+  await expect(page.locator('footer a[href="https://alphaeusng.github.io/AIly/"]')).toHaveText('AIly');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.locator('#mobile-menu-btn').click();
+  await expect(page.locator('#mobile-project-links a[href="https://alphaeusng.github.io/AIly/"]')).toHaveText('AIly');
+});
+
+test('feedback preselects AIly and keeps a GitHub draft when Firebase cannot initialize', async ({ page }) => {
+  await page.route('https://www.gstatic.com/firebasejs/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+
+  await page.goto('/pages/feedback/?project=AIly', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#project')).toHaveValue('AIly');
+  const fallback = page.locator('#github-fallback');
+  await expect(fallback).toBeVisible();
+  await page.locator('#message').fill('The Setup checklist should resume chapters 3 to 5.');
+  await page.locator('#submit-button').click();
+  const fallbackHref = await fallback.getAttribute('href');
+  const fallbackUrl = new URL(fallbackHref);
+  expect(fallbackUrl.searchParams.get('title')).toBe('Feedback — AIly: Suggestion');
+  expect(fallbackUrl.searchParams.get('body')).toContain(
+    '**Source:** https://alphaeusng.github.io/AIly/'
+  );
+});
+
 test('vault viewer indexes and opens note paths containing a literal percent sign', async ({ page }) => {
   const payload = structuredClone(VAULT_FIXTURE);
   const fixtureNote = payload.nodes.find(node => node.type === 'note');

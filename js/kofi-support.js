@@ -22,6 +22,7 @@
 
   function projectName() {
     var pathname = global.location.pathname.toLowerCase();
+    if (pathname.indexOf("/aily") === 0) return "AIly";
     if (pathname.indexOf("/koboforge") === 0) return "KoboForge";
     if (pathname.indexOf("/alparcade") === 0) return "AlpArcade";
     if (pathname.indexOf("/versekeep") === 0) return "VerseKeep";

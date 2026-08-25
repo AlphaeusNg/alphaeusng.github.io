@@ -6,9 +6,9 @@ Last updated: 2026-08-25
 
 - Branch: `main`; tracked files were clean and aligned with `origin/main` at cycle start. One untracked owner screenshot was preserved and excluded.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.25.4`.
+- Deployment version: `2026.08.25.5`.
 - Local verification: 31 Python tests, 14 DCA engine tests, non-writing
-  conviction and sitemap generator checks, 17 Chromium journeys with shared
+  conviction and sitemap generator checks, 19 Chromium journeys with shared
   runtime-error and same-origin HTTP-failure monitoring, deterministic external
   boundaries, `tools/check_site.py`, Python compilation, and syntax checks for
   every first-party JavaScript file.
@@ -17,7 +17,35 @@ Last updated: 2026-08-25
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: tolerate literal percent signs in vault paths
+## Latest cycle: put AIly on the public hub
+
+### Why this was selected
+
+AIly is the current local-first product and already lives on the GitHub profile
+and in the sitemap, but the portfolio home had no tab, Craft card, mobile
+link, footer link, or feedback category. Visitors and recruiters could miss it.
+
+### Changes
+
+- Added AIly to `#project-tabs`, the mobile Projects list, `#craft`, and the footer.
+- Added AIly to the feedback project list and mapped `/AIly/` in `kofi-support`.
+- `check_site` now requires four standalone AIly home links plus the feedback/support mapping.
+- Two Chromium journeys cover desktop/phone discovery and the AIly GitHub-draft fallback.
+- Bumped coupled cache keys and the deployment stamp to `2026.08.25.5`.
+
+### Verification and scores
+
+- `python3 tools/check_site.py`: `AIly is linked from home, feedback, and support`.
+- 31 Python tests, sitemap freshness, syntax, and `git diff --check` passed.
+- `npm run test:browser`: 19/19 Chromium journeys, including desktop/phone AIly discovery and the AIly GitHub-draft fallback.
+- User experience: 6/10 → 9/10 (AIly is findable from the public hub).
+
+### Next opportunity
+
+Keep DCA Lab quote freshness honest (snapshot vs real-time vs manual override).
+Workspace next: continue rotation.
+
+## Previous cycle: tolerate literal percent signs in vault paths
 
 ### Why this was selected
 

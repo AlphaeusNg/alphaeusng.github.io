@@ -839,6 +839,17 @@ def main() -> None:
         fail("mobile navigation must immediately dim and isolate the page behind it")
     ok("mobile navigation uses an immediate page scrim and opaque header state")
 
+    canonical_aily = "https://alphaeusng.github.io/AIly/"
+    if home.count(canonical_aily) < 4:
+        fail("portfolio AIly entry points do not all use the standalone site")
+    feedback_js = (ROOT / "pages" / "feedback" / "js" / "app.js").read_text(encoding="utf-8")
+    if '"AIly"' not in feedback_html or "AIly: \"/AIly/\"" not in feedback_js:
+        fail("feedback project list must include AIly")
+    kofi_js = (ROOT / "js" / "kofi-support.js").read_text(encoding="utf-8")
+    if 'pathname.indexOf("/aily") === 0' not in kofi_js:
+        fail("kofi-support must map /AIly/ to the AIly feedback project")
+    ok("AIly is linked from home, feedback, and support")
+
     canonical_koboforge = "https://alphaeusng.github.io/KoboForge/"
     if "pages/kobo-forge.html" in home:
         fail("portfolio home still links to the legacy KoboForge page")
