@@ -143,7 +143,10 @@
                         <span class="block text-[11px] uppercase tracking-[1.8px] text-[#94A3B8] mt-1">Quick links to every app</span>
                     </button>
                     <div id="mobile-project-links" class="mobile-nav-panel mt-3">
-                        <a href="https://alphaeusng.github.io/AIly/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">AIly</a>
+                        <div class="flex gap-x-2">
+                            <a href="https://alphaeusng.github.io/AIly/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link flex-1">AIly</a>
+                            <a href="https://github.com/AlphaeusNg/AIly/releases" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link" title="Windows and Android packages">Packages</a>
+                        </div>
                         <a href="https://alphaeusng.github.io/KoboForge/" class="mobile-link mobile-submenu-link">KoboForge</a>
                         <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">AlpArcade</a>
                         <a href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" class="mobile-link mobile-submenu-link">VerseKeep</a>
@@ -586,7 +589,10 @@
 
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>PWA · ANDROID · TAURI</div>
-                        <a href="https://alphaeusng.github.io/AIly/" target="_blank" rel="noopener noreferrer" class="font-medium normal-case tracking-normal">Open AIly →</a>
+                        <div class="flex gap-x-3 normal-case tracking-normal">
+                            <a href="https://alphaeusng.github.io/AIly/" target="_blank" rel="noopener noreferrer" class="font-medium">Open AIly →</a>
+                            <a href="https://github.com/AlphaeusNg/AIly/releases" target="_blank" rel="noopener noreferrer" class="font-medium">Packages →</a>
+                        </div>
                     </div>
                 </div>
 
@@ -925,6 +931,8 @@
         <span class="mx-2 opacity-40">·</span>
         <a href="https://alphaeusng.github.io/AIly/" target="_blank" rel="noopener noreferrer" class="transition">AIly</a>
         <span class="mx-2 opacity-40">·</span>
+        <a href="https://alphaeusng.github.io/KoboForge/" class="transition">KoboForge</a>
+        <span class="mx-2 opacity-40">·</span>
         <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="transition">AlpArcade</a>
         <span class="mx-2 opacity-40">·</span>
         <a href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" class="transition">VerseKeep</a>
@@ -1019,7 +1027,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.08.25.5"
+    <script src="js/kofi-support.js?v=2026.08.25.6"
             data-auto-footer
             data-message="Tell me what worked or what would help."
             defer></script>

@@ -4,9 +4,12 @@ Last updated: 2026-08-25
 
 ## Current state
 
-- Branch: `main`; tracked files were clean and aligned with `origin/main` at cycle start. One untracked owner screenshot was preserved and excluded.
-- Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback, compatibility redirect, and Biblical Truth viewer pages.
-- Deployment version: `2026.08.25.5`.
+- Branch: `main` still matches `origin/main` at the AIly-hub commit. This
+  cycle’s hub-drift work is complete in the working tree and is **not
+  committed**. One untracked owner screenshot remains excluded.
+- Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
+  compatibility redirect, and Biblical Truth viewer pages.
+- Working-tree deployment stamp: `2026.08.25.6` (not on origin until commit).
 - Local verification: 31 Python tests, 14 DCA engine tests, non-writing
   conviction and sitemap generator checks, 19 Chromium journeys with shared
   runtime-error and same-origin HTTP-failure monitoring, deterministic external
@@ -17,7 +20,47 @@ Last updated: 2026-08-25
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: put AIly on the public hub
+## Latest cycle: close hub drift for footer KoboForge and AIly packages
+
+### Why this was selected
+
+Visitors still could not find two already-shipped products from the public hub:
+KoboForge was missing from the footer, and AIly’s Windows/Android packages had
+no portfolio link even though the GitHub profile advertises them.
+
+### Changes
+
+- Added a footer KoboForge control after AIly, using the standalone
+  `https://alphaeusng.github.io/KoboForge/` URL already used by tabs, mobile,
+  and Craft.
+- Kept Craft “Open AIly →” pointed at the PWA and added a matching
+  “Packages →” action to `https://github.com/AlphaeusNg/AIly/releases`.
+- Added a compact Packages sibling beside AIly in `#mobile-project-links` so
+  phones can reach Releases without scrolling to Craft.
+- `check_site` now requires four standalone KoboForge home URLs and the AIly
+  Releases URL. The existing Chromium home-discovery journey covers footer
+  KoboForge plus Craft and mobile Releases hrefs.
+- Bumped coupled cache keys and the deployment stamp to `2026.08.25.6`.
+  The owner-provided untracked screenshot was preserved and excluded.
+
+### Verification and scores
+
+- Uncommitted `main` work matches the claim: footer KoboForge and Craft/mobile
+  AIly Packages/Releases hrefs are present; `check_site` requires four
+  standalone KoboForge URLs plus the Releases URL; `SITE_VERSION` and coupled
+  cache keys are `2026.08.25.6`; the owner screenshot stays untracked.
+- Gate: 31 Python tests, 14 DCA tests, `check_site`, sitemap/conviction
+  `--check`, `compileall`, first-party JavaScript syntax, and 19/19 Chromium
+  journeys all passed.
+- User experience: 7/10 → 9/10 (shipped products are findable from the hub).
+- This cycle is **not committed**.
+
+### Next opportunity
+
+Keep DCA Lab quote freshness honest (snapshot vs real-time vs manual override).
+Workspace next: continue rotation.
+
+## Previous cycle: put AIly on the public hub
 
 ### Why this was selected
 
@@ -888,6 +931,7 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 | Priority | Opportunity | Category | Impact | Effort / risk | Evidence / dependency |
 |---|---|---|---|---|---|
+| — | Close hub drift: footer KoboForge and AIly packages | Discoverability / UX | Medium | Small / low | Footer KoboForge plus Craft/mobile Releases hrefs, gated by check_site and 19 journeys | Completed in the 2026.08.25.6 cycle (uncommitted) |
 | — | Tolerate literal percent signs in public vault paths | Correctness / test | Medium-high | Small / low | A deterministic production-page Chromium fixture proves load, search, selection, and encoded deep linking | Completed in the 2026.08.25.4 cycle |
 | — | Bound DCA CSV/state ingestion and journal DOM work | Reliability / performance | Medium-high | Small-medium / low | Four browser paths cover file, decoded text, raw state, metadata, dates, and 500-row rendering | Completed in the 2026.08.25.3 cycle |
 | — | Align remaining kofi-support cache keys with the deploy stamp | Maintainability / UX | Low | Small / low | Home, conviction, and viewer cache keys are coupled to the deployment stamp | Completed in the 2026.08.18.3 cycle |
@@ -902,6 +946,8 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Next cycle
 
-No higher-impact unblocked local item is recorded. Workspace next: audit the
-GitHub profile repository, then continue rotation around externally blocked
-model, physical-device, and content-owner decisions.
+Keep DCA Lab quote freshness honest (snapshot vs real-time vs manual override).
+Workspace next: continue rotation around externally blocked model,
+physical-device, and content-owner decisions. Skip
+Car-Type-Classification-Service unless named. Commit this hub-drift cycle
+before mixing other portfolio work.

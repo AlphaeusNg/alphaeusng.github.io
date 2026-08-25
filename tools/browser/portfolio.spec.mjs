@@ -298,12 +298,15 @@ test('home surfaces AIly in tabs, craft, mobile, and footer', async ({ page }) =
 
   await expect(page.locator('#project-tabs a[href="https://alphaeusng.github.io/AIly/"]')).toBeVisible();
   await expect(page.locator('#craft a[href="https://alphaeusng.github.io/AIly/"]')).toHaveText(/Open AIly/);
+  await expect(page.locator('#craft a[href="https://github.com/AlphaeusNg/AIly/releases"]')).toHaveText(/Packages/);
   await expect(page.locator('footer a[href="https://alphaeusng.github.io/AIly/"]')).toHaveText('AIly');
+  await expect(page.locator('footer a[href="https://alphaeusng.github.io/KoboForge/"]')).toHaveText('KoboForge');
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.locator('#mobile-menu-btn').click();
   await expect(page.locator('#mobile-project-links a[href="https://alphaeusng.github.io/AIly/"]')).toHaveText('AIly');
+  await expect(page.locator('#mobile-project-links a[href="https://github.com/AlphaeusNg/AIly/releases"]')).toHaveText(/Packages/);
 });
 
 test('feedback preselects AIly and keeps a GitHub draft when Firebase cannot initialize', async ({ page }) => {
