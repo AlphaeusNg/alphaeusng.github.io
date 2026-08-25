@@ -4,12 +4,11 @@ Last updated: 2026-08-25
 
 ## Current state
 
-- Branch: `main` still matches `origin/main` at the AIly-hub commit. This
-  cycle’s hub-drift work is complete in the working tree and is **not
-  committed**. One untracked owner screenshot remains excluded.
+- Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Working-tree deployment stamp: `2026.08.25.6` (not on origin until commit).
+- Deployment stamp: `2026.08.25.7`. One untracked owner screenshot remains
+  excluded.
 - Local verification: 31 Python tests, 14 DCA engine tests, non-writing
   conviction and sitemap generator checks, 19 Chromium journeys with shared
   runtime-error and same-origin HTTP-failure monitoring, deterministic external
@@ -20,7 +19,23 @@ Last updated: 2026-08-25
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: close hub drift for footer KoboForge and AIly packages
+## Latest cycle: keep DCA Lab quote freshness honest
+
+### Why this was selected
+
+The market strip still said “Recent last sale” after a Manual override, and
+hero prices kept showing Nasdaq while the plan used the typed figure.
+
+### Changes
+
+- Manual symbols show the override in the hero, a Manual move badge, and
+  “Manual override · used in today's plan” under the input.
+- Freshness becomes `… · TSLA manual` or `Manual prices` when both are
+  overridden; live styling drops when the plan is fully manual.
+- Recommendation confidence says “Manual price in use”.
+- Version `2026.08.25.7`.
+
+## Previous cycle: close hub drift for footer KoboForge and AIly packages
 
 ### Why this was selected
 
@@ -53,12 +68,10 @@ no portfolio link even though the GitHub profile advertises them.
   `--check`, `compileall`, first-party JavaScript syntax, and 19/19 Chromium
   journeys all passed.
 - User experience: 7/10 → 9/10 (shipped products are findable from the hub).
-- This cycle is **not committed**.
 
 ### Next opportunity
 
-Keep DCA Lab quote freshness honest (snapshot vs real-time vs manual override).
-Workspace next: continue rotation.
+Rotate after DCA Lab quote-freshness honesty.
 
 ## Previous cycle: put AIly on the public hub
 

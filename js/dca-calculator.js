@@ -800,12 +800,25 @@
         }).format(parsed);
     }
 
+    function manualEnabled(symbol) {
+        return Boolean(elements[`${String(symbol).toLowerCase()}ManualToggle`]?.checked);
+    }
+
     function renderMarketHeader() {
+        if (!marketData) return;
         SYMBOLS.forEach((symbol) => {
             const lower = symbol.toLowerCase();
             const quote = marketData.symbols[symbol].quote;
-            elements[`hero${symbol === 'TSLA' ? 'Tsla' : 'Spcx'}Price`].textContent = formatCurrency(quote.price, 2);
             const move = elements[`hero${symbol === 'TSLA' ? 'Tsla' : 'Spcx'}Move`];
+            if (manualEnabled(symbol)) {
+                const price = numberValue(elements[`${lower}Price`], quote.price);
+                elements[`hero${symbol === 'TSLA' ? 'Tsla' : 'Spcx'}Price`].textContent = formatCurrency(price, 2);
+                move.textContent = 'Manual';
+                move.className = 'market-move is-manual';
+                elements[`${lower}PriceMeta`].textContent = "Manual override · used in today's plan";
+                return;
+            }
+            elements[`hero${symbol === 'TSLA' ? 'Tsla' : 'Spcx'}Price`].textContent = formatCurrency(quote.price, 2);
             move.textContent = formatPercent(quote.percentChange, 2);
             move.className = `market-move ${quote.percentChange >= 0 ? 'is-up' : 'is-down'}`;
             const feed = String(quote.source || '').startsWith('Alpaca ')
@@ -814,9 +827,7 @@
                     ? 'Nasdaq last sale'
                     : 'Nasdaq snapshot';
             elements[`${lower}PriceMeta`].textContent = `${feed} · ${formatQuoteTimestamp(quote)} · ${quote.marketStatus}`;
-            if (!elements[`${lower}ManualToggle`].checked) {
-                elements[`${lower}Price`].value = String(quote.price);
-            }
+            elements[`${lower}Price`].value = String(quote.price);
         });
         const ageHours = quoteAgeHours();
         const ageMs = ageHours * 3_600_000;
@@ -833,8 +844,11 @@
         else if (quoteFeed.source !== 'snapshot' && ageHours <= 26) freshness = 'Latest market close';
         else if (ageHours > 96) freshness = 'Stale · use manual price';
         else if (ageHours > 26) freshness = 'Prior market snapshot';
+        const manuals = SYMBOLS.filter(manualEnabled);
+        if (manuals.length === 2) freshness = 'Manual prices';
+        else if (manuals.length === 1) freshness = `${freshness} · ${manuals[0]} manual`;
         elements.marketFreshness.textContent = freshness;
-        elements.marketFreshness.classList.toggle('is-live', Boolean(recent || streaming));
+        elements.marketFreshness.classList.toggle('is-live', Boolean((recent || streaming) && manuals.length !== 2));
         const stampSource = streaming || paused
             ? 'Last tick'
             : quoteFeed.source !== 'snapshot' ? 'Feed updated' : 'Snapshot generated';
@@ -1035,9 +1049,11 @@
         elements.catchUpBadge.hidden = !lastSession;
         const age = quoteAgeHours();
         const alreadyRecorded = sessionCount ? sessionAlreadyRecorded(plan.sessions[0]) : false;
+        const usingManual = SYMBOLS.some(manualEnabled);
         elements.dataConfidence.textContent = overBudget > 0.005
             ? 'Over monthly cap'
             : alreadyRecorded ? 'Already recorded'
+            : usingManual ? 'Manual price in use'
             : age > 96 ? 'Stale market snapshot' : 'Budget checked';
         if (overBudget > 0.005) {
             showStatus(
@@ -1342,6 +1358,7 @@
     }
 
     function recalculate({ persist = true, preserveStatus = false } = {}) {
+        if (marketData) renderMarketHeader();
         updateAllocationOutput();
         updateRangeOutputs(strategySettings().id === 'custom');
         if (persist === true) persistControls();

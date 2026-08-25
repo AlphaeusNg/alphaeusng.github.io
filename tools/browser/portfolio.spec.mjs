@@ -631,6 +631,26 @@ test('DCA Lab replaces the snapshot with live last-sale quotes', async ({ page }
     'aria-label',
     'Refresh recent Nasdaq quotes'
   );
+
+  await page.locator('#tslaManualToggle').check();
+  await page.locator('#tslaPrice').fill('340.25');
+  await expect(page.locator('#heroTslaPrice')).toHaveText('$340.25');
+  await expect(page.locator('#heroTslaMove')).toHaveText('Manual');
+  await expect(page.locator('#heroTslaMove')).toHaveClass(/is-manual/);
+  await expect(page.locator('#tslaPriceMeta')).toHaveText("Manual override · used in today's plan");
+  await expect(page.locator('#marketFreshness')).toHaveText('Recent last sale · TSLA manual');
+  await expect(page.locator('#heroSpcxPrice')).toHaveText('$88.50');
+  await expect(page.locator('#dataConfidence')).toHaveText('Manual price in use');
+
+  await page.locator('#spcxManualToggle').check();
+  await page.locator('#spcxPrice').fill('91.00');
+  await expect(page.locator('#heroSpcxPrice')).toHaveText('$91.00');
+  await expect(page.locator('#marketFreshness')).toHaveText('Manual prices');
+  await expect(page.locator('#marketFreshness')).not.toHaveClass(/is-live/);
+  await page.locator('#resetPrices').click();
+  await expect(page.locator('#marketFreshness')).toHaveText('Recent last sale');
+  await expect(page.locator('#heroTslaPrice')).toHaveText('$401.25');
+  await expect(page.locator('#tslaPriceMeta')).toContainText('Nasdaq last sale');
 });
 
 test('DCA Lab streams Alpaca trades without persisting credentials', async ({ page }) => {

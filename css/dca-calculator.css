@@ -351,6 +351,7 @@ summary:focus-visible {
 
 .market-move.is-up { color: var(--dca-green) !important; }
 .market-move.is-down { color: var(--dca-red) !important; }
+.market-move.is-manual { color: var(--dca-muted) !important; }
 
 .dca-hero__notice {
     margin: 1rem 0 0;
