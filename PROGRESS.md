@@ -18,7 +18,22 @@ Last updated: 2026-08-27
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: log actual DCA fills from a phone
+## Latest cycle: edit today’s fill and tighten catch-up
+
+### Why this was selected
+
+Copy/share crowded the record action, the $20/$30 chips lived far from the
+suggested dollars, and the 70/30 presets sat flush against month-to-date.
+
+### Changes
+
+- TSLA/SPCX suggestion amounts are editable; chips set the field; Record logs
+  the typed dollars. Copy plan / copy link / share are gone.
+- Section 02 is a compact missed-session bar plus catch-up list.
+- Allocation presets now have space above “TSLA invested this month”.
+- Version `2026.08.25.9`.
+
+## Previous cycle: log actual DCA fills from a phone
 
 ### Why this was selected
 
