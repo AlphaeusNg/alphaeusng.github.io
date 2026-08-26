@@ -36,6 +36,7 @@
     let journalThisMonthOnly = true;
     let catchUpShowAll = false;
     let applyingCloud = false;
+    const fillDirty = { TSLA: false, SPCX: false };
     const chartRanges = { TSLA: '66', SPCX: '66' };
     const chartModels = {};
 
@@ -51,12 +52,13 @@
             'strategyMode', 'fractionalShares', 'tslaManualToggle', 'spcxManualToggle',
             'tslaPrice', 'spcxPrice', 'tslaPriceMeta', 'spcxPriceMeta',
             'calculatorStatus', 'storageNotice', 'nextSessionLabel', 'dataConfidence',
-            'totalRecommendation', 'recommendationSummary', 'budgetInvested',
-            'budgetRemaining', 'budgetProgressFill', 'tslaRecommendation',
-            'spcxRecommendation', 'tslaShares', 'spcxShares', 'tslaBaseline',
+            'totalRecommendation', 'recordTotalNote', 'recommendationSummary', 'budgetInvested',
+            'budgetRemaining', 'budgetProgressFill', 'tslaFillAmount',
+            'spcxFillAmount', 'tslaFillChips', 'spcxFillChips', 'tslaFillReset', 'spcxFillReset',
+            'tslaShares', 'spcxShares', 'tslaBaseline',
             'spcxBaseline', 'tslaMultiplier', 'spcxMultiplier', 'tslaRemaining',
             'spcxRemaining', 'tslaSignalBadge', 'spcxSignalBadge',
-            'recommendationReasons', 'recordPurchase', 'copyPlan', 'heroTslaPrice',
+            'recommendationReasons', 'recordPurchase', 'heroTslaPrice',
             'heroSpcxPrice', 'heroTslaMove', 'heroSpcxMove', 'marketFreshness',
             'marketTimestamp', 'tslaConfidenceBadge', 'spcxConfidenceBadge',
             'tslaIndicators', 'spcxIndicators', 'tslaSparkline', 'spcxSparkline',
@@ -66,10 +68,10 @@
             'spcxAdaptiveAverage', 'tslaFlatAverage', 'spcxFlatAverage',
             'tslaAdaptiveShares', 'spcxAdaptiveShares', 'tslaFlatShares',
             'spcxFlatShares', 'tslaReplayDelta', 'spcxReplayDelta', 'journalBody',
-            'journalEmpty', 'exportJournal', 'resetMonth', 'jumpToday', 'sharePlan',
+            'journalEmpty', 'exportJournal', 'resetMonth', 'jumpToday',
             'journalScope', 'catchUpBadge', 'unallocatedNote', 'budgetPercent',
             'budgetProgress', 'paceStatus', 'dcaNav', 'dcaForm', 'resetPrices',
-            'undoLast', 'copyPlanLink', 'mobileActionBar', 'mobileActionTotal',
+            'undoLast', 'mobileActionBar', 'mobileActionTotal',
             'mobileRecord', 'mobileCopy', 'journalSummary', 'importJournal',
             'importJournalButton', 'marketSession', 'marketClock',
             'tslaSignalLabel', 'spcxSignalLabel', 'refreshQuotes', 'enableRealtime',
@@ -522,6 +524,7 @@
         elements.planDate.value = newYorkDate();
         const snapped = snapPlanDate();
         if (elements.logDate) elements.logDate.value = elements.planDate.value;
+        clearFillEdits();
         loadMonthInputs();
         recalculate();
         showStatus(
@@ -1128,8 +1131,6 @@
             const lower = symbol.toLowerCase();
             const asset = plan.assets[symbol];
             const recommendation = asset.recommendation;
-            elements[`${lower}Recommendation`].textContent = formatCurrency(recommendation.amount, 2);
-            elements[`${lower}Shares`].textContent = `${formatShares(recommendation.shares)} shares @ ${formatCurrency(asset.price.value, 2)}`;
             elements[`${lower}Baseline`].textContent = formatCurrency(recommendation.baseline, 2);
             elements[`${lower}Multiplier`].textContent = `${recommendation.appliedMultiplier.toFixed(2)}×`;
             elements[`${lower}Remaining`].textContent = formatCurrency(recommendation.remaining, 2);
@@ -1138,6 +1139,7 @@
                 elements[`${lower}SignalLabel`].textContent = asset.signal.label;
             }
         });
+        syncFillInputs(plan);
         const leftover = SYMBOLS.reduce((sum, symbol) => sum + plan.assets[symbol].recommendation.unallocatedToday, 0);
         if (leftover > 0) {
             elements.unallocatedNote.hidden = false;
@@ -1147,11 +1149,9 @@
             elements.unallocatedNote.textContent = '';
         }
         renderReasons(plan);
-        const canAct = total > 0 && sessionCount > 0;
+        const recording = recordedFillTotal();
+        const canAct = recording > 0 && sessionCount > 0;
         elements.recordPurchase.disabled = !canAct;
-        elements.copyPlan.disabled = !canAct;
-        if (elements.sharePlan) elements.sharePlan.disabled = !canAct;
-        if (elements.copyPlanLink) elements.copyPlanLink.disabled = !sessionCount;
         if (elements.undoLast) elements.undoLast.disabled = !state.ledger.length;
         renderMobileLogBar();
         document.title = canAct ? `${formatCurrency(total, 0)} today · Conviction DCA Lab` : PAGE_TITLE;
@@ -1419,6 +1419,128 @@
         return Number.isInteger(amount) ? `$${amount}` : formatCurrency(amount, 2);
     }
 
+    function fillInput(symbol) {
+        return elements[`${symbol.toLowerCase()}FillAmount`];
+    }
+
+    function suggestedFill(symbol) {
+        return Number(currentPlan?.assets?.[symbol]?.recommendation?.amount) || 0;
+    }
+
+    function recordedFillAmount(symbol) {
+        const input = fillInput(symbol);
+        const amount = input ? numberValue(input) : suggestedFill(symbol);
+        const rounded = journal ? journal.roundMoney(amount) : amount;
+        return Number.isFinite(rounded) && rounded > 0 ? rounded : 0;
+    }
+
+    function recordedFillTotal() {
+        return SYMBOLS.reduce((sum, symbol) => sum + recordedFillAmount(symbol), 0);
+    }
+
+    function updateFillShares(symbol) {
+        const lower = symbol.toLowerCase();
+        if (!elements[`${lower}Shares`]) return;
+        const amount = recordedFillAmount(symbol);
+        const price = Number(currentPlan?.assets?.[symbol]?.price?.value) || 0;
+        const fractional = !elements.fractionalShares || elements.fractionalShares.checked;
+        const shares = price > 0 ? (fractional ? amount / price : Math.floor(amount / price)) : 0;
+        elements[`${lower}Shares`].textContent = `${formatShares(shares)} shares @ ${formatCurrency(price, 2)}`;
+    }
+
+    function toggleFillReset(symbol) {
+        const reset = elements[`${symbol.toLowerCase()}FillReset`];
+        if (reset) reset.hidden = !fillDirty[symbol];
+    }
+
+    function updateRecordTotalNote() {
+        if (!elements.recordTotalNote) return;
+        const suggested = SYMBOLS.reduce((sum, symbol) => sum + suggestedFill(symbol), 0);
+        const recording = recordedFillTotal();
+        const dirty = SYMBOLS.some((symbol) => fillDirty[symbol]);
+        if (!dirty || Math.abs(recording - suggested) < 0.005) {
+            elements.recordTotalNote.hidden = true;
+            elements.recordTotalNote.textContent = '';
+            return;
+        }
+        elements.recordTotalNote.hidden = false;
+        elements.recordTotalNote.textContent = `Recording ${formatCurrency(recording, 2)}`;
+    }
+
+    function updateRecordButton() {
+        const canAct = recordedFillTotal() > 0 && Boolean(currentPlan?.sessions?.length);
+        if (elements.recordPurchase) elements.recordPurchase.disabled = !canAct;
+        updateRecordTotalNote();
+    }
+
+    /** Prefill the editable amounts from the suggestion unless the user already typed. */
+    function syncFillInputs(plan) {
+        if (!plan) return;
+        SYMBOLS.forEach((symbol) => {
+            const input = fillInput(symbol);
+            if (!input) return;
+            if (document.activeElement !== input && !fillDirty[symbol]) {
+                const amount = plan.assets[symbol].recommendation.amount;
+                input.value = amount > 0
+                    ? String(journal ? journal.roundMoney(amount) : amount)
+                    : '0';
+            }
+            updateFillShares(symbol);
+            toggleFillReset(symbol);
+        });
+        renderAssetFillChips();
+        updateRecordButton();
+    }
+
+    function applyFillAmount(symbol, amount) {
+        const input = fillInput(symbol);
+        const dollars = journal ? journal.roundMoney(amount) : Number(amount);
+        if (!input || !Number.isFinite(dollars) || dollars < 0) return;
+        fillDirty[symbol] = true;
+        input.value = String(dollars);
+        updateFillShares(symbol);
+        toggleFillReset(symbol);
+        updateRecordButton();
+    }
+
+    function resetFillAmount(symbol) {
+        fillDirty[symbol] = false;
+        if (currentPlan) syncFillInputs(currentPlan);
+    }
+
+    function markFillDirty(symbol) {
+        fillDirty[symbol] = true;
+        updateFillShares(symbol);
+        toggleFillReset(symbol);
+        updateRecordButton();
+    }
+
+    function clearFillEdits() {
+        fillDirty.TSLA = false;
+        fillDirty.SPCX = false;
+    }
+
+    function renderAssetFillChips() {
+        const amounts = journal
+            ? journal.normalizeQuickAmounts(state.settings.quickAmounts)
+            : [20, 30];
+        SYMBOLS.forEach((symbol) => {
+            const chips = elements[`${symbol.toLowerCase()}FillChips`];
+            if (!chips) return;
+            chips.replaceChildren();
+            amounts.forEach((amount) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'log-chip';
+                button.dataset.applyFill = String(amount);
+                button.dataset.symbol = symbol;
+                button.textContent = formatChipAmount(amount);
+                button.setAttribute('aria-label', `Set ${symbol} to ${formatChipAmount(amount)}`);
+                chips.appendChild(button);
+            });
+        });
+    }
+
     /** Close used when logging a past session; otherwise the live plan price. */
     function fillPrice(symbol, date) {
         const history = marketData?.symbols?.[symbol]?.history;
@@ -1475,6 +1597,7 @@
         const date = elements.logDate?.value || elements.planDate?.value;
         renderChipButtons(elements.logQuickChips, { date, symbol });
         renderChipButtons(elements.mobileQuickChips, { date, symbol, compact: true });
+        renderAssetFillChips();
         if (!elements.quickAmountList) return;
         elements.quickAmountList.replaceChildren();
         state.settings.quickAmounts.forEach((amount) => {
@@ -1747,18 +1870,22 @@
         }
         const recorded = [];
         const batchId = ledgerId();
+        const fractional = !elements.fractionalShares || elements.fractionalShares.checked;
         SYMBOLS.forEach((symbol) => {
             const asset = currentPlan.assets[symbol];
-            if (asset.recommendation.amount <= 0) return;
+            const amount = recordedFillAmount(symbol);
+            if (!(amount > 0)) return;
+            const price = Number(asset.price.value) || 0;
+            const shares = price > 0 ? (fractional ? amount / price : Math.floor(amount / price)) : 0;
             const entry = journal
                 ? journal.addFill(state, {
                     id: ledgerId(),
                     batchId,
                     date,
                     symbol,
-                    amount: asset.recommendation.amount,
-                    price: asset.price.value,
-                    shares: asset.recommendation.shares,
+                    amount,
+                    price,
+                    shares,
                     multiplier: asset.recommendation.appliedMultiplier,
                     priceMode: asset.price.manual ? 'manual' : 'Nasdaq snapshot'
                 })
@@ -1766,6 +1893,7 @@
             if (entry) recorded.push(symbol);
         });
         if (!recorded.length) return;
+        clearFillEdits();
         saveState();
         advancePlanDate(date);
         loadMonthInputs();
@@ -1915,60 +2043,6 @@
         showStatus(`${formatMonth(currentMonth)} was reset in this browser.`, 'info');
     }
 
-    function planText() {
-        const leftover = SYMBOLS.reduce((sum, symbol) => sum + currentPlan.assets[symbol].recommendation.unallocatedToday, 0);
-        return [
-            `Conviction DCA plan · ${currentPlan.sessions[0]}`,
-            `Strategy: ${currentPlan.strategy.label}`,
-            `Total: ${formatCurrency(SYMBOLS.reduce((sum, symbol) => sum + currentPlan.assets[symbol].recommendation.amount, 0), 2)}`,
-            ...SYMBOLS.map((symbol) => {
-                const asset = currentPlan.assets[symbol];
-                return `${symbol}: ${formatCurrency(asset.recommendation.amount, 2)} · ${formatShares(asset.recommendation.shares)} shares @ ${formatCurrency(asset.price.value, 2)} · ${asset.recommendation.appliedMultiplier.toFixed(2)}×`;
-            }),
-            `Monthly cap: ${formatCurrency(currentPlan.monthlyBudget, 2)} · ${currentPlan.sessions.length} session${currentPlan.sessions.length === 1 ? '' : 's'} remain`,
-            leftover > 0 ? `Whole-share leftover today: ${formatCurrency(leftover, 2)}` : null,
-            'Decision support only; verify the price and order with a broker.'
-        ].filter(Boolean).join('\n');
-    }
-
-    function planUrl() {
-        const url = new URL(window.location.href);
-        url.searchParams.set('d', currentPlan.planDate);
-        url.searchParams.set('budget', String(currentPlan.monthlyBudget));
-        url.searchParams.set('strategy', selectedStrategyId());
-        url.searchParams.set('tsla', String(Math.round(currentPlan.allocations.TSLA * 100)));
-        url.searchParams.set('floor', String(numberValue(elements.floorMultiplier)));
-        url.searchParams.set('dip', String(numberValue(elements.dipSensitivity)));
-        url.searchParams.set('max', String(numberValue(elements.maxMultiplier)));
-        if (!elements.fractionalShares.checked) url.searchParams.set('fractional', '0');
-        else url.searchParams.delete('fractional');
-        url.hash = 'planner';
-        return `${url.pathname}${url.search}${url.hash}`;
-    }
-
-    async function copyPlan() {
-        if (!currentPlan || !currentPlan.sessions.length) return;
-        try {
-            await navigator.clipboard.writeText(planText());
-            showStatus('Plan copied to the clipboard.', 'info');
-        } catch (error) {
-            console.warn('[DCA Lab] Clipboard write failed.', error);
-            showStatus('Clipboard access was blocked by the browser.', 'error');
-        }
-    }
-
-    async function copyPlanLink() {
-        if (!currentPlan) return;
-        try {
-            const absolute = new URL(planUrl(), window.location.origin).toString();
-            await navigator.clipboard.writeText(absolute);
-            showStatus('Plan link copied. It excludes journal amounts and manual prices.', 'info');
-        } catch (error) {
-            console.warn('[DCA Lab] Link copy failed.', error);
-            showStatus('Clipboard access was blocked by the browser.', 'error');
-        }
-    }
-
     function splitCsvLine(line) {
         const out = [];
         let current = '';
@@ -2058,22 +2132,6 @@
         showStatus(`Imported ${imported} journal row${imported === 1 ? '' : 's'} into this browser.`, 'info');
     }
 
-    async function sharePlan() {
-        if (!currentPlan || !currentPlan.sessions.length) return;
-        const text = planText();
-        if (typeof navigator.share === 'function') {
-            try {
-                await navigator.share({ title: 'Conviction DCA plan', text });
-                showStatus('Plan shared.', 'info');
-                return;
-            } catch (error) {
-                if (error && error.name === 'AbortError') return;
-                console.warn('[DCA Lab] Share failed.', error);
-            }
-        }
-        await copyPlan();
-    }
-
     function isTypingTarget(target) {
         if (!target || !target.tagName) return false;
         const tag = target.tagName;
@@ -2116,6 +2174,7 @@
         elements.planDate.addEventListener('change', () => {
             const snapped = snapPlanDate();
             if (elements.logDate) elements.logDate.value = elements.planDate.value;
+            clearFillEdits();
             loadMonthInputs();
             recalculate();
             if (snapped) {
@@ -2196,10 +2255,26 @@
         if (elements.resetPrices) elements.resetPrices.addEventListener('click', resetSnapshotPrices);
         elements.recordPurchase.addEventListener('click', recordPurchase);
         if (elements.undoLast) elements.undoLast.addEventListener('click', undoLastRecording);
-        elements.copyPlan.addEventListener('click', copyPlan);
-        if (elements.copyPlanLink) elements.copyPlanLink.addEventListener('click', copyPlanLink);
-        if (elements.sharePlan) elements.sharePlan.addEventListener('click', sharePlan);
         if (elements.jumpToday) elements.jumpToday.addEventListener('click', jumpToToday);
+        SYMBOLS.forEach((symbol) => {
+            const lower = symbol.toLowerCase();
+            const input = elements[`${lower}FillAmount`];
+            if (input) {
+                input.addEventListener('input', () => markFillDirty(symbol));
+            }
+            const reset = elements[`${lower}FillReset`];
+            if (reset) {
+                reset.addEventListener('click', () => resetFillAmount(symbol));
+            }
+            const chips = elements[`${lower}FillChips`];
+            if (chips) {
+                chips.addEventListener('click', (event) => {
+                    const chip = event.target.closest('[data-apply-fill]');
+                    if (!chip) return;
+                    applyFillAmount(chip.dataset.symbol, Number(chip.dataset.applyFill));
+                });
+            }
+        });
         if (elements.logFillForm) {
             elements.logFillForm.addEventListener('submit', (event) => {
                 event.preventDefault();
@@ -2304,9 +2379,6 @@
             if (key === 't') {
                 event.preventDefault();
                 jumpToToday();
-            } else if (key === 'c') {
-                event.preventDefault();
-                copyPlan();
             } else if (key === 'r') {
                 event.preventDefault();
                 recordPurchase();
@@ -2391,9 +2463,6 @@
         loadMonthInputs();
         bindEvents();
         bindAutoHideNav();
-        if (typeof navigator.share === 'function' && elements.sharePlan) {
-            elements.sharePlan.hidden = false;
-        }
         if (window.location.hash === '#planner' && elements.monthlyBudget) {
             elements.monthlyBudget.focus();
         }

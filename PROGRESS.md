@@ -7,7 +7,7 @@ Last updated: 2026-08-27
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.08.25.8`. One untracked owner screenshot remains
+- Deployment stamp: `2026.08.25.9`. One untracked owner screenshot remains
   excluded.
 - Local verification: 31 Python tests, 18 DCA engine/quote/journal tests,
   `tools/check_site.py`, 20 Chromium journeys, Python compilation, and syntax

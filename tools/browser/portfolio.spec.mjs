@@ -583,8 +583,8 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
   await page.locator('#tslaInvested').fill('2500');
   await page.locator('#spcxInvested').fill('0');
   await expect(page.locator('#budgetRemaining')).toHaveText('$500.00');
-  await expect(page.locator('#tslaRecommendation')).toHaveText('$0.00');
-  await expect(page.locator('#spcxRecommendation')).toHaveText('$500.00');
+  expect(Number(await page.locator('#tslaFillAmount').inputValue())).toBe(0);
+  expect(Number(await page.locator('#spcxFillAmount').inputValue())).toBe(500);
   await expect(page.locator('#recommendationReasons')).toContainText('underweight holding');
   await page.locator('#planDate').fill('2026-08-18');
   await page.locator('#tslaInvested').fill('0');
@@ -612,9 +612,12 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
   await page.keyboard.press('End');
   await expect(tslaTooltip).toContainText('$340.25');
 
+  await page.locator('#tslaFillAmount').fill('20');
+  await page.locator('#spcxFillAmount').fill('30');
+  await expect(page.locator('#recordTotalNote')).toContainText('Recording');
   await page.locator('#recordPurchase').click();
   await expect(page.locator('#journalBody tr')).toHaveCount(2);
-  await expect(page.locator('#journalSummary')).toContainText('recorded');
+  await expect(page.locator('#journalSummary')).toContainText('$50.00');
   await expect(page.locator('#calculatorStatus')).toContainText('No brokerage order was placed');
   await page.locator('#undoLast').click();
   await expect(page.locator('#journalBody tr')).toHaveCount(0);

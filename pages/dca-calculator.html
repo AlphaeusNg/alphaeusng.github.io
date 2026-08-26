@@ -18,16 +18,16 @@
     <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/dca-calculator.css?v=2026.08.25.8">
+    <link rel="stylesheet" href="../css/dca-calculator.css?v=2026.08.25.9">
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js" defer></script>
-    <script src="../js/dca-firebase-config.js?v=2026.08.25.8" defer></script>
-    <script src="../js/dca-engine.js?v=2026.08.25.8" defer></script>
-    <script src="../js/dca-journal.js?v=2026.08.25.8" defer></script>
-    <script src="../js/dca-quotes.js?v=2026.08.25.8" defer></script>
-    <script src="../js/dca-cloud.js?v=2026.08.25.8" defer></script>
-    <script src="../js/dca-calculator.js?v=2026.08.25.8" defer></script>
+    <script src="../js/dca-firebase-config.js?v=2026.08.25.9" defer></script>
+    <script src="../js/dca-engine.js?v=2026.08.25.9" defer></script>
+    <script src="../js/dca-journal.js?v=2026.08.25.9" defer></script>
+    <script src="../js/dca-quotes.js?v=2026.08.25.9" defer></script>
+    <script src="../js/dca-cloud.js?v=2026.08.25.9" defer></script>
+    <script src="../js/dca-calculator.js?v=2026.08.25.9" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#planner">Skip to calculator</a>
@@ -289,6 +289,7 @@
                         </div>
                         <p class="recommendation-panel__kicker">Suggested total</p>
                         <h3 id="recommendationTitle"><span id="totalRecommendation">—</span></h3>
+                        <p id="recordTotalNote" class="recommendation-panel__record" hidden></p>
                         <p id="recommendationSummary" class="recommendation-panel__summary">
                             Load market data to build the plan.
                         </p>
@@ -311,7 +312,16 @@
                                         <span id="tslaSignalLabel" class="signal-label"></span>
                                     </span>
                                 </div>
-                                <div class="asset-order__amount"><strong id="tslaRecommendation">—</strong><span id="tslaShares">— shares</span></div>
+                                <div class="asset-order__amount">
+                                    <label class="money-input asset-order__fill" for="tslaFillAmount">
+                                        <span class="sr-only">TSLA amount to record</span>
+                                        <span aria-hidden="true">$</span>
+                                        <input id="tslaFillAmount" type="number" min="0" max="10000000" step="0.01" inputmode="decimal" value="0">
+                                    </label>
+                                    <span id="tslaShares">— shares</span>
+                                    <div id="tslaFillChips" class="log-chips log-chips--asset"></div>
+                                    <button id="tslaFillReset" class="asset-order__reset" type="button" hidden>Use suggestion</button>
+                                </div>
                                 <dl>
                                     <div><dt>Adaptive baseline</dt><dd id="tslaBaseline">—</dd></div>
                                     <div><dt>Applied weight</dt><dd id="tslaMultiplier">—</dd></div>
@@ -326,7 +336,16 @@
                                         <span id="spcxSignalLabel" class="signal-label"></span>
                                     </span>
                                 </div>
-                                <div class="asset-order__amount"><strong id="spcxRecommendation">—</strong><span id="spcxShares">— shares</span></div>
+                                <div class="asset-order__amount">
+                                    <label class="money-input asset-order__fill" for="spcxFillAmount">
+                                        <span class="sr-only">SPCX amount to record</span>
+                                        <span aria-hidden="true">$</span>
+                                        <input id="spcxFillAmount" type="number" min="0" max="10000000" step="0.01" inputmode="decimal" value="0">
+                                    </label>
+                                    <span id="spcxShares">— shares</span>
+                                    <div id="spcxFillChips" class="log-chips log-chips--asset"></div>
+                                    <button id="spcxFillReset" class="asset-order__reset" type="button" hidden>Use suggestion</button>
+                                </div>
                                 <dl>
                                     <div><dt>Adaptive baseline</dt><dd id="spcxBaseline">—</dd></div>
                                     <div><dt>Applied weight</dt><dd id="spcxMultiplier">—</dd></div>
@@ -345,63 +364,48 @@
                         </div>
 
                         <div class="recommendation-actions">
-                            <button id="recordPurchase" class="button button--primary" type="button" disabled>Record as purchased</button>
+                            <button id="recordPurchase" class="button button--primary" type="button" disabled>Record fills</button>
                             <button id="undoLast" class="button button--quiet" type="button" disabled>Undo last</button>
-                            <button id="copyPlan" class="button button--quiet" type="button" disabled title="Copy plan (C)">Copy plan</button>
-                            <button id="copyPlanLink" class="button button--quiet" type="button" disabled>Copy link</button>
-                            <button id="sharePlan" class="button button--quiet" type="button" hidden disabled>Share plan</button>
                         </div>
-                        <p class="execution-note">Recording the suggestion is optional. Use Log a fill for the amount you actually sent. It does not place a trade. <span class="shortcut-hint">T today · C copy · R record</span></p>
+                        <p class="execution-note">Edit the dollars if the fill differed, then record. It does not place a trade. <span class="shortcut-hint">T today · R record</span></p>
                     </aside>
                 </div>
             </div>
         </section>
 
-        <section id="log-fills" class="dca-section dca-section--tinted" aria-labelledby="logFillsTitle">
+        <section id="log-fills" class="dca-section dca-section--tinted dca-section--compact" aria-labelledby="logFillsTitle">
             <div class="dca-shell">
-                <div class="section-heading">
+                <div class="log-toolbar">
                     <div>
-                        <p class="eyebrow">02 · Actual fills</p>
-                        <h2 id="logFillsTitle">Log what you bought.</h2>
+                        <p class="eyebrow">02 · Catch up</p>
+                        <h2 id="logFillsTitle">Missed sessions</h2>
                     </div>
-                    <p>Tap a chip to record that amount immediately. Missed U.S. sessions sit at the top so you can catch up from your phone.</p>
+                    <div class="log-sync log-sync--compact" id="logSyncBar">
+                        <p id="cloudStatus">Stays in this browser until you sign in.</p>
+                        <button id="cloudSignIn" class="button button--quiet" type="button">Sign in</button>
+                        <button id="cloudSignOut" class="button button--quiet" type="button" hidden>Sign out</button>
+                    </div>
                 </div>
 
-                <div class="log-sync" id="logSyncBar">
-                    <p id="cloudStatus">Journal stays in this browser until you sign in.</p>
-                    <button id="cloudSignIn" class="button button--quiet" type="button">Sign in with Google</button>
-                    <button id="cloudSignOut" class="button button--quiet" type="button" hidden>Sign out</button>
-                </div>
-
-                <form id="logFillForm" class="log-card" novalidate>
-                    <div class="log-card__row">
-                        <label class="field" for="logDate">
-                            <span>Session date</span>
-                            <input id="logDate" type="date" required>
-                        </label>
-                        <fieldset class="log-symbols">
-                            <legend>Asset</legend>
-                            <label><input id="logSymbolTsla" type="radio" name="logSymbol" value="TSLA" checked> TSLA</label>
-                            <label><input id="logSymbolSpcx" type="radio" name="logSymbol" value="SPCX"> SPCX</label>
-                        </fieldset>
-                    </div>
-                    <div class="log-card__row">
-                        <label class="field" for="logAmount">
-                            <span>Amount actually invested</span>
-                            <span class="money-input">
-                                <span aria-hidden="true">$</span>
-                                <input id="logAmount" type="number" min="1" max="10000000" step="0.01" inputmode="decimal" placeholder="20" required>
-                            </span>
-                        </label>
-                        <button id="logFillSubmit" class="button button--primary" type="submit">Log fill</button>
-                    </div>
-                    <div>
-                        <p class="log-chips-label" id="logChipsLabel">One-tap top-up</p>
-                        <div id="logQuickChips" class="log-chips" role="group" aria-labelledby="logChipsLabel"></div>
-                    </div>
+                <form id="logFillForm" class="log-bar" novalidate>
+                    <label class="field log-bar__date" for="logDate">
+                        <span>Date</span>
+                        <input id="logDate" type="date" required>
+                    </label>
+                    <fieldset class="log-symbols">
+                        <legend class="sr-only">Asset</legend>
+                        <label><input id="logSymbolTsla" type="radio" name="logSymbol" value="TSLA" checked> TSLA</label>
+                        <label><input id="logSymbolSpcx" type="radio" name="logSymbol" value="SPCX"> SPCX</label>
+                    </fieldset>
+                    <label class="money-input" for="logAmount">
+                        <span class="sr-only">Custom amount</span>
+                        <span aria-hidden="true">$</span>
+                        <input id="logAmount" type="number" min="1" max="10000000" step="0.01" inputmode="decimal" placeholder="20" required>
+                    </label>
+                    <button id="logFillSubmit" class="button button--primary" type="submit">Log</button>
+                    <div id="logQuickChips" class="log-chips" role="group" aria-label="One-tap top-up"></div>
                     <details id="editQuickAmounts" class="log-chip-editor">
-                        <summary>Customize chips</summary>
-                        <p>eToro’s typical minimums are $20 or $30. Add the amounts you actually send; each chip logs that fill as soon as you tap it.</p>
+                        <summary>Chips</summary>
                         <div id="quickAmountList" class="log-chip-editor__list"></div>
                         <div class="log-chip-editor__add">
                             <label class="money-input" for="quickAmountInput">
@@ -409,20 +413,15 @@
                                 <span aria-hidden="true">$</span>
                                 <input id="quickAmountInput" type="number" min="1" max="10000" step="1" inputmode="decimal" placeholder="25">
                             </label>
-                            <button id="addQuickAmount" class="button button--quiet" type="button">Add chip</button>
-                            <button id="resetQuickAmounts" class="button button--quiet" type="button">Restore $20 / $30</button>
+                            <button id="addQuickAmount" class="button button--quiet" type="button">Add</button>
+                            <button id="resetQuickAmounts" class="button button--quiet" type="button">$20 / $30</button>
                         </div>
                     </details>
                 </form>
 
-                <div class="catchup">
-                    <div class="catchup__header">
-                        <h3>Catch up this month</h3>
-                        <p id="catchUpSummary">Loading sessions…</p>
-                    </div>
-                    <div id="catchUpList" class="catchup-list"></div>
-                    <button id="catchUpShowAll" class="button button--quiet" type="button" hidden>Show all sessions this month</button>
-                </div>
+                <p id="catchUpSummary" class="catchup-summary">Loading sessions…</p>
+                <div id="catchUpList" class="catchup-list"></div>
+                <button id="catchUpShowAll" class="button button--quiet" type="button" hidden>Show filled sessions too</button>
             </div>
         </section>
 
@@ -585,7 +584,7 @@
             <div><a href="conviction.html">Conviction</a><a href="../index.html">Portfolio</a><a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer">Source</a></div>
         </div>
     </footer>
-    <script src="../js/kofi-support.js?v=2026.08.25.8" data-auto-footer defer></script>
+    <script src="../js/kofi-support.js?v=2026.08.25.9" data-auto-footer defer></script>
     <script src="../js/version.js"></script>
 </body>
 </html>
