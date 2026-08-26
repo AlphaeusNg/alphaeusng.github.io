@@ -7,8 +7,8 @@ Last updated: 2026-08-27
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.08.25.9`. One untracked owner screenshot remains
-  excluded.
+- Deployment stamp: `2026.08.27.1`. One untracked owner screenshot remains
+  excluded. DCA snapshot latest close is 2026-08-25 (288 TSLA / 51 SPCX sessions).
 - Local verification: 31 Python tests, 18 DCA engine/quote/journal tests,
   `tools/check_site.py`, 20 Chromium journeys, Python compilation, and syntax
   checks for first-party JavaScript. Firestore rules for `dcaJournals` are
@@ -18,7 +18,21 @@ Last updated: 2026-08-27
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: edit today’s fill and tighten catch-up
+## Latest cycle: publish Tuesday’s TSLA/SPCX close
+
+### Why this was selected
+
+The committed Nasdaq snapshot still ended Monday 2026-08-24. Tuesday’s session
+existed, and the weekday post-close workflow had not landed that bar.
+
+### Changes
+
+- Regenerated `data/dca_market_history.json` from Nasdaq.
+- TSLA latest close 2026-08-25 $350.25 (was $348.95). SPCX $137.95 (was $135.00).
+- Quote asOf 2026-08-26T13:07:00-04:00 while that U.S. session is still open.
+- Version `2026.08.27.1`.
+
+## Previous cycle: edit today’s fill and tighten catch-up
 
 ### Why this was selected
 
