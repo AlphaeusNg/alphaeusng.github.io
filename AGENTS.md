@@ -23,10 +23,14 @@ css/
 js/main.js                 # Nav, mobile menu, scroll, a11y
 js/modals.js               # Project case-study modal content
 js/conviction.js
+js/dca-engine.js           # Pure DCA math
+js/dca-journal.js          # Fills, chips, catch-up, local↔cloud merge
+js/dca-cloud.js            # Optional Google journal sync
+js/dca-firebase-config.js  # Runtime keys for DCA journal sync
 js/version.js              # SITE_VERSION — bump every deploy
 firebase/                  # Shared Firebase infra (rules + indexes + docs)
   README.md
-  firestore.rules          # Combined: arcade scores/players/progress + vaultNotes
+  firestore.rules          # Combined: arcade + vaultNotes + feedback + dcaJournals
   firestore.indexes.json
 firebase.json  .firebaserc # CLI entry (repo root — standard)
 pages/

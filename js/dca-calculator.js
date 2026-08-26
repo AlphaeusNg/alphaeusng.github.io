@@ -14,6 +14,9 @@
     const MAX_LEDGER_META_CHARS = 64;
     const engine = window.DcaEngine;
     const quotesApi = window.DcaQuotes;
+    const journal = window.DcaJournal;
+    const cloud = window.DcaCloud;
+    const CATCH_UP_PREVIEW = 8;
 
     const elements = {};
     const PAGE_TITLE = 'Conviction DCA Lab • Alphaeus Ng';
@@ -31,6 +34,8 @@
     let realtimeFeed = 'iex';
     let quoteFeed = { source: 'snapshot', generatedAt: null, fetchedAt: null };
     let journalThisMonthOnly = true;
+    let catchUpShowAll = false;
+    let applyingCloud = false;
     const chartRanges = { TSLA: '66', SPCX: '66' };
     const chartModels = {};
 
@@ -70,9 +75,15 @@
             'tslaSignalLabel', 'spcxSignalLabel', 'refreshQuotes', 'enableRealtime',
             'realtimeDialog', 'realtimeForm', 'closeRealtime', 'alpacaKeyId',
             'alpacaSecret', 'alpacaFeed', 'rememberRealtime', 'realtimeStatus',
-            'connectRealtime', 'disconnectRealtime'
+            'connectRealtime', 'disconnectRealtime',
+            'logDate', 'logAmount', 'logFillForm', 'logFillSubmit', 'logQuickChips',
+            'mobileQuickChips', 'editQuickAmounts', 'quickAmountList', 'quickAmountInput',
+            'addQuickAmount', 'resetQuickAmounts', 'catchUpList', 'catchUpSummary',
+            'catchUpShowAll', 'cloudStatus', 'cloudSignIn', 'cloudSignOut',
+            'mobileActionKicker', 'mobileMoreLog'
         ].forEach((id) => { elements[id] = byId(id); });
         elements.strategyRadios = Array.from(document.querySelectorAll('input[name="strategy"]'));
+        elements.logSymbolRadios = Array.from(document.querySelectorAll('input[name="logSymbol"]'));
         elements.chartRangeButtons = Array.from(document.querySelectorAll('[data-chart-range]'));
         elements.allocationPresets = Array.from(document.querySelectorAll('[data-alloc]'));
         renderStorageNotice();
@@ -88,13 +99,15 @@
                 dipSensitivity: 1.35,
                 maxMultiplier: 2.25,
                 fractional: true,
+                quickAmounts: journal ? journal.DEFAULT_QUICK_AMOUNTS.slice() : [20, 30],
                 manualPrices: {
                     TSLA: { enabled: false, value: null },
                     SPCX: { enabled: false, value: null }
                 }
             },
             months: {},
-            ledger: []
+            ledger: [],
+            updatedAt: 0
         };
     }
 
@@ -169,6 +182,9 @@
                 dipSensitivity: savedNumber(savedSettings, 'dipSensitivity', 0, 3, fallback.settings.dipSensitivity),
                 maxMultiplier: savedNumber(savedSettings, 'maxMultiplier', 1, 4, fallback.settings.maxMultiplier),
                 fractional: savedBoolean(savedSettings, 'fractional', fallback.settings.fractional),
+                quickAmounts: journal
+                    ? journal.normalizeQuickAmounts(savedSettings.quickAmounts)
+                    : fallback.settings.quickAmounts,
                 manualPrices
             };
             if ('strategyId' in savedSettings) {
@@ -245,10 +261,12 @@
             if (repaired) {
                 storageRecoveryMessage = 'Some invalid saved data was ignored. Your valid plan and journal entries are still available; the repair will be saved with your next change.';
             }
+            const updatedAt = Number(saved.updatedAt);
             return {
                 settings,
                 months,
-                ledger
+                ledger,
+                updatedAt: Number.isFinite(updatedAt) && updatedAt > 0 ? updatedAt : 0
             };
         } catch (error) {
             console.warn('[DCA Lab] Browser state could not be loaded.', error);
@@ -267,11 +285,15 @@
     }
 
     function saveState() {
+        state.updatedAt = Date.now();
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
             storageWriteBlocked = false;
             storageRecoveryMessage = '';
             renderStorageNotice();
+            if (!applyingCloud && cloud && typeof cloud.pushSoon === 'function') {
+                cloud.pushSoon(state);
+            }
             return true;
         } catch (error) {
             console.warn('[DCA Lab] Browser state could not be saved.', error);
@@ -411,7 +433,7 @@
         if (custom) elements.strategyMode.textContent = 'Custom settings';
     }
 
-    function applySavedSettings() {
+    function applySavedSettings({ keepPlanDate = false } = {}) {
         const settings = state.settings;
         elements.monthlyBudget.value = String(settings.monthlyBudget);
         elements.tslaAllocation.value = String(settings.tslaAllocation);
@@ -429,11 +451,15 @@
         if (Number.isFinite(Number(settings.manualPrices.SPCX?.value))) {
             elements.spcxPrice.value = String(settings.manualPrices.SPCX.value);
         }
-        elements.planDate.value = newYorkDate();
+        if (!keepPlanDate) elements.planDate.value = newYorkDate();
+        if (elements.logDate && (!keepPlanDate || !elements.logDate.value)) {
+            elements.logDate.value = elements.planDate.value || newYorkDate();
+        }
         updateRangeOutputs();
         updateAllocationOutput();
         updatePriceControls();
         loadMonthInputs();
+        renderQuickChips();
     }
 
     function applyQueryOverrides() {
@@ -495,6 +521,7 @@
     function jumpToToday() {
         elements.planDate.value = newYorkDate();
         const snapped = snapPlanDate();
+        if (elements.logDate) elements.logDate.value = elements.planDate.value;
         loadMonthInputs();
         recalculate();
         showStatus(
@@ -528,6 +555,9 @@
             dipSensitivity: numberValue(elements.dipSensitivity, 1.35),
             maxMultiplier: numberValue(elements.maxMultiplier, 2.25),
             fractional: elements.fractionalShares.checked,
+            quickAmounts: journal
+                ? journal.normalizeQuickAmounts(state.settings.quickAmounts)
+                : state.settings.quickAmounts,
             manualPrices: {
                 TSLA: {
                     enabled: elements.tslaManualToggle.checked,
@@ -1123,12 +1153,7 @@
         if (elements.sharePlan) elements.sharePlan.disabled = !canAct;
         if (elements.copyPlanLink) elements.copyPlanLink.disabled = !sessionCount;
         if (elements.undoLast) elements.undoLast.disabled = !state.ledger.length;
-        if (elements.mobileActionTotal) {
-            elements.mobileActionTotal.textContent = formatCurrency(total, 2);
-        }
-        if (elements.mobileRecord) elements.mobileRecord.disabled = !canAct;
-        if (elements.mobileCopy) elements.mobileCopy.disabled = !canAct;
-        if (elements.mobileActionBar) elements.mobileActionBar.hidden = !canAct;
+        renderMobileLogBar();
         document.title = canAct ? `${formatCurrency(total, 0)} today · Conviction DCA Lab` : PAGE_TITLE;
     }
 
@@ -1371,11 +1396,329 @@
             renderPriceChart(symbol, marketData.symbols[symbol], currentPlan.assets[symbol]);
         });
         renderReplay(currentPlan);
+        renderCatchUp();
+        renderMobileLogBar();
     }
 
     function ledgerId() {
         if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
         return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function selectedLogSymbol() {
+        return elements.logSymbolRadios.find((radio) => radio.checked)?.value || 'TSLA';
+    }
+
+    function setLogSymbol(symbol) {
+        (elements.logSymbolRadios || []).forEach((radio) => {
+            radio.checked = radio.value === symbol;
+        });
+    }
+
+    function formatChipAmount(amount) {
+        return Number.isInteger(amount) ? `$${amount}` : formatCurrency(amount, 2);
+    }
+
+    /** Close used when logging a past session; otherwise the live plan price. */
+    function fillPrice(symbol, date) {
+        const history = marketData?.symbols?.[symbol]?.history;
+        if (Array.isArray(history)) {
+            const row = history.find((item) => item.date === date);
+            if (row && Number(row.close) > 0) {
+                return { value: Number(row.close), mode: 'session close' };
+            }
+        }
+        const asset = currentPlan?.assets?.[symbol];
+        if (asset?.price?.value > 0) {
+            return {
+                value: Number(asset.price.value),
+                mode: asset.price.manual ? 'manual' : 'Nasdaq snapshot'
+            };
+        }
+        return { value: 0, mode: 'unknown' };
+    }
+
+    function createTopUpChip(amount, { date, symbol, compact = false } = {}) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'log-chip';
+        button.dataset.topup = String(amount);
+        if (date) button.dataset.date = date;
+        if (symbol) button.dataset.symbol = symbol;
+        button.textContent = formatChipAmount(amount);
+        const when = date ? formatDate(date, { short: true }) : 'the selected session';
+        const ticker = symbol || selectedLogSymbol();
+        button.setAttribute(
+            'aria-label',
+            compact
+                ? `Record ${formatChipAmount(amount)} ${ticker}`
+                : `Record ${formatChipAmount(amount)} ${ticker} on ${when}`
+        );
+        return button;
+    }
+
+    function renderChipButtons(container, { date, symbol, compact = false } = {}) {
+        if (!container) return;
+        const amounts = journal
+            ? journal.normalizeQuickAmounts(state.settings.quickAmounts)
+            : [20, 30];
+        container.replaceChildren();
+        amounts.forEach((amount) => {
+            container.appendChild(createTopUpChip(amount, { date, symbol, compact }));
+        });
+    }
+
+    function renderQuickChips() {
+        if (!journal) return;
+        state.settings.quickAmounts = journal.normalizeQuickAmounts(state.settings.quickAmounts);
+        const symbol = selectedLogSymbol();
+        const date = elements.logDate?.value || elements.planDate?.value;
+        renderChipButtons(elements.logQuickChips, { date, symbol });
+        renderChipButtons(elements.mobileQuickChips, { date, symbol, compact: true });
+        if (!elements.quickAmountList) return;
+        elements.quickAmountList.replaceChildren();
+        state.settings.quickAmounts.forEach((amount) => {
+            const item = document.createElement('span');
+            item.className = 'log-chip-editor__item';
+            item.append(document.createTextNode(formatChipAmount(amount)));
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.dataset.removeChip = String(amount);
+            remove.setAttribute('aria-label', `Remove ${formatChipAmount(amount)} chip`);
+            remove.textContent = '×';
+            item.appendChild(remove);
+            elements.quickAmountList.appendChild(item);
+        });
+    }
+
+    function renderMobileLogBar() {
+        if (!elements.mobileActionBar) return;
+        const symbol = selectedLogSymbol();
+        const date = elements.logDate?.value || elements.planDate?.value || newYorkDate();
+        if (elements.mobileActionKicker) elements.mobileActionKicker.textContent = 'Quick log';
+        if (elements.mobileActionTotal) {
+            elements.mobileActionTotal.textContent = `${symbol} · ${formatDate(date, { short: true })}`;
+        }
+        renderChipButtons(elements.mobileQuickChips, { date, symbol, compact: true });
+        elements.mobileActionBar.hidden = false;
+    }
+
+    function catchUpThroughDate(month) {
+        const today = newYorkDate();
+        return today.slice(0, 7) === month ? today : `${month}-31`;
+    }
+
+    function renderCatchUp() {
+        if (!elements.catchUpList || !engine || !journal) return;
+        const month = monthKey();
+        const sessions = engine.tradingSessionsInMonth(`${month}-01`);
+        const rows = journal.catchUpRows({
+            sessions,
+            throughDate: catchUpThroughDate(month),
+            ledger: state.ledger,
+            symbols: SYMBOLS
+        });
+        const missedRows = rows.filter((row) => row.missed);
+        const filledRows = rows.filter((row) => !row.missed);
+        const visible = catchUpShowAll
+            ? rows
+            : (missedRows.length ? missedRows : filledRows.slice(0, CATCH_UP_PREVIEW));
+        if (elements.catchUpSummary) {
+            elements.catchUpSummary.textContent = rows.length
+                ? (missedRows.length
+                    ? `${missedRows.length} missed session${missedRows.length === 1 ? '' : 's'} through ${formatDate(catchUpThroughDate(month), { short: true })}.`
+                    : `Caught up through ${formatDate(catchUpThroughDate(month), { short: true })}.`)
+                : 'No U.S. sessions in this month yet.';
+        }
+        if (elements.catchUpShowAll) {
+            const hiddenFills = !catchUpShowAll && filledRows.length && missedRows.length;
+            elements.catchUpShowAll.hidden = catchUpShowAll || !hiddenFills;
+            elements.catchUpShowAll.textContent = `Show ${filledRows.length} filled session${filledRows.length === 1 ? '' : 's'} too`;
+        }
+        elements.catchUpList.replaceChildren();
+        visible.forEach((row) => {
+            const card = document.createElement('article');
+            card.className = `catchup-row${row.missed ? ' is-missed' : ''}`;
+            card.dataset.date = row.date;
+            const select = document.createElement('button');
+            select.type = 'button';
+            select.className = 'catchup-row__date';
+            select.dataset.catchupSelect = row.date;
+            const title = document.createElement('strong');
+            title.textContent = formatDate(row.date, { short: true });
+            const status = document.createElement('span');
+            status.textContent = row.missed ? 'Missed' : `${formatCurrency(row.recorded, 0)} recorded`;
+            select.append(title, status);
+            const assets = document.createElement('div');
+            assets.className = 'catchup-row__assets';
+            SYMBOLS.forEach((symbol) => {
+                const block = document.createElement('div');
+                block.className = 'catchup-asset';
+                const label = document.createElement('div');
+                label.className = 'catchup-asset__label';
+                const name = document.createElement('span');
+                name.textContent = symbol;
+                const spent = document.createElement('small');
+                spent.textContent = formatCurrency(row.fills[symbol] || 0, 2);
+                label.append(name, spent);
+                const chips = document.createElement('div');
+                chips.className = 'log-chips';
+                renderChipButtons(chips, { date: row.date, symbol });
+                block.append(label, chips);
+                assets.appendChild(block);
+            });
+            card.append(select, assets);
+            elements.catchUpList.appendChild(card);
+        });
+        if (!rows.length) {
+            const empty = document.createElement('p');
+            empty.className = 'empty-state';
+            empty.textContent = 'Change the plan date to a month that already has U.S. sessions.';
+            elements.catchUpList.appendChild(empty);
+        }
+    }
+
+    function selectCatchUpDate(date, symbol) {
+        if (elements.logDate) elements.logDate.value = date;
+        if (symbol) setLogSymbol(symbol);
+        renderQuickChips();
+        renderMobileLogBar();
+        elements.logAmount?.focus();
+    }
+
+    /**
+     * Record dollars actually sent. Chip taps call this immediately; it never
+     * places a brokerage order and does not confirm first.
+     */
+    function recordFill(amount, { date, symbol } = {}) {
+        if (!journal) return;
+        let fillDate = date || elements.logDate?.value || elements.planDate.value;
+        if (!isCalendarDate(fillDate)) {
+            showStatus('Choose a valid session date before logging a fill.', 'error');
+            return;
+        }
+        if (engine && !engine.isTradingDay(fillDate)) {
+            const snapped = engine.nextTradingDay(fillDate);
+            fillDate = snapped;
+            if (elements.logDate) elements.logDate.value = snapped;
+        }
+        const fillSymbol = symbol || selectedLogSymbol();
+        const dollars = journal.roundMoney(amount);
+        if (!(dollars > 0)) {
+            showStatus('Enter the dollar amount you actually invested.', 'error');
+            return;
+        }
+        const quote = fillPrice(fillSymbol, fillDate);
+        const fractional = elements.fractionalShares ? elements.fractionalShares.checked : true;
+        const shares = quote.value > 0
+            ? (fractional ? dollars / quote.value : Math.floor(dollars / quote.value))
+            : 0;
+        const entry = journal.addFill(state, {
+            id: ledgerId(),
+            date: fillDate,
+            symbol: fillSymbol,
+            amount: dollars,
+            price: quote.value,
+            shares,
+            priceMode: quote.mode
+        });
+        if (!entry) {
+            showStatus('That fill could not be recorded.', 'error');
+            return;
+        }
+        saveState();
+        loadMonthInputs();
+        renderJournal();
+        renderCatchUp();
+        renderQuickChips();
+        recalculate();
+        const row = elements.catchUpList?.querySelector(`[data-date="${fillDate}"]`);
+        if (row) {
+            row.classList.add('is-just-logged');
+            window.setTimeout(() => row.classList.remove('is-just-logged'), 900);
+        }
+        showStatus(
+            `Logged ${formatCurrency(dollars, 2)} ${fillSymbol} on ${formatDate(fillDate, { short: true })}. No brokerage order was placed.`,
+            'info'
+        );
+    }
+
+    function handleLogChipClick(event) {
+        const chip = event.target.closest('[data-topup]');
+        if (!chip) return;
+        event.preventDefault();
+        recordFill(Number(chip.dataset.topup), {
+            date: chip.dataset.date,
+            symbol: chip.dataset.symbol
+        });
+    }
+
+    function addQuickAmount(raw) {
+        if (!journal) return;
+        const next = journal.normalizeQuickAmounts([
+            ...state.settings.quickAmounts,
+            raw
+        ]);
+        if (next.length === state.settings.quickAmounts.length
+            && next.every((amount, index) => amount === state.settings.quickAmounts[index])) {
+            showStatus('Use a unique amount between $1 and $10,000. At most six chips.', 'error');
+            return;
+        }
+        state.settings.quickAmounts = next;
+        saveState();
+        renderQuickChips();
+        renderCatchUp();
+        renderMobileLogBar();
+        if (elements.quickAmountInput) elements.quickAmountInput.value = '';
+        showStatus(`Quick chips are now ${next.map(formatChipAmount).join(', ')}.`, 'info');
+    }
+
+    function removeQuickAmount(raw) {
+        if (!journal) return;
+        const amount = journal.roundMoney(raw);
+        state.settings.quickAmounts = journal.normalizeQuickAmounts(
+            state.settings.quickAmounts.filter((value) => value !== amount)
+        );
+        saveState();
+        renderQuickChips();
+        renderCatchUp();
+        renderMobileLogBar();
+    }
+
+    function resetQuickAmounts() {
+        if (!journal) return;
+        state.settings.quickAmounts = journal.DEFAULT_QUICK_AMOUNTS.slice();
+        saveState();
+        renderQuickChips();
+        renderCatchUp();
+        renderMobileLogBar();
+        showStatus('Restored the $20 and $30 eToro-style chips.', 'info');
+    }
+
+    function applyCloudJournal(remote) {
+        if (!journal || !remote) return;
+        const merged = journal.mergeJournalState(state, remote);
+        applyingCloud = true;
+        state.settings = merged.settings;
+        state.months = merged.months;
+        state.ledger = merged.ledger;
+        state.updatedAt = merged.updatedAt;
+        applySavedSettings({ keepPlanDate: true });
+        renderJournal();
+        renderCatchUp();
+        recalculate({ persist: true, preserveStatus: true });
+        applyingCloud = false;
+        saveState();
+    }
+
+    function renderCloudStatus(kind, message) {
+        if (elements.cloudStatus) elements.cloudStatus.textContent = message;
+        const signedIn = Boolean(cloud && cloud.user && cloud.user());
+        if (elements.cloudSignIn) elements.cloudSignIn.hidden = signedIn;
+        if (elements.cloudSignOut) elements.cloudSignOut.hidden = !signedIn;
+        if (kind === 'error') {
+            showStatus(message, 'error');
+        }
     }
 
     function sessionAlreadyRecorded(date) {
@@ -1407,23 +1750,22 @@
         SYMBOLS.forEach((symbol) => {
             const asset = currentPlan.assets[symbol];
             if (asset.recommendation.amount <= 0) return;
-            const entry = {
-                id: ledgerId(),
-                batchId,
-                date,
-                symbol,
-                amount: asset.recommendation.amount,
-                price: asset.price.value,
-                shares: asset.recommendation.shares,
-                multiplier: asset.recommendation.appliedMultiplier,
-                priceMode: asset.price.manual ? 'manual' : 'Nasdaq snapshot'
-            };
-            state.ledger.push(entry);
-            const entryMonth = date.slice(0, 7);
-            state.months[entryMonth] = state.months[entryMonth] || { TSLA: 0, SPCX: 0 };
-            state.months[entryMonth][symbol] = Number(state.months[entryMonth][symbol] || 0) + entry.amount;
-            recorded.push(symbol);
+            const entry = journal
+                ? journal.addFill(state, {
+                    id: ledgerId(),
+                    batchId,
+                    date,
+                    symbol,
+                    amount: asset.recommendation.amount,
+                    price: asset.price.value,
+                    shares: asset.recommendation.shares,
+                    multiplier: asset.recommendation.appliedMultiplier,
+                    priceMode: asset.price.manual ? 'manual' : 'Nasdaq snapshot'
+                })
+                : null;
+            if (entry) recorded.push(symbol);
         });
+        if (!recorded.length) return;
         saveState();
         advancePlanDate(date);
         loadMonthInputs();
@@ -1493,7 +1835,9 @@
         elements.journalEmpty.hidden = rows.length > 0;
         elements.journalEmpty.textContent = state.ledger.length
             ? 'No purchases recorded in this month. Switch to all entries to see older sessions.'
-            : 'No purchases recorded in this browser yet.';
+            : 'No purchases recorded yet. Use a one-tap chip or Log fill above.';
+        renderCatchUp();
+        renderQuickChips();
         if (elements.journalSummary) {
             const spent = monthRows.reduce((total, entry) => total + Number(entry.amount || 0), 0);
             const sessions = new Set(monthRows.map((entry) => entry.date)).size;
@@ -1771,6 +2115,7 @@
         elements.tslaAllocation.addEventListener('input', () => recalculate({ persist: 'debounce' }));
         elements.planDate.addEventListener('change', () => {
             const snapped = snapPlanDate();
+            if (elements.logDate) elements.logDate.value = elements.planDate.value;
             loadMonthInputs();
             recalculate();
             if (snapped) {
@@ -1855,8 +2200,79 @@
         if (elements.copyPlanLink) elements.copyPlanLink.addEventListener('click', copyPlanLink);
         if (elements.sharePlan) elements.sharePlan.addEventListener('click', sharePlan);
         if (elements.jumpToday) elements.jumpToday.addEventListener('click', jumpToToday);
-        if (elements.mobileRecord) elements.mobileRecord.addEventListener('click', recordPurchase);
-        if (elements.mobileCopy) elements.mobileCopy.addEventListener('click', copyPlan);
+        if (elements.logFillForm) {
+            elements.logFillForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                recordFill(numberValue(elements.logAmount));
+            });
+        }
+        (elements.logSymbolRadios || []).forEach((radio) => {
+            radio.addEventListener('change', () => {
+                renderQuickChips();
+                renderMobileLogBar();
+            });
+        });
+        if (elements.logDate) {
+            elements.logDate.addEventListener('change', () => {
+                if (engine && isCalendarDate(elements.logDate.value) && !engine.isTradingDay(elements.logDate.value)) {
+                    elements.logDate.value = engine.nextTradingDay(elements.logDate.value);
+                }
+                renderQuickChips();
+                renderMobileLogBar();
+            });
+        }
+        if (elements.logQuickChips) elements.logQuickChips.addEventListener('click', handleLogChipClick);
+        if (elements.mobileQuickChips) elements.mobileQuickChips.addEventListener('click', handleLogChipClick);
+        if (elements.catchUpList) {
+            elements.catchUpList.addEventListener('click', (event) => {
+                const select = event.target.closest('[data-catchup-select]');
+                if (select) {
+                    selectCatchUpDate(select.dataset.catchupSelect);
+                    return;
+                }
+                handleLogChipClick(event);
+            });
+        }
+        if (elements.catchUpShowAll) {
+            elements.catchUpShowAll.addEventListener('click', () => {
+                catchUpShowAll = true;
+                renderCatchUp();
+            });
+        }
+        if (elements.addQuickAmount) {
+            elements.addQuickAmount.addEventListener('click', () => addQuickAmount(numberValue(elements.quickAmountInput)));
+        }
+        if (elements.resetQuickAmounts) {
+            elements.resetQuickAmounts.addEventListener('click', resetQuickAmounts);
+        }
+        if (elements.quickAmountList) {
+            elements.quickAmountList.addEventListener('click', (event) => {
+                const remove = event.target.closest('[data-remove-chip]');
+                if (remove) removeQuickAmount(Number(remove.dataset.removeChip));
+            });
+        }
+        if (elements.cloudSignIn) {
+            elements.cloudSignIn.addEventListener('click', async () => {
+                if (!cloud || typeof cloud.signIn !== 'function') {
+                    showStatus('Google sync is unavailable in this browser. Fills still save here.', 'error');
+                    return;
+                }
+                try {
+                    await cloud.signIn();
+                } catch (error) {
+                    if (error && error.code === 'auth/popup-closed-by-user') return;
+                    console.warn('[DCA Lab] Google sign-in failed.', error);
+                    showStatus('Google sign-in was blocked or cancelled. The journal still works on this device.', 'error');
+                }
+            });
+        }
+        if (elements.cloudSignOut) {
+            elements.cloudSignOut.addEventListener('click', () => {
+                cloud.signOut().catch((error) => {
+                    console.warn('[DCA Lab] Sign-out failed.', error);
+                });
+            });
+        }
         if (elements.journalScope) {
             elements.journalScope.addEventListener('click', () => {
                 journalThisMonthOnly = !journalThisMonthOnly;
@@ -1971,6 +2387,7 @@
         applySavedSettings();
         applyQueryOverrides();
         const snappedOnLoad = snapPlanDate();
+        if (elements.logDate) elements.logDate.value = elements.planDate.value;
         loadMonthInputs();
         bindEvents();
         bindAutoHideNav();
@@ -1981,6 +2398,20 @@
             elements.monthlyBudget.focus();
         }
         renderJournal();
+        renderCatchUp();
+        renderQuickChips();
+        renderMobileLogBar();
+        if (cloud && typeof cloud.init === 'function') {
+            cloud.init({
+                onUser() {
+                    const signedIn = Boolean(cloud.user && cloud.user());
+                    if (elements.cloudSignIn) elements.cloudSignIn.hidden = signedIn;
+                    if (elements.cloudSignOut) elements.cloudSignOut.hidden = !signedIn;
+                },
+                onRemote: applyCloudJournal,
+                onStatus: renderCloudStatus
+            });
+        }
         try {
             marketData = await loadMarketData();
             renderMarketHeader();

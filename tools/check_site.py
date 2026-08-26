@@ -703,7 +703,9 @@ def main() -> None:
     for asset, pattern in (
         ("css", rf'href="\.\./css/dca-calculator\.css\?v={re.escape(site_version)}"'),
         ("engine", rf'src="\.\./js/dca-engine\.js\?v={re.escape(site_version)}"'),
+        ("journal", rf'src="\.\./js/dca-journal\.js\?v={re.escape(site_version)}"'),
         ("quotes", rf'src="\.\./js/dca-quotes\.js\?v={re.escape(site_version)}"'),
+        ("cloud", rf'src="\.\./js/dca-cloud\.js\?v={re.escape(site_version)}"'),
         ("calculator", rf'src="\.\./js/dca-calculator\.js\?v={re.escape(site_version)}"'),
     ):
         if not re.search(pattern, dca_html):
@@ -721,6 +723,9 @@ def main() -> None:
     ):
         if f'id="{element_id}"' not in dca_html:
             fail(f"DCA Lab real-time control #{element_id} is missing")
+    for element_id in ("log-fills", "logQuickChips", "catchUpList", "cloudSignIn"):
+        if f'id="{element_id}"' not in dca_html:
+            fail(f"DCA Lab fill log #{element_id} is missing")
     if not re.search(r'id="alpacaSecret"\s+type="password"', dca_html):
         fail("DCA Lab Alpaca secret must use a password input")
     dca_quotes = (ROOT / "js" / "dca-quotes.js").read_text(encoding="utf-8")

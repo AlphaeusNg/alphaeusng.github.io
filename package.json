@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "test:browser": "playwright test",
-    "test:dca": "node --test tools/test_dca_engine.mjs tools/test_dca_quotes.mjs"
+    "test:dca": "node --test tools/test_dca_engine.mjs tools/test_dca_quotes.mjs tools/test_dca_journal.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",

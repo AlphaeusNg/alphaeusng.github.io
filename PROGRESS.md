@@ -1,25 +1,47 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-25
+Last updated: 2026-08-27
 
 ## Current state
 
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.08.25.7`. One untracked owner screenshot remains
+- Deployment stamp: `2026.08.25.8`. One untracked owner screenshot remains
   excluded.
-- Local verification: 31 Python tests, 14 DCA engine tests, non-writing
-  conviction and sitemap generator checks, 19 Chromium journeys with shared
-  runtime-error and same-origin HTTP-failure monitoring, deterministic external
-  boundaries, `tools/check_site.py`, Python compilation, and syntax checks for
-  every first-party JavaScript file.
+- Local verification: 31 Python tests, 18 DCA engine/quote/journal tests,
+  `tools/check_site.py`, 20 Chromium journeys, Python compilation, and syntax
+  checks for first-party JavaScript. Firestore rules for `dcaJournals` are
+  published on `alparcade-cb87c`.
 - Automated verification: least-privilege GitHub Actions checks out complete
   route history, runs cheap data/site gates before installing Chromium, then
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: keep DCA Lab quote freshness honest
+## Latest cycle: log actual DCA fills from a phone
+
+### Why this was selected
+
+The planner could only record the suggested amount, so missed eToro minimums
+($20 / $30) had to be typed by hand with no cross-device journal.
+
+### Changes
+
+- Phone-first **Log what you bought** section: date, ticker, custom dollars,
+  one-tap chips that submit immediately, and a missed-session catch-up list.
+- Chips default to $20 and $30 and can be customized (up to six amounts).
+- Optional Google sign-in syncs a private `dcaJournals/{uid}` document.
+  Combined Firestore rules were published to `alparcade-cb87c`.
+- Version `2026.08.25.8`.
+
+### Verification
+
+- 31 Python tests, 18 DCA tests, `check_site`, sitemap regeneration,
+  `compileall`, JS syntax, and 20/20 Chromium journeys passed.
+- One new phone-layout journey covers $20 tap, $30 catch-up on a missed day,
+  custom chip add, and typed fill. Existing journal journeys still pass.
+
+## Previous cycle: keep DCA Lab quote freshness honest
 
 ### Why this was selected
 

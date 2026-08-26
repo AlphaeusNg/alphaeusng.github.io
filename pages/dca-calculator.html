@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conviction DCA Lab • Alphaeus Ng</title>
-    <meta name="description" content="A budget-capped, trend-aware daily contribution calculator for Tesla and SpaceX. Local-first decision support; no brokerage execution.">
+    <meta name="description" content="A budget-capped, trend-aware daily contribution calculator for Tesla and SpaceX. Log actual fills, catch up missed sessions, optional Google sync. No brokerage execution.">
     <meta name="theme-color" content="#07111f">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="https://alphaeusng.github.io/pages/dca-calculator.html">
@@ -18,10 +18,16 @@
     <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap">
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/dca-calculator.css?v=2026.08.25.7">
-    <script src="../js/dca-engine.js?v=2026.08.25.7" defer></script>
-    <script src="../js/dca-quotes.js?v=2026.08.25.7" defer></script>
-    <script src="../js/dca-calculator.js?v=2026.08.25.7" defer></script>
+    <link rel="stylesheet" href="../css/dca-calculator.css?v=2026.08.25.8">
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js" defer></script>
+    <script src="../js/dca-firebase-config.js?v=2026.08.25.8" defer></script>
+    <script src="../js/dca-engine.js?v=2026.08.25.8" defer></script>
+    <script src="../js/dca-journal.js?v=2026.08.25.8" defer></script>
+    <script src="../js/dca-quotes.js?v=2026.08.25.8" defer></script>
+    <script src="../js/dca-cloud.js?v=2026.08.25.8" defer></script>
+    <script src="../js/dca-calculator.js?v=2026.08.25.8" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#planner">Skip to calculator</a>
@@ -45,14 +51,14 @@
     <main>
         <header class="dca-hero">
             <div class="dca-shell">
-                <p class="eyebrow">Conviction DCA Lab · local-first</p>
+                <p class="eyebrow">Conviction DCA Lab · local-first, optional sync</p>
                 <h1>Daily DCA.<br><span>Bounded by discipline.</span></h1>
                 <p class="dca-hero__lede">
-                    Set one monthly cap. Keep buying on strong days. Deploy more of the same budget into weakness.
+                    Set one monthly cap. Log the dollars you actually bought — including missed days — with one-tap $20 / $30 fills.
                 </p>
                 <div class="dca-hero__actions">
                     <a class="button button--primary" href="#planner">Calculate today</a>
-                    <a class="button button--quiet" href="#signals">Explore prices</a>
+                    <a class="button button--quiet" href="#log-fills">Log a fill</a>
                 </div>
                 <div class="market-strip" aria-label="Market data status">
                     <div>
@@ -134,7 +140,7 @@
                         <p class="eyebrow">01 · Today’s plan</p>
                         <h2 id="plannerTitle">Set the month. Get today’s amount.</h2>
                     </div>
-                    <p>All personal values stay in this browser. Nothing is sent to a server.</p>
+                    <p>Plan inputs stay on this device. Sign in only if you want the journal on your phone and computer.</p>
                 </div>
 
                 <div id="calculatorStatus" class="status-banner" role="status" aria-live="polite" hidden></div>
@@ -345,26 +351,95 @@
                             <button id="copyPlanLink" class="button button--quiet" type="button" disabled>Copy link</button>
                             <button id="sharePlan" class="button button--quiet" type="button" hidden disabled>Share plan</button>
                         </div>
-                        <p class="execution-note">Recording updates only this browser journal. It does not place a trade. <span class="shortcut-hint">T today · C copy · R record</span></p>
+                        <p class="execution-note">Recording the suggestion is optional. Use Log a fill for the amount you actually sent. It does not place a trade. <span class="shortcut-hint">T today · C copy · R record</span></p>
                     </aside>
                 </div>
             </div>
         </section>
 
-        <div id="mobileActionBar" class="mobile-action-bar" hidden>
-            <div>
-                <span class="mobile-action-bar__kicker">Today</span>
-                <strong id="mobileActionTotal">—</strong>
-            </div>
-            <button id="mobileRecord" class="button button--primary" type="button" disabled>Record</button>
-            <button id="mobileCopy" class="button button--quiet" type="button" disabled>Copy</button>
-        </div>
-
-        <section id="signals" class="dca-section dca-section--tinted" aria-labelledby="signalsTitle">
+        <section id="log-fills" class="dca-section dca-section--tinted" aria-labelledby="logFillsTitle">
             <div class="dca-shell">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">02 · Signal desk</p>
+                        <p class="eyebrow">02 · Actual fills</p>
+                        <h2 id="logFillsTitle">Log what you bought.</h2>
+                    </div>
+                    <p>Tap a chip to record that amount immediately. Missed U.S. sessions sit at the top so you can catch up from your phone.</p>
+                </div>
+
+                <div class="log-sync" id="logSyncBar">
+                    <p id="cloudStatus">Journal stays in this browser until you sign in.</p>
+                    <button id="cloudSignIn" class="button button--quiet" type="button">Sign in with Google</button>
+                    <button id="cloudSignOut" class="button button--quiet" type="button" hidden>Sign out</button>
+                </div>
+
+                <form id="logFillForm" class="log-card" novalidate>
+                    <div class="log-card__row">
+                        <label class="field" for="logDate">
+                            <span>Session date</span>
+                            <input id="logDate" type="date" required>
+                        </label>
+                        <fieldset class="log-symbols">
+                            <legend>Asset</legend>
+                            <label><input id="logSymbolTsla" type="radio" name="logSymbol" value="TSLA" checked> TSLA</label>
+                            <label><input id="logSymbolSpcx" type="radio" name="logSymbol" value="SPCX"> SPCX</label>
+                        </fieldset>
+                    </div>
+                    <div class="log-card__row">
+                        <label class="field" for="logAmount">
+                            <span>Amount actually invested</span>
+                            <span class="money-input">
+                                <span aria-hidden="true">$</span>
+                                <input id="logAmount" type="number" min="1" max="10000000" step="0.01" inputmode="decimal" placeholder="20" required>
+                            </span>
+                        </label>
+                        <button id="logFillSubmit" class="button button--primary" type="submit">Log fill</button>
+                    </div>
+                    <div>
+                        <p class="log-chips-label" id="logChipsLabel">One-tap top-up</p>
+                        <div id="logQuickChips" class="log-chips" role="group" aria-labelledby="logChipsLabel"></div>
+                    </div>
+                    <details id="editQuickAmounts" class="log-chip-editor">
+                        <summary>Customize chips</summary>
+                        <p>eToro’s typical minimums are $20 or $30. Add the amounts you actually send; each chip logs that fill as soon as you tap it.</p>
+                        <div id="quickAmountList" class="log-chip-editor__list"></div>
+                        <div class="log-chip-editor__add">
+                            <label class="money-input" for="quickAmountInput">
+                                <span class="sr-only">New chip amount</span>
+                                <span aria-hidden="true">$</span>
+                                <input id="quickAmountInput" type="number" min="1" max="10000" step="1" inputmode="decimal" placeholder="25">
+                            </label>
+                            <button id="addQuickAmount" class="button button--quiet" type="button">Add chip</button>
+                            <button id="resetQuickAmounts" class="button button--quiet" type="button">Restore $20 / $30</button>
+                        </div>
+                    </details>
+                </form>
+
+                <div class="catchup">
+                    <div class="catchup__header">
+                        <h3>Catch up this month</h3>
+                        <p id="catchUpSummary">Loading sessions…</p>
+                    </div>
+                    <div id="catchUpList" class="catchup-list"></div>
+                    <button id="catchUpShowAll" class="button button--quiet" type="button" hidden>Show all sessions this month</button>
+                </div>
+            </div>
+        </section>
+
+        <div id="mobileActionBar" class="mobile-action-bar">
+            <div>
+                <span class="mobile-action-bar__kicker" id="mobileActionKicker">Quick log</span>
+                <strong id="mobileActionTotal">TSLA</strong>
+            </div>
+            <div id="mobileQuickChips" class="log-chips log-chips--bar"></div>
+            <a id="mobileMoreLog" class="button button--quiet" href="#log-fills">Catch up</a>
+        </div>
+
+        <section id="signals" class="dca-section" aria-labelledby="signalsTitle">
+            <div class="dca-shell">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">03 · Signal desk</p>
                         <h2 id="signalsTitle">Price context, on demand.</h2>
                     </div>
                     <p>Choose a range, then hover, touch, or use arrow keys to inspect any session.</p>
@@ -420,11 +495,11 @@
             </div>
         </section>
 
-        <section id="replay" class="dca-section" aria-labelledby="replayTitle">
+        <section id="replay" class="dca-section dca-section--tinted" aria-labelledby="replayTitle">
             <div class="dca-shell">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">03 · Same-budget replay</p>
+                        <p class="eyebrow">04 · Same-budget replay</p>
                     <h2 id="replayTitle">Last month, same budget.</h2>
                     </div>
                     <p>Flat and adaptive schedules deploy the exact same dollars. This is a diagnostic, not a forecast.</p>
@@ -451,12 +526,12 @@
             </div>
         </section>
 
-        <section id="journal" class="dca-section dca-section--tinted" aria-labelledby="journalTitle">
+        <section id="journal" class="dca-section" aria-labelledby="journalTitle">
             <div class="dca-shell">
                 <div class="section-heading section-heading--actions">
                     <div>
-                        <p class="eyebrow">04 · Local journal</p>
-                        <h2 id="journalTitle">Local purchase history.</h2>
+                        <p class="eyebrow">05 · Purchase history</p>
+                        <h2 id="journalTitle">Fills recorded so far.</h2>
                     </div>
                     <div class="journal-actions">
                         <button id="journalScope" class="button button--quiet" type="button" aria-pressed="true">This month</button>
@@ -472,7 +547,7 @@
                         <thead><tr><th>Date</th><th>Asset</th><th>Dollars</th><th>Price</th><th>Shares</th><th><span class="sr-only">Actions</span></th></tr></thead>
                         <tbody id="journalBody"></tbody>
                     </table>
-                    <p id="journalEmpty" class="empty-state">No purchases recorded in this browser yet.</p>
+                    <p id="journalEmpty" class="empty-state">No purchases recorded yet. Use a one-tap chip or Log fill above.</p>
                 </div>
             </div>
         </section>
@@ -480,7 +555,7 @@
         <section id="method" class="dca-section" aria-labelledby="methodTitle">
             <div class="dca-shell method-layout">
                 <div>
-                    <p class="eyebrow">05 · Guardrails</p>
+                    <p class="eyebrow">06 · Guardrails</p>
                     <h2 id="methodTitle">Simple rules. Hard limits.</h2>
                     <p class="method-lede">
                         Adaptive pacing changes when a fixed budget is invested—not how much exists.
@@ -510,7 +585,7 @@
             <div><a href="conviction.html">Conviction</a><a href="../index.html">Portfolio</a><a href="https://github.com/AlphaeusNg/alphaeusng.github.io" target="_blank" rel="noopener noreferrer">Source</a></div>
         </div>
     </footer>
-    <script src="../js/kofi-support.js?v=2026.08.25.7" data-auto-footer defer></script>
+    <script src="../js/kofi-support.js?v=2026.08.25.8" data-auto-footer defer></script>
     <script src="../js/version.js"></script>
 </body>
 </html>

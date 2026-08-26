@@ -27,7 +27,10 @@ freshness visible.
 6. Automatic prices are a timestamped Nasdaq snapshot backed by end-of-day
    history. A visible manual price override is the supported path when the
    committed snapshot is no longer current enough for an intraday calculation.
-7. All personal inputs and the purchase journal remain in browser storage.
+7. Personal inputs and the purchase journal live in browser storage. Optional
+   Google sign-in copies the journal to a private Firestore document
+   (`dcaJournals/{uid}`) so phone and computer stay in sync. Sync is never
+   required to log a fill.
 8. A recommendation must include an explanation and a data-confidence label.
 
 ## Instrument identity
@@ -106,7 +109,9 @@ data/dca_market_history.json
               ↓
 js/dca-engine.js (pure calculations)
               ↓
-js/dca-calculator.js (UI and local journal)
+js/dca-journal.js (fills, chips, catch-up, merge)
+              ↓
+js/dca-calculator.js (UI, local storage, optional Google sync)
 ```
 
 A scheduled GitHub Action refreshes the committed market snapshot after the
@@ -128,7 +133,9 @@ continues to work with its last valid snapshot when upstream data is delayed.
 5. Equal-budget replay of the last completed calendar month comparing flat DCA
    with the adaptive schedule. This is descriptive and never presented as a
    return forecast.
-6. Local purchase journal with record, undo, CSV export, and reset controls.
+6. Purchase journal: one-tap $20/$30 chips (customizable), manual actual-dollar
+   fills, a phone-first missed-session catch-up list, record-suggestion, undo,
+   CSV import/export, reset, and optional Google journal sync.
 7. Explicit data-freshness, privacy, ticker-identity, concentration-risk, and
    no-brokerage-execution notices.
 

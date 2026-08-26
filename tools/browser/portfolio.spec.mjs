@@ -63,9 +63,54 @@ const FIREBASE_APP_STUB = `
     firestore,
   };
 `;
+const DCA_FIREBASE_STUB = `
+  function auth() {
+    return {
+      onAuthStateChanged(cb) { cb(null); return function () {}; },
+      currentUser: null,
+      signInWithPopup() { return Promise.reject({ code: 'auth/popup-closed-by-user' }); },
+      signOut() { return Promise.resolve(); },
+    };
+  }
+  auth.GoogleAuthProvider = function () {
+    this.setCustomParameters = function () {};
+  };
+  function firestore() {
+    return {
+      collection() {
+        return {
+          doc() {
+            return {
+              get() { return Promise.resolve({ exists: false, data() { return null; } }); },
+              set() { return Promise.resolve(); },
+              onSnapshot(cb) {
+                cb({ exists: false, metadata: { hasPendingWrites: false }, data() { return null; } });
+                return function () {};
+              },
+            };
+          },
+        };
+      },
+    };
+  }
+  firestore.FieldValue = { serverTimestamp() { return '__SERVER_TIMESTAMP__'; } };
+  window.firebase = {
+    apps: [],
+    initializeApp(config) { this.apps.push({ config }); return this; },
+    auth,
+    firestore,
+  };
+`;
 
 async function mockDcaQuotes(page, { tsla = 347.07, spcx = 140.535 } = {}) {
   const asOf = new Date().toISOString();
+  await page.route('https://www.gstatic.com/firebasejs/**', route => {
+    const url = route.request().url();
+    if (url.includes('firebase-app-compat')) {
+      return route.fulfill({ contentType: 'application/javascript', body: DCA_FIREBASE_STUB });
+    }
+    return route.fulfill({ contentType: 'application/javascript', body: '' });
+  });
   await page.route(
     'https://raw.githubusercontent.com/AlphaeusNg/alphaeusng.github.io/dca-live/data/dca_live_quotes.json**',
     route => route.fulfill({
@@ -935,6 +980,36 @@ test('DCA Lab rejects oversized and impossible-date CSV imports without mutation
     return raw ? JSON.parse(raw).ledger.length : 0;
   })).toBe(0);
   await expect(page.locator('#journalBody tr')).toHaveCount(0);
+});
+
+test('DCA Lab logs tapped top-ups and catch-up fills from a phone layout', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/pages/dca-calculator.html?d=2026-08-18', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#logQuickChips [data-topup="20"]')).toHaveText('$20');
+  await expect(page.locator('#logQuickChips [data-topup="30"]')).toHaveText('$30');
+  await expect(page.locator('#mobileQuickChips [data-topup="20"]')).toBeVisible();
+  await expect(page.locator('#cloudSignIn')).toBeVisible();
+
+  await page.locator('#logQuickChips [data-topup="20"]').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(1);
+  await expect(page.locator('#calculatorStatus')).toContainText('$20.00 TSLA');
+  await expect(page.locator('#tslaInvested')).toHaveValue('20');
+
+  await page.locator('.catchup-row[data-date="2026-08-17"] [data-symbol="SPCX"][data-topup="30"]').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(2);
+  await expect(page.locator('#spcxInvested')).toHaveValue('30');
+  await expect(page.locator('#calculatorStatus')).toContainText('Aug 17');
+
+  await page.locator('#editQuickAmounts summary').click();
+  await page.locator('#quickAmountInput').fill('50');
+  await page.locator('#addQuickAmount').click();
+  await expect(page.locator('#logQuickChips [data-topup="50"]')).toBeVisible();
+  await page.locator('#logAmount').fill('15');
+  await page.locator('#logFillSubmit').click();
+  await expect(page.locator('#journalBody tr')).toHaveCount(3);
+  await expect(page.locator('#tslaInvested')).toHaveValue('35');
 });
 
 test('feedback sanitizes its source and handles submission lifecycle', async ({ page }) => {

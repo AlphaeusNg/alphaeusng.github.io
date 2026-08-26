@@ -1,5 +1,5 @@
 rules_version = '2';
-// Combined rules: AlpArcade, Seeking Biblical Truth, and the shared feedback inbox.
+// Combined rules: AlpArcade, Seeking Biblical Truth, shared feedback, and DCA Lab journals.
 // Deploy from portfolio root:
 //   npx firebase-tools deploy --only firestore:rules
 //
@@ -160,6 +160,28 @@ service cloud.firestore {
     match /feedback/{feedbackId} {
       allow create: if validFeedbackCreate();
       allow read, update, delete: if isVaultEditor();
+    }
+
+    // Conviction DCA Lab journal. Private per Google account; not publicly readable.
+    // Pass uid in — path wildcards are invisible inside top-level functions.
+    function validDcaJournal(uid) {
+      let d = request.resource.data;
+      return signedIn()
+        && request.auth.uid == uid
+        && d.userId == request.auth.uid
+        && d.schema is int
+        && d.schema == 1
+        && d.settings is map
+        && d.months is map
+        && d.ledger is list
+        && d.ledger.size() <= 10000
+        && d.updatedMs is number
+        && d.updatedAt is timestamp;
+    }
+
+    match /dcaJournals/{uid} {
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if validDcaJournal(uid);
     }
   }
 }

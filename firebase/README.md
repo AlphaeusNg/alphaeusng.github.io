@@ -7,12 +7,13 @@ Infra for the **shared** Firebase project used by:
 | **AlpArcade** | `scores`, `players`, `progress` | `/home/alph/projects/AlpArcade/js/firebase-config.js` |
 | **Seeking Biblical Truth** viewer | `vaultNotes` | `pages/seeking-biblical-truth/js/firebase-config.js` |
 | **Shared project feedback** | `feedback` | `pages/feedback/js/app.js` |
+| **Conviction DCA Lab** | `dcaJournals/{uid}` | `js/dca-firebase-config.js` |
 
 ## Layout (standard practice)
 
 | Path | Role |
 |------|------|
-| `firestore.rules` | **Combined** rules (arcade + vault) — deploy this when sharing one project |
+| `firestore.rules` | **Combined** rules (arcade + vault + feedback + DCA journals) — deploy this when sharing one project |
 | `firestore.indexes.json` | Arcade scoreboard composite index |
 | `../firebase.json` | Firebase CLI entry (**repo root**) |
 | `../.firebaserc` | Default project `alparcade-cb87c` |
@@ -85,7 +86,22 @@ Runtime config: [`../pages/seeking-biblical-truth/js/firebase-config.js`](../pag
 - Client `apiKey` in the repo is expected; **rules** enforce who can write  
 - Public read of vault notes is intentional; tighten `allow read` if you need private notes  
 - Feedback accepts validated public creates only; entries are not publicly readable
-- Never commit PATs or service-account JSON  
+- DCA journals are owner-only (`dcaJournals/{uid}`); they are not publicly readable
+- Never commit PATs or service-account JSON
+
+## DCA Lab journal sync
+
+Runtime config: [`../js/dca-firebase-config.js`](../js/dca-firebase-config.js)
+
+The calculator stays local-first. Signing in with Google copies the journal to
+one private document so a phone and a computer share the same fills.
+
+1. Authentication → Google already enabled for this project
+2. Authorized domains: `alphaeusng.github.io`, `localhost`, `127.0.0.1`
+3. Publish **these** combined rules (includes `dcaJournals`)
+4. Keep `enabled: true` in `js/dca-firebase-config.js`
+
+The page still records fills when the network or popup is blocked.  
 
 ## App Check
 

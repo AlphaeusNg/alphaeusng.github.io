@@ -95,8 +95,10 @@ python3 -m unittest tools.test_dca_market_data
 npm run test:dca
 ```
 
-Calculator inputs and its purchase journal are stored only in the visitor's
-browser. The static market dataset never contains those personal values.
+Calculator inputs stay in the visitor's browser. The purchase journal is local
+too, with optional Google sign-in to copy it to a private Firestore document
+for the same account on phone and computer. The static market dataset never
+contains those personal values.
 
 The sitemap dates only routes deployed by this repository. It intentionally
 omits `<lastmod>` from sibling project routes because their histories live in
