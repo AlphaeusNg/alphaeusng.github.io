@@ -102,8 +102,13 @@ const DCA_FIREBASE_STUB = `
   };
 `;
 
-async function mockDcaQuotes(page, { tsla = 347.07, spcx = 140.535 } = {}) {
-  const asOf = new Date().toISOString();
+async function mockDcaQuotes(page, {
+  tsla = 347.07,
+  spcx = 140.535,
+  asOf = new Date().toISOString(),
+  timestampPrecision = 'minute',
+  marketStatus = 'Open',
+} = {}) {
   await page.route('https://www.gstatic.com/firebasejs/**', route => {
     const url = route.request().url();
     if (url.includes('firebase-app-compat')) {
@@ -123,7 +128,8 @@ async function mockDcaQuotes(page, { tsla = 347.07, spcx = 140.535 } = {}) {
           TSLA: {
             price: tsla,
             asOf,
-            marketStatus: 'Open',
+            timestampPrecision,
+            marketStatus,
             isRealTime: true,
             netChange: 4.12,
             percentChange: 0.0104,
@@ -131,7 +137,8 @@ async function mockDcaQuotes(page, { tsla = 347.07, spcx = 140.535 } = {}) {
           SPCX: {
             price: spcx,
             asOf,
-            marketStatus: 'Open',
+            timestampPrecision,
+            marketStatus,
             isRealTime: true,
             netChange: 0.4,
             percentChange: 0.0045,
@@ -699,6 +706,24 @@ test('DCA Lab replaces the snapshot with live last-sale quotes', async ({ page }
   await expect(page.locator('#marketFreshness')).toHaveText('Recent last sale');
   await expect(page.locator('#heroTslaPrice')).toHaveText('$401.25');
   await expect(page.locator('#tslaPriceMeta')).toContainText('Nasdaq last sale');
+});
+
+test('DCA Lab labels date-only Nasdaq closes without inventing a time', async ({ page }) => {
+  const dateOnly = new Date().toISOString().slice(0, 10);
+  const dateLabel = new Intl.DateTimeFormat('en-US', {
+    month: 'short', day: 'numeric', timeZone: 'UTC',
+  }).format(new Date(`${dateOnly}T00:00:00Z`));
+  await mockDcaQuotes(page, {
+    asOf: dateOnly,
+    timestampPrecision: 'date',
+    marketStatus: 'Closed',
+  });
+
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#tslaPriceMeta')).toContainText(
+    `Nasdaq last sale · ${dateLabel} (date only) · Closed`
+  );
+  await expect(page.locator('#spcxPriceMeta')).toContainText(`${dateLabel} (date only) · Closed`);
 });
 
 test('DCA Lab streams Alpaca trades without persisting credentials', async ({ page }) => {

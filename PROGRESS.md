@@ -1,16 +1,16 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-27
+Last updated: 2026-08-28
 
 ## Current state
 
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.08.27.1`. One untracked owner screenshot remains
-  excluded. DCA snapshot latest close is 2026-08-25 (288 TSLA / 51 SPCX sessions).
-- Local verification: 31 Python tests, 18 DCA engine/quote/journal tests,
-  `tools/check_site.py`, 20 Chromium journeys, Python compilation, and syntax
+- Deployment stamp: `2026.08.28.1`. DCA snapshot latest close is 2026-08-26
+  (288 TSLA / 52 SPCX sessions).
+- Local verification: 33 Python tests, 19 DCA engine/quote/journal tests,
+  `tools/check_site.py`, 21 Chromium journeys, Python compilation, and syntax
   checks for first-party JavaScript. Firestore rules for `dcaJournals` are
   published on `alparcade-cb87c`.
 - Automated verification: least-privilege GitHub Actions checks out complete
@@ -18,7 +18,53 @@ Last updated: 2026-08-27
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: publish Tuesday’s TSLA/SPCX close
+## Latest cycle: recover delayed DCA history from valid close timestamps
+
+### Why this was selected
+
+Scheduled run `33036308146` failed before publishing August 26 history because
+Nasdaq returned the valid close timestamp `Aug 26, 2026` without a time. The
+parser required minute precision, and optional quote enrichment blocked the
+otherwise-valid daily history update.
+
+### Changes
+
+- Quote parsing now records either `minute` or `date` precision. Date-only
+  closes remain dates throughout the data contract and render as
+  `Aug 26 (date only)` instead of receiving an invented time or offset.
+- History fetches remain strict, while each optional quote enrichment can fail
+  independently and fall back to that symbol's validated latest daily close.
+  The fallback is also date-only, removing the prior fixed `-04:00` offset.
+- Centralized quote timestamp formatting and quote-value validation instead of
+  maintaining duplicate implementations.
+- Published the missed August 26 bars: TSLA $345.82 and SPCX $139.63.
+- Version `2026.08.28.1` and regenerated sitemap dates.
+
+### Verification and scores
+
+- Test-first evidence: the date-only parser regression failed with
+  `invalid quote timestamp 'Aug 26, 2026'` before the implementation.
+- 33/33 Python tests, 19/19 DCA tests, site/sitemap/data checks, Python
+  compilation, first-party JavaScript syntax, dependency audit, and 21/21
+  Chromium journeys pass. The browser regression proves the exact date-only
+  label on both symbols.
+- Reliability: 6/10 → 9/10 (one malformed or unavailable optional quote no
+  longer starves valid end-of-day history).
+- Data honesty: 7/10 → 10/10 (source precision is retained; no time is made up).
+- Maintainability: 7/10 → 8/10 (shared formatter and validator).
+
+### Lessons / process improvement
+
+Treat enrichment as optional at the orchestration boundary, and model source
+precision explicitly before formatting. The full browser suite then protects
+the user-visible wording while unit tests cover upstream failure shapes.
+
+### Next opportunity
+
+Rotate across repository automation health, then prioritize any current failed
+gate; otherwise begin the CardFitSG official catalog audit due 2026-08-30.
+
+## Previous cycle: publish Tuesday’s TSLA/SPCX close
 
 ### Why this was selected
 

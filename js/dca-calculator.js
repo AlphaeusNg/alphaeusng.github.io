@@ -821,18 +821,6 @@
         return (Date.now() - Math.min(...timestamps)) / 3_600_000;
     }
 
-    function formatQuoteTimestamp(quote) {
-        const parsed = new Date(quote.asOf);
-        return new Intl.DateTimeFormat('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            timeZone: 'America/New_York',
-            timeZoneName: 'short'
-        }).format(parsed);
-    }
-
     function manualEnabled(symbol) {
         return Boolean(elements[`${String(symbol).toLowerCase()}ManualToggle`]?.checked);
     }
@@ -859,7 +847,7 @@
                 : quote.source === 'Nasdaq' && quoteFeed.source !== 'snapshot'
                     ? 'Nasdaq last sale'
                     : 'Nasdaq snapshot';
-            elements[`${lower}PriceMeta`].textContent = `${feed} · ${formatQuoteTimestamp(quote)} · ${quote.marketStatus}`;
+            elements[`${lower}PriceMeta`].textContent = `${feed} · ${quotesApi.formatQuoteTimestamp(quote)} · ${quote.marketStatus}`;
             elements[`${lower}Price`].value = String(quote.price);
         });
         const ageHours = quoteAgeHours();

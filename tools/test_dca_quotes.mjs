@@ -14,6 +14,7 @@ function livePayload() {
       TSLA: {
         price: 348.92,
         asOf: '2026-08-19T12:20:00-04:00',
+        timestampPrecision: 'minute',
         marketStatus: 'Open',
         isRealTime: true,
         netChange: 1.2,
@@ -22,6 +23,7 @@ function livePayload() {
       SPCX: {
         price: 88.5,
         asOf: '2026-08-19T12:20:00-04:00',
+        timestampPrecision: 'minute',
         marketStatus: 'Open',
         isRealTime: true,
         netChange: -0.4,
@@ -37,6 +39,18 @@ test('Nasdaq live quote files retain usable prices and source time', () => {
   assert.equal(parsed.quotes.TSLA.source, 'Nasdaq');
   assert.equal(parsed.quotes.SPCX.price, 88.5);
   assert.equal(parsed.generatedAt, '2026-08-19T16:20:30+00:00');
+});
+
+test('date-only closes stay on their source date without invented time', () => {
+  const payload = livePayload();
+  payload.symbols.TSLA.asOf = '2026-08-26';
+  payload.symbols.TSLA.timestampPrecision = 'date';
+  payload.symbols.TSLA.marketStatus = 'Closed';
+  const parsed = quotes.parseLiveQuotesPayload(payload);
+
+  assert.equal(parsed.quotes.TSLA.timestampPrecision, 'date');
+  assert.equal(quotes.formatQuoteTimestamp(parsed.quotes.TSLA), 'Aug 26 (date only)');
+  assert.match(quotes.formatQuoteTimestamp(parsed.quotes.SPCX), /^Aug 19, 12:20 PM EDT$/);
 });
 
 test('live loader reads only the CORS-open GitHub quote feed', async () => {

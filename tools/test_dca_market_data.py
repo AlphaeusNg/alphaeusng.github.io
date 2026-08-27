@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import contextlib
+import io
 import json
 import tempfile
 import unittest
@@ -9,6 +11,7 @@ from pathlib import Path
 from tools.finance.generate_dca_market_data import (
     build_payload,
     build_quotes_payload,
+    fetch_optional_quotes,
     parse_history_payload,
     parse_quote_payload,
     validate_payload,
@@ -83,6 +86,42 @@ class DcaMarketDataTests(unittest.TestCase):
         self.assertEqual(quote["price"], 103.25)
         self.assertEqual(quote["percentChange"], -0.0072)
         self.assertEqual(quote["asOf"], "2026-08-18T11:46:00-04:00")
+        self.assertEqual(quote["timestampPrecision"], "minute")
+
+    def test_closed_quote_retains_date_only_timestamp_without_false_precision(self) -> None:
+        closed = copy.deepcopy(QUOTE)
+        closed["data"]["marketStatus"] = "Closed"
+        closed["data"]["primaryData"]["lastTradeTimestamp"] = "Aug 26, 2026"
+        closed["data"]["primaryData"]["isRealTime"] = False
+        quote = parse_quote_payload(closed, "TSLA")
+        self.assertEqual(quote["asOf"], "2026-08-26")
+        self.assertEqual(quote["timestampPrecision"], "date")
+        self.assertFalse(quote["isRealTime"])
+
+    def test_history_uses_latest_close_when_one_optional_quote_fails(self) -> None:
+        quote = parse_quote_payload(QUOTE, "SPCX")
+
+        def fetcher(symbol: str) -> dict[str, object]:
+            if symbol == "TSLA":
+                raise RuntimeError("temporary upstream error")
+            return quote
+
+        warnings = io.StringIO()
+        with contextlib.redirect_stderr(warnings):
+            quotes = fetch_optional_quotes(fetcher)
+        payload = build_payload(
+            {"TSLA": self.history, "SPCX": self.history},
+            generated_at="2026-08-18T22:30:00+00:00",
+            quotes=quotes,
+        )
+
+        self.assertEqual(set(quotes), {"SPCX"})
+        self.assertIn("TSLA quote unavailable", warnings.getvalue())
+        self.assertEqual(payload["symbols"]["TSLA"]["quote"]["asOf"], "2026-08-18")
+        self.assertEqual(
+            payload["symbols"]["TSLA"]["quote"]["timestampPrecision"], "date"
+        )
+        self.assertEqual(payload["symbols"]["SPCX"]["quote"], quote)
 
     def test_live_quote_payload_contains_both_symbols(self) -> None:
         quote = parse_quote_payload(QUOTE, "TSLA")

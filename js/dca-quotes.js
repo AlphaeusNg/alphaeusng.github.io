@@ -60,9 +60,14 @@
             const price = Number(quote && quote.price);
             const asOf = String((quote && quote.asOf) || '');
             if (!(price > 0) || !asOf || Number.isNaN(Date.parse(asOf))) return;
+            const timestampPrecision = quote.timestampPrecision === 'date'
+                || /^\d{4}-\d{2}-\d{2}$/.test(asOf)
+                ? 'date'
+                : 'minute';
             quotes[symbol] = {
                 price,
                 asOf,
+                timestampPrecision,
                 marketStatus: String(quote.marketStatus || 'Unknown'),
                 isRealTime: Boolean(quote.isRealTime),
                 netChange: Number(quote.netChange) || 0,
@@ -72,6 +77,28 @@
         });
         if (!Object.keys(quotes).length) throw new Error('Live quote payload had no usable symbols');
         return { quotes, generatedAt };
+    }
+
+    function formatQuoteTimestamp(quote, locale = 'en-US') {
+        const asOf = String((quote && quote.asOf) || '');
+        if (quote && quote.timestampPrecision === 'date' && /^\d{4}-\d{2}-\d{2}$/.test(asOf)) {
+            const [year, month, day] = asOf.split('-').map(Number);
+            const label = new Intl.DateTimeFormat(locale, {
+                month: 'short',
+                day: 'numeric',
+                timeZone: 'UTC'
+            }).format(new Date(Date.UTC(year, month - 1, day)));
+            return `${label} (date only)`;
+        }
+        const parsed = new Date(asOf);
+        return new Intl.DateTimeFormat(locale, {
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZone: 'America/New_York',
+            timeZoneName: 'short'
+        }).format(parsed);
     }
 
     async function loadLiveQuotes(options = {}) {
@@ -253,6 +280,7 @@
         GITHUB_LIVE_QUOTES,
         ALPACA_STREAMS,
         parseLiveQuotesPayload,
+        formatQuoteTimestamp,
         loadLiveQuotes,
         parseAlpacaStreamMessage,
         createAlpacaStream

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -137,11 +138,17 @@ def parse_quote_payload(payload: object, symbol: str) -> dict[str, object]:
     try:
         parsed_timestamp = datetime.strptime(timestamp, "%b %d, %Y %I:%M %p ET")
         as_of = parsed_timestamp.replace(tzinfo=ZoneInfo("America/New_York")).isoformat()
+        timestamp_precision = "minute"
     except ValueError as error:
-        raise ValueError(f"{symbol}: invalid quote timestamp {timestamp!r}") from error
+        try:
+            as_of = datetime.strptime(timestamp, "%b %d, %Y").date().isoformat()
+            timestamp_precision = "date"
+        except ValueError:
+            raise ValueError(f"{symbol}: invalid quote timestamp {timestamp!r}") from error
     return {
         "price": parse_number(primary.get("lastSalePrice")),
         "asOf": as_of,
+        "timestampPrecision": timestamp_precision,
         "marketStatus": str(data.get("marketStatus") or "Unknown"),
         "isRealTime": bool(primary.get("isRealTime")),
         "netChange": parse_signed_number(primary.get("netChange")),
@@ -200,6 +207,22 @@ def fetch_quote(symbol: str) -> dict[str, object]:
     raise RuntimeError(f"{symbol}: unable to fetch Nasdaq quote: {last_error}")
 
 
+def fetch_optional_quotes(fetcher=None) -> dict[str, dict[str, object]]:
+    """Fetch independent quote enrichments without blocking daily history."""
+
+    fetcher = fetcher or fetch_quote
+    quotes: dict[str, dict[str, object]] = {}
+    for symbol in SYMBOLS:
+        try:
+            quotes[symbol] = fetcher(symbol)
+        except Exception as error:
+            print(
+                f"Warning: {symbol} quote unavailable; using its latest daily close: {error}",
+                file=sys.stderr,
+            )
+    return quotes
+
+
 def build_payload(
     histories: dict[str, list[dict[str, object]]],
     *,
@@ -213,7 +236,8 @@ def build_payload(
             raise ValueError(f"{symbol}: history is required")
         fallback_quote = {
             "price": history[-1]["close"],
-            "asOf": f"{history[-1]['date']}T16:00:00-04:00",
+            "asOf": history[-1]["date"],
+            "timestampPrecision": "date",
             "marketStatus": "Closed",
             "isRealTime": False,
             "netChange": 0.0,
@@ -252,6 +276,27 @@ def build_payload(
     return payload
 
 
+def quote_has_valid_values(quote: dict[str, object]) -> bool:
+    try:
+        if float(quote.get("price", 0)) <= 0:
+            raise ValueError
+        precision = quote.get("timestampPrecision")
+        as_of = str(quote.get("asOf"))
+        if precision == "date":
+            date.fromisoformat(as_of)
+        elif precision == "minute":
+            if "T" not in as_of:
+                raise ValueError
+            datetime.fromisoformat(as_of)
+        else:
+            raise ValueError
+        float(quote.get("netChange"))
+        float(quote.get("percentChange"))
+    except (TypeError, ValueError):
+        return False
+    return True
+
+
 def validate_quotes_payload(payload: object) -> list[str]:
     issues: list[str] = []
     if not isinstance(payload, dict):
@@ -268,13 +313,7 @@ def validate_quotes_payload(payload: object) -> list[str]:
         if not isinstance(quote, dict):
             issues.append(f"{symbol} quote must be an object")
             continue
-        try:
-            if float(quote.get("price", 0)) <= 0:
-                raise ValueError
-            datetime.fromisoformat(str(quote.get("asOf")))
-            float(quote.get("netChange"))
-            float(quote.get("percentChange"))
-        except (TypeError, ValueError):
+        if not quote_has_valid_values(quote):
             issues.append(f"{symbol} quote has invalid values")
     return issues
 
@@ -358,13 +397,7 @@ def validate_payload(payload: object) -> list[str]:
         if not isinstance(quote, dict):
             issues.append(f"{symbol} quote must be an object")
         else:
-            try:
-                if float(quote.get("price", 0)) <= 0:
-                    raise ValueError
-                datetime.fromisoformat(str(quote.get("asOf")))
-                float(quote.get("netChange"))
-                float(quote.get("percentChange"))
-            except (TypeError, ValueError):
+            if not quote_has_valid_values(quote):
                 issues.append(f"{symbol} quote has invalid values")
     return issues
 
@@ -415,8 +448,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    quotes = {symbol: fetch_quote(symbol) for symbol in SYMBOLS}
     if args.quotes_only:
+        quotes = {symbol: fetch_quote(symbol) for symbol in SYMBOLS}
         payload = build_quotes_payload(quotes, generated_at=generated_at)
         output = args.output or DEFAULT_QUOTES_OUTPUT
         write_if_changed(output, payload)
@@ -427,6 +460,7 @@ def main() -> None:
     histories = {
         symbol: fetch_history(symbol, start, args.as_of) for symbol in SYMBOLS
     }
+    quotes = fetch_optional_quotes()
     payload = build_payload(
         histories,
         generated_at=generated_at,

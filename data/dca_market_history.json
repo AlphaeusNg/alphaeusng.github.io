@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-26T17:07:17+00:00",
+  "generatedAt": "2026-08-27T17:01:24+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -21,26 +21,19 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-08-25",
-        "price": 350.25
+        "date": "2026-08-26",
+        "price": 345.82
       },
       "quote": {
-        "price": 345.77,
-        "asOf": "2026-08-26T13:07:00-04:00",
+        "price": 354.14,
+        "asOf": "2026-08-27T13:01:00-04:00",
+        "timestampPrecision": "minute",
         "marketStatus": "Open",
         "isRealTime": true,
-        "netChange": -4.48,
-        "percentChange": -0.0128
+        "netChange": 8.32,
+        "percentChange": 0.0241
       },
       "history": [
-        {
-          "date": "2025-07-03",
-          "open": 317.99,
-          "high": 318.45,
-          "low": 312.76,
-          "close": 315.35,
-          "volume": 58042300
-        },
         {
           "date": "2025-07-07",
           "open": 291.37,
@@ -2336,6 +2329,14 @@
           "low": 349.2003,
           "close": 350.25,
           "volume": 29816690
+        },
+        {
+          "date": "2026-08-26",
+          "open": 345.27,
+          "high": 351.93,
+          "low": 342.53,
+          "close": 345.82,
+          "volume": 28573010
         }
       ]
     },
@@ -2349,16 +2350,17 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-08-25",
-        "price": 137.95
+        "date": "2026-08-26",
+        "price": 139.63
       },
       "quote": {
-        "price": 137.215,
-        "asOf": "2026-08-26T13:07:00-04:00",
+        "price": 140.535,
+        "asOf": "2026-08-27T13:01:00-04:00",
+        "timestampPrecision": "minute",
         "marketStatus": "Open",
         "isRealTime": true,
-        "netChange": -0.735,
-        "percentChange": -0.0053
+        "netChange": 0.905,
+        "percentChange": 0.0065
       },
       "history": [
         {
@@ -2768,6 +2770,14 @@
           "low": 136.1,
           "close": 137.95,
           "volume": 53075010
+        },
+        {
+          "date": "2026-08-26",
+          "open": 137.0,
+          "high": 140.18,
+          "low": 135.1,
+          "close": 139.63,
+          "volume": 61380490
         }
       ]
     }
