@@ -48,6 +48,9 @@ otherwise-valid daily history update.
   compilation, first-party JavaScript syntax, dependency audit, and 21/21
   Chromium journeys pass. The browser regression proves the exact date-only
   label on both symbols.
+- Implementation commit `03734cf`: hosted CI run `33096567069` and Pages run
+  `33096565024` passed; the live site serves `2026.08.28.1` and both August 26
+  closes with the new timestamp-precision field.
 - Reliability: 6/10 → 9/10 (one malformed or unavailable optional quote no
   longer starves valid end-of-day history).
 - Data honesty: 7/10 → 10/10 (source precision is retained; no time is made up).
