@@ -757,6 +757,13 @@ def main() -> None:
     home_css = (ROOT / "css" / "home.css").read_text(encoding="utf-8")
     if "padding: 1.5rem 1.75rem" not in home_css:
         fail("support card must keep inset so copy does not hug the card border")
+    if 'id="home-hero"' not in home_html or "hero-light-field" not in home_html:
+        fail("home hero must keep the pointer-led light field markup")
+    if "hero-ambient" not in home_css or "--spot-lead-x" not in home_css:
+        fail("home CSS must keep the leading hero light tokens")
+    main_js = (ROOT / "js" / "main.js").read_text(encoding="utf-8")
+    if "function initPointerAtmosphere" not in main_js:
+        fail("home JS must keep the pointer atmosphere")
     ok("home Ko-fi card and footer Feedback stay paired")
 
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")

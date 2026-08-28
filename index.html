@@ -191,8 +191,10 @@
     ></button>
 
     <!-- Hero (extra top pad for nav + project tabs on md+) -->
-    <header class="pt-24 md:pt-32 min-h-0 md:min-h-[100dvh] flex items-center relative overflow-hidden">
-        <div class="pointer-events-none absolute -top-24 right-0 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(201,162,39,0.12),transparent_68%)] blur-2xl"></div>
+    <header id="home-hero" class="hero-ambient pt-24 md:pt-32 min-h-0 md:min-h-[100dvh] flex items-center relative overflow-hidden">
+        <div class="hero-light-field" aria-hidden="true"></div>
+        <div class="hero-orbit hero-orbit-gold" aria-hidden="true"></div>
+        <div class="hero-orbit hero-orbit-blue" aria-hidden="true"></div>
         <div class="max-w-7xl mx-auto px-6 pt-12 pb-16 md:pt-16 md:pb-20 relative z-10">
             <div class="grid md:grid-cols-12 gap-x-8 items-center">
                 <!-- Text content -->
@@ -312,7 +314,7 @@
         </div>
 
         <!-- Subtle decorative elements -->
-        <div class="absolute inset-0 subtle-grid pointer-events-none"></div>
+        <div class="hero-grid absolute inset-0 subtle-grid pointer-events-none"></div>
         <div class="absolute bottom-12 right-8 hidden xl:block">
             <div class="flex items-center gap-x-3 text-[10px] tracking-[2px] text-[#475569] rotate-90 origin-bottom-right">
                 SCROLL TO BEGIN <div class="w-8 h-px bg-white/30"></div>
@@ -1027,7 +1029,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.08.28.1"
+    <script src="js/kofi-support.js?v=2026.08.28.2"
             data-auto-footer
             data-message="Tell me what worked or what would help."
             defer></script>

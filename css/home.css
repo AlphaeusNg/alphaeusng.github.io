@@ -12,6 +12,70 @@ body {
     font-family: 'Inter', system-ui, sans-serif;
 }
 
+/* Hero atmosphere: two eased light fields let the pointer push illumination
+   slightly ahead of itself while leaving the content and hit targets untouched. */
+.hero-ambient {
+    --spot-x: 72%;
+    --spot-y: 24%;
+    --spot-lead-x: 78%;
+    --spot-lead-y: 20%;
+    isolation: isolate;
+    background:
+        radial-gradient(circle at 50% -20%, rgba(30, 64, 112, 0.12), transparent 45%),
+        #0A0F1C;
+}
+
+.hero-light-field,
+.hero-orbit,
+.hero-grid {
+    position: absolute;
+    pointer-events: none;
+}
+
+.hero-light-field {
+    inset: -12%;
+    z-index: 0;
+    opacity: 0.74;
+    background:
+        radial-gradient(circle 19rem at var(--spot-lead-x) var(--spot-lead-y), rgba(231, 199, 93, 0.15), transparent 68%),
+        radial-gradient(circle 29rem at var(--spot-x) var(--spot-y), rgba(76, 128, 190, 0.11), transparent 72%);
+    filter: blur(2px);
+    transition: opacity 420ms ease;
+    will-change: background;
+}
+
+.hero-ambient.is-pointer-active .hero-light-field {
+    opacity: 1;
+}
+
+.hero-orbit {
+    z-index: 0;
+    border-radius: 999px;
+    filter: blur(54px);
+    opacity: 0.26;
+}
+
+.hero-orbit-gold {
+    top: 8%;
+    right: -8rem;
+    width: 23rem;
+    height: 23rem;
+    background: rgba(201, 162, 39, 0.16);
+}
+
+.hero-orbit-blue {
+    bottom: -12rem;
+    left: 24%;
+    width: 30rem;
+    height: 24rem;
+    background: rgba(34, 78, 132, 0.17);
+}
+
+.hero-grid {
+    z-index: 1;
+    mask-image: linear-gradient(to bottom, black, transparent 92%);
+}
+
 .heading-serif {
     font-family: 'Playfair Display', Georgia, serif;
     font-feature-settings: "kern" "liga" "tnum";
@@ -54,15 +118,52 @@ body {
 }
 
 .card {
+    --card-x: 50%;
+    --card-y: 50%;
+    --card-rx: 0deg;
+    --card-ry: 0deg;
+    background-image: radial-gradient(circle 14rem at var(--card-x) var(--card-y), rgba(201, 162, 39, 0), transparent 72%);
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.3s ease;
+                border-color 0.3s ease,
+                background-image 0.3s ease;
 }
 
 .card:hover {
-    transform: translateY(-4px);
+    transform: perspective(900px) translateY(-4px) rotateX(var(--card-rx)) rotateY(var(--card-ry));
+    background-image: radial-gradient(circle 14rem at var(--card-x) var(--card-y), rgba(201, 162, 39, 0.105), transparent 72%);
     box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     border-color: #C9A227;
+}
+
+@media (max-width: 767px), (hover: none), (pointer: coarse) {
+    .hero-light-field {
+        inset: -20%;
+        opacity: 0.78;
+        background:
+            radial-gradient(circle 16rem at 74% 18%, rgba(231, 199, 93, 0.13), transparent 70%),
+            radial-gradient(circle 24rem at 42% 46%, rgba(76, 128, 190, 0.1), transparent 74%);
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-light-field {
+        opacity: 0.72;
+        background:
+            radial-gradient(circle 18rem at 76% 20%, rgba(231, 199, 93, 0.13), transparent 70%),
+            radial-gradient(circle 28rem at 54% 42%, rgba(76, 128, 190, 0.1), transparent 74%);
+        transition: none;
+    }
+
+    .card,
+    .card:hover {
+        transform: none;
+        transition-duration: 0.01ms;
+    }
 }
 
 .timeline-item {

@@ -358,6 +358,83 @@ function initFadeIns() {
     });
 }
 
+function initPointerAtmosphere() {
+    const hero = document.getElementById('home-hero');
+    if (!hero) return;
+
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!finePointer.matches || reducedMotion.matches) return;
+
+    let current = { x: 72, y: 24, leadX: 78, leadY: 20 };
+    let target = { ...current };
+    let previousPointer = null;
+    let frame = 0;
+
+    function paint() {
+        frame = 0;
+        current.x += (target.x - current.x) * 0.16;
+        current.y += (target.y - current.y) * 0.16;
+        current.leadX += (target.leadX - current.leadX) * 0.1;
+        current.leadY += (target.leadY - current.leadY) * 0.1;
+        hero.style.setProperty('--spot-x', `${current.x.toFixed(2)}%`);
+        hero.style.setProperty('--spot-y', `${current.y.toFixed(2)}%`);
+        hero.style.setProperty('--spot-lead-x', `${current.leadX.toFixed(2)}%`);
+        hero.style.setProperty('--spot-lead-y', `${current.leadY.toFixed(2)}%`);
+        const moving = Object.keys(current).some((key) => Math.abs(current[key] - target[key]) > 0.08);
+        if (moving) frame = requestAnimationFrame(paint);
+    }
+
+    function queuePaint() {
+        if (!frame) frame = requestAnimationFrame(paint);
+    }
+
+    hero.addEventListener('pointermove', (event) => {
+        if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+        const box = hero.getBoundingClientRect();
+        if (!box.width || !box.height) return;
+        const x = Math.max(0, Math.min(100, ((event.clientX - box.left) / box.width) * 100));
+        const y = Math.max(0, Math.min(100, ((event.clientY - box.top) / box.height) * 100));
+        const velocityX = previousPointer ? x - previousPointer.x : 0;
+        const velocityY = previousPointer ? y - previousPointer.y : 0;
+        previousPointer = { x, y };
+        target = {
+            x,
+            y,
+            leadX: Math.max(0, Math.min(100, x + velocityX * 2.4)),
+            leadY: Math.max(0, Math.min(100, y + velocityY * 2.4))
+        };
+        hero.classList.add('is-pointer-active');
+        queuePaint();
+    }, { passive: true });
+
+    hero.addEventListener('pointerleave', () => {
+        previousPointer = null;
+        hero.classList.remove('is-pointer-active');
+        target = { x: 72, y: 24, leadX: 78, leadY: 20 };
+        queuePaint();
+    }, { passive: true });
+
+    document.querySelectorAll('.card').forEach((card) => {
+        card.addEventListener('pointermove', (event) => {
+            const box = card.getBoundingClientRect();
+            if (!box.width || !box.height) return;
+            const x = Math.max(0, Math.min(box.width, event.clientX - box.left));
+            const y = Math.max(0, Math.min(box.height, event.clientY - box.top));
+            const nx = (x / box.width) - 0.5;
+            const ny = (y / box.height) - 0.5;
+            card.style.setProperty('--card-x', `${x.toFixed(1)}px`);
+            card.style.setProperty('--card-y', `${y.toFixed(1)}px`);
+            card.style.setProperty('--card-rx', `${(-ny * 1.8).toFixed(2)}deg`);
+            card.style.setProperty('--card-ry', `${(nx * 1.8).toFixed(2)}deg`);
+        }, { passive: true });
+        card.addEventListener('pointerleave', () => {
+            card.style.setProperty('--card-rx', '0deg');
+            card.style.setProperty('--card-ry', '0deg');
+        }, { passive: true });
+    });
+}
+
 // Allow OTHER CHAPTERS cards to open/close from the full card surface
 function initChapterDisclosures() {
     document.querySelectorAll('.chapter-disclosure').forEach(disclosure => {
@@ -1729,6 +1806,7 @@ function init() {
     initExploreNavigation();
     initSmoothScroll();
     initFadeIns();
+    initPointerAtmosphere();
     initChapterDisclosures();
     initActiveNav();
     initPortraitComparison();

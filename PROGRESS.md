@@ -7,7 +7,7 @@ Last updated: 2026-08-28
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.08.28.1`. DCA snapshot latest close is 2026-08-26
+- Deployment stamp: `2026.08.28.2`. DCA snapshot latest close is 2026-08-26
   (288 TSLA / 52 SPCX sessions).
 - Local verification: 33 Python tests, 19 DCA engine/quote/journal tests,
   `tools/check_site.py`, 21 Chromium journeys, Python compilation, and syntax
@@ -18,7 +18,22 @@ Last updated: 2026-08-28
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: recover delayed DCA history from valid close timestamps
+## Latest cycle: pointer-led hero light
+
+### Why this was selected
+
+The home hero was static. Recruiter-facing pages still need restraint, but a
+faint light that leads the cursor (Vercel-style) and a local card highlight
+make the first screen feel alive without adding libraries.
+
+### Changes
+
+- Hero light field eases toward the pointer and slightly ahead of its
+  velocity; reduced-motion and coarse pointers keep a static atmosphere.
+- Project cards pick up a local gold spot and a tiny tilt on fine pointers.
+- Version `2026.08.28.2`.
+
+## Previous cycle: recover delayed DCA history from valid close timestamps
 
 ### Why this was selected
 
