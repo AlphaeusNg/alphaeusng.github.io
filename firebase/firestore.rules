@@ -101,7 +101,7 @@ service cloud.firestore {
         && d.score is number
         && d.score >= 0
         && d.score <= 1000000
-        && ((d.game != 'shooter' && d.game != 'breaker') || d.score <= 25000)
+        && ((d.game != 'shooter' && d.game != 'breaker') || d.score <= 500000)
         && ((d.game != 'snake' && d.game != 'tapper') || d.score <= 8000)
         && d.rankScore is number
         && (!('headline' in d) || (d.headline is number && d.headline >= 0 && d.headline <= 1000000))
