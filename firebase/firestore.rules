@@ -103,7 +103,11 @@ service cloud.firestore {
         && d.score <= 1000000
         && ((d.game != 'shooter' && d.game != 'breaker') || d.score <= 25000)
         && ((d.game != 'snake' && d.game != 'tapper') || d.score <= 8000)
-        && d.rankScore is number;
+        && d.rankScore is number
+        && (!('headline' in d) || (d.headline is number && d.headline >= 0 && d.headline <= 1000000))
+        && (!('headlineKey' in d) || (d.headlineKey is string && d.headlineKey.size() <= 16))
+        && (!('headlineUnit' in d) || (d.headlineUnit is string && d.headlineUnit.size() <= 16))
+        && (!('stats' in d) || (d.stats is map && d.stats.size() <= 32));
     }
 
     match /scores/{scoreId} {
