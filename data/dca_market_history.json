@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-28T06:12:32+00:00",
+  "generatedAt": "2026-08-29T03:46:31+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -21,17 +21,17 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-08-27",
-        "price": 354.81
+        "date": "2026-08-28",
+        "price": 348.75
       },
       "quote": {
-        "price": 354.81,
-        "asOf": "2026-08-27",
+        "price": 348.75,
+        "asOf": "2026-08-28",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
-        "netChange": 8.99,
-        "percentChange": 0.026
+        "netChange": -6.06,
+        "percentChange": -0.0171
       },
       "history": [
         {
@@ -2345,6 +2345,14 @@
           "low": 345.45,
           "close": 354.81,
           "volume": 30136160
+        },
+        {
+          "date": "2026-08-28",
+          "open": 357.095,
+          "high": 358.8,
+          "low": 345.2,
+          "close": 348.75,
+          "volume": 32972210
         }
       ]
     },
@@ -2358,17 +2366,17 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-08-27",
-        "price": 140.87
+        "date": "2026-08-28",
+        "price": 141.5
       },
       "quote": {
-        "price": 140.87,
-        "asOf": "2026-08-27",
+        "price": 141.5,
+        "asOf": "2026-08-28",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
-        "netChange": 1.24,
-        "percentChange": 0.0089
+        "netChange": 0.63,
+        "percentChange": 0.0045
       },
       "history": [
         {
@@ -2794,6 +2802,14 @@
           "low": 138.6,
           "close": 140.87,
           "volume": 55268830
+        },
+        {
+          "date": "2026-08-28",
+          "open": 139.825,
+          "high": 143.29,
+          "low": 137.9,
+          "close": 141.5,
+          "volume": 55111220
         }
       ]
     }
