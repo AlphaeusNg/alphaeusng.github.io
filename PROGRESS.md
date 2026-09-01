@@ -1,16 +1,16 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-08-28
+Last updated: 2026-09-01
 
 ## Current state
 
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.08.28.2`. DCA snapshot latest close is 2026-08-26
-  (288 TSLA / 52 SPCX sessions).
+- Deployment stamp: `2026.09.01.1`. DCA snapshot latest close is 2026-08-31
+  (290 TSLA / 55 SPCX sessions).
 - Local verification: 33 Python tests, 19 DCA engine/quote/journal tests,
-  `tools/check_site.py`, 21 Chromium journeys, Python compilation, and syntax
+  `tools/check_site.py`, 23 Chromium journeys, Python compilation, and syntax
   checks for first-party JavaScript. Firestore rules for `dcaJournals` are
   published on `alparcade-cb87c`.
 - Automated verification: least-privilege GitHub Actions checks out complete
@@ -18,7 +18,26 @@ Last updated: 2026-08-28
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: pointer-led hero light
+## Latest cycle: show imported journal history immediately
+
+### Why this was selected
+
+On a new calendar month, importing valid fills from the previous month reported
+success but left the journal scoped to **This month**, so the table appeared
+empty. The summary also continued describing the current month after visitors
+manually opened all entries.
+
+### Changes
+
+- A successful CSV batch containing any non-current-month fill now opens
+  **All entries** so every imported row is visible immediately.
+- Journal totals and session counts follow the visible scope instead of always
+  summarizing the current month.
+- Browser coverage anchors time-sensitive saved state and verifies the imported
+  two-row, S$300 history plus the selected scope.
+- Version `2026.09.01.1`; regenerated the DCA sitemap date.
+
+## Previous cycle: pointer-led hero light
 
 ### Why this was selected
 

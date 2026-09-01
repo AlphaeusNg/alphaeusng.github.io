@@ -859,7 +859,7 @@ test('DCA Lab quarantines malformed saved state and persists its repair', async 
       ],
     }));
   });
-  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+  await page.goto('/pages/dca-calculator.html?d=2026-08-18', { waitUntil: 'domcontentloaded' });
 
   await expect(page.locator('#totalRecommendation')).not.toHaveText('—');
   await expect(page.locator('#monthlyBudget')).toHaveValue('3000');
@@ -958,7 +958,11 @@ test('DCA Lab imports a journal batch once and can undo it together', async ({ p
   await page.locator('#importJournal').setInputFiles(file);
   await expect(page.locator('#calculatorStatus')).toContainText('Imported 2 journal rows');
   await expect(page.locator('#journalBody tr')).toHaveCount(2);
-  await expect(page.locator('#journalSummary')).toContainText('$300.00');
+  await expect(page.locator('#journalScope')).toHaveText('All entries (2)');
+  await expect(page.locator('#journalScope')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('#journalSummary')).toHaveText(
+    'All entries: $300.00 recorded across 1 session (2 fills).'
+  );
 
   await page.locator('#importJournal').setInputFiles(file);
   await expect(page.locator('#calculatorStatus')).toContainText('No new rows were imported');

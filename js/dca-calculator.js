@@ -1955,11 +1955,13 @@
         renderCatchUp();
         renderQuickChips();
         if (elements.journalSummary) {
-            const spent = monthRows.reduce((total, entry) => total + Number(entry.amount || 0), 0);
-            const sessions = new Set(monthRows.map((entry) => entry.date)).size;
-            const summary = monthRows.length
-                ? `${formatMonth(currentMonth)}: ${formatCurrency(spent, 2)} recorded across ${sessions} session${sessions === 1 ? '' : 's'} (${monthRows.length} fill${monthRows.length === 1 ? '' : 's'}).`
-                : `${formatMonth(currentMonth)}: no fills recorded yet.`;
+            const summaryRows = journalThisMonthOnly ? monthRows : state.ledger;
+            const spent = summaryRows.reduce((total, entry) => total + Number(entry.amount || 0), 0);
+            const sessions = new Set(summaryRows.map((entry) => entry.date)).size;
+            const scopeLabel = journalThisMonthOnly ? formatMonth(currentMonth) : 'All entries';
+            const summary = summaryRows.length
+                ? `${scopeLabel}: ${formatCurrency(spent, 2)} recorded across ${sessions} session${sessions === 1 ? '' : 's'} (${summaryRows.length} fill${summaryRows.length === 1 ? '' : 's'}).`
+                : `${scopeLabel}: no fills recorded yet.`;
             elements.journalSummary.textContent = sourceRows.length > rows.length
                 ? `${summary} Showing latest ${rows.length} of ${sourceRows.length} entries.`
                 : summary;
@@ -2078,6 +2080,8 @@
             throw new Error('CSV must include date, symbol, and dollars_usd columns.');
         }
         let imported = 0;
+        let importedOutsideCurrentMonth = false;
+        const currentMonth = monthKey();
         const importBatchId = `import-${ledgerId()}`;
         lines.slice(1).forEach((line) => {
             const cells = splitCsvLine(line);
@@ -2110,9 +2114,11 @@
             });
             state.months[month] = state.months[month] || { TSLA: 0, SPCX: 0 };
             state.months[month][symbol] = Number(state.months[month][symbol] || 0) + amount;
+            if (month !== currentMonth) importedOutsideCurrentMonth = true;
             imported += 1;
         });
         if (!imported) throw new Error('No new rows were imported.');
+        if (importedOutsideCurrentMonth) journalThisMonthOnly = false;
         saveState();
         loadMonthInputs();
         renderJournal();
