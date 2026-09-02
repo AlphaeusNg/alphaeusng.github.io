@@ -217,6 +217,191 @@ const PROJECT_MODAL_DATA = {
         url: 'https://github.com/VetoFun/3002-TEL1-VotaFun'
       }
     }
+  },
+
+  'aily': {
+    slug: 'aily',
+    title: 'AIly',
+    badges: ['LOCAL-FIRST ALLY', 'PWA + NATIVE'],
+    contextLine: 'Targets, usage, and self-directed blocks',
+    introParagraph: 'AIly is a local-first companion for targets people choose for themselves. It turns those targets into capacity-honest plans, tracks progress on the device, and keeps accountability separate from surveillance.',
+    sections: [
+      {
+        heading: 'The Product Question',
+        content: 'Can a productivity tool help someone follow through without pretending every day has unlimited capacity? AIly starts from the user’s own targets, makes tradeoffs visible, and treats missed plans as information rather than failure.'
+      },
+      {
+        heading: 'Architecture & Privacy',
+        content: 'The same interface runs as a browser PWA, an Android package, and a Tauri-based Windows app. Storage is local-first. Installed usage sampling is consent-gated and limited to foreground process names while AIly is open; it does not collect window titles, paths, or browsing history.',
+        techNote: 'Tech: Rust core, static PWA, Capacitor Android packaging, Tauri on Windows, device-local state.'
+      }
+    ],
+    challenges: {
+      heading: 'Honest Boundaries',
+      content: 'The published Windows package is unsigned dogfood, and the current build does not provide OS-level hard blocks. Those limits are stated directly because accountability software becomes untrustworthy when its interface promises more control than the operating system actually grants.'
+    },
+    currentState: {
+      heading: 'Current State',
+      content: 'The hosted PWA is the quickest demo, with a sample journey for trying the full flow. Windows and Android packages are also available for people who want an installed experience.'
+    },
+    actions: {
+      primary: {
+        label: 'Open AIly',
+        url: 'https://alphaeusng.github.io/AIly/'
+      },
+      secondary: {
+        label: 'View packages',
+        url: 'https://github.com/AlphaeusNg/AIly/releases'
+      }
+    }
+  },
+
+  'christoday': {
+    slug: 'christoday',
+    title: 'ChristoDay',
+    badges: ['FAITH × CODE', 'LOCAL-FIRST'],
+    contextLine: 'Christ-centered weekday gospel reading',
+    introParagraph: 'ChristoDay is a weekday reading plan built around a different measure of progress: not chapters completed, but Christ seen in the passage.',
+    sections: [
+      {
+        heading: 'The Reading Rhythm',
+        content: 'Each weekday maps to Matthew, Mark, Luke, Philippians, or Jude. Passages are divided into natural five-to-ten-minute segments, the schedule follows Asia/Singapore, and weekends are deliberately rest rather than overdue homework.'
+      },
+      {
+        heading: 'The Experience',
+        content: 'The app selects today’s passage, offers prompts focused on Jesus’ person and work, and supports optional live Scripture, reading streaks, and a private journal. Completion and journal entries stay on the device.',
+        techNote: 'Tech: static HTML, CSS, and JavaScript; deterministic Singapore-calendar scheduling; localStorage journal and progress.'
+      }
+    ],
+    challenges: {
+      heading: 'Design Constraint',
+      content: 'The plan has to encourage consistency without turning Scripture into a productivity score. Rest days, short natural segments, and private reflection are intentional safeguards against that pressure.'
+    },
+    currentState: {
+      heading: 'Current State',
+      content: 'The live site is the complete demo: today’s weekday passage is already selected, and users can read or move through nearby days without creating an account.'
+    },
+    actions: {
+      primary: {
+        label: 'Open ChristoDay',
+        url: 'https://alphaeusng.github.io/ChristoDay/'
+      },
+      secondary: {
+        label: 'View source',
+        url: 'https://github.com/AlphaeusNg/ChristoDay'
+      }
+    }
+  },
+
+  'cardfitsg': {
+    slug: 'cardfitsg',
+    title: 'CardFitSG',
+    badges: ['SG PRACTICAL', 'CLIENT-SIDE'],
+    contextLine: 'Fuss-free cashback card fit calculator',
+    introParagraph: 'CardFitSG helps Singapore users compare straightforward cashback cards against a real spending scenario, especially when the usual miles-maximising advice is more complexity than they want.',
+    sections: [
+      {
+        heading: 'The Decision Problem',
+        content: 'A card that looks good in a headline may perform badly for a large one-off purchase, a modest monthly spend, an existing bank relationship, or a merchant that does not accept Amex. CardFitSG makes those assumptions explicit before ranking the options.'
+      },
+      {
+        heading: 'Scoring & Transparency',
+        content: 'Users enter one-off and recurring spend, choose a time horizon, mark cards they already hold, and review estimated cashback with a practical next-step plan. Shareable URLs preserve the scenario, while the last local scenario restores without an account or server.',
+        techNote: 'Tech: static HTML, CSS, and JavaScript; dated card catalog; deterministic client-side scoring and share-state encoding.'
+      }
+    ],
+    challenges: {
+      heading: 'Freshness Matters',
+      content: 'Issuer rates, exclusions, and acquisition offers change. The catalog is dated, official terms are linked beside recommendations, and the tool is explicit that its estimates are not financial advice.'
+    },
+    currentState: {
+      heading: 'Current State',
+      content: 'The calculator is live and fully client-side. It is maintained as a practical shortlist, with dated catalog reviews rather than evergreen claims.'
+    },
+    actions: {
+      primary: {
+        label: 'Open CardFitSG',
+        url: 'https://alphaeusng.github.io/CardFitSG/'
+      },
+      secondary: {
+        label: 'View source',
+        url: 'https://github.com/AlphaeusNg/CardFitSG'
+      }
+    }
+  },
+
+  'versekeep': {
+    slug: 'versekeep',
+    title: 'VerseKeep',
+    badges: ['FAITH × CODE', 'SCRIPTURE MEMORY'],
+    contextLine: 'Meditation first, then memory practice',
+    introParagraph: 'VerseKeep is a browser-based Scripture memory companion designed to begin with attentive reading before moving into recall drills.',
+    sections: [
+      {
+        heading: 'The Practice Loop',
+        content: 'Verses are organized by theological and pastoral themes. A user can study the text first, then work through fill-the-blank, free recall, word ordering, or reference-matching modes without creating an account.'
+      },
+      {
+        heading: 'Supporting the Habit',
+        content: 'Mastery, streaks, and accuracy stay in local storage. Optional worship stations, live Bible text, keyboard controls, and daily desktop or phone wallpapers support different ways of returning to the passage.',
+        techNote: 'Tech: static HTML, CSS, and JavaScript; bundled verse data; local progress; optional live translation sources.'
+      }
+    ],
+    challenges: {
+      heading: 'Design Constraint',
+      content: 'A memory score is not the same as meditation. The interface keeps Study available as the starting point and treats drills as servants of understanding rather than the purpose of the text.'
+    },
+    currentState: {
+      heading: 'Current State',
+      content: 'The live app includes seventeen themes, five practice modes, worship stations, and a growing wallpaper library. Core practice continues to work from bundled data.'
+    },
+    actions: {
+      primary: {
+        label: 'Open VerseKeep',
+        url: 'https://alphaeusng.github.io/VerseKeep/'
+      },
+      secondary: {
+        label: 'View source',
+        url: 'https://github.com/AlphaeusNg/VerseKeep'
+      }
+    }
+  },
+
+  'alparcade': {
+    slug: 'alparcade',
+    title: 'AlpArcade',
+    badges: ['PLAY', 'BROWSER ARCADE'],
+    contextLine: 'Mini-games with local progression',
+    introParagraph: 'AlpArcade is a compact browser arcade with eight distinct cabinets, local progression, and an optional global scoreboard. Playing never requires an account.',
+    sections: [
+      {
+        heading: 'The Arcade Loop',
+        content: 'Players begin with free cabinets, earn local XP, unlock more games, pursue one seeded Singapore-day challenge, and keep personal bests on the device. The games range from Snake and brick breaker to reaction, memory, rhythm, and an endless space shooter.'
+      },
+      {
+        heading: 'Shared Systems',
+        content: 'Each cabinet has its own controls and scoring, while the lobby coordinates unlocks, achievements, daily challenges, music, and exportable progress. Google sign-in is optional and exists only for publishing best scores to the cloud board.',
+        techNote: 'Tech: static HTML, CSS, JavaScript, Canvas and Web Audio; localStorage progression; optional Firebase scores.'
+      }
+    ],
+    challenges: {
+      heading: 'Fairness & Resilience',
+      content: 'Arcade scoring needs to survive refreshes, long runs, mobile controls, and balance changes without turning cloud scores into a requirement. Local play stays authoritative for the player, while score validation and caps protect the optional public board.'
+    },
+    currentState: {
+      heading: 'Current State',
+      content: 'Eight cabinets are live, with local XP, achievements, daily play, music, and optional Google-backed leaderboards.'
+    },
+    actions: {
+      primary: {
+        label: 'Play AlpArcade',
+        url: 'https://alphaeusng.github.io/AlpArcade/'
+      },
+      secondary: {
+        label: 'View source',
+        url: 'https://github.com/AlphaeusNg/AlpArcade'
+      }
+    }
   }
 };
 
@@ -372,12 +557,6 @@ function openRichProjectModal(slug) {
       footer.appendChild(link);
     });
 
-    const close = document.createElement('button');
-    close.type = 'button';
-    close.textContent = 'Close';
-    close.className = 'inline-flex items-center justify-center rounded-full px-5 py-2.5 font-medium text-[#94A3B8] hover:text-white transition-colors sm:ml-auto';
-    close.addEventListener('click', closeProjectModal);
-    footer.appendChild(close);
   }
 
   // Show modal

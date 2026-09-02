@@ -323,9 +323,10 @@ test('project modal owns focus, traps Tab, and restores its trigger', async ({ p
   await expect(modal).not.toHaveClass(HIDDEN_CLASS);
   await expect(modal).toHaveAttribute('aria-hidden', 'false');
   await expect(headerClose).toBeFocused();
+  await expect(modal.getByRole('button', { name: 'Close', exact: true })).toHaveCount(0);
 
   await page.keyboard.press('Shift+Tab');
-  await expect(modal.getByRole('button', { name: 'Close', exact: true })).toBeFocused();
+  await expect(modal.getByRole('link', { name: 'Watch the LinkedIn video' })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(headerClose).toBeFocused();
 
@@ -333,6 +334,47 @@ test('project modal owns focus, traps Tab, and restores its trigger', async ({ p
   await expect(modal).toHaveClass(HIDDEN_CLASS);
   await expect(modal).toHaveAttribute('aria-hidden', 'true');
   await expect(trigger).toBeFocused();
+});
+
+test('every Craft card opens its case study from the card surface', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  const cases = [
+    ['htx-threat', 'Threat Detection Systems'],
+    ['scene-text', 'Scene Text Translator'],
+    ['votafun', 'VotaFun'],
+    ['aily', 'AIly'],
+    ['koboforge', 'KoboForge'],
+    ['christoday', 'ChristoDay'],
+    ['cardfitsg', 'CardFitSG'],
+    ['versekeep', 'VerseKeep'],
+    ['alparcade', 'AlpArcade'],
+    ['seeking-biblical-truth', 'Seeking Biblical Truth'],
+  ];
+  const modal = page.locator('#project-modal');
+  const close = modal.getByRole('button', { name: 'Close modal' });
+
+  await expect(page.locator('#craft .card[data-project-slug]')).toHaveCount(cases.length);
+  await expect(page.locator('#craft .project-card-open')).toHaveCount(cases.length);
+
+  for (const [slug, title] of cases) {
+    const card = page.locator(`#craft .card[data-project-slug="${slug}"]`);
+    await card.scrollIntoViewIfNeeded();
+    await card.click({ position: { x: 18, y: 18 } });
+    await expect(modal).not.toHaveClass(HIDDEN_CLASS);
+    await expect(modal.locator('#modal-title')).toHaveText(title);
+    await expect(modal.getByRole('button', { name: 'Close', exact: true })).toHaveCount(0);
+    await close.click();
+    await expect(modal).toHaveClass(HIDDEN_CLASS);
+  }
+
+  const directProjectLink = page.locator('[data-project-slug="aily"] a', { hasText: 'Open AIly' });
+  await directProjectLink.evaluate(link => {
+    link.addEventListener('click', event => event.preventDefault(), { once: true });
+  });
+  await directProjectLink.click();
+  await expect(modal).toHaveClass(HIDDEN_CLASS);
 });
 
 test('hash navigation clears the sticky header and moves mobile focus to content', async ({ page }) => {

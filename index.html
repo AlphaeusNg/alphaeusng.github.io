@@ -509,7 +509,7 @@
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- HTX Work -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="htx-threat">
                     <div>
                         <div class="project-badge mb-4">APPLIED COMPUTER VISION</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">Threat Detection Systems</h3>
@@ -537,12 +537,12 @@
                     
                     <div class="pt-6 mt-6 border-t border-white/10 flex items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>DEPLOYED CAPABILITY</div>
-                        <button onclick="openRichProjectModal('htx-threat')" class="linkish font-medium normal-case tracking-normal">Case study →</button>
+                        <button type="button" onclick="openRichProjectModal('htx-threat')" class="project-card-open linkish font-medium normal-case tracking-normal" aria-label="Open Threat Detection Systems case study">Case study →</button>
                     </div>
                 </div>
 
                 <!-- FYP -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="scene-text">
                     <div>
                         <div class="project-badge mb-4">COMPUTER VISION + NLP</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">Scene Text Translator</h3>
@@ -554,14 +554,14 @@
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>PYTORCH · EASYOCR · FLASK</div>
                         <div class="flex gap-x-3 normal-case tracking-normal">
-                            <button onclick="openRichProjectModal('scene-text')" class="linkish font-medium">Case study →</button>
+                            <button type="button" onclick="openRichProjectModal('scene-text')" class="project-card-open linkish font-medium" aria-label="Open Scene Text Translator case study">Case study →</button>
                             <a href="https://github.com/AlphaeusNg/FYP" target="_blank" rel="noopener noreferrer" class="font-medium">GitHub →</a>
                         </div>
                     </div>
                 </div>
 
                 <!-- VotaFun -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="votafun">
                     <div>
                         <div class="project-badge mb-4">FULL-STACK · REAL-TIME</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">VotaFun</h3>
@@ -573,14 +573,14 @@
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>NEXT.JS · SOCKET.IO · LLM</div>
                         <div class="flex gap-x-3 normal-case tracking-normal">
-                            <button onclick="openRichProjectModal('votafun')" class="linkish font-medium">Case study →</button>
+                            <button type="button" onclick="openRichProjectModal('votafun')" class="project-card-open linkish font-medium" aria-label="Open VotaFun case study">Case study →</button>
                             <a href="https://votafun.onrender.com/" target="_blank" rel="noopener noreferrer" class="font-medium">Live demo →</a>
                         </div>
                     </div>
                 </div>
 
                 <!-- AIly -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="aily">
                     <div>
                         <div class="project-badge mb-4">LOCAL-FIRST ALLY</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">AIly</h3>
@@ -591,7 +591,8 @@
 
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>PWA · ANDROID · TAURI</div>
-                        <div class="flex gap-x-3 normal-case tracking-normal">
+                        <div class="flex flex-wrap gap-x-3 gap-y-2 normal-case tracking-normal">
+                            <button type="button" onclick="openRichProjectModal('aily')" class="project-card-open linkish font-medium" aria-label="Open AIly case study">Case study →</button>
                             <a href="https://alphaeusng.github.io/AIly/" target="_blank" rel="noopener noreferrer" class="font-medium">Open AIly →</a>
                             <a href="https://github.com/AlphaeusNg/AIly/releases" target="_blank" rel="noopener noreferrer" class="font-medium">Packages →</a>
                         </div>
@@ -599,7 +600,7 @@
                 </div>
 
                 <!-- KoboForge -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="koboforge">
                     <div>
                         <div class="project-badge mb-4">LOCAL-FIRST TOOLING</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">KoboForge</h3>
@@ -611,62 +612,74 @@
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>PDF.JS · MAMMOTH · JSZIP</div>
                         <div class="flex gap-x-3 normal-case tracking-normal">
-                            <button onclick="openRichProjectModal('koboforge')" class="linkish font-medium">Case study →</button>
+                            <button type="button" onclick="openRichProjectModal('koboforge')" class="project-card-open linkish font-medium" aria-label="Open KoboForge case study">Case study →</button>
                             <a href="https://alphaeusng.github.io/KoboForge/" class="font-medium">Launch →</a>
                         </div>
                     </div>
                 </div>
 
                 <!-- ChristoDay -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="christoday">
                     <div class="project-badge mb-4">FAITH × CODE</div>
                     <h3 class="text-3xl tracking-tighter font-semibold">ChristoDay</h3>
                     <p class="text-sm text-[#64748B] mt-1">Christ-centered weekday gospel reading</p>
                     <p class="mt-6 text-[#94A3B8] flex-1">5–10 minute natural segments through Matthew, Mark, Luke, Philippians, and Jude. Asia/Singapore schedule, optional live Scripture, private journal, streaks. Weekends are rest — not homework.</p>
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>STATIC · LOCAL-FIRST</div>
-                        <a href="https://alphaeusng.github.io/ChristoDay/" target="_blank" rel="noopener noreferrer" class="font-medium normal-case tracking-normal">Open ChristoDay →</a>
+                        <div class="flex gap-x-3 normal-case tracking-normal">
+                            <button type="button" onclick="openRichProjectModal('christoday')" class="project-card-open linkish font-medium" aria-label="Open ChristoDay case study">Case study →</button>
+                            <a href="https://alphaeusng.github.io/ChristoDay/" target="_blank" rel="noopener noreferrer" class="font-medium">Open ChristoDay →</a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- CardFitSG -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="cardfitsg">
                     <div class="project-badge mb-4">SG PRACTICAL</div>
                     <h3 class="text-3xl tracking-tighter font-semibold">CardFitSG</h3>
                     <p class="text-sm text-[#64748B] mt-1">Fuss-free cashback card fit calculator</p>
                     <p class="mt-6 text-[#94A3B8] flex-1">Ranks Singapore cashback cards for large one-off spends and simple monthly use — no miles maxxing theatre. Dated catalog, explicit disclaimer, client-side only.</p>
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>STATIC · SGD</div>
-                        <a href="https://alphaeusng.github.io/CardFitSG/" target="_blank" rel="noopener noreferrer" class="font-medium normal-case tracking-normal">Open CardFitSG →</a>
+                        <div class="flex gap-x-3 normal-case tracking-normal">
+                            <button type="button" onclick="openRichProjectModal('cardfitsg')" class="project-card-open linkish font-medium" aria-label="Open CardFitSG case study">Case study →</button>
+                            <a href="https://alphaeusng.github.io/CardFitSG/" target="_blank" rel="noopener noreferrer" class="font-medium">Open CardFitSG →</a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- VerseKeep -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="versekeep">
                     <div class="project-badge mb-4">FAITH × CODE</div>
                     <h3 class="text-3xl tracking-tighter font-semibold">VerseKeep</h3>
                     <p class="text-sm text-[#64748B] mt-1">Scripture meditation, then memory</p>
                     <p class="mt-6 text-[#94A3B8] flex-1">Sit with a verse, its context, an application, and a prayer. Optional drills by topic, worship music, and a local Amen streak — no account required.</p>
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>STATIC · LOCAL-FIRST</div>
-                        <a href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" class="font-medium normal-case tracking-normal">Open VerseKeep →</a>
+                        <div class="flex gap-x-3 normal-case tracking-normal">
+                            <button type="button" onclick="openRichProjectModal('versekeep')" class="project-card-open linkish font-medium" aria-label="Open VerseKeep case study">Case study →</button>
+                            <a href="https://alphaeusng.github.io/VerseKeep/" target="_blank" rel="noopener noreferrer" class="font-medium">Open VerseKeep →</a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- AlpArcade -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="alparcade">
                     <div class="project-badge mb-4">PLAY</div>
                     <h3 class="text-3xl tracking-tighter font-semibold">AlpArcade</h3>
                     <p class="text-sm text-[#64748B] mt-1">Need a break? Have an AlpArcade</p>
                     <p class="mt-6 text-[#94A3B8] flex-1">Eight browser cabinets — tic-tac-toe, snake, rhythm, and more — with local XP, a daily challenge, and optional Google scoreboards. Free play never requires an account.</p>
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>STATIC · WEB AUDIO</div>
-                        <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="font-medium normal-case tracking-normal">Open AlpArcade →</a>
+                        <div class="flex gap-x-3 normal-case tracking-normal">
+                            <button type="button" onclick="openRichProjectModal('alparcade')" class="project-card-open linkish font-medium" aria-label="Open AlpArcade case study">Case study →</button>
+                            <a href="https://alphaeusng.github.io/AlpArcade/" target="_blank" rel="noopener noreferrer" class="font-medium">Open AlpArcade →</a>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Seeking Biblical Truth -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col md:col-span-2 lg:col-span-2">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col md:col-span-2 lg:col-span-2" data-project-slug="seeking-biblical-truth">
                     <div class="flex items-start justify-between">
                         <div>
                             <div class="project-badge mb-4">FAITH × CODE</div>
@@ -699,7 +712,7 @@
                     <div class="pt-6 mt-auto border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs tracking-widest text-[#64748B]">
                         <div>OPEN SOURCE · PYTHON + OBSIDIAN</div>
                         <div class="flex flex-wrap items-center gap-x-4 gap-y-2 normal-case tracking-normal">
-                            <button onclick="openRichProjectModal('seeking-biblical-truth')" class="linkish font-medium">Case study →</button>
+                            <button type="button" onclick="openRichProjectModal('seeking-biblical-truth')" class="project-card-open linkish font-medium" aria-label="Open Seeking Biblical Truth case study">Case study →</button>
                             <a href="pages/seeking-biblical-truth/" class="font-medium">Open vault →</a>
                         </div>
                     </div>
@@ -981,7 +994,7 @@
                 <!-- Content (intro, h4 sections, .intersection, quotes, visuals) injected via appendChild / textContent. Starts empty. -->
             </div>
             
-            <!-- Footer actions (primary/secondary/close buttons populated dynamically) -->
+            <!-- Footer actions (primary/secondary links populated dynamically) -->
             <div id="modal-footer-actions" class="px-8 py-5 bg-[#111827] border-t border-white/10 flex flex-col sm:flex-row sm:items-center gap-3 text-sm">
                 <!-- Action buttons injected by openRichProjectModal -->
             </div>
@@ -1029,7 +1042,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.09.03.4"
+    <script src="js/kofi-support.js?v=2026.09.03.5"
             data-auto-footer
             data-message="Tell me what worked or what would help."
             defer></script>

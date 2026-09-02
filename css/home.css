@@ -136,6 +136,35 @@ body {
     border-color: #C9A227;
 }
 
+/* Each project card is opened by its real Case study button stretched across
+   the card. Explicit links sit above the hit area and keep their own action. */
+.card[data-project-slug] {
+    position: relative;
+    cursor: pointer;
+}
+
+.project-card-open::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 1.5rem;
+}
+
+.card[data-project-slug] a {
+    position: relative;
+    z-index: 2;
+}
+
+.project-card-open:focus-visible {
+    outline: none;
+}
+
+.project-card-open:focus-visible::after {
+    outline: 2px solid rgba(232, 197, 71, 0.8);
+    outline-offset: 3px;
+}
+
 @media (max-width: 767px), (hover: none), (pointer: coarse) {
     .hero-light-field {
         inset: -20%;
