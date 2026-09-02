@@ -660,12 +660,13 @@ button.linkish:focus-visible {
 /* Hero portrait compare */
 .portrait-showcase {
     position: relative;
+    container-type: inline-size;
 }
 
-.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-phone-header,
-.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-phone-footer,
-.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-note,
-.portrait-showcase:not(.is-revealed):not(.is-revealing) .portrait-divider {
+.portrait-showcase:not(.is-revealed) .portrait-phone-header,
+.portrait-showcase:not(.is-revealed) .portrait-phone-footer,
+.portrait-showcase:not(.is-revealed) .portrait-note,
+.portrait-showcase:not(.is-revealed) .portrait-divider {
     display: none;
 }
 
@@ -803,6 +804,14 @@ button.portrait-phone-status:focus-visible {
 
 .portrait-showcase.is-revealed .portrait-compare {
     cursor: ew-resize;
+    width: calc(100% - 4.25rem);
+    margin-inline: auto;
+}
+
+@container (max-width: 17.9375rem) {
+    .portrait-showcase.is-revealed .portrait-compare {
+        width: calc(100% - 5rem);
+    }
 }
 
 .portrait-compare:focus-visible {

@@ -274,6 +274,43 @@ test('mobile menu exposes state and restores focus on Escape', async ({ page }) 
   await expect(button).toBeFocused();
 });
 
+test('portrait reveal makes room for its text without growing the hero', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+
+  for (const viewport of [
+    { width: 390, height: 844 },
+    { width: 1440, height: 900 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    const before = await page.evaluate(() => ({
+      phoneHeight: document.querySelector('.portrait-phone').getBoundingClientRect().height,
+      portraitWidth: document.querySelector('.portrait-compare').getBoundingClientRect().width,
+      heroHeight: document.querySelector('#home-hero').getBoundingClientRect().height,
+      storyOffset: document.querySelector('#story').offsetTop,
+    }));
+
+    const portrait = page.locator('[data-portrait-compare]');
+    await portrait.click();
+    await portrait.click();
+    await portrait.click();
+    await expect(page.locator('[data-portrait-easter-egg]')).toHaveClass(/is-revealed/);
+
+    const after = await page.evaluate(() => ({
+      phoneHeight: document.querySelector('.portrait-phone').getBoundingClientRect().height,
+      portraitWidth: document.querySelector('.portrait-compare').getBoundingClientRect().width,
+      heroHeight: document.querySelector('#home-hero').getBoundingClientRect().height,
+      storyOffset: document.querySelector('#story').offsetTop,
+    }));
+
+    expect(after.portraitWidth).toBeLessThan(before.portraitWidth);
+    expect(after.phoneHeight).toBeLessThanOrEqual(before.phoneHeight + 1);
+    expect(after.heroHeight).toBeLessThanOrEqual(before.heroHeight + 1);
+    expect(after.storyOffset).toBeLessThanOrEqual(before.storyOffset + 1);
+  }
+});
+
 test('project modal owns focus, traps Tab, and restores its trigger', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/', { waitUntil: 'domcontentloaded' });

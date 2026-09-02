@@ -415,6 +415,59 @@ function initPointerAtmosphere() {
         queuePaint();
     }, { passive: true });
 
+    document.querySelectorAll('[data-light-lens]').forEach((section) => {
+        let lensCurrent = { x: 68, y: 30, leadX: 72, leadY: 26 };
+        let lensTarget = { ...lensCurrent };
+        let lensPreviousPointer = null;
+        let lensFrame = 0;
+
+        function paintLens() {
+            lensFrame = 0;
+            lensCurrent.x += (lensTarget.x - lensCurrent.x) * 0.16;
+            lensCurrent.y += (lensTarget.y - lensCurrent.y) * 0.16;
+            lensCurrent.leadX += (lensTarget.leadX - lensCurrent.leadX) * 0.1;
+            lensCurrent.leadY += (lensTarget.leadY - lensCurrent.leadY) * 0.1;
+            section.style.setProperty('--lens-x', `${lensCurrent.x.toFixed(2)}%`);
+            section.style.setProperty('--lens-y', `${lensCurrent.y.toFixed(2)}%`);
+            section.style.setProperty('--lens-lead-x', `${lensCurrent.leadX.toFixed(2)}%`);
+            section.style.setProperty('--lens-lead-y', `${lensCurrent.leadY.toFixed(2)}%`);
+            const lensMoving = Object.keys(lensCurrent).some(
+                key => Math.abs(lensCurrent[key] - lensTarget[key]) > 0.08
+            );
+            if (lensMoving) lensFrame = requestAnimationFrame(paintLens);
+        }
+
+        function queueLensPaint() {
+            if (!lensFrame) lensFrame = requestAnimationFrame(paintLens);
+        }
+
+        section.addEventListener('pointermove', (event) => {
+            if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+            const box = section.getBoundingClientRect();
+            if (!box.width || !box.height) return;
+            const x = Math.max(0, Math.min(100, ((event.clientX - box.left) / box.width) * 100));
+            const y = Math.max(0, Math.min(100, ((event.clientY - box.top) / box.height) * 100));
+            const velocityX = lensPreviousPointer ? x - lensPreviousPointer.x : 0;
+            const velocityY = lensPreviousPointer ? y - lensPreviousPointer.y : 0;
+            lensPreviousPointer = { x, y };
+            lensTarget = {
+                x,
+                y,
+                leadX: Math.max(0, Math.min(100, x + velocityX * 2.2)),
+                leadY: Math.max(0, Math.min(100, y + velocityY * 2.2))
+            };
+            section.classList.add('is-pointer-active');
+            queueLensPaint();
+        }, { passive: true });
+
+        section.addEventListener('pointerleave', () => {
+            lensPreviousPointer = null;
+            section.classList.remove('is-pointer-active');
+            lensTarget = { x: 68, y: 30, leadX: 72, leadY: 26 };
+            queueLensPaint();
+        }, { passive: true });
+    });
+
     document.querySelectorAll('.card').forEach((card) => {
         card.addEventListener('pointermove', (event) => {
             const box = card.getBoundingClientRect();

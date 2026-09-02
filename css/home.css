@@ -76,6 +76,78 @@ body {
     mask-image: linear-gradient(to bottom, black, transparent 92%);
 }
 
+/* One pointer-led light continues below the hero, with each section tinting it
+   through a restrained local lens. */
+[data-light-lens] {
+    --lens-x: 68%;
+    --lens-y: 30%;
+    --lens-lead-x: 72%;
+    --lens-lead-y: 26%;
+    --lens-primary-rgb: 70, 112, 168;
+    --lens-secondary-rgb: 201, 162, 39;
+    --lens-opacity: 0.48;
+    position: relative;
+    isolation: isolate;
+}
+
+[data-light-lens]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle 18rem at var(--lens-lead-x) var(--lens-lead-y), rgba(var(--lens-secondary-rgb), 0.065), transparent 70%),
+        radial-gradient(circle 31rem at var(--lens-x) var(--lens-y), rgba(var(--lens-primary-rgb), 0.06), transparent 74%);
+    opacity: var(--lens-opacity);
+    transition: opacity 420ms ease;
+}
+
+[data-light-lens] > * {
+    position: relative;
+    z-index: 1;
+}
+
+[data-light-lens].is-pointer-active::before {
+    opacity: min(0.72, calc(var(--lens-opacity) + 0.16));
+}
+
+[data-light-lens="story"] {
+    --lens-primary-rgb: 67, 111, 170;
+    --lens-secondary-rgb: 201, 162, 39;
+    --lens-opacity: 0.46;
+}
+
+[data-light-lens="journey"] {
+    --lens-primary-rgb: 54, 126, 139;
+    --lens-secondary-rgb: 76, 128, 190;
+    --lens-opacity: 0.42;
+}
+
+[data-light-lens="craft"] {
+    --lens-primary-rgb: 47, 113, 124;
+    --lens-secondary-rgb: 201, 162, 39;
+    --lens-opacity: 0.5;
+}
+
+[data-light-lens="thoughts"] {
+    --lens-primary-rgb: 91, 85, 151;
+    --lens-secondary-rgb: 70, 119, 177;
+    --lens-opacity: 0.4;
+}
+
+[data-light-lens="faith"] {
+    --lens-primary-rgb: 158, 119, 48;
+    --lens-secondary-rgb: 62, 103, 161;
+    --lens-opacity: 0.44;
+}
+
+[data-light-lens="connect"] {
+    --lens-primary-rgb: 57, 99, 158;
+    --lens-secondary-rgb: 179, 142, 47;
+    --lens-opacity: 0.38;
+}
+
 .heading-serif {
     font-family: 'Playfair Display', Georgia, serif;
     font-feature-settings: "kern" "liga" "tnum";
@@ -148,6 +220,13 @@ body {
     .card:hover {
         transform: translateY(-3px);
     }
+
+    [data-light-lens]::before {
+        opacity: 0.4;
+        background:
+            radial-gradient(circle 15rem at 72% 24%, rgba(var(--lens-secondary-rgb), 0.055), transparent 72%),
+            radial-gradient(circle 24rem at 44% 48%, rgba(var(--lens-primary-rgb), 0.052), transparent 76%);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -164,10 +243,31 @@ body {
         transform: none;
         transition-duration: 0.01ms;
     }
+
+    [data-light-lens]::before {
+        opacity: 0.4;
+        transition: none;
+    }
 }
 
 .timeline-item {
     position: relative;
+}
+
+.story-quote {
+    position: relative;
+}
+
+.story-quote::before {
+    content: "";
+    position: absolute;
+    top: -0.2rem;
+    bottom: -0.2rem;
+    left: 0;
+    width: 4px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #E8C547, #C9A227 72%, rgba(201, 162, 39, 0.5));
+    box-shadow: 0 0 12px rgba(201, 162, 39, 0.14);
 }
 
 .timeline-item:not(:last-child):after {
