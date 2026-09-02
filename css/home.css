@@ -76,58 +76,6 @@ body {
     mask-image: linear-gradient(to bottom, black, transparent 92%);
 }
 
-/* A single continuous surface carries the hero's light through the rest of
-   the page. Broad static fields at both ends and a tighter middle field keep
-   the atmosphere varied without exposing section boundaries. */
-.page-ambient {
-    --page-light-x: 68%;
-    --page-light-y: 8rem;
-    --page-light-scale: 1;
-    --page-light-primary-rgb: 76, 128, 190;
-    --page-light-secondary-rgb: 201, 162, 39;
-    position: relative;
-    isolation: isolate;
-    background:
-        radial-gradient(ellipse 70rem 48rem at 74% 0%, rgba(201, 162, 39, 0.045), transparent 74%),
-        radial-gradient(ellipse 34rem 42rem at 28% 52%, rgba(54, 126, 139, 0.032), transparent 76%),
-        radial-gradient(ellipse 72rem 54rem at 68% 100%, rgba(76, 128, 190, 0.052), transparent 75%),
-        linear-gradient(180deg, #0A0F1C 0%, #0B111F 50%, #0A0F1C 100%);
-}
-
-.page-ambient-light {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.page-light-orb {
-    position: absolute;
-    top: var(--page-light-y);
-    left: var(--page-light-x);
-    width: 54rem;
-    height: 54rem;
-    border-radius: 50%;
-    opacity: 0;
-    background:
-        radial-gradient(circle at 42% 38%, rgba(var(--page-light-secondary-rgb), 0.085), transparent 44%),
-        radial-gradient(circle, rgba(var(--page-light-primary-rgb), 0.08), transparent 70%);
-    filter: blur(3px);
-    transform: translate3d(-50%, -50%, 0) scale(var(--page-light-scale));
-    transform-origin: center;
-    transition: opacity 420ms ease;
-}
-
-.page-ambient.is-pointer-active .page-light-orb {
-    opacity: 0.72;
-}
-
-.page-ambient > :not(.page-ambient-light) {
-    position: relative;
-    z-index: 1;
-}
-
 .heading-serif {
     font-family: 'Playfair Display', Georgia, serif;
     font-feature-settings: "kern" "liga" "tnum";
@@ -200,18 +148,6 @@ body {
     .card:hover {
         transform: translateY(-3px);
     }
-
-    .page-ambient {
-        background:
-            radial-gradient(ellipse 30rem 34rem at 74% 0%, rgba(201, 162, 39, 0.04), transparent 74%),
-            radial-gradient(ellipse 20rem 32rem at 24% 52%, rgba(54, 126, 139, 0.03), transparent 76%),
-            radial-gradient(ellipse 32rem 38rem at 68% 100%, rgba(76, 128, 190, 0.045), transparent 75%),
-            linear-gradient(180deg, #0A0F1C 0%, #0B111F 50%, #0A0F1C 100%);
-    }
-
-    .page-light-orb {
-        display: none;
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -227,10 +163,6 @@ body {
     .card:hover {
         transform: none;
         transition-duration: 0.01ms;
-    }
-
-    .page-light-orb {
-        display: none;
     }
 }
 

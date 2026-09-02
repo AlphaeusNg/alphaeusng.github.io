@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('light follows through one seamless page surface while project cards react locally', async ({ page }) => {
+test('light stays in the opening hero while project cards react locally', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   const hero = page.locator('#home-hero');
   const heroBox = await hero.boundingBox();
@@ -11,45 +11,19 @@ test('light follows through one seamless page surface while project cards react 
   await expect(hero).toHaveClass(/is-pointer-active/);
   await expect.poll(() => hero.evaluate((element) => element.style.getPropertyValue('--spot-lead-x'))).not.toBe('');
 
-  const ambient = page.locator('[data-page-ambient]');
   const story = page.locator('#story');
   await story.scrollIntoViewIfNeeded();
-  const storyBox = await story.boundingBox();
-  expect(storyBox).not.toBeNull();
-  await page.mouse.move(storyBox.x + storyBox.width * 0.25, storyBox.y + storyBox.height * 0.4);
-  await page.mouse.move(storyBox.x + storyBox.width * 0.62, storyBox.y + storyBox.height * 0.5);
-  await expect(ambient).toHaveClass(/is-pointer-active/);
-  await expect.poll(() => ambient.evaluate(element => element.style.getPropertyValue('--page-light-y'))).not.toBe('');
-  const startScale = await ambient.evaluate(element =>
-    Number.parseFloat(element.style.getPropertyValue('--page-light-scale'))
-  );
-
-  await page.evaluate(() => {
-    const surface = document.querySelector('[data-page-ambient]');
-    window.scrollTo(0, surface.offsetTop + surface.offsetHeight / 2 - window.innerHeight / 2);
-  });
-  await page.mouse.move(0, 0);
-  await page.mouse.move(page.viewportSize().width / 2, page.viewportSize().height / 2);
-  await expect.poll(async () => ambient.evaluate(element =>
-    Number.parseFloat(element.style.getPropertyValue('--page-light-scale'))
-  )).toBeLessThan(startScale - 0.2);
-  const middleScale = await ambient.evaluate(element =>
-    Number.parseFloat(element.style.getPropertyValue('--page-light-scale'))
-  );
-
-  const connect = page.locator('#connect');
-  await connect.scrollIntoViewIfNeeded();
-  const connectBox = await connect.boundingBox();
-  await page.mouse.move(connectBox.x + connectBox.width * 0.7, connectBox.y + connectBox.height * 0.6);
-  await expect.poll(async () => ambient.evaluate(element =>
-    Number.parseFloat(element.style.getPropertyValue('--page-light-scale'))
-  )).toBeGreaterThan(middleScale + 0.1);
-
-  await expect(page.locator('.page-light-orb')).toHaveCount(1);
+  await expect(page.locator('[data-page-ambient]')).toHaveCount(0);
+  await expect(page.locator('.page-light-orb')).toHaveCount(0);
   await expect(page.locator('[data-light-lens]')).toHaveCount(0);
-  await expect(page.locator('.elegant-divider')).toHaveCount(0);
-  await expect(page.locator('#craft')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-  await expect(page.locator('#connect')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(page.locator('.elegant-divider')).toHaveCount(1);
+  await expect(page.locator('#craft')).toHaveCSS('background-color', 'rgb(17, 24, 39)');
+  await expect(page.locator('#connect')).toHaveCSS('background-color', 'rgb(17, 24, 39)');
+
+  const storyIntro = story.locator('.sticky > p');
+  expect(await storyIntro.evaluate(element => Number.parseFloat(getComputedStyle(element).marginTop))).toBeGreaterThan(28);
+  const storyCopy = story.locator('.md\\:col-span-7');
+  expect(await storyCopy.evaluate(element => Number.parseFloat(getComputedStyle(element).paddingTop))).toBeGreaterThan(20);
 
   const card = page.locator('#craft .card').first();
   await card.scrollIntoViewIfNeeded();
@@ -69,11 +43,6 @@ test('reduced motion keeps the atmosphere static', async ({ page }) => {
   await expect(hero).not.toHaveClass(/is-pointer-active/);
   await expect(hero).toHaveCSS('--spot-x', '72%');
 
-  const ambient = page.locator('[data-page-ambient]');
-  const story = page.locator('#story');
-  await story.scrollIntoViewIfNeeded();
-  const storyBox = await story.boundingBox();
-  await page.mouse.move(storyBox.x + storyBox.width / 2, storyBox.y + storyBox.height / 2);
-  await expect(ambient).not.toHaveClass(/is-pointer-active/);
-  await expect(page.locator('.page-light-orb')).toHaveCSS('display', 'none');
+  await expect(page.locator('[data-page-ambient]')).toHaveCount(0);
+  await expect(page.locator('.page-light-orb')).toHaveCount(0);
 });
