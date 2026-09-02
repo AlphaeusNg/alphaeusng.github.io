@@ -322,8 +322,13 @@
         </div>
     </header>
 
+    <div class="page-ambient" data-page-ambient>
+        <div class="page-ambient-light" aria-hidden="true">
+            <span class="page-light-orb"></span>
+        </div>
+
     <!-- The Story -->
-    <section id="story" class="max-w-5xl mx-auto px-6 pb-20 md:pb-28 scroll-mt-20" data-light-lens="story">
+    <section id="story" class="max-w-5xl mx-auto px-6 pb-20 md:pb-28 scroll-mt-20">
         <div class="grid md:grid-cols-12 gap-x-16 gap-y-10">
             <div class="md:col-span-5">
                 <div class="sticky top-24">
@@ -351,10 +356,8 @@
         </div>
     </section>
 
-    <div class="elegant-divider max-w-5xl mx-auto px-6"></div>
-
     <!-- Journey -->
-    <section id="journey" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20" data-light-lens="journey">
+    <section id="journey" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20">
         <div class="flex justify-between items-end mb-12">
             <div>
                 <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">PATH</div>
@@ -499,7 +502,7 @@
     </section>
 
     <!-- The Craft -->
-    <section id="craft" class="bg-[#111827] py-20 md:py-24 scroll-mt-20" data-light-lens="craft">
+    <section id="craft" class="py-20 md:py-24 scroll-mt-20">
         <div class="max-w-5xl mx-auto px-6">
             <div class="mb-12">
                 <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">WHAT I BUILD</div>
@@ -709,7 +712,7 @@
     </section>
 
     <!-- Interests / writing directions (honest, not fake dated posts) -->
-    <section id="thoughts" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20" data-light-lens="thoughts">
+    <section id="thoughts" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20">
         <div class="mb-12">
             <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">INTERESTS</div>
             <h2 class="section-header text-6xl tracking-tighter">What I think about</h2>
@@ -744,7 +747,7 @@
     </section>
 
     <!-- Faith -->
-    <section id="reflections" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20" data-light-lens="faith">
+    <section id="reflections" class="max-w-5xl mx-auto px-6 py-20 md:py-24 scroll-mt-20">
         <div class="mb-12">
             <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">FAITH</div>
             <h2 class="section-header text-6xl tracking-tighter">Faith</h2>
@@ -818,7 +821,7 @@
     </section>
 
     <!-- Connect -->
-    <section id="connect" class="border-t border-white/10 bg-[#111827] py-20 md:py-24 scroll-mt-20" data-light-lens="connect">
+    <section id="connect" class="py-20 md:py-24 scroll-mt-20">
         <div class="max-w-3xl mx-auto px-6 text-center">
             <div class="uppercase tracking-[3px] text-xs font-semibold text-[#94A3B8] mb-3">CONTACT</div>
             <h2 class="section-header text-6xl tracking-tighter mb-4">Connect</h2>
@@ -903,7 +906,7 @@
     </section>
 
     <!-- Support lives outside connect; Feedback mounts in the page footer -->
-    <div class="border-t border-white/10 bg-[#0B1220] py-12 px-6">
+    <div class="py-12 px-6">
         <div class="support-card mx-auto max-w-xl w-full">
             <div class="support-card-copy">
                 <div class="support-card-top">
@@ -921,7 +924,7 @@
         </div>
     </div>
 
-    <footer class="py-10 text-center text-xs text-[#475569] border-t border-white/5">
+    <footer class="py-10 text-center text-xs text-[#475569]">
         <p class="mb-2 text-[11px] tracking-[0.08em] text-[#64748B]">The created creating, pursuing the Uncaused Cause.</p>
         © Alphaeus Ng. All rights reserved.
         <span class="mx-2 opacity-40">·</span>
@@ -947,6 +950,7 @@
         <span class="mx-2 opacity-40">·</span>
         <span id="site-version" class="font-mono text-[#64748B]" title="Bump js/version.js on each deploy">v—</span>
     </footer>
+    </div>
     <script src="js/version.js"></script>
 
     <!-- Rich Project Case Study Modal (hardened minimal shell) -->
@@ -1029,7 +1033,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.09.03.1"
+    <script src="js/kofi-support.js?v=2026.09.03.2"
             data-auto-footer
             data-message="Tell me what worked or what would help."
             defer></script>

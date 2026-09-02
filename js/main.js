@@ -415,58 +415,124 @@ function initPointerAtmosphere() {
         queuePaint();
     }, { passive: true });
 
-    document.querySelectorAll('[data-light-lens]').forEach((section) => {
-        let lensCurrent = { x: 68, y: 30, leadX: 72, leadY: 26 };
-        let lensTarget = { ...lensCurrent };
-        let lensPreviousPointer = null;
-        let lensFrame = 0;
+    const pageAmbient = document.querySelector('[data-page-ambient]');
+    if (pageAmbient) {
+        const startPrimary = [76, 128, 190];
+        const middlePrimary = [54, 126, 139];
+        const endPrimary = [82, 116, 172];
+        const startSecondary = [201, 162, 39];
+        const middleSecondary = [91, 85, 151];
+        const endSecondary = [201, 162, 39];
+        let ambientCurrent = null;
+        let ambientTarget = null;
+        let ambientPreviousPointer = null;
+        let lastClientPoint = null;
+        let ambientFrame = 0;
 
-        function paintLens() {
-            lensFrame = 0;
-            lensCurrent.x += (lensTarget.x - lensCurrent.x) * 0.16;
-            lensCurrent.y += (lensTarget.y - lensCurrent.y) * 0.16;
-            lensCurrent.leadX += (lensTarget.leadX - lensCurrent.leadX) * 0.1;
-            lensCurrent.leadY += (lensTarget.leadY - lensCurrent.leadY) * 0.1;
-            section.style.setProperty('--lens-x', `${lensCurrent.x.toFixed(2)}%`);
-            section.style.setProperty('--lens-y', `${lensCurrent.y.toFixed(2)}%`);
-            section.style.setProperty('--lens-lead-x', `${lensCurrent.leadX.toFixed(2)}%`);
-            section.style.setProperty('--lens-lead-y', `${lensCurrent.leadY.toFixed(2)}%`);
-            const lensMoving = Object.keys(lensCurrent).some(
-                key => Math.abs(lensCurrent[key] - lensTarget[key]) > 0.08
-            );
-            if (lensMoving) lensFrame = requestAnimationFrame(paintLens);
-        }
+        const mix = (from, to, amount) => from.map(
+            (value, index) => value + (to[index] - value) * amount
+        );
 
-        function queueLensPaint() {
-            if (!lensFrame) lensFrame = requestAnimationFrame(paintLens);
-        }
-
-        section.addEventListener('pointermove', (event) => {
-            if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
-            const box = section.getBoundingClientRect();
-            if (!box.width || !box.height) return;
-            const x = Math.max(0, Math.min(100, ((event.clientX - box.left) / box.width) * 100));
-            const y = Math.max(0, Math.min(100, ((event.clientY - box.top) / box.height) * 100));
-            const velocityX = lensPreviousPointer ? x - lensPreviousPointer.x : 0;
-            const velocityY = lensPreviousPointer ? y - lensPreviousPointer.y : 0;
-            lensPreviousPointer = { x, y };
-            lensTarget = {
-                x,
-                y,
-                leadX: Math.max(0, Math.min(100, x + velocityX * 2.2)),
-                leadY: Math.max(0, Math.min(100, y + velocityY * 2.2))
+        function lightProfile(progress) {
+            const secondHalf = progress > 0.5;
+            const amount = secondHalf ? (progress - 0.5) * 2 : progress * 2;
+            const edgeDistance = Math.abs(progress - 0.5) * 2;
+            return {
+                scale: 0.52 + Math.pow(edgeDistance, 1.3) * 0.48,
+                primary: secondHalf
+                    ? mix(middlePrimary, endPrimary, amount)
+                    : mix(startPrimary, middlePrimary, amount),
+                secondary: secondHalf
+                    ? mix(middleSecondary, endSecondary, amount)
+                    : mix(startSecondary, middleSecondary, amount)
             };
-            section.classList.add('is-pointer-active');
-            queueLensPaint();
+        }
+
+        function setAmbientTarget(clientX, clientY) {
+            const box = pageAmbient.getBoundingClientRect();
+            if (!box.width || !box.height) return;
+            const x = Math.max(0, Math.min(box.width, clientX - box.left));
+            const y = Math.max(0, Math.min(box.height, clientY - box.top));
+            const velocityX = ambientPreviousPointer ? x - ambientPreviousPointer.x : 0;
+            const velocityY = ambientPreviousPointer ? y - ambientPreviousPointer.y : 0;
+            ambientPreviousPointer = { x, y };
+            const profile = lightProfile(y / box.height);
+            ambientTarget = {
+                x: Math.max(0, Math.min(box.width, x + velocityX * 1.8)),
+                y: Math.max(0, Math.min(box.height, y + velocityY * 1.8)),
+                scale: profile.scale,
+                primary: profile.primary,
+                secondary: profile.secondary
+            };
+            if (!ambientCurrent) {
+                ambientCurrent = {
+                    ...ambientTarget,
+                    primary: [...ambientTarget.primary],
+                    secondary: [...ambientTarget.secondary]
+                };
+            }
+        }
+
+        function paintAmbient() {
+            ambientFrame = 0;
+            if (!ambientCurrent || !ambientTarget) return;
+            ambientCurrent.x += (ambientTarget.x - ambientCurrent.x) * 0.16;
+            ambientCurrent.y += (ambientTarget.y - ambientCurrent.y) * 0.16;
+            ambientCurrent.scale += (ambientTarget.scale - ambientCurrent.scale) * 0.12;
+            ambientCurrent.primary = ambientCurrent.primary.map(
+                (value, index) => value + (ambientTarget.primary[index] - value) * 0.1
+            );
+            ambientCurrent.secondary = ambientCurrent.secondary.map(
+                (value, index) => value + (ambientTarget.secondary[index] - value) * 0.1
+            );
+            pageAmbient.style.setProperty('--page-light-x', `${ambientCurrent.x.toFixed(1)}px`);
+            pageAmbient.style.setProperty('--page-light-y', `${ambientCurrent.y.toFixed(1)}px`);
+            pageAmbient.style.setProperty('--page-light-scale', ambientCurrent.scale.toFixed(3));
+            pageAmbient.style.setProperty(
+                '--page-light-primary-rgb',
+                ambientCurrent.primary.map(value => Math.round(value)).join(', ')
+            );
+            pageAmbient.style.setProperty(
+                '--page-light-secondary-rgb',
+                ambientCurrent.secondary.map(value => Math.round(value)).join(', ')
+            );
+
+            const colorMoving = ['primary', 'secondary'].some(key =>
+                ambientCurrent[key].some(
+                    (value, index) => Math.abs(value - ambientTarget[key][index]) > 0.2
+                )
+            );
+            const positionMoving = ['x', 'y', 'scale'].some(
+                key => Math.abs(ambientCurrent[key] - ambientTarget[key]) > 0.08
+            );
+            if (colorMoving || positionMoving) ambientFrame = requestAnimationFrame(paintAmbient);
+        }
+
+        function queueAmbientPaint() {
+            if (!ambientFrame) ambientFrame = requestAnimationFrame(paintAmbient);
+        }
+
+        pageAmbient.addEventListener('pointermove', (event) => {
+            if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+            lastClientPoint = { x: event.clientX, y: event.clientY };
+            setAmbientTarget(event.clientX, event.clientY);
+            pageAmbient.classList.add('is-pointer-active');
+            queueAmbientPaint();
         }, { passive: true });
 
-        section.addEventListener('pointerleave', () => {
-            lensPreviousPointer = null;
-            section.classList.remove('is-pointer-active');
-            lensTarget = { x: 68, y: 30, leadX: 72, leadY: 26 };
-            queueLensPaint();
+        pageAmbient.addEventListener('pointerleave', () => {
+            ambientPreviousPointer = null;
+            lastClientPoint = null;
+            pageAmbient.classList.remove('is-pointer-active');
         }, { passive: true });
-    });
+
+        window.addEventListener('scroll', () => {
+            if (!lastClientPoint) return;
+            ambientPreviousPointer = null;
+            setAmbientTarget(lastClientPoint.x, lastClientPoint.y);
+            queueAmbientPaint();
+        }, { passive: true });
+    }
 
     document.querySelectorAll('.card').forEach((card) => {
         card.addEventListener('pointermove', (event) => {

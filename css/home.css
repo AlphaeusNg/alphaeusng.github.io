@@ -76,76 +76,56 @@ body {
     mask-image: linear-gradient(to bottom, black, transparent 92%);
 }
 
-/* One pointer-led light continues below the hero, with each section tinting it
-   through a restrained local lens. */
-[data-light-lens] {
-    --lens-x: 68%;
-    --lens-y: 30%;
-    --lens-lead-x: 72%;
-    --lens-lead-y: 26%;
-    --lens-primary-rgb: 70, 112, 168;
-    --lens-secondary-rgb: 201, 162, 39;
-    --lens-opacity: 0.48;
+/* A single continuous surface carries the hero's light through the rest of
+   the page. Broad static fields at both ends and a tighter middle field keep
+   the atmosphere varied without exposing section boundaries. */
+.page-ambient {
+    --page-light-x: 68%;
+    --page-light-y: 8rem;
+    --page-light-scale: 1;
+    --page-light-primary-rgb: 76, 128, 190;
+    --page-light-secondary-rgb: 201, 162, 39;
     position: relative;
     isolation: isolate;
+    background:
+        radial-gradient(ellipse 70rem 48rem at 74% 0%, rgba(201, 162, 39, 0.045), transparent 74%),
+        radial-gradient(ellipse 34rem 42rem at 28% 52%, rgba(54, 126, 139, 0.032), transparent 76%),
+        radial-gradient(ellipse 72rem 54rem at 68% 100%, rgba(76, 128, 190, 0.052), transparent 75%),
+        linear-gradient(180deg, #0A0F1C 0%, #0B111F 50%, #0A0F1C 100%);
 }
 
-[data-light-lens]::before {
-    content: "";
+.page-ambient-light {
     position: absolute;
     inset: 0;
     z-index: 0;
+    overflow: hidden;
     pointer-events: none;
+}
+
+.page-light-orb {
+    position: absolute;
+    top: var(--page-light-y);
+    left: var(--page-light-x);
+    width: 54rem;
+    height: 54rem;
+    border-radius: 50%;
+    opacity: 0;
     background:
-        radial-gradient(circle 18rem at var(--lens-lead-x) var(--lens-lead-y), rgba(var(--lens-secondary-rgb), 0.065), transparent 70%),
-        radial-gradient(circle 31rem at var(--lens-x) var(--lens-y), rgba(var(--lens-primary-rgb), 0.06), transparent 74%);
-    opacity: var(--lens-opacity);
+        radial-gradient(circle at 42% 38%, rgba(var(--page-light-secondary-rgb), 0.085), transparent 44%),
+        radial-gradient(circle, rgba(var(--page-light-primary-rgb), 0.08), transparent 70%);
+    filter: blur(3px);
+    transform: translate3d(-50%, -50%, 0) scale(var(--page-light-scale));
+    transform-origin: center;
     transition: opacity 420ms ease;
 }
 
-[data-light-lens] > * {
+.page-ambient.is-pointer-active .page-light-orb {
+    opacity: 0.72;
+}
+
+.page-ambient > :not(.page-ambient-light) {
     position: relative;
     z-index: 1;
-}
-
-[data-light-lens].is-pointer-active::before {
-    opacity: min(0.72, calc(var(--lens-opacity) + 0.16));
-}
-
-[data-light-lens="story"] {
-    --lens-primary-rgb: 67, 111, 170;
-    --lens-secondary-rgb: 201, 162, 39;
-    --lens-opacity: 0.46;
-}
-
-[data-light-lens="journey"] {
-    --lens-primary-rgb: 54, 126, 139;
-    --lens-secondary-rgb: 76, 128, 190;
-    --lens-opacity: 0.42;
-}
-
-[data-light-lens="craft"] {
-    --lens-primary-rgb: 47, 113, 124;
-    --lens-secondary-rgb: 201, 162, 39;
-    --lens-opacity: 0.5;
-}
-
-[data-light-lens="thoughts"] {
-    --lens-primary-rgb: 91, 85, 151;
-    --lens-secondary-rgb: 70, 119, 177;
-    --lens-opacity: 0.4;
-}
-
-[data-light-lens="faith"] {
-    --lens-primary-rgb: 158, 119, 48;
-    --lens-secondary-rgb: 62, 103, 161;
-    --lens-opacity: 0.44;
-}
-
-[data-light-lens="connect"] {
-    --lens-primary-rgb: 57, 99, 158;
-    --lens-secondary-rgb: 179, 142, 47;
-    --lens-opacity: 0.38;
 }
 
 .heading-serif {
@@ -221,11 +201,16 @@ body {
         transform: translateY(-3px);
     }
 
-    [data-light-lens]::before {
-        opacity: 0.4;
+    .page-ambient {
         background:
-            radial-gradient(circle 15rem at 72% 24%, rgba(var(--lens-secondary-rgb), 0.055), transparent 72%),
-            radial-gradient(circle 24rem at 44% 48%, rgba(var(--lens-primary-rgb), 0.052), transparent 76%);
+            radial-gradient(ellipse 30rem 34rem at 74% 0%, rgba(201, 162, 39, 0.04), transparent 74%),
+            radial-gradient(ellipse 20rem 32rem at 24% 52%, rgba(54, 126, 139, 0.03), transparent 76%),
+            radial-gradient(ellipse 32rem 38rem at 68% 100%, rgba(76, 128, 190, 0.045), transparent 75%),
+            linear-gradient(180deg, #0A0F1C 0%, #0B111F 50%, #0A0F1C 100%);
+    }
+
+    .page-light-orb {
+        display: none;
     }
 }
 
@@ -244,9 +229,8 @@ body {
         transition-duration: 0.01ms;
     }
 
-    [data-light-lens]::before {
-        opacity: 0.4;
-        transition: none;
+    .page-light-orb {
+        display: none;
     }
 }
 
