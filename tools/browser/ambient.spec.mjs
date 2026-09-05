@@ -20,7 +20,12 @@ test('light stays in the opening hero while project cards react locally', async 
   await expect(page.locator('#craft')).toHaveCSS('background-color', 'rgb(17, 24, 39)');
   await expect(page.locator('#connect')).toHaveCSS('background-color', 'rgb(17, 24, 39)');
 
-  expect(await story.evaluate(element => Number.parseFloat(getComputedStyle(element).paddingTop))).toBeGreaterThanOrEqual(96);
+  const storyBox = await story.evaluate((element) => ({
+    paddingTop: Number.parseFloat(getComputedStyle(element).paddingTop),
+    scrollMarginTop: Number.parseFloat(getComputedStyle(element).scrollMarginTop),
+  }));
+  expect(storyBox.paddingTop).toBeGreaterThanOrEqual(128);
+  expect(storyBox.scrollMarginTop).toBeGreaterThanOrEqual(128);
   const storyIntro = story.locator('.sticky > p');
   expect(await storyIntro.evaluate(element => Number.parseFloat(getComputedStyle(element).marginTop))).toBeGreaterThan(28);
   const storyCopy = story.locator('.md\\:col-span-7');

@@ -199,6 +199,17 @@ body {
     position: relative;
 }
 
+/* section[id] already uses --site-nav-offset (nav height). Add air so WHO I AM
+   does not sit flush under the fixed bar on hash jump or sticky scroll. */
+section#story.story-section {
+    padding-top: calc(var(--site-nav-offset, 5rem) + 3rem);
+    scroll-margin-top: calc(var(--site-nav-offset, 5rem) + 3rem);
+}
+
+.story-aside {
+    top: calc(var(--site-nav-offset, 5rem) + 1rem);
+}
+
 .story-quote {
     position: relative;
 }
