@@ -6,7 +6,7 @@
 (function (global) {
   "use strict";
   global.SITE_VERSION = {
-    id: "2026.09.06.3",
+    id: "2026.09.06.4",
     repo: "alphaeusng.github.io",
     label: "portfolio",
   };

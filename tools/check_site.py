@@ -628,6 +628,7 @@ def main() -> None:
         ROOT / "css" / "dca-calculator.css",
         ROOT / "css" / "home.css",
         ROOT / "css" / "main.css",
+        ROOT / "css" / "tailwind-home.css",
         ROOT / "js" / "main.js",
         ROOT / "js" / "modals.js",
         ROOT / "js" / "conviction.js",
@@ -825,6 +826,15 @@ def main() -> None:
     ok(f"crawler discovery: {len(PUBLIC_CRAWLER_ROUTES)} canonical public routes")
 
     home = (ROOT / "index.html").read_text(encoding="utf-8")
+    if "cdn.tailwindcss.com" in home:
+        fail("home page still loads Tailwind's render-blocking CDN compiler")
+    if not re.search(
+        rf'href="css/tailwind-home\.css\?v={re.escape(site_version)}"',
+        home,
+    ):
+        fail(f"home utility CSS cache key must match SITE_VERSION.id {site_version}")
+    ok("home page loads committed, versioned utility CSS")
+
     if "d3js.org" in home or "html2canvas" in home:
         # Comments may mention them; flag only real script tags.
         if re.search(r'<script[^>]+src=["\']https://d3js\.org', home):

@@ -2,11 +2,14 @@
   "name": "alphaeusng-portfolio",
   "private": true,
   "scripts": {
+    "build:styles": "tailwindcss -c tailwind.home.config.cjs -i tools/tailwind-home.input.css -o css/tailwind-home.css --minify",
+    "test:styles": "npm run build:styles && git diff --exit-code -- css/tailwind-home.css",
     "test:browser": "playwright test",
     "test:dca": "node --test tools/test_dca_engine.mjs tools/test_dca_quotes.mjs tools/test_dca_journal.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
-    "d3": "7.9.0"
+    "d3": "7.9.0",
+    "tailwindcss": "3.4.17"
   }
 }

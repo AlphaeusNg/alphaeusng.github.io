@@ -8,6 +8,11 @@ test('home fonts do not block first paint and retain a no-JS fallback', () => {
   expect(homeSource).toMatch(/<noscript><link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com\/css2[^>]+><\/noscript>/);
 });
 
+test('home utilities load locally without the Tailwind browser compiler', () => {
+  expect(homeSource).not.toContain('cdn.tailwindcss.com');
+  expect(homeSource).toContain('href="css/tailwind-home.css?v=2026.09.06.4"');
+});
+
 test('light stays in the opening hero while project cards react locally', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
   const hero = page.locator('#home-hero');

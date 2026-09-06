@@ -32,6 +32,8 @@ jobs:
           cache: npm
       - name: Install browser test dependencies
         run: npm ci
+      - name: Check committed home utility CSS
+        run: npm run test:styles
       - name: Test site contracts
         run: python3 -m unittest discover -s tools -p 'test_*.py'
       - name: Test DCA calculation engine

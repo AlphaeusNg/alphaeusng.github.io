@@ -22,14 +22,13 @@
     <link rel="icon" href="assets/alphaeus-portrait.jpg" type="image/jpeg">
 
     <!-- Resource hints: critical third parties only -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.google.com">
     
-    <!-- Tailwind CSS (CDN - zero build). D3 / html2canvas intentionally omitted here:
-         the knowledge-graph case study embeds pages/seeking-biblical-truth/ via iframe. -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Committed utility CSS keeps the zero-build Pages deploy while avoiding
+         Tailwind's render-blocking browser compiler. -->
+    <link rel="stylesheet" href="css/tailwind-home.css?v=2026.09.06.4">
     
     <!-- Elegant Fonts: non-blocking for first paint, with a no-JS fallback. -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap" media="print" onload="this.onload=null;this.media='all'" data-portfolio-fonts>
@@ -1043,7 +1042,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.09.06.3"
+    <script src="js/kofi-support.js?v=2026.09.06.4"
             data-auto-footer
             data-message="Tell me what worked or what would help."
             defer></script>
