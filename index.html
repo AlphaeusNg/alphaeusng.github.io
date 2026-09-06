@@ -31,8 +31,9 @@
          the knowledge-graph case study embeds pages/seeking-biblical-truth/ via iframe. -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Elegant Fonts (single load; avoid duplicate @import in <style>) -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap">
+    <!-- Elegant Fonts: non-blocking for first paint, with a no-JS fallback. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap" media="print" onload="this.onload=null;this.media='all'" data-portfolio-fonts>
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap"></noscript>
     
     <!-- Custom CSS (extracted from monolithic HTML) -->
     <link rel="stylesheet" href="css/main.css">
@@ -1042,7 +1043,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.09.06.2"
+    <script src="js/kofi-support.js?v=2026.09.06.3"
             data-auto-footer
             data-message="Tell me what worked or what would help."
             defer></script>

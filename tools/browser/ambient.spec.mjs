@@ -1,4 +1,12 @@
 import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+
+const homeSource = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
+
+test('home fonts do not block first paint and retain a no-JS fallback', () => {
+  expect(homeSource).toMatch(/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com\/css2[^>]+media="print"[^>]+onload="this\.onload=null;this\.media='all'"[^>]+data-portfolio-fonts>/);
+  expect(homeSource).toMatch(/<noscript><link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com\/css2[^>]+><\/noscript>/);
+});
 
 test('light stays in the opening hero while project cards react locally', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' });
