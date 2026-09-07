@@ -1,6 +1,15 @@
 const VAULT_JSON = 'vault-data.json';
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/AlphaeusNg/Seeking-Biblical-Truth/main/';
 const LAST_NOTE_KEY = 'sbt-last-note-path-v1';
+const D3_RUNTIME_URL = 'https://d3js.org/d3.v7.min.js';
+const FIREBASE_RUNTIME_URLS = [
+  'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
+  'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',
+  'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js'
+];
+const GRAPH_GROUPS = ['Word of God', 'Heritage Christian University', 'Meaning of ideas, words', 'Journal', 'Root', 'Canvas'];
+const GRAPH_COLORS = ['#5B9BD5', '#C9A227', '#9F7AEA', '#E07A7A', '#CBD5E1', '#4CAF8A'];
+const SCRIPT_LOADS = new Map();
 const state = {
   data: null,
   selected: null,
@@ -17,14 +26,64 @@ const state = {
   editDraft: ''
 };
 
-const color = d3.scaleOrdinal()
-  .domain(['Word of God', 'Heritage Christian University', 'Meaning of ideas, words', 'Journal', 'Root', 'Canvas'])
-  .range(['#5B9BD5', '#C9A227', '#9F7AEA', '#E07A7A', '#CBD5E1', '#4CAF8A']);
+let graphRuntimePromise = null;
+let graphBootData = null;
+let graphBootPendingData = null;
+let cloudRuntimePromise = null;
+let cloudBootQueued = false;
+let lastCloudFingerprint = '';
+
+function color(group) {
+  const index = GRAPH_GROUPS.indexOf(group);
+  return GRAPH_COLORS[index === -1 ? 4 : index];
+}
+
 const markdown = window.markdownit
   ? window.markdownit({ html: false, linkify: true, breaks: false })
   : { render: text => `<p>${esc(text).replace(/\n/g, '<br>')}</p>` };
 
 const esc = (s = '') => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+function loadScriptOnce(src) {
+  if (SCRIPT_LOADS.has(src)) return SCRIPT_LOADS.get(src);
+  const promise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error(`Failed to load ${src}`));
+    document.head.appendChild(script);
+  });
+  SCRIPT_LOADS.set(src, promise);
+  return promise;
+}
+
+function ensureGraphRuntime() {
+  if (window.d3) return Promise.resolve(window.d3);
+  if (!graphRuntimePromise) {
+    graphRuntimePromise = loadScriptOnce(D3_RUNTIME_URL).then(() => {
+      if (!window.d3) throw new Error('D3 runtime missing');
+      return window.d3;
+    });
+  }
+  return graphRuntimePromise;
+}
+
+async function ensureCloudRuntime() {
+  if (!window.VaultCloud?.isConfigured?.()) return false;
+  if (!cloudRuntimePromise) {
+    cloudRuntimePromise = (async () => {
+      for (const src of FIREBASE_RUNTIME_URLS) await loadScriptOnce(src);
+      if (!window.firebase) throw new Error('Firebase runtime missing');
+      return window.VaultCloud.init();
+    })().catch(err => {
+      console.warn('[vault] cloud editor stayed offline', err);
+      paintAuthBar();
+      return false;
+    });
+  }
+  return cloudRuntimePromise;
+}
 
 function decodeURIComponentSafely(value = '') {
   const text = String(value ?? '');
@@ -452,7 +511,7 @@ function lastRememberedNotePath() {
 function renderGraphLegend() {
   const host = document.getElementById('graph-legend');
   if (!host) return;
-  host.innerHTML = color.domain().map((name) => (
+  host.innerHTML = GRAPH_GROUPS.map((name) => (
     `<li><span class="swatch" style="background:${color(name)}"></span>${esc(name)}</li>`
   )).join('');
 }
@@ -467,6 +526,7 @@ function setVaultSurface(name) {
     btn.setAttribute('aria-pressed', String(btn.dataset.surface === next));
   });
   if (next === 'graph') {
+    queueGraphBoot(state.data);
     requestAnimationFrame(() => {
       syncGraphHeight();
       if (state.simulation) state.simulation.alpha(0.25).restart();
@@ -484,7 +544,6 @@ function renderFolders() {
     btn.addEventListener('click', () => {
       state.filter = folder;
       renderFolders();
-      renderFileTree();
       applyVisibility();
     });
     host.appendChild(btn);
@@ -553,10 +612,14 @@ function syncGraphHeight() {
 }
 
 function renderGraph() {
+  const d3 = window.d3;
   const container = document.getElementById('graph');
+  if (!d3 || !container || !state.data) return;
+  state.simulation?.stop?.();
   syncGraphHeight();
   const width = container.clientWidth;
   const height = container.clientHeight;
+  container.classList.remove('flex', 'items-center', 'justify-center', 'text-sm', 'text-[#64748B]');
   container.innerHTML = '';
 
   const svg = d3.select(container).append('svg').attr('width', width).attr('height', height);
@@ -585,18 +648,20 @@ function renderGraph() {
     });
   state.link = link;
   state.node = node;
+  graphBootData = state.data;
+  setGraphControlsEnabled(true);
   applyVisibility();
   setTimeout(fitGraph, 450);
 }
 
 function applyVisibility() {
+  renderFileTree();
   if (!state.node) return;
   const visible = new Set();
   state.node.each(d => { if (visibleNode(d)) visible.add(d.id); });
   state.node.style('opacity', d => visible.has(d.id) ? 1 : .08);
   state.link.style('opacity', d => visible.has(d.source.id || d.source) && visible.has(d.target.id || d.target) ? .5 : .04);
   document.getElementById('graph-count').textContent = `${visible.size} visible / ${state.data.counts.nodes} nodes`;
-  renderFileTree();
 }
 
 function paintNotePanel(d, { liveStatus = '' } = {}) {
@@ -741,7 +806,8 @@ async function selectNode(d) {
 }
 
 function fitGraph() {
-  if (!state.node || !state.zoom) return;
+  const d3 = window.d3;
+  if (!d3 || !state.node || !state.zoom) return;
   const graph = document.getElementById('graph');
   const bounds = state.graphLayer.node().getBBox();
   const scale = Math.max(.18, Math.min(2.2, .9 / Math.max(bounds.width / graph.clientWidth, bounds.height / graph.clientHeight)));
@@ -749,7 +815,12 @@ function fitGraph() {
   const ty = graph.clientHeight / 2 - scale * (bounds.y + bounds.height / 2);
   d3.select('#graph svg').transition().duration(450).call(state.zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
 }
-function resetGraph() { d3.select('#graph svg').transition().duration(300).call(state.zoom.transform, d3.zoomIdentity); state.simulation.alpha(.7).restart(); }
+function resetGraph() {
+  const d3 = window.d3;
+  if (!d3 || !state.zoom || !state.simulation) return;
+  d3.select('#graph svg').transition().duration(300).call(state.zoom.transform, d3.zoomIdentity);
+  state.simulation.alpha(.7).restart();
+}
 function dragStart(e, d) { if (!e.active) state.simulation.alphaTarget(.25).restart(); d.fx = d.x; d.fy = d.y; }
 function dragged(e, d) { d.fx = e.x; d.fy = e.y; }
 function dragEnd(e, d) { if (!e.active) state.simulation.alphaTarget(0); d.fx = null; d.fy = null; }
@@ -807,6 +878,7 @@ document.getElementById('export-png').addEventListener('click', async () => {
   }
 });
 function scheduleGraphRender() {
+  if (!window.d3 || !state.data) return;
   clearTimeout(window.__graphResize);
   window.__graphResize = setTimeout(renderGraph, 180);
 }
@@ -814,6 +886,63 @@ function scheduleGraphRender() {
 window.addEventListener('resize', scheduleGraphRender);
 
 let graphResizeObserver = null;
+
+function setGraphControlsEnabled(enabled) {
+  ['fit', 'reset', 'export-png'].forEach(id => {
+    const control = document.getElementById(id);
+    if (control) control.disabled = !enabled;
+  });
+}
+
+function observeGraphSize() {
+  if (!('ResizeObserver' in window) || graphResizeObserver) return;
+  const graphPanel = document.getElementById('graph')?.parentElement;
+  if (!graphPanel) return;
+  graphResizeObserver = new ResizeObserver(scheduleGraphRender);
+  graphResizeObserver.observe(graphPanel);
+}
+
+function queueGraphBoot(data) {
+  if (!data || graphBootPendingData === data || (graphBootData === data && state.node)) return;
+  graphBootPendingData = data;
+  const graph = document.getElementById('graph');
+  const count = document.getElementById('graph-count');
+  if (count) count.textContent = 'Loading graph after notes…';
+  setGraphControlsEnabled(false);
+
+  requestAnimationFrame(() => {
+    setTimeout(async () => {
+      try {
+        await ensureGraphRuntime();
+        if (state.data !== data) return;
+        renderGraphLegend();
+        renderGraph();
+        observeGraphSize();
+      } catch (err) {
+        console.warn('[vault] graph stayed offline', err);
+        if (state.data !== data) return;
+        if (graph) {
+          graph.classList.add('flex', 'items-center', 'justify-center', 'text-sm', 'text-[#64748B]');
+          graph.textContent = 'The note reader is ready. The interactive graph could not load.';
+        }
+        if (count) count.textContent = 'Graph unavailable';
+      } finally {
+        if (graphBootPendingData === data) graphBootPendingData = null;
+      }
+    }, 0);
+  });
+}
+
+function queueCloudBoot() {
+  if (cloudBootQueued || !window.VaultCloud?.isConfigured?.()) return;
+  cloudBootQueued = true;
+  const start = () => ensureCloudRuntime();
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(start, { timeout: 2500 });
+  } else {
+    setTimeout(start, 1200);
+  }
+}
 
 async function loadVault({ bustCache = false, keepSelection = false } = {}) {
   const summary = document.getElementById('vault-summary');
@@ -834,15 +963,6 @@ async function loadVault({ bustCache = false, keepSelection = false } = {}) {
     summary.textContent = `${data.counts.notes} Markdown notes, ${data.counts.canvas} canvas, and ${data.counts.links} links · loaded ${when}.`;
     renderFolders();
     renderFileTree();
-    renderGraph();
-    renderGraphLegend();
-    if ('ResizeObserver' in window && !graphResizeObserver) {
-      const graphPanel = document.getElementById('graph')?.parentElement;
-      if (graphPanel) {
-        graphResizeObserver = new ResizeObserver(scheduleGraphRender);
-        graphResizeObserver.observe(graphPanel);
-      }
-    }
     const prevId = keepSelection ? state.selected?.id : null;
     const hashed = findNoteByPath(pathFromHash());
     const remembered = hashed ? null : findNoteByPath(lastRememberedNotePath());
@@ -853,6 +973,8 @@ async function loadVault({ bustCache = false, keepSelection = false } = {}) {
       data.nodes.find(n => n.path === 'My Search for Truth.md') ||
       data.nodes.find(n => n.type === 'note');
     if (first) selectNode(first);
+    queueGraphBoot(data);
+    queueCloudBoot();
   } catch (err) {
     summary.textContent = `Could not load vault-data.json: ${err.message}`;
   } finally {
@@ -867,8 +989,13 @@ document.getElementById('refresh-vault')?.addEventListener('click', () => {
   loadVault({ bustCache: true, keepSelection: true });
 });
 
+document.querySelector('.vault-tools')?.addEventListener('toggle', event => {
+  if (event.currentTarget.open) ensureCloudRuntime();
+});
+
 document.getElementById('btn-google-signin')?.addEventListener('click', async () => {
   try {
+    await ensureCloudRuntime();
     await window.VaultCloud.signInWithGoogle();
     paintAuthBar();
     if (state.selected) selectNode(state.selected);
@@ -891,17 +1018,20 @@ document.getElementById('btn-google-signout')?.addEventListener('click', async (
   }
 });
 
-// Boot cloud + vault
+// The public snapshot boots first. Graph and cloud runtimes follow after it is useful.
 bindAutoHideHeader();
 paintAuthBar();
 if (window.VaultCloud) {
-  window.VaultCloud.onChange(() => {
+  window.VaultCloud.onChange(next => {
+    const fingerprint = `${next.status}:${next.email || ''}`;
+    const shouldReloadNote = next.status === 'online' && fingerprint !== lastCloudFingerprint;
+    lastCloudFingerprint = fingerprint;
     paintAuthBar();
     if (state.selected && state.noteView !== 'edit') {
-      paintNotePanel(state.selected, { liveStatus: state.selected._sourceLabel || '' });
+      if (shouldReloadNote) selectNode(state.selected);
+      else paintNotePanel(state.selected, { liveStatus: state.selected._sourceLabel || '' });
     }
   });
-  window.VaultCloud.init().then(() => paintAuthBar());
 }
 
 loadVault();

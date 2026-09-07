@@ -502,6 +502,51 @@ test('vault viewer indexes and opens note paths containing a literal percent sig
   await expect(page).toHaveURL(/#\/100%25%20Truth\.md$/);
 });
 
+test('vault viewer paints public notes before delayed graph and editor runtimes', async ({ page }) => {
+  let releaseD3;
+  let releaseFirebase;
+  const d3Gate = new Promise(resolve => { releaseD3 = resolve; });
+  const firebaseGate = new Promise(resolve => { releaseFirebase = resolve; });
+
+  await page.route('https://cdn.tailwindcss.com/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/markdown-it/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/dompurify/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://d3js.org/d3.v7.min.js', async route => {
+    await d3Gate;
+    await route.fulfill({ contentType: 'application/javascript', body: D3_RUNTIME });
+  });
+  await page.route('https://www.gstatic.com/firebasejs/**', async route => {
+    await firebaseGate;
+    await route.fulfill({ contentType: 'application/javascript', body: '' });
+  });
+  await page.route('https://raw.githubusercontent.com/AlphaeusNg/Seeking-Biblical-Truth/main/**', route =>
+    route.fulfill({ contentType: 'text/markdown', body: '# Reader ready\n' })
+  );
+
+  await page.goto('/pages/seeking-biblical-truth/', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#vault-summary')).toContainText('55 Markdown notes');
+  await expect(page.locator('#file-tree button').first()).toBeVisible();
+  await expect(page.locator('#note-panel h2')).not.toHaveText('Choose a node');
+  await expect(page.locator('#graph')).toContainText('Preparing the interactive graph');
+  await expect(page.locator('#fit')).toBeDisabled();
+  await page.locator('#search').fill('__no_note_before_d3__');
+  await expect(page.locator('#file-tree')).toContainText('No matching notes');
+  await page.locator('#search').fill('');
+  await expect(page.locator('#file-tree button').first()).toBeVisible();
+
+  releaseFirebase();
+  releaseD3();
+  await expect(page.locator('#graph svg')).toBeVisible();
+  await expect(page.locator('#fit')).toBeEnabled();
+});
+
 test('conviction page renders ledger data and switches benchmark views', async ({ page }) => {
   await mockDcaQuotes(page);
   await page.route('https://cdn.jsdelivr.net/npm/chart.js', route =>

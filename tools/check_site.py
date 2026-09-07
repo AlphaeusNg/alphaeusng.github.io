@@ -843,6 +843,31 @@ def main() -> None:
             fail("index.html still loads html2canvas")
     ok("home page does not load d3/html2canvas")
 
+    vault_html = (
+        ROOT / "pages" / "seeking-biblical-truth" / "index.html"
+    ).read_text(encoding="utf-8")
+    vault_js = (
+        ROOT / "pages" / "seeking-biblical-truth" / "js" / "app.js"
+    ).read_text(encoding="utf-8")
+    for asset, pattern in (
+        ("Firebase config", rf'src="js/firebase-config\.js\?v={re.escape(site_version)}"'),
+        ("cloud adapter", rf'src="js/vault-cloud\.js\?v={re.escape(site_version)}"'),
+        ("app", rf'src="js/app\.js\?v={re.escape(site_version)}"'),
+    ):
+        if not re.search(pattern, vault_html):
+            fail(f"vault viewer {asset} cache key must match SITE_VERSION.id {site_version}")
+    if re.search(r'<script[^>]+src=["\']https://d3js\.org', vault_html):
+        fail("vault viewer must load D3 after its public note list paints")
+    if re.search(r'<script[^>]+src=["\']https://www\.gstatic\.com/firebasejs', vault_html):
+        fail("vault viewer must keep Firebase SDKs off the public-reader critical path")
+    if "queueGraphBoot(data)" not in vault_js or "queueCloudBoot()" not in vault_js:
+        fail("vault viewer must queue graph and cloud runtimes after snapshot rendering")
+    if vault_js.find("renderFileTree();", vault_js.find("async function loadVault")) > vault_js.find(
+        "queueGraphBoot(data)", vault_js.find("async function loadVault")
+    ):
+        fail("vault viewer must render its note list before queuing D3")
+    ok("vault viewer paints public notes before lazy D3/Firebase runtimes")
+
     if 'src="js/main.js" defer' not in home or 'src="js/modals.js" defer' not in home:
         fail("home page should defer main.js and modals.js")
     ok("home page defers main.js and modals.js")
