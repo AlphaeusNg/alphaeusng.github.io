@@ -1,16 +1,15 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-09-01
+Last updated: 2026-09-08
 
 ## Current state
 
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.09.01.1`. DCA snapshot latest close is 2026-08-31
-  (290 TSLA / 55 SPCX sessions).
-- Local verification: 33 Python tests, 19 DCA engine/quote/journal tests,
-  `tools/check_site.py`, 23 Chromium journeys, Python compilation, and syntax
+- Deployment stamp: `2026.09.08.2`. DCA snapshot latest close is 2026-09-04.
+- Local verification: 33 Python tests, 21 DCA engine/quote/journal tests,
+  `tools/check_site.py`, 29 Chromium journeys, Python compilation, and syntax
   checks for first-party JavaScript. Firestore rules for `dcaJournals` are
   published on `alparcade-cb87c`.
 - Automated verification: least-privilege GitHub Actions checks out complete
@@ -18,7 +17,29 @@ Last updated: 2026-09-01
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: show imported journal history immediately
+## Latest cycle: keep delayed quotes from moving prices backward
+
+### Why this was selected
+
+The optional Nasdaq and Alpaca feeds enforced a 36-hour age ceiling, but did
+not compare an incoming symbol quote with the timestamp already committed from
+the daily snapshot or a faster feed. A delayed response could therefore replace
+a newer displayed price while still looking "fresh" in isolation.
+
+### Changes
+
+- Compare quote recency per symbol before mutating market data, so one stale
+  symbol cannot block a newer symbol in the same feed payload.
+- Preserve source-date precision: a date-only value cannot overwrite an
+  intraday quote from the same day, while a precise quote may refine a
+  date-only snapshot.
+- Reject impossible calendar dates even when JavaScript normalizes their
+  timestamp, and apply the same monotonic guard to real-time Alpaca trades.
+- Add unit coverage for older/equal/newer, date-only, precision, and invalid
+  date cases plus a Chromium mixed-symbol regression.
+- Bump the deployment stamp to `2026.09.08.2`.
+
+## Previous cycle: show imported journal history immediately
 
 ### Why this was selected
 

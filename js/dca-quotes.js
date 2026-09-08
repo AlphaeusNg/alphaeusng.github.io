@@ -101,6 +101,33 @@
         }).format(parsed);
     }
 
+    function quoteTemporalIdentity(quote) {
+        const asOf = String((quote && quote.asOf) || '');
+        const parsed = Date.parse(asOf);
+        if (!asOf || !Number.isFinite(parsed)) return null;
+        const sourceDay = /^(\d{4}-\d{2}-\d{2})/.exec(asOf)?.[1] || '';
+        if (!sourceDay) return null;
+        const [year, month, day] = sourceDay.split('-').map(Number);
+        const normalized = new Date(Date.UTC(year, month - 1, day));
+        if (normalized.toISOString().slice(0, 10) !== sourceDay) return null;
+        const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(asOf);
+        return { parsed, sourceDay, dateOnly };
+    }
+
+    function isQuoteAtLeastAsRecent(incoming, current) {
+        const next = quoteTemporalIdentity(incoming);
+        if (!next) return false;
+        const existing = quoteTemporalIdentity(current);
+        if (!existing) return true;
+        if (next.sourceDay !== existing.sourceDay) {
+            return next.sourceDay > existing.sourceDay;
+        }
+        if (next.dateOnly !== existing.dateOnly) {
+            return !next.dateOnly;
+        }
+        return next.parsed >= existing.parsed;
+    }
+
     async function loadLiveQuotes(options = {}) {
         const symbols = options.symbols || SYMBOLS;
         const baseUrl = options.githubUrl || GITHUB_LIVE_QUOTES;
@@ -281,6 +308,7 @@
         ALPACA_STREAMS,
         parseLiveQuotesPayload,
         formatQuoteTimestamp,
+        isQuoteAtLeastAsRecent,
         loadLiveQuotes,
         parseAlpacaStreamMessage,
         createAlpacaStream

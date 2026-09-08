@@ -149,6 +149,20 @@ async function mockDcaQuotes(page, {
   );
 }
 
+async function mockDcaSnapshotQuotes(page, quotes) {
+  await page.route('**/data/dca_market_history.json', async route => {
+    const response = await route.fetch();
+    const payload = await response.json();
+    Object.entries(quotes).forEach(([symbol, quote]) => {
+      payload.symbols[symbol].quote = {
+        ...payload.symbols[symbol].quote,
+        ...quote,
+      };
+    });
+    await route.fulfill({ response, json: payload });
+  });
+}
+
 async function mockAlpacaStream(page, { tsla = 410.5, spcx = 91.25 } = {}) {
   await page.addInitScript(({ tslaPrice, spcxPrice }) => {
     window.__alpacaSent = [];
@@ -830,6 +844,35 @@ test('DCA Lab replaces the snapshot with live last-sale quotes', async ({ page }
   await expect(page.locator('#marketFreshness')).toHaveText('Recent last sale');
   await expect(page.locator('#heroTslaPrice')).toHaveText('$401.25');
   await expect(page.locator('#tslaPriceMeta')).toContainText('Nasdaq last sale');
+});
+
+test('DCA Lab applies optional quotes per symbol without moving newer snapshots backward', async ({ page }) => {
+  const now = Date.now();
+  const newerTsla = new Date(now - (5 * 60_000)).toISOString();
+  const incoming = new Date(now - (30 * 60_000)).toISOString();
+  const olderSpcx = new Date(now - (60 * 60_000)).toISOString();
+  await mockDcaSnapshotQuotes(page, {
+    TSLA: {
+      price: 410.25,
+      asOf: newerTsla,
+      timestampPrecision: 'minute',
+      marketStatus: 'Open',
+    },
+    SPCX: {
+      price: 80.5,
+      asOf: olderSpcx,
+      timestampPrecision: 'minute',
+      marketStatus: 'Open',
+    },
+  });
+  await mockDcaQuotes(page, { tsla: 390.5, spcx: 91.25, asOf: incoming });
+
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('#heroTslaPrice')).toHaveText('$410.25');
+  await expect(page.locator('#tslaPriceMeta')).toContainText('Nasdaq snapshot');
+  await expect(page.locator('#heroSpcxPrice')).toHaveText('$91.25');
+  await expect(page.locator('#spcxPriceMeta')).toContainText('Nasdaq last sale');
 });
 
 test('DCA Lab labels date-only Nasdaq closes without inventing a time', async ({ page }) => {

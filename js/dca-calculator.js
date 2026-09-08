@@ -617,8 +617,9 @@
                 || incomingAge > 36 * 3_600_000) {
                 return;
             }
-            accepted = true;
             const current = marketData.symbols[symbol].quote || {};
+            if (!quotesApi.isQuoteAtLeastAsRecent(incoming, current)) return;
+            accepted = true;
             if (current.price !== incoming.price || current.asOf !== incoming.asOf) {
                 changed = true;
             }
@@ -740,6 +741,7 @@
         const age = Date.now() - timestamp;
         if (!Number.isFinite(timestamp) || age < -15 * 60_000 || age > 36 * 3_600_000) return;
         const current = marketData.symbols[trade.symbol].quote || {};
+        if (!quotesApi.isQuoteAtLeastAsRecent(trade, current)) return;
         const previousClose = Number(current.previousClose)
             || (Number(current.price) - Number(current.netChange))
             || Number(current.price);

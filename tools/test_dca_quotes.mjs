@@ -53,6 +53,49 @@ test('date-only closes stay on their source date without invented time', () => {
   assert.match(quotes.formatQuoteTimestamp(parsed.quotes.SPCX), /^Aug 19, 12:20 PM EDT$/);
 });
 
+test('optional quotes never move a symbol backward in time', () => {
+  const current = {
+    asOf: '2026-08-19T12:20:00-04:00',
+    timestampPrecision: 'minute',
+  };
+
+  assert.equal(quotes.isQuoteAtLeastAsRecent({
+    asOf: '2026-08-19T12:19:59-04:00',
+    timestampPrecision: 'minute',
+  }, current), false);
+  assert.equal(quotes.isQuoteAtLeastAsRecent({ ...current }, current), true);
+  assert.equal(quotes.isQuoteAtLeastAsRecent({
+    asOf: '2026-08-19T12:20:01-04:00',
+    timestampPrecision: 'minute',
+  }, current), true);
+  assert.equal(quotes.isQuoteAtLeastAsRecent({
+    asOf: '2026-02-30T12:20:01-05:00',
+    timestampPrecision: 'minute',
+  }, current), false, 'normalized impossible dates cannot enter the quote ordering');
+});
+
+test('date-only quote recency compares source days without downgrading precision', () => {
+  const dateOnly = { asOf: '2026-08-19', timestampPrecision: 'date' };
+
+  assert.equal(quotes.isQuoteAtLeastAsRecent(
+    { asOf: '2026-08-18', timestampPrecision: 'date' },
+    dateOnly,
+  ), false);
+  assert.equal(quotes.isQuoteAtLeastAsRecent({ ...dateOnly }, dateOnly), true);
+  assert.equal(quotes.isQuoteAtLeastAsRecent(
+    { asOf: '2026-08-20', timestampPrecision: 'date' },
+    dateOnly,
+  ), true);
+  assert.equal(quotes.isQuoteAtLeastAsRecent(
+    dateOnly,
+    { asOf: '2026-08-19T12:20:00-04:00', timestampPrecision: 'minute' },
+  ), false);
+  assert.equal(quotes.isQuoteAtLeastAsRecent(
+    { asOf: '2026-08-19T12:20:00-04:00', timestampPrecision: 'minute' },
+    dateOnly,
+  ), true);
+});
+
 test('live loader reads only the CORS-open GitHub quote feed', async () => {
   const requested = [];
   const live = await quotes.loadLiveQuotes({
