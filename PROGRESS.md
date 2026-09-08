@@ -39,6 +39,15 @@ a newer displayed price while still looking "fresh" in isolation.
   date cases plus a Chromium mixed-symbol regression.
 - Bump the deployment stamp to `2026.09.08.2`.
 
+### Verification and scores
+
+- DCA quote contracts pass 21/21 and the full portfolio browser suite passes
+  29/29 journeys.
+- The browser scenario for SPCX's limited-history cap now fixes its fixture at
+  58 sessions. Scheduled market snapshots can grow without silently changing
+  the boundary that scenario is meant to verify.
+- Correctness/reliability: 4/10 -> 10/10; verifiability: 5/10 -> 10/10.
+
 ## Previous cycle: show imported journal history immediately
 
 ### Why this was selected

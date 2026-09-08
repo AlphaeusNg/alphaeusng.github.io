@@ -163,6 +163,15 @@ async function mockDcaSnapshotQuotes(page, quotes) {
   });
 }
 
+async function mockDcaHistoryLength(page, symbol, sessions) {
+  await page.route('**/data/dca_market_history.json', async route => {
+    const response = await route.fetch();
+    const payload = await response.json();
+    payload.symbols[symbol].history = payload.symbols[symbol].history.slice(-sessions);
+    await route.fulfill({ response, json: payload });
+  });
+}
+
 async function mockAlpacaStream(page, { tsla = 410.5, spcx = 91.25 } = {}) {
   await page.addInitScript(({ tslaPrice, spcxPrice }) => {
     window.__alpacaSent = [];
@@ -649,6 +658,7 @@ test('conviction page renders ledger data and switches benchmark views', async (
 
 test('DCA Lab builds a budget-capped plan and persists its local journal', async ({ page }) => {
   await mockDcaQuotes(page);
+  await mockDcaHistoryLength(page, 'SPCX', 58);
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
 
