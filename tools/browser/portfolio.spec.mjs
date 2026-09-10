@@ -359,6 +359,54 @@ test('project modal owns focus, traps Tab, and restores its trigger', async ({ p
   await expect(trigger).toBeFocused();
 });
 
+test('project case-study URLs follow Back and Forward without losing other parameters', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/?utm_source=case-route#craft', { waitUntil: 'domcontentloaded' });
+
+  const trigger = page.locator('button[onclick*="htx-threat"]');
+  const modal = page.locator('#project-modal');
+  await trigger.click();
+
+  await expect(page).toHaveURL(/\?utm_source=case-route&case=htx-threat#craft$/);
+  await expect(modal).not.toHaveClass(HIDDEN_CLASS);
+  await expect(modal.locator('#modal-title')).toHaveText('Threat Detection Systems');
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\?utm_source=case-route#craft$/);
+  await expect(modal).toHaveClass(HIDDEN_CLASS);
+  await expect(trigger).toBeFocused();
+
+  await page.goForward();
+  await expect(page).toHaveURL(/\?utm_source=case-route&case=htx-threat#craft$/);
+  await expect(modal).not.toHaveClass(HIDDEN_CLASS);
+
+  await modal.getByRole('button', { name: 'Close modal' }).click();
+  await expect(page).toHaveURL(/\?utm_source=case-route#craft$/);
+  await expect(modal).toHaveClass(HIDDEN_CLASS);
+});
+
+test('mobile direct case-study links close to their Craft trigger and unknown slugs fail closed', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const modal = page.locator('#project-modal');
+
+  await page.goto('/?utm_source=shared&case=aily', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL(/\?utm_source=shared&case=aily#craft$/);
+  await expect(modal).not.toHaveClass(HIDDEN_CLASS);
+  await expect(modal.locator('#modal-title')).toHaveText('AIly');
+  await expect(modal.getByRole('button', { name: 'Close modal' })).toBeFocused();
+
+  await modal.getByRole('button', { name: 'Close modal' }).click();
+  await expect(page).toHaveURL(/\?utm_source=shared#craft$/);
+  await expect(modal).toHaveClass(HIDDEN_CLASS);
+  await expect(page.locator('button[onclick*="aily"]')).toBeFocused();
+
+  await page.goto('/?utm_source=shared&case=not-a-project#story', {
+    waitUntil: 'domcontentloaded',
+  });
+  await expect(page).toHaveURL(/\?utm_source=shared#story$/);
+  await expect(modal).toHaveClass(HIDDEN_CLASS);
+});
+
 test('every Craft card opens its case study from the card surface', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/', { waitUntil: 'domcontentloaded' });
@@ -568,6 +616,40 @@ test('vault viewer paints public notes before delayed graph and editor runtimes'
   releaseD3();
   await expect(page.locator('#graph svg')).toBeVisible();
   await expect(page.locator('#fit')).toBeEnabled();
+});
+
+test('mobile vault reader waits to fetch D3 until Graph is opened', async ({ page }) => {
+  let d3Requests = 0;
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route('https://cdn.tailwindcss.com/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/markdown-it/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/dompurify/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://d3js.org/d3.v7.min.js', route => {
+    d3Requests += 1;
+    return route.fulfill({ contentType: 'application/javascript', body: D3_RUNTIME });
+  });
+  await page.route('https://www.gstatic.com/firebasejs/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://raw.githubusercontent.com/AlphaeusNg/Seeking-Biblical-Truth/main/**', route =>
+    route.fulfill({ contentType: 'text/markdown', body: '# Reader ready\n' })
+  );
+
+  await page.goto('/pages/seeking-biblical-truth/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#vault-summary')).toContainText('55 Markdown notes');
+  await page.waitForTimeout(250);
+  expect(d3Requests).toBe(0);
+  await expect(page.locator('#graph')).toContainText('Preparing the interactive graph');
+
+  await page.locator('.vault-surface-tabs button[data-surface="graph"]').click();
+  await expect.poll(() => d3Requests).toBe(1);
+  await expect(page.locator('#graph svg')).toBeVisible();
 });
 
 test('conviction page renders ledger data and switches benchmark views', async ({ page }) => {

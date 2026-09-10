@@ -413,15 +413,55 @@ const MODAL_FOCUSABLE_SELECTOR = [
   'textarea:not([disabled])',
   '[tabindex]:not([tabindex="-1"])'
 ].join(',');
+const PROJECT_CASE_HISTORY_KEY = 'portfolioProjectCase';
+const PROJECT_CASE_SLUGS = new Set(Object.keys(PROJECT_MODAL_DATA));
 let projectModalTrigger = null;
+let openProjectModalSlug = null;
 
 function getProjectModalFocusables(modal) {
   return Array.from(modal.querySelectorAll(MODAL_FOCUSABLE_SELECTOR))
     .filter(element => element.getClientRects().length > 0);
 }
 
+function getProjectCaseTrigger(slug) {
+  return document.querySelector(
+    `#craft [data-project-slug="${slug}"] .project-card-open`
+  );
+}
+
+function getProjectCaseStateWithoutMarker() {
+  const state = window.history.state;
+  if (!state || typeof state !== 'object') return state;
+  const nextState = { ...state };
+  delete nextState[PROJECT_CASE_HISTORY_KEY];
+  return nextState;
+}
+
+function rememberProjectModalTrigger(slug) {
+  const active = document.activeElement;
+  const usefulActiveElement = active instanceof HTMLElement
+    && active !== document.body
+    && active !== document.documentElement;
+  projectModalTrigger = usefulActiveElement ? active : getProjectCaseTrigger(slug);
+}
+
+function pushProjectCaseRoute(slug) {
+  const route = window.ProjectCaseRoute;
+  if (!route) return;
+
+  const closedHref = route.withoutCase(window.location.href);
+  const caseHref = route.withCase(closedHref, slug);
+  const closedState = getProjectCaseStateWithoutMarker();
+  const caseState = closedState && typeof closedState === 'object'
+    ? { ...closedState, [PROJECT_CASE_HISTORY_KEY]: slug }
+    : { [PROJECT_CASE_HISTORY_KEY]: slug };
+
+  window.history.replaceState(closedState, '', closedHref);
+  window.history.pushState(caseState, '', caseHref);
+}
+
 // Reusable renderer for rich project modals
-function openRichProjectModal(slug) {
+function openRichProjectModal(slug, { updateHistory = true } = {}) {
   const data = PROJECT_MODAL_DATA[slug];
   if (!data) {
     console.warn('No modal data for slug:', slug);
@@ -431,10 +471,13 @@ function openRichProjectModal(slug) {
   const modal = document.getElementById('project-modal');
   if (!modal) return;
   if (modal.classList.contains('hidden')) {
-    projectModalTrigger = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : null;
+    rememberProjectModalTrigger(slug);
   }
+  if (updateHistory) {
+    pushProjectCaseRoute(slug);
+  }
+  openProjectModalSlug = slug;
+  modal.dataset.projectSlug = slug;
 
   // Header
   const badgesContainer = document.getElementById('modal-badges') || modal.querySelector('#modal-badges');
@@ -569,7 +612,7 @@ function openRichProjectModal(slug) {
   });
 }
 
-function closeProjectModal() {
+function hideProjectModal({ restoreFocus = true } = {}) {
   const modal = document.getElementById('project-modal');
   if (!modal || modal.classList.contains('hidden')) return;
   modal.classList.remove('flex');
@@ -578,9 +621,71 @@ function closeProjectModal() {
   document.body.style.overflow = '';
   const trigger = projectModalTrigger;
   projectModalTrigger = null;
-  if (trigger?.isConnected) {
-    trigger.focus({ preventScroll: true });
+  openProjectModalSlug = null;
+  delete modal.dataset.projectSlug;
+  if (restoreFocus && trigger?.isConnected) {
+    requestAnimationFrame(() => {
+      if (trigger.isConnected && modal.classList.contains('hidden')) {
+        trigger.focus({ preventScroll: true });
+      }
+    });
   }
+}
+
+function closeProjectModal() {
+  const modal = document.getElementById('project-modal');
+  if (!modal || modal.classList.contains('hidden')) return;
+
+  if (
+    openProjectModalSlug
+    && window.history.state?.[PROJECT_CASE_HISTORY_KEY] === openProjectModalSlug
+  ) {
+    window.history.back();
+    return;
+  }
+
+  const route = window.ProjectCaseRoute;
+  if (route) {
+    window.history.replaceState(
+      getProjectCaseStateWithoutMarker(),
+      '',
+      route.withoutCase(window.location.href)
+    );
+  }
+  hideProjectModal();
+}
+
+function syncProjectModalFromLocation({ initial = false } = {}) {
+  const route = window.ProjectCaseRoute;
+  if (!route) return;
+  const result = route.inspect(window.location.href, PROJECT_CASE_SLUGS);
+
+  if (result.hasCase && !result.slug) {
+    window.history.replaceState(
+      getProjectCaseStateWithoutMarker(),
+      '',
+      route.withoutCase(window.location.href, { keepCraftHash: false })
+    );
+    hideProjectModal();
+    return;
+  }
+
+  if (!result.slug) {
+    hideProjectModal();
+    return;
+  }
+
+  if (window.location.hash !== route.CRAFT_HASH) {
+    window.history.replaceState(
+      window.history.state,
+      '',
+      route.withCase(window.location.href, result.slug)
+    );
+    if (initial) {
+      document.getElementById('craft')?.scrollIntoView({ block: 'start' });
+    }
+  }
+  openRichProjectModal(result.slug, { updateHistory: false });
 }
 
 function handleProjectModalKeydown(event) {
@@ -613,6 +718,8 @@ function handleProjectModalKeydown(event) {
 }
 
 document.addEventListener('keydown', handleProjectModalKeydown, true);
+window.addEventListener('popstate', () => syncProjectModalFromLocation());
+syncProjectModalFromLocation({ initial: true });
 
 // Expose for debugging if needed
 window.openRichProjectModal = openRichProjectModal;

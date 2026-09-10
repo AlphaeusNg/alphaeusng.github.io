@@ -138,6 +138,7 @@ Run before pushing:
 ```bash
 python3 -m unittest discover -s tools -p 'test_*.py'
 npm run test:dca
+npm run test:project-routes
 python3 tools/finance/generate_conviction_history.py --check
 python3 tools/generate_sitemap.py --check
 python3 tools/check_site.py

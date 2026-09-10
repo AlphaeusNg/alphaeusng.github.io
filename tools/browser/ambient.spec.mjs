@@ -10,7 +10,7 @@ test('home fonts do not block first paint and retain a no-JS fallback', () => {
 
 test('home utilities load locally without the Tailwind browser compiler', () => {
   expect(homeSource).not.toContain('cdn.tailwindcss.com');
-  expect(homeSource).toContain('href="css/tailwind-home.css?v=2026.09.08.2"');
+  expect(homeSource).toContain('href="css/tailwind-home.css?v=2026.09.11.1"');
 });
 
 test('light stays in the opening hero while project cards react locally', async ({ page }) => {

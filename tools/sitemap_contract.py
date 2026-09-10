@@ -33,6 +33,7 @@ SITEMAP_ROUTES = (
             "css/main.css",
             "css/home.css",
             "js/main.js",
+            "js/project-case-route.js",
             "js/modals.js",
             "js/kofi-support.js",
             "assets/alphaeus-portrait.jpg",

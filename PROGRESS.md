@@ -1,15 +1,15 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-09-08
+Last updated: 2026-09-11
 
 ## Current state
 
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.09.08.2`. DCA snapshot latest close is 2026-09-04.
-- Local verification: 33 Python tests, 21 DCA engine/quote/journal tests,
-  `tools/check_site.py`, 29 Chromium journeys, Python compilation, and syntax
+- Deployment stamp: `2026.09.11.1`. DCA snapshot latest close is 2026-09-08.
+- Local verification: 33 Python tests, 21 DCA engine/quote/journal tests, four
+  project-route unit tests, `tools/check_site.py`, 32 Chromium journeys, Python compilation, and syntax
   checks for first-party JavaScript. Firestore rules for `dcaJournals` are
   published on `alparcade-cb87c`.
 - Automated verification: least-privilege GitHub Actions checks out complete
@@ -17,7 +17,39 @@ Last updated: 2026-09-08
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: keep delayed quotes from moving prices backward
+## Latest cycle: shareable project cases and a lighter mobile vault
+
+### Why this was selected
+
+Craft case studies were usable only as transient overlays, so a specific
+project could not be bookmarked or shared and browser Back did not describe
+the interaction. Separately, phone readers downloaded the full D3 graph
+runtime even when they stayed in the default reading surface.
+
+### Changes
+
+- Give every case study a stable `?case=<slug>#craft` URL while preserving
+  unrelated query parameters.
+- Open valid direct links on load, make Back close and Forward reopen cases,
+  and make the close affordances remove only case state while retaining Craft.
+- Fail unknown slugs closed and restore focus to the correct Craft trigger,
+  including direct-linked mobile visits.
+- Keep the graph ready on wide layouts, but defer D3 on phones until Graph is
+  actually opened; resizing to a graph-capable layout can still start it.
+- Add four route-helper unit tests, two case-history browser journeys, and a
+  mobile D3 request-boundary journey. Require the helper and its CI gate in the
+  site contract, and bump the deployment stamp to `2026.09.11.1`.
+
+### Verification and scores
+
+- 33/33 Python tests, 21/21 DCA tests, 4/4 project-route unit tests, and all 32
+  Chromium journeys pass with first-party HTTP, console, and page-error gates.
+- Direct mobile, unknown-slug, unrelated-parameter, close, Back, Forward, and
+  focus-restoration behavior is exercised in the real page.
+- Correctness/reliability: 6/10 -> 10/10; shareability: 4/10 -> 10/10;
+  mobile efficiency: 7/10 -> 9/10; verifiability: 6/10 -> 10/10.
+
+## Previous cycle: keep delayed quotes from moving prices backward
 
 ### Why this was selected
 
@@ -1123,8 +1155,7 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Next cycle
 
-Keep DCA Lab quote freshness honest (snapshot vs real-time vs manual override).
-Workspace next: continue rotation around externally blocked model,
-physical-device, and content-owner decisions. Skip
-Car-Type-Classification-Service unless named. Commit this hub-drift cycle
-before mixing other portfolio work.
+Make the substantial DCA Lab route discoverable from the portfolio home without
+crowding the recruiter-facing Craft grid. Keep the externally blocked model,
+physical-device, and content-owner decisions out of this repository unless the
+owner supplies the missing evidence.

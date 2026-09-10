@@ -5,6 +5,7 @@
     "build:styles": "tailwindcss -c tailwind.home.config.cjs -i tools/tailwind-home.input.css -o css/tailwind-home.css --minify",
     "test:styles": "npm run build:styles && git diff --exit-code -- css/tailwind-home.css",
     "test:browser": "playwright test",
+    "test:project-routes": "node --test tools/test_project_case_route.mjs",
     "test:dca": "node --test tools/test_dca_engine.mjs tools/test_dca_quotes.mjs tools/test_dca_journal.mjs"
   },
   "devDependencies": {

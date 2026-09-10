@@ -630,6 +630,7 @@ def main() -> None:
         ROOT / "css" / "main.css",
         ROOT / "css" / "tailwind-home.css",
         ROOT / "js" / "main.js",
+        ROOT / "js" / "project-case-route.js",
         ROOT / "js" / "modals.js",
         ROOT / "js" / "conviction.js",
         ROOT / "js" / "dca-engine.js",
@@ -801,6 +802,7 @@ def main() -> None:
         ),
         "complete checkout history": "fetch-depth: 0" in workflow,
         "browser interaction tests": "npm run test:browser" in workflow,
+        "project route unit tests": "npm run test:project-routes" in workflow,
         "Python compilation": "python3 -m compileall -q tools" in workflow,
         "JavaScript syntax check": "node --check" in workflow,
     }
@@ -862,15 +864,23 @@ def main() -> None:
         fail("vault viewer must keep Firebase SDKs off the public-reader critical path")
     if "queueGraphBoot(data)" not in vault_js or "queueCloudBoot()" not in vault_js:
         fail("vault viewer must queue graph and cloud runtimes after snapshot rendering")
+    if "function graphSurfaceNeeded" not in vault_js:
+        fail("phone vault reader must not load D3 until Graph is opened")
     if vault_js.find("renderFileTree();", vault_js.find("async function loadVault")) > vault_js.find(
         "queueGraphBoot(data)", vault_js.find("async function loadVault")
     ):
         fail("vault viewer must render its note list before queuing D3")
     ok("vault viewer paints public notes before lazy D3/Firebase runtimes")
 
-    if 'src="js/main.js" defer' not in home or 'src="js/modals.js" defer' not in home:
-        fail("home page should defer main.js and modals.js")
-    ok("home page defers main.js and modals.js")
+    if (
+        'src="js/main.js" defer' not in home
+        or 'src="js/project-case-route.js" defer' not in home
+        or 'src="js/modals.js" defer' not in home
+        or home.find('src="js/project-case-route.js" defer')
+        > home.find('src="js/modals.js" defer')
+    ):
+        fail("home page should defer the modal route helper before modals.js")
+    ok("home page defers the modal route helper before modals.js")
 
     main_css = (ROOT / "css" / "main.css").read_text(encoding="utf-8")
     main_js = (ROOT / "js" / "main.js").read_text(encoding="utf-8")

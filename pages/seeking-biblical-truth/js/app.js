@@ -883,7 +883,10 @@ function scheduleGraphRender() {
   window.__graphResize = setTimeout(renderGraph, 180);
 }
 
-window.addEventListener('resize', scheduleGraphRender);
+window.addEventListener('resize', () => {
+  if (state.data && graphSurfaceNeeded() && !window.d3) queueGraphBoot(state.data);
+  scheduleGraphRender();
+});
 
 let graphResizeObserver = null;
 
@@ -902,7 +905,15 @@ function observeGraphSize() {
   graphResizeObserver.observe(graphPanel);
 }
 
+function graphSurfaceNeeded() {
+  const layout = document.querySelector('.vault-layout');
+  const graphTab = layout?.dataset.surface === 'graph';
+  const wide = window.matchMedia('(min-width: 1280px)').matches;
+  return graphTab || wide;
+}
+
 function queueGraphBoot(data) {
+  if (!graphSurfaceNeeded()) return;
   if (!data || graphBootPendingData === data || (graphBootData === data && state.node)) return;
   graphBootPendingData = data;
   const graph = document.getElementById('graph');
