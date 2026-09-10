@@ -1,16 +1,51 @@
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const homeSource = readFileSync(new URL('../../index.html', import.meta.url), 'utf8');
+const root = dirname(fileURLToPath(new URL('../../package.json', import.meta.url)));
+const skipDirs = new Set(['.git', 'node_modules', 'playwright-report', 'test-results']);
+const homeSource = readFileSync(join(root, 'index.html'), 'utf8');
+
+function collectHtml(dir, acc = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (!skipDirs.has(entry.name)) collectHtml(path, acc);
+    } else if (entry.name.endsWith('.html')) {
+      acc.push(path);
+    }
+  }
+  return acc;
+}
 
 test('home fonts do not block first paint and retain a no-JS fallback', () => {
   expect(homeSource).toMatch(/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com\/css2[^>]+media="print"[^>]+onload="this\.onload=null;this\.media='all'"[^>]+data-portfolio-fonts>/);
   expect(homeSource).toMatch(/<noscript><link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com\/css2[^>]+><\/noscript>/);
 });
 
+test('no HTML entry loads the Tailwind browser compiler', () => {
+  const files = collectHtml(root);
+  expect(files.length).toBeGreaterThan(0);
+  for (const file of files) {
+    expect(readFileSync(file, 'utf8'), file).not.toContain('cdn.tailwindcss.com');
+  }
+});
+
 test('home utilities load locally without the Tailwind browser compiler', () => {
-  expect(homeSource).not.toContain('cdn.tailwindcss.com');
-  expect(homeSource).toContain('href="css/tailwind-home.css?v=2026.09.11.1"');
+  expect(homeSource).toContain('href="css/tailwind-home.css?v=2026.09.11.2"');
+});
+
+test('404, conviction, and vault utilities load from committed CSS', () => {
+  expect(readFileSync(join(root, '404.html'), 'utf8')).toContain(
+    'href="css/tailwind-pages.css?v=2026.09.11.2"'
+  );
+  expect(readFileSync(join(root, 'pages/conviction.html'), 'utf8')).toContain(
+    'href="../css/tailwind-pages.css?v=2026.09.11.2"'
+  );
+  expect(readFileSync(join(root, 'pages/seeking-biblical-truth/index.html'), 'utf8')).toContain(
+    'href="../../css/tailwind-pages.css?v=2026.09.11.2"'
+  );
 });
 
 test('light stays in the opening hero while project cards react locally', async ({ page }) => {

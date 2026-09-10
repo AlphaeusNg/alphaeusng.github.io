@@ -2,8 +2,10 @@
   "name": "alphaeusng-portfolio",
   "private": true,
   "scripts": {
-    "build:styles": "tailwindcss -c tailwind.home.config.cjs -i tools/tailwind-home.input.css -o css/tailwind-home.css --minify",
-    "test:styles": "npm run build:styles && git diff --exit-code -- css/tailwind-home.css",
+    "build:styles:home": "tailwindcss -c tailwind.home.config.cjs -i tools/tailwind-home.input.css -o css/tailwind-home.css --minify",
+    "build:styles:pages": "tailwindcss -c tailwind.pages.config.cjs -i tools/tailwind-home.input.css -o css/tailwind-pages.css --minify",
+    "build:styles": "npm run build:styles:home && npm run build:styles:pages",
+    "test:styles": "npm run build:styles && git diff --exit-code -- css/tailwind-home.css css/tailwind-pages.css",
     "test:browser": "playwright test",
     "test:project-routes": "node --test tools/test_project_case_route.mjs",
     "test:dca": "node --test tools/test_dca_engine.mjs tools/test_dca_quotes.mjs tools/test_dca_journal.mjs"

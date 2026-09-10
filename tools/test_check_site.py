@@ -8,6 +8,7 @@ from pathlib import Path
 from tools.check_site import (
     find_crawler_contract_issues,
     find_local_reference_issues,
+    find_tailwind_cdn_entries,
     validate_vault_payload,
 )
 
@@ -89,6 +90,47 @@ class LocalReferenceTests(unittest.TestCase):
             )
 
         self.assertEqual(find_local_reference_issues(self.root), [])
+
+
+class TailwindCdnTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        (self.root / "pages").mkdir()
+        (self.root / "node_modules").mkdir()
+
+    def test_flags_every_deployed_html_entry_that_loads_the_compiler(self) -> None:
+        (self.root / "index.html").write_text(
+            '<link rel="stylesheet" href="css/tailwind-home.css">',
+            encoding="utf-8",
+        )
+        (self.root / "pages" / "conviction.html").write_text(
+            '<script src="https://cdn.tailwindcss.com"></script>',
+            encoding="utf-8",
+        )
+        (self.root / "node_modules" / "vendor.html").write_text(
+            '<script src="https://cdn.tailwindcss.com"></script>',
+            encoding="utf-8",
+        )
+
+        hits = find_tailwind_cdn_entries(self.root)
+        self.assertEqual(
+            [path.relative_to(self.root).as_posix() for path in hits],
+            ["pages/conviction.html"],
+        )
+
+    def test_accepts_html_that_only_loads_committed_utility_css(self) -> None:
+        (self.root / "index.html").write_text(
+            '<link rel="stylesheet" href="css/tailwind-home.css?v=1">',
+            encoding="utf-8",
+        )
+        (self.root / "pages" / "conviction.html").write_text(
+            '<link rel="stylesheet" href="../css/tailwind-pages.css?v=1">',
+            encoding="utf-8",
+        )
+
+        self.assertEqual(find_tailwind_cdn_entries(self.root), [])
 
 
 class CrawlerContractTests(unittest.TestCase):

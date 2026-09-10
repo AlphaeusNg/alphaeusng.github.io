@@ -7,17 +7,45 @@ Last updated: 2026-09-11
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.09.11.1`. DCA snapshot latest close is 2026-09-08.
-- Local verification: 33 Python tests, 21 DCA engine/quote/journal tests, four
-  project-route unit tests, `tools/check_site.py`, 32 Chromium journeys, Python compilation, and syntax
-  checks for first-party JavaScript. Firestore rules for `dcaJournals` are
-  published on `alparcade-cb87c`.
+- Deployment stamp: `2026.09.11.2`. DCA snapshot latest close is 2026-09-08.
+- Local verification: 35 Python tests, 21 DCA engine/quote/journal tests, four
+  project-route unit tests, `tools/check_site.py`, committed utility CSS rebuild,
+  Python compilation, and syntax checks for first-party JavaScript. Firestore
+  rules for `dcaJournals` are published on `alparcade-cb87c`.
 - Automated verification: least-privilege GitHub Actions checks out complete
   route history, runs cheap data/site gates before installing Chromium, then
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: shareable project cases and a lighter mobile vault
+## Latest cycle: stop blocking inner pages on the Tailwind CDN compiler
+
+### Why this was selected
+
+Home already paints from committed `css/tailwind-home.css`, but 404, Conviction,
+and the vault viewer still loaded `cdn.tailwindcss.com` as a render-blocking
+browser compiler. A CDN stall or compiler parse left those pages unstyled.
+
+### Changes
+
+- Compile 404, Conviction, and vault class names into committed
+  `css/tailwind-pages.css` the same way home utilities are built.
+- Replace the Tailwind CDN script and its preconnects with versioned
+  stylesheets. Chart.js, D3, and Firebase stay off the critical path.
+- Reject any HTML entry that still loads the compiler, require the new CSS
+  cache keys, and drop Playwright CDN stubs that would otherwise hide a
+  missing local stylesheet.
+- Bump the deployment stamp to `2026.09.11.2`.
+
+### Verification and scores
+
+- Site contract, sitemap freshness, Python compilation, committed CSS rebuild,
+  35/35 Python tests, 21/21 DCA tests, and 4/4 project-route unit tests pass.
+- First paint of 404, Conviction, and the vault reader no longer waits on the
+  Tailwind browser compiler.
+- First-paint reliability: 4/10 -> 10/10; deployability: 7/10 -> 10/10;
+  verifiability: 7/10 -> 10/10.
+
+## Previous cycle: shareable project cases and a lighter mobile vault
 
 ### Why this was selected
 

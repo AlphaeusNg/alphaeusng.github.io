@@ -542,9 +542,6 @@ test('vault viewer indexes and opens note paths containing a literal percent sig
     if (link.target === previousId) link.target = fixtureNote.id;
   });
 
-  await page.route('https://cdn.tailwindcss.com/**', route =>
-    route.fulfill({ contentType: 'application/javascript', body: '' })
-  );
   await page.route('https://d3js.org/d3.v7.min.js', route =>
     route.fulfill({ contentType: 'application/javascript', body: D3_RUNTIME })
   );
@@ -579,9 +576,6 @@ test('vault viewer paints public notes before delayed graph and editor runtimes'
   const d3Gate = new Promise(resolve => { releaseD3 = resolve; });
   const firebaseGate = new Promise(resolve => { releaseFirebase = resolve; });
 
-  await page.route('https://cdn.tailwindcss.com/**', route =>
-    route.fulfill({ contentType: 'application/javascript', body: '' })
-  );
   await page.route('https://cdn.jsdelivr.net/npm/markdown-it/**', route =>
     route.fulfill({ contentType: 'application/javascript', body: '' })
   );
@@ -621,9 +615,6 @@ test('vault viewer paints public notes before delayed graph and editor runtimes'
 test('mobile vault reader waits to fetch D3 until Graph is opened', async ({ page }) => {
   let d3Requests = 0;
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.route('https://cdn.tailwindcss.com/**', route =>
-    route.fulfill({ contentType: 'application/javascript', body: '' })
-  );
   await page.route('https://cdn.jsdelivr.net/npm/markdown-it/**', route =>
     route.fulfill({ contentType: 'application/javascript', body: '' })
   );
@@ -656,9 +647,6 @@ test('conviction page renders ledger data and switches benchmark views', async (
   await mockDcaQuotes(page);
   await page.route('https://cdn.jsdelivr.net/npm/chart.js', route =>
     route.fulfill({ contentType: 'application/javascript', body: CHART_STUB })
-  );
-  await page.route('https://cdn.tailwindcss.com/**', route =>
-    route.fulfill({ contentType: 'application/javascript', body: '' })
   );
 
   await page.goto('/pages/conviction.html', { waitUntil: 'domcontentloaded' });

@@ -104,15 +104,31 @@ def _has_exact_case(root: Path, target: Path) -> bool:
     return True
 
 
-def find_local_reference_issues(
-    root: Path, html_entries: list[Path] | None = None
-) -> list[LocalReferenceIssue]:
+def deployed_html_entries(root: Path) -> list[Path]:
     root = root.resolve()
-    entries = html_entries or sorted(
+    return sorted(
         path
         for path in root.rglob("*.html")
         if NON_DEPLOYED_DIRS.isdisjoint(path.relative_to(root).parts)
     )
+
+
+def find_tailwind_cdn_entries(
+    root: Path, html_entries: list[Path] | None = None
+) -> list[Path]:
+    entries = html_entries or deployed_html_entries(root)
+    return [
+        path
+        for path in entries
+        if "cdn.tailwindcss.com" in path.read_text(encoding="utf-8")
+    ]
+
+
+def find_local_reference_issues(
+    root: Path, html_entries: list[Path] | None = None
+) -> list[LocalReferenceIssue]:
+    root = root.resolve()
+    entries = html_entries or deployed_html_entries(root)
     issues: list[LocalReferenceIssue] = []
 
     for entry in entries:
@@ -629,6 +645,9 @@ def main() -> None:
         ROOT / "css" / "home.css",
         ROOT / "css" / "main.css",
         ROOT / "css" / "tailwind-home.css",
+        ROOT / "css" / "tailwind-pages.css",
+        ROOT / "tailwind.home.config.cjs",
+        ROOT / "tailwind.pages.config.cjs",
         ROOT / "js" / "main.js",
         ROOT / "js" / "project-case-route.js",
         ROOT / "js" / "modals.js",
@@ -803,6 +822,7 @@ def main() -> None:
         "complete checkout history": "fetch-depth: 0" in workflow,
         "browser interaction tests": "npm run test:browser" in workflow,
         "project route unit tests": "npm run test:project-routes" in workflow,
+        "committed utility CSS": "npm run test:styles" in workflow,
         "Python compilation": "python3 -m compileall -q tools" in workflow,
         "JavaScript syntax check": "node --check" in workflow,
     }
@@ -827,15 +847,39 @@ def main() -> None:
         fail("invalid crawler discovery contract: " + "; ".join(crawler_issues))
     ok(f"crawler discovery: {len(PUBLIC_CRAWLER_ROUTES)} canonical public routes")
 
+    html_entries = deployed_html_entries(ROOT)
+    cdn_hits = find_tailwind_cdn_entries(ROOT, html_entries)
+    if cdn_hits:
+        fail(
+            "HTML still loads Tailwind's render-blocking CDN compiler: "
+            + ", ".join(str(path.relative_to(ROOT)) for path in cdn_hits)
+        )
+    ok(f"no HTML entry loads Tailwind CDN ({len(html_entries)} pages)")
+
     home = (ROOT / "index.html").read_text(encoding="utf-8")
-    if "cdn.tailwindcss.com" in home:
-        fail("home page still loads Tailwind's render-blocking CDN compiler")
     if not re.search(
         rf'href="css/tailwind-home\.css\?v={re.escape(site_version)}"',
         home,
     ):
         fail(f"home utility CSS cache key must match SITE_VERSION.id {site_version}")
-    ok("home page loads committed, versioned utility CSS")
+    page_css_links = (
+        (ROOT / "404.html", rf'href="css/tailwind-pages\.css\?v={re.escape(site_version)}"'),
+        (
+            ROOT / "pages" / "conviction.html",
+            rf'href="\.\./css/tailwind-pages\.css\?v={re.escape(site_version)}"',
+        ),
+        (
+            ROOT / "pages" / "seeking-biblical-truth" / "index.html",
+            rf'href="\.\./\.\./css/tailwind-pages\.css\?v={re.escape(site_version)}"',
+        ),
+    )
+    for path, pattern in page_css_links:
+        if not re.search(pattern, path.read_text(encoding="utf-8")):
+            fail(
+                f"{path.relative_to(ROOT)} utility CSS cache key must match "
+                f"SITE_VERSION.id {site_version}"
+            )
+    ok("home, 404, conviction, and vault load committed, versioned utility CSS")
 
     if "d3js.org" in home or "html2canvas" in home:
         # Comments may mention them; flag only real script tags.
