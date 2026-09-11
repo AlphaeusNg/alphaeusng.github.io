@@ -755,6 +755,12 @@ def main() -> None:
     ok("DCA Lab real-time controls and secure secret input present")
 
     home_html = (ROOT / "index.html").read_text(encoding="utf-8")
+    if not re.search(
+        r'id="dca-lab-home-link"[\s\S]{0,800}?href="pages/dca-calculator\.html"',
+        home_html,
+    ):
+        fail("home page must surface the DCA Lab without adding it to the Craft grid")
+    ok("home page surfaces the DCA Lab outside the Craft grid")
     if "data-auto-footer" not in home_html:
         fail("home page must mount the footer feedback strip")
     if 'data-target=' in home_html.split("kofi-support.js")[1][:400]:

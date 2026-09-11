@@ -33,18 +33,18 @@ test('no HTML entry loads the Tailwind browser compiler', () => {
 });
 
 test('home utilities load locally without the Tailwind browser compiler', () => {
-  expect(homeSource).toContain('href="css/tailwind-home.css?v=2026.09.11.2"');
+  expect(homeSource).toContain('href="css/tailwind-home.css?v=2026.09.12.1"');
 });
 
 test('404, conviction, and vault utilities load from committed CSS', () => {
   expect(readFileSync(join(root, '404.html'), 'utf8')).toContain(
-    'href="css/tailwind-pages.css?v=2026.09.11.2"'
+    'href="css/tailwind-pages.css?v=2026.09.12.1"'
   );
   expect(readFileSync(join(root, 'pages/conviction.html'), 'utf8')).toContain(
-    'href="../css/tailwind-pages.css?v=2026.09.11.2"'
+    'href="../css/tailwind-pages.css?v=2026.09.12.1"'
   );
   expect(readFileSync(join(root, 'pages/seeking-biblical-truth/index.html'), 'utf8')).toContain(
-    'href="../../css/tailwind-pages.css?v=2026.09.11.2"'
+    'href="../../css/tailwind-pages.css?v=2026.09.12.1"'
   );
 });
 

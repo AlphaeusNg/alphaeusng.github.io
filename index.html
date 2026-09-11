@@ -28,7 +28,7 @@
     
     <!-- Committed utility CSS keeps the zero-build Pages deploy while avoiding
          Tailwind's render-blocking browser compiler. -->
-    <link rel="stylesheet" href="css/tailwind-home.css?v=2026.09.11.2">
+    <link rel="stylesheet" href="css/tailwind-home.css?v=2026.09.12.1">
     
     <!-- Elegant Fonts: non-blocking for first paint, with a no-JS fallback. -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap" media="print" onload="this.onload=null;this.media='all'" data-portfolio-fonts>
@@ -729,6 +729,14 @@
             <p class="mt-4 max-w-2xl text-[#94A3B8] leading-relaxed">
                 Themes I return to in work and study. Not a finished blog — longer notes live under Faith and on GitHub.
             </p>
+            <a id="dca-lab-home-link"
+               href="pages/dca-calculator.html"
+               class="mt-6 inline-flex max-w-2xl flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-white/10 bg-[#111827] px-5 py-3.5 text-sm transition hover:border-[#C9A227]/45 hover:bg-[#C9A227]/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227]/70">
+                <span class="text-[10px] font-semibold uppercase tracking-[2px] text-[#C9A227]">WORKING TOOL</span>
+                <strong class="font-semibold text-[#E2E8F0]">Conviction DCA Lab</strong>
+                <span class="text-[#94A3B8]">Plan bounded TSLA/SPCX contributions with a local-first journal.</span>
+                <span class="ml-auto text-[#C9A227]" aria-hidden="true">Open →</span>
+            </a>
         </div>
 
         <div class="grid sm:grid-cols-2 gap-5" id="thoughts-list">
@@ -1042,7 +1050,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.09.11.2"
+    <script src="js/kofi-support.js?v=2026.09.12.1"
             data-auto-footer
             data-message="Tell me what worked or what would help."
             defer></script>

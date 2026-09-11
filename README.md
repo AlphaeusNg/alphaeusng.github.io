@@ -19,7 +19,7 @@ The design should remain restrained, professional, and easy to share. It should 
 - `pages/`: secondary public pages.
   - `pages/conviction.html`: conviction page.
   - `pages/dca-calculator.html`: local-first, budget-capped TSLA/SPCX daily
-    contribution planner linked from Conviction.
+    contribution planner linked from the home page and Conviction.
   - `pages/kobo-forge.html`: compatibility redirect to the standalone
     [KoboForge repository](https://github.com/AlphaeusNg/KoboForge).
   - `pages/seeking-biblical-truth/`: graph viewer generated from the separate vault repo.

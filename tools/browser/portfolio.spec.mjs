@@ -511,6 +511,22 @@ test('home surfaces AIly in tabs, craft, mobile, and footer', async ({ page }) =
   await expect(page.locator('#mobile-project-links a[href="https://github.com/AlphaeusNg/AIly/releases"]')).toHaveText(/Packages/);
 });
 
+test('home surfaces the working DCA Lab without crowding the Craft grid', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  const link = page.locator('#dca-lab-home-link');
+  await link.scrollIntoViewIfNeeded();
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute('href', 'pages/dca-calculator.html');
+  await expect(link).toContainText('Conviction DCA Lab');
+  await expect(page.locator('#craft #dca-lab-home-link')).toHaveCount(0);
+
+  await link.click();
+  await expect(page).toHaveURL(/\/pages\/dca-calculator\.html$/);
+  await expect(page.locator('h1')).toContainText('Daily DCA.');
+  await expect(page.locator('main')).toContainText('Conviction DCA Lab');
+});
+
 test('feedback preselects AIly and keeps a GitHub draft when Firebase cannot initialize', async ({ page }) => {
   await page.route('https://www.gstatic.com/firebasejs/**', route =>
     route.fulfill({ contentType: 'application/javascript', body: '' })

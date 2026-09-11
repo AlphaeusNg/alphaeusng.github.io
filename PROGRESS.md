@@ -1,23 +1,54 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-09-11
+Last updated: 2026-09-12
 
 ## Current state
 
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.09.11.2`. DCA snapshot latest close is 2026-09-08.
+- Deployment stamp: `2026.09.12.1`. DCA snapshot latest close is 2026-09-09.
 - Local verification: 35 Python tests, 21 DCA engine/quote/journal tests, four
   project-route unit tests, `tools/check_site.py`, committed utility CSS rebuild,
-  Python compilation, and syntax checks for first-party JavaScript. Firestore
+  Python compilation, and syntax checks for first-party JavaScript. The 35
+  Chromium journeys now include a home-to-DCA navigation contract. Firestore
   rules for `dcaJournals` are published on `alparcade-cb87c`.
 - Automated verification: least-privilege GitHub Actions checks out complete
   route history, runs cheap data/site gates before installing Chromium, then
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: stop blocking inner pages on the Tailwind CDN compiler
+## Latest cycle: surface the working DCA Lab from home
+
+### Why this was selected
+
+The local-first DCA planner has a substantial tested workflow, but the portfolio
+home exposed only its parent Conviction page. Visitors had to discover the tool
+indirectly, while adding another Craft card would make the recruiter-facing
+project grid denser.
+
+### Changes
+
+- Add one compact **Working tool** link beneath the interests introduction,
+  describing the bounded TSLA/SPCX planner and its local-first journal without
+  presenting it as another flagship project.
+- Keep the link outside `#craft`, and make the site checker enforce both its
+  stable ID and canonical local route.
+- Add a browser journey that proves the callout is visible, remains outside the
+  Craft grid, and reaches the real DCA page.
+- Refresh shared cache keys and generated sitemap dates with deployment stamp
+  `2026.09.12.1`.
+
+### Verification and scores
+
+- 35/35 Python tests, 21/21 DCA tests, 4/4 project-route tests, and 35/35
+  Chromium journeys pass.
+- The site contract, deterministic conviction and sitemap checks, generated CSS,
+  Python compilation, first-party JavaScript syntax, and diff hygiene pass.
+- Discoverability: 5/10 -> 9/10; information architecture: 8/10 -> 9/10;
+  verifiability: 7/10 -> 10/10.
+
+## Previous cycle: stop blocking inner pages on the Tailwind CDN compiler
 
 ### Why this was selected
 
@@ -1183,7 +1214,7 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Next cycle
 
-Make the substantial DCA Lab route discoverable from the portfolio home without
-crowding the recruiter-facing Craft grid. Keep the externally blocked model,
-physical-device, and content-owner decisions out of this repository unless the
-owner supplies the missing evidence.
+When a project case study opens, isolate the dialog from background semantics
+with native `inert` state as well as the existing focus trap. Keep the externally
+blocked model, physical-device, and content-owner decisions out of this
+repository unless the owner supplies the missing evidence.
