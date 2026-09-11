@@ -341,12 +341,25 @@ test('project modal owns focus, traps Tab, and restores its trigger', async ({ p
   const trigger = page.locator('button[onclick*="htx-threat"]');
   const modal = page.locator('#project-modal');
   const headerClose = modal.getByRole('button', { name: 'Close modal' });
+  const story = page.locator('#story');
+  await story.evaluate(element => { element.inert = true; });
 
   await trigger.click();
   await expect(modal).not.toHaveClass(HIDDEN_CLASS);
   await expect(modal).toHaveAttribute('aria-hidden', 'false');
   await expect(headerClose).toBeFocused();
   await expect(modal.getByRole('button', { name: 'Close', exact: true })).toHaveCount(0);
+  expect(await page.locator('#nav').evaluate(element => element.inert)).toBe(true);
+  expect(await page.locator('#craft').evaluate(element => element.inert)).toBe(true);
+  expect(await modal.evaluate(element => element.inert)).toBe(false);
+  const dynamicBackgroundWasIsolated = await page.evaluate(async () => {
+    const button = document.createElement('button');
+    button.id = 'late-modal-background-control';
+    document.body.appendChild(button);
+    await new Promise(resolve => queueMicrotask(resolve));
+    return button.inert;
+  });
+  expect(dynamicBackgroundWasIsolated).toBe(true);
 
   await page.keyboard.press('Shift+Tab');
   await expect(modal.getByRole('link', { name: 'Watch the LinkedIn video' })).toBeFocused();
@@ -357,6 +370,10 @@ test('project modal owns focus, traps Tab, and restores its trigger', async ({ p
   await expect(modal).toHaveClass(HIDDEN_CLASS);
   await expect(modal).toHaveAttribute('aria-hidden', 'true');
   await expect(trigger).toBeFocused();
+  expect(await page.locator('#nav').evaluate(element => element.inert)).toBe(false);
+  expect(await page.locator('#craft').evaluate(element => element.inert)).toBe(false);
+  expect(await story.evaluate(element => element.inert)).toBe(true);
+  expect(await page.locator('#late-modal-background-control').evaluate(element => element.inert)).toBe(false);
 });
 
 test('project case-study URLs follow Back and Forward without losing other parameters', async ({ page }) => {

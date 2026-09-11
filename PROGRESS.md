@@ -7,7 +7,7 @@ Last updated: 2026-09-12
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.09.12.1`. DCA snapshot latest close is 2026-09-09.
+- Deployment stamp: `2026.09.12.2`. DCA snapshot latest close is 2026-09-09.
 - Local verification: 35 Python tests, 21 DCA engine/quote/journal tests, four
   project-route unit tests, `tools/check_site.py`, committed utility CSS rebuild,
   Python compilation, and syntax checks for first-party JavaScript. The 35
@@ -18,7 +18,38 @@ Last updated: 2026-09-12
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: surface the working DCA Lab from home
+## Latest cycle: isolate background semantics while case studies open
+
+### Why this was selected
+
+Project cases already owned keyboard focus and restored it on close, but the
+rest of the portfolio remained exposed to assistive technology while the modal
+was open. A true modal should make every background surface temporarily
+non-interactive, not merely cover it visually.
+
+### Changes
+
+- Apply native `inert` state to every meaningful top-level background surface
+  when a case study opens, while leaving scripts, templates, and the dialog
+  itself untouched. A scoped observer also isolates controls appended while the
+  case remains open.
+- Snapshot and restore each surface's previous inert state so the modal does not
+  erase another feature's accessibility decision.
+- Extend the existing modal browser journey to prove navigation and Craft become
+  inert, the dialog remains active, normal state returns on close, and a
+  pre-existing inert Story section is preserved, including a late-added control.
+- Refresh shared cache keys with deployment stamp `2026.09.12.2`.
+
+### Verification and scores
+
+- 35/35 Python tests, 21/21 DCA tests, 4/4 project-route tests, and 35/35
+  Chromium journeys pass.
+- The site contract, generated CSS, deterministic conviction and sitemap checks,
+  Python compilation, first-party JavaScript syntax, and diff hygiene pass.
+- Modal accessibility: 8/10 -> 10/10; state safety: 7/10 -> 10/10;
+  verifiability: 8/10 -> 10/10.
+
+## Previous cycle: surface the working DCA Lab from home
 
 ### Why this was selected
 
@@ -1214,7 +1245,7 @@ The source-side rationale, test-first failures, restored-content measurements, s
 
 ## Next cycle
 
-When a project case study opens, isolate the dialog from background semantics
-with native `inert` state as well as the existing focus trap. Keep the externally
+Audit the next small interaction from a real phone viewport, prioritizing
+semantics and stable layout over adding more surface area. Keep the externally
 blocked model, physical-device, and content-owner decisions out of this
 repository unless the owner supplies the missing evidence.

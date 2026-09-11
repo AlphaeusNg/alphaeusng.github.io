@@ -415,8 +415,11 @@ const MODAL_FOCUSABLE_SELECTOR = [
 ].join(',');
 const PROJECT_CASE_HISTORY_KEY = 'portfolioProjectCase';
 const PROJECT_CASE_SLUGS = new Set(Object.keys(PROJECT_MODAL_DATA));
+const PROJECT_MODAL_INERT_EXCLUDED_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE']);
 let projectModalTrigger = null;
 let openProjectModalSlug = null;
+const projectModalBackgroundState = new Map();
+let projectModalBackgroundObserver = null;
 
 function getProjectModalFocusables(modal) {
   return Array.from(modal.querySelectorAll(MODAL_FOCUSABLE_SELECTOR))
@@ -443,6 +446,41 @@ function rememberProjectModalTrigger(slug) {
     && active !== document.body
     && active !== document.documentElement;
   projectModalTrigger = usefulActiveElement ? active : getProjectCaseTrigger(slug);
+}
+
+function setProjectModalBackgroundInert(modal, shouldBeInert) {
+  const shouldIsolate = element => (
+    element instanceof HTMLElement
+    && element !== modal
+    && element.parentElement === document.body
+    && !PROJECT_MODAL_INERT_EXCLUDED_TAGS.has(element.tagName)
+  );
+  const makeBackgroundInert = element => {
+    if (!shouldIsolate(element)) return;
+    if (!projectModalBackgroundState.has(element)) {
+      projectModalBackgroundState.set(element, element.inert);
+    }
+    element.inert = true;
+  };
+
+  if (shouldBeInert) {
+    if (projectModalBackgroundObserver) return;
+    Array.from(document.body.children).forEach(makeBackgroundInert);
+    projectModalBackgroundObserver = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(makeBackgroundInert);
+      });
+    });
+    projectModalBackgroundObserver.observe(document.body, { childList: true });
+    return;
+  }
+
+  projectModalBackgroundObserver?.disconnect();
+  projectModalBackgroundObserver = null;
+  projectModalBackgroundState.forEach((wasInert, element) => {
+    if (element.isConnected) element.inert = wasInert;
+  });
+  projectModalBackgroundState.clear();
 }
 
 function pushProjectCaseRoute(slug) {
@@ -606,6 +644,7 @@ function openRichProjectModal(slug, { updateHistory = true } = {}) {
   modal.classList.remove('hidden');
   modal.classList.add('flex');
   modal.setAttribute('aria-hidden', 'false');
+  setProjectModalBackgroundInert(modal, true);
   document.body.style.overflow = 'hidden';
   requestAnimationFrame(() => {
     getProjectModalFocusables(modal)[0]?.focus({ preventScroll: true });
@@ -619,6 +658,7 @@ function hideProjectModal({ restoreFocus = true } = {}) {
   modal.classList.add('hidden');
   modal.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+  setProjectModalBackgroundInert(modal, false);
   const trigger = projectModalTrigger;
   projectModalTrigger = null;
   openProjectModalSlug = null;
