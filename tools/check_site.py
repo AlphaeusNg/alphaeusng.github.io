@@ -761,6 +761,12 @@ def main() -> None:
     ):
         fail("home page must surface the DCA Lab without adding it to the Craft grid")
     ok("home page surfaces the DCA Lab outside the Craft grid")
+    if not re.search(
+        r'id="cv-downloads"[\s\S]{0,4000}?href="https://www\.myskillsfuture\.gov\.sg/csp/public/profile/0wf7bwg4rza7aa"[^>]*target="_blank"[^>]*rel="me noopener noreferrer"',
+        home_html,
+    ):
+        fail("CV card must retain the public MySkillsFuture profile link")
+    ok("CV card includes the public MySkillsFuture profile link")
     if "data-auto-footer" not in home_html:
         fail("home page must mount the footer feedback strip")
     if 'data-target=' in home_html.split("kofi-support.js")[1][:400]:

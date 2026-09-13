@@ -1,13 +1,13 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-09-12
+Last updated: 2026-09-14
 
 ## Current state
 
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.09.12.2`. DCA snapshot latest close is 2026-09-09.
+- Deployment stamp: `2026.09.14.1`. DCA snapshot latest close is 2026-09-09.
 - Local verification: 35 Python tests, 21 DCA engine/quote/journal tests, four
   project-route unit tests, `tools/check_site.py`, committed utility CSS rebuild,
   Python compilation, and syntax checks for first-party JavaScript. The 35
@@ -18,7 +18,28 @@ Last updated: 2026-09-12
   runs the browser, Python, and first-party JavaScript gates on Python 3.12 and
   Node 24.
 
-## Latest cycle: isolate background semantics while case studies open
+## Latest cycle: add a quiet verified-skills profile link
+
+### Why this was selected
+
+The public Careers & Skills Passport is useful supporting evidence for recruiters,
+but it should not compete with the portfolio's work, CV, or contact actions.
+
+### Changes
+
+- Add a muted MySkillsFuture profile link beneath the existing CV formats.
+- Keep it out of the primary navigation and social buttons so it remains secondary.
+- Add a site contract for the exact public link and safe new-tab attributes.
+- Refresh shared cache keys with deployment stamp `2026.09.14.1`.
+
+### Verification and scores
+
+- 35/35 Python tests, 21/21 DCA tests, 4/4 project-route tests, and 35/35
+  Chromium journeys pass.
+- Site, sitemap, generated-style, Python compilation, JavaScript syntax, and
+  diff-hygiene checks pass; desktop and 390px visual checks keep the link muted.
+
+## Previous cycle: isolate background semantics while case studies open
 
 ### Why this was selected
 
