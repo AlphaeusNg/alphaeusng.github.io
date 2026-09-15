@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-15T22:57:03+00:00",
+  "marketTimezone": "America/New_York",
+  "source": {
+    "name": "Nasdaq",
+    "type": "intraday last-sale snapshot",
+    "terms": "Displayed for personal decision support; verify prices with a broker."
+  },
+  "symbols": {
+    "TSLA": {
+      "price": 356.2388,
+      "asOf": "2026-09-15T18:57:00-04:00",
+      "timestampPrecision": "minute",
+      "marketStatus": "After-Hours",
+      "isRealTime": true,
+      "netChange": -0.3412,
+      "percentChange": -0.001
+    },
+    "SPCX": {
+      "price": 143.02,
+      "asOf": "2026-09-15T18:57:00-04:00",
+      "timestampPrecision": "minute",
+      "marketStatus": "After-Hours",
+      "isRealTime": true,
+      "netChange": -0.47,
+      "percentChange": -0.0033
+    }
+  }
+}
