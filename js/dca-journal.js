@@ -19,7 +19,15 @@
     const MAX_QUICK_AMOUNTS = 6;
     const MIN_QUICK_AMOUNT = 1;
     const MAX_QUICK_AMOUNT = 10_000;
+    const MAX_LEDGER_ID_CHARS = 128;
+    const MAX_DELETED_IDS = 10_000;
     const SYMBOLS = Object.freeze(['TSLA', 'SPCX']);
+    const JOURNAL_MERGE_MESSAGES = Object.freeze({
+        unchanged: '',
+        adopted: 'Updated from another tab.',
+        merged: 'Combined this tab with journal changes from another tab.',
+        conflict: 'Kept the newer copy of a fill that differed across tabs and combined the other changes.'
+    });
 
     function roundMoney(value) {
         return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
@@ -148,6 +156,20 @@
         return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
     }
 
+    function normalizeDeletedIds(raw) {
+        if (!Array.isArray(raw)) return [];
+        const seen = new Set();
+        const ids = [];
+        raw.forEach((value) => {
+            if (typeof value !== 'string') return;
+            const id = value.trim();
+            if (!id || id.length > MAX_LEDGER_ID_CHARS || seen.has(id)) return;
+            seen.add(id);
+            ids.push(id);
+        });
+        return ids.slice(-MAX_DELETED_IDS);
+    }
+
     function mergeMonths(newerMonths, ledgerMonths) {
         const months = {};
         const keys = new Set([
@@ -165,27 +187,65 @@
         return months;
     }
 
+    function ledgerById(ledger) {
+        const byId = new Map();
+        (Array.isArray(ledger) ? ledger : []).forEach((entry) => {
+            if (entry && typeof entry.id === 'string' && entry.id) byId.set(entry.id, entry);
+        });
+        return byId;
+    }
+
+    function fillSignature(entry) {
+        if (!entry) return '';
+        return [
+            entry.date,
+            entry.symbol,
+            entry.amount,
+            entry.price,
+            entry.shares,
+            entry.multiplier,
+            entry.priceMode,
+            entry.batchId || ''
+        ].join('|');
+    }
+
     /**
      * Union ledger rows by id (newer copy wins on conflict) and keep the newer
      * settings blob. Month totals take the higher of typed values vs ledger sums
-     * so a fill recorded on another device cannot vanish.
+     * so a fill recorded on another device cannot vanish. Ids listed in either
+     * deletedIds stay removed, so one tab's delete is not resurrected.
      */
     function mergeJournalState(local, remote) {
         const left = isRecord(local) ? local : {};
         const right = isRecord(remote) ? remote : {};
-        if (!Array.isArray(right.ledger) && !isRecord(right.settings)) return left;
+        if (!Array.isArray(right.ledger) && !isRecord(right.settings) && !Array.isArray(right.deletedIds)) {
+            return {
+                ...left,
+                deletedIds: normalizeDeletedIds(left.deletedIds)
+            };
+        }
         const leftUpdated = Number(left.updatedAt) || 0;
         const rightUpdated = Number(right.updatedAt) || 0;
         const older = leftUpdated >= rightUpdated ? right : left;
         const newer = leftUpdated >= rightUpdated ? left : right;
-        const byId = new Map();
-        (Array.isArray(older.ledger) ? older.ledger : []).forEach((entry) => {
-            if (entry && typeof entry.id === 'string' && entry.id) byId.set(entry.id, entry);
+        const deletedIds = normalizeDeletedIds([
+            ...normalizeDeletedIds(older.deletedIds),
+            ...normalizeDeletedIds(newer.deletedIds)
+        ]);
+        const deleted = new Set(deletedIds);
+        const byId = ledgerById(older.ledger);
+        ledgerById(newer.ledger).forEach((entry, id) => byId.set(id, entry));
+        const ledger = [...byId.values()].filter((entry) => !deleted.has(entry.id));
+        // A newer settings save may still contain a fill deleted by the other
+        // copy. Remove its contribution from that copy's typed month totals too.
+        const adjustedMonths = Object.fromEntries(Object.entries(isRecord(newer.months) ? newer.months : {})
+            .map(([month, totals]) => [month, isRecord(totals) ? { ...totals } : {}]));
+        ledgerById(newer.ledger).forEach((entry, id) => {
+            if (!deleted.has(id) || typeof entry.date !== 'string' || !SYMBOLS.includes(entry.symbol)) return;
+            const totals = adjustedMonths[entry.date.slice(0, 7)];
+            if (totals) totals[entry.symbol] = roundMoney(Math.max(0,
+                (Number(totals[entry.symbol]) || 0) - (Number(entry.amount) || 0)));
         });
-        (Array.isArray(newer.ledger) ? newer.ledger : []).forEach((entry) => {
-            if (entry && typeof entry.id === 'string' && entry.id) byId.set(entry.id, entry);
-        });
-        const ledger = [...byId.values()];
         const olderSettings = isRecord(older.settings) ? older.settings : {};
         const newerSettings = isRecord(newer.settings) ? newer.settings : {};
         return {
@@ -196,10 +256,55 @@
                     newerSettings.quickAmounts || olderSettings.quickAmounts
                 )
             },
-            months: mergeMonths(newer.months, monthsFromLedger(ledger)),
+            months: mergeMonths(adjustedMonths, monthsFromLedger(ledger)),
             ledger,
+            deletedIds,
             updatedAt: Math.max(leftUpdated, rightUpdated)
         };
+    }
+
+    /**
+     * Classify a two-copy journal merge.
+     * `unchanged` — this copy already contained the other copy's surviving fills.
+     * `adopted` — the other copy added or removed fills and this copy did not.
+     * `merged` — each copy contributed a fill the other did not have.
+     * `conflict` — the same id differed, or one copy deleted a fill while the
+     * other copy also added a different fill.
+     */
+    function journalWriteOutcome(local, remote, merged) {
+        const localEntries = ledgerById(local && local.ledger);
+        const remoteEntries = ledgerById(remote && remote.ledger);
+        const mergedIds = new Set(ledgerById(merged && merged.ledger).keys());
+        const localDeleted = new Set(normalizeDeletedIds(local && local.deletedIds));
+        const remoteDeleted = new Set(normalizeDeletedIds(remote && remote.deletedIds));
+        const keptFromLocalOnly = [];
+        const keptFromRemoteOnly = [];
+        let remoteRemovedLocal = false;
+        let payloadConflict = false;
+        localEntries.forEach((entry, id) => {
+            const survived = mergedIds.has(id);
+            const onRemote = remoteEntries.has(id);
+            if (survived && !onRemote) keptFromLocalOnly.push(id);
+            if (!survived && remoteDeleted.has(id)) remoteRemovedLocal = true;
+            if (onRemote && fillSignature(entry) !== fillSignature(remoteEntries.get(id)) && survived) {
+                payloadConflict = true;
+            }
+        });
+        remoteEntries.forEach((entry, id) => {
+            if (mergedIds.has(id) && !localEntries.has(id)) keptFromRemoteOnly.push(id);
+        });
+        if (payloadConflict || (remoteRemovedLocal && keptFromLocalOnly.length > 0)) return 'conflict';
+        if (keptFromLocalOnly.length > 0 && keptFromRemoteOnly.length > 0) return 'merged';
+        if (keptFromRemoteOnly.length > 0 || remoteRemovedLocal) return 'adopted';
+        if (localDeleted.size || remoteDeleted.size) {
+            const localOnlyDelete = [...localDeleted].some((id) => remoteEntries.has(id) && !remoteDeleted.has(id));
+            if (localOnlyDelete && keptFromRemoteOnly.length === 0 && !remoteRemovedLocal) return 'unchanged';
+        }
+        return 'unchanged';
+    }
+
+    function journalMergeMessage(outcome) {
+        return JOURNAL_MERGE_MESSAGES[outcome] || '';
     }
 
     return Object.freeze({
@@ -208,10 +313,14 @@
         MIN_QUICK_AMOUNT,
         MAX_QUICK_AMOUNT,
         SYMBOLS,
+        JOURNAL_MERGE_MESSAGES,
         addFill,
         catchUpRows,
+        journalMergeMessage,
+        journalWriteOutcome,
         mergeJournalState,
         monthsFromLedger,
+        normalizeDeletedIds,
         normalizeQuickAmounts,
         roundMoney
     });

@@ -8,6 +8,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['FAITH × CODE', 'LIVING • OPEN'],
     contextLine: '',
     introParagraph: 'This project started from a simple conviction: the habits that make engineering trustworthy also matter when Christians talk about doctrine. Define your terms, show your reasoning, and stay humble when you may be wrong.',
+    opening: {
+      problem: 'Serious Bible study is easy to skip when quick opinions crowd out careful reading.',
+      contribution: 'I built a linked vault, Python tooling, and a public viewer for moving through the notes.',
+      outcome: 'The vault stays public so people can explore it, critique it, or reuse what is useful.'
+    },
     sections: [
       {
         heading: 'The Question',
@@ -54,6 +59,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['AI TOOLING', 'LOCAL-FIRST'],
     contextLine: 'Private EPUB workflow for Kobo readers',
     introParagraph: 'KoboForge is a browser-based EPUB and image converter for Kobo readers. It keeps private files local, preserves document structure, and previews converted pages against published Kobo screen profiles.',
+    opening: {
+      problem: 'Tables, scans, and irregular pages are where simple converters break.',
+      contribution: 'I built a browser converter that keeps files local and previews real Kobo screen profiles before export.',
+      outcome: 'Import, diagnostics, editing, pagination, EPUB download, and image conversion run entirely in the browser.'
+    },
     sections: [
       {
         heading: 'The Problem',
@@ -91,6 +101,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['COMPUTER VISION + NLP', 'FINAL YEAR PROJECT'],
     contextLine: 'Nanyang Technological University',
     introParagraph: 'This NTU Final Year Project grew out of a simple frustration: good translations often arrive late, and I wanted to see whether early LLM tooling could help with text embedded in panels and natural images.',
+    opening: {
+      problem: 'Text in photos and panels is hard to translate without damaging the image.',
+      contribution: 'I built an NTU final-year pipeline that finds the text, translates it in context, and draws it back into the picture.',
+      outcome: 'The project remains open source as an exploration of that vision-and-language boundary.'
+    },
     sections: [
       {
         heading: 'The Technical Challenge',
@@ -133,6 +148,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['APPLIED COMPUTER VISION', 'HTX CBRNE CENTRE'],
     contextLine: 'AI Developer Intern — Singapore Home Team Science & Technology Agency (2023)',
     introParagraph: "At HTX's CBRNE Centre of Expertise, I worked on production-grade computer vision systems for automated threat detection at Singapore's borders. It was real operational work, with real constraints and very little room for careless assumptions.",
+    opening: {
+      problem: 'Border screening needs threat detection that holds up on operational imagery, not only clean datasets.',
+      contribution: 'I collected and staged threat items at Tuas Port, Woodlands Checkpoint, and Changi Airport, then built the annotation, training, and automation around that data.',
+      outcome: 'The models from that work contributed to deployed screening capability. The public record is the HTX story, the LinkedIn video, and the sample X-ray.'
+    },
     sections: [
       {
         heading: 'The Operational Reality',
@@ -179,6 +199,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['MULTIPLAYER + AI', 'REAL-TIME COLLABORATION'],
     contextLine: 'NTU 3002-TEL1 Module Project',
     introParagraph: "VotaFun works best as a live demo. It is a real-time group decision-making app where the model helps surface preferences and shortlist options, while the final decision stays with the people in the room.",
+    opening: {
+      problem: 'Group decision tools either hide the model or let it decide for the room.',
+      contribution: 'I built a live room where people share preferences, see ranked options, and vote while the model stays visible.',
+      outcome: 'The project is open source, and the live demo is available to try.'
+    },
     sections: [
       {
         heading: 'What The Demo Does',
@@ -225,6 +250,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['LOCAL-FIRST ALLY', 'PWA + NATIVE'],
     contextLine: 'Targets, usage, and self-directed blocks',
     introParagraph: 'AIly is a local-first companion for targets people choose for themselves. It turns those targets into capacity-honest plans, tracks progress on the device, and keeps accountability separate from surveillance.',
+    opening: {
+      problem: 'Productivity tools often assume every day has unlimited capacity, or they watch more than they should.',
+      contribution: 'I built a local-first companion that turns self-chosen targets into plans and keeps usage sampling consent-gated.',
+      outcome: 'The hosted PWA is the demo. Windows and Android packages are available; the published Windows build is unsigned and does not hard-block at the OS level.'
+    },
     sections: [
       {
         heading: 'The Product Question',
@@ -262,6 +292,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['FAITH × CODE', 'LOCAL-FIRST'],
     contextLine: 'Christ-centered weekday gospel reading',
     introParagraph: 'ChristoDay is a weekday reading plan built around a different measure of progress: not chapters completed, but Christ seen in the passage.',
+    opening: {
+      problem: 'A reading plan scored by chapters completed can turn Scripture into a productivity tally.',
+      contribution: 'I built a weekday plan for Matthew, Mark, Luke, Philippians, and Jude, with short segments on Singapore time and rest on weekends.',
+      outcome: "The live site opens today's passage. Completion and journal entries stay on the device."
+    },
     sections: [
       {
         heading: 'The Reading Rhythm',
@@ -299,6 +334,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['SG PRACTICAL', 'CLIENT-SIDE'],
     contextLine: 'Fuss-free cashback card fit calculator',
     introParagraph: 'CardFitSG helps Singapore users compare straightforward cashback cards against a real spending scenario, especially when the usual miles-maximising advice is more complexity than they want.',
+    opening: {
+      problem: 'A headline cashback rate can be a poor fit for a one-off purchase, modest spend, an existing bank, or a merchant that refuses Amex.',
+      contribution: 'I built a client-side calculator that makes those assumptions explicit and estimates cashback for one scenario.',
+      outcome: 'The live tool is account-free, the catalog is dated, and official terms sit beside the estimate. It is not financial advice.'
+    },
     sections: [
       {
         heading: 'The Decision Problem',
@@ -336,6 +376,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['FAITH × CODE', 'SCRIPTURE MEMORY'],
     contextLine: 'Meditation first, then memory practice',
     introParagraph: 'VerseKeep is a browser-based Scripture memory companion designed to begin with attentive reading before moving into recall drills.',
+    opening: {
+      problem: 'Recall drills can skip the reading they are supposed to serve.',
+      contribution: 'I built a browser companion that starts with study, then offers fill-the-blank, free recall, word order, and reference matching, with progress stored locally.',
+      outcome: 'Core practice works from bundled verse data, with optional worship stations, live Bible text, and wallpapers.'
+    },
     sections: [
       {
         heading: 'The Practice Loop',
@@ -373,6 +418,11 @@ const PROJECT_MODAL_DATA = {
     badges: ['PLAY', 'BROWSER ARCADE'],
     contextLine: 'Mini-games with local progression',
     introParagraph: 'AlpArcade is a compact browser arcade with eight distinct cabinets, local progression, and an optional global scoreboard. Playing never requires an account.',
+    opening: {
+      problem: 'A small set of browser games still needs progression without forcing an account.',
+      contribution: 'I built eight cabinets with local XP and unlocks, a seeded daily challenge, and an optional cloud scoreboard.',
+      outcome: 'Play works with no account. Google sign-in is only for publishing a best score.'
+    },
     sections: [
       {
         heading: 'The Arcade Loop',
@@ -619,10 +669,24 @@ function openRichProjectModal(slug, { updateHistory = true } = {}) {
     }
   }
 
-  const footer = document.getElementById('modal-footer-actions');
-  if (footer) {
-    footer.innerHTML = '';
-
+  const openingHost = document.getElementById('modal-case-opening');
+  if (openingHost) {
+    openingHost.replaceChildren();
+    const opening = data.opening || {};
+    [
+      ['Problem', opening.problem],
+      ['Contribution', opening.contribution],
+      ['Outcome', opening.outcome]
+    ].forEach(([label, text]) => {
+      if (!text) return;
+      const line = document.createElement('p');
+      const term = document.createElement('strong');
+      term.textContent = label;
+      line.append(term, document.createTextNode(` ${text}`));
+      openingHost.appendChild(line);
+    });
+    const actionRow = document.createElement('div');
+    actionRow.className = 'case-open-actions';
     const actions = [data.actions && data.actions.primary, data.actions && data.actions.secondary].filter(Boolean);
     actions.forEach((action, index) => {
       const link = document.createElement('a');
@@ -635,14 +699,20 @@ function openRichProjectModal(slug, { updateHistory = true } = {}) {
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
       }
-      footer.appendChild(link);
+      actionRow.appendChild(link);
     });
-
+    if (actionRow.childElementCount) openingHost.appendChild(actionRow);
+    openingHost.hidden = openingHost.childElementCount === 0;
   }
+
+  const footer = document.getElementById('modal-footer-actions');
+  if (footer) footer.replaceChildren();
 
   // Show modal
   modal.classList.remove('hidden');
   modal.classList.add('flex');
+  const scrollArea = modal.querySelector('.case-scroll');
+  if (scrollArea) scrollArea.scrollTop = 0;
   modal.setAttribute('aria-hidden', 'false');
   setProjectModalBackgroundInert(modal, true);
   document.body.style.overflow = 'hidden';

@@ -1,13 +1,50 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-09-14
+Last updated: 2026-09-25
 
 ## Current state
 
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.09.14.1`. DCA snapshot latest close is 2026-09-09.
+- Deployment stamp: `2026.09.25.1`. DCA snapshot latest close is 2026-09-24
+  (Nasdaq history); quote as-of 2026-09-25T04:10:00-04:00.
+
+## Latest cycle: chart module, market snapshot, note outline, case openings
+
+### Why this was selected
+
+The portfolio backlog asked for one DCA boundary extraction, a market-data
+refresh when the public tool could run, a compact study-note outline, a
+consistent case-study opening, and a check for two-tab journal loss.
+
+### Changes
+
+- Moved DCA sparkline geometry and SVG construction into `js/dca-chart.js`.
+  Restored inputs, imports, selected-scope totals, and cloud recovery still go
+  through the existing journal and cloud modules.
+- Refreshed `data/dca_market_history.json` with `tools/finance/generate_dca_market_data.py`.
+  TSLA and SPCX latest close is 2026-09-24. The page reads that committed snapshot.
+- Long vault notes with two or more headings get an in-note outline that reuses
+  heading anchors, plus a Note list control. Notes without enough headings are
+  unchanged.
+- Case studies now open with problem, contribution, outcome, and the existing
+  demo or source actions. Longer sections stay below that opening.
+- Two open DCA tabs no longer replace each other's new fills. A save or import
+  unions ledger ids, tombstones keep a delete from coming back, and the page
+  states whether it adopted, merged, or kept the newer conflicting copy.
+  Cloud reconnect already unioned ids; that path is unchanged aside from
+  honoring tombstones.
+
+### Verification
+
+- DCA engine, quote, and journal tests pass, including the chart geometry case
+  and the two-tab, import, reconnect, tombstone, and conflict cases.
+- `tools/check_site.py`, 35 Python tests, project-route tests, Python compile,
+  and syntax checks pass. Ten Chromium journeys covering case studies, the vault
+  reader, chart interaction, journal import, and malformed saved state also pass.
+
+## Previous cycle: add a quiet verified-skills profile link
 - Local verification: 35 Python tests, 21 DCA engine/quote/journal tests, four
   project-route unit tests, `tools/check_site.py`, committed utility CSS rebuild,
   Python compilation, and syntax checks for first-party JavaScript. The 35

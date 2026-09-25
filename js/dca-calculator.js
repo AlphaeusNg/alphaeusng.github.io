@@ -15,6 +15,7 @@
     const engine = window.DcaEngine;
     const quotesApi = window.DcaQuotes;
     const journal = window.DcaJournal;
+    const charts = window.DcaChart;
     const cloud = window.DcaCloud;
     const CATCH_UP_PREVIEW = 8;
 
@@ -36,6 +37,8 @@
     let journalThisMonthOnly = true;
     let catchUpShowAll = false;
     let applyingCloud = false;
+    let applyingStorage = false;
+    let lastJournalFingerprint = '';
     const fillDirty = { TSLA: false, SPCX: false };
     const chartRanges = { TSLA: '66', SPCX: '66' };
     const chartModels = {};
@@ -109,6 +112,7 @@
             },
             months: {},
             ledger: [],
+            deletedIds: [],
             updatedAt: 0
         };
     }
@@ -260,6 +264,23 @@
                         : 'saved'
                 });
             });
+            const deletedIds = [];
+            const deletedSeen = new Set();
+            const savedDeleted = Array.isArray(saved.deletedIds) ? saved.deletedIds : [];
+            if (saved.deletedIds !== undefined && !Array.isArray(saved.deletedIds)) repaired = true;
+            savedDeleted.forEach((value) => {
+                const id = typeof value === 'string' ? value.trim() : '';
+                if (!id || id.length > MAX_LEDGER_ID_CHARS || deletedSeen.has(id)) {
+                    if (value !== undefined) repaired = true;
+                    return;
+                }
+                deletedSeen.add(id);
+                deletedIds.push(id);
+            });
+            const boundedDeleted = deletedIds.slice(-MAX_PERSISTED_LEDGER_ROWS);
+            if (boundedDeleted.length !== deletedIds.length) repaired = true;
+            const visibleLedger = ledger.filter((entry) => !deletedSeen.has(entry.id));
+            if (visibleLedger.length !== ledger.length) repaired = true;
             if (repaired) {
                 storageRecoveryMessage = 'Some invalid saved data was ignored. Your valid plan and journal entries are still available; the repair will be saved with your next change.';
             }
@@ -267,7 +288,8 @@
             return {
                 settings,
                 months,
-                ledger,
+                ledger: visibleLedger,
+                deletedIds: boundedDeleted,
                 updatedAt: Number.isFinite(updatedAt) && updatedAt > 0 ? updatedAt : 0
             };
         } catch (error) {
@@ -286,13 +308,103 @@
         elements.storageNotice.hidden = !message;
     }
 
-    function saveState() {
+    function journalFingerprint(value) {
+        const ledger = Array.isArray(value && value.ledger) ? value.ledger : [];
+        const deletedIds = Array.isArray(value && value.deletedIds) ? value.deletedIds : [];
+        return JSON.stringify({
+            ledger: ledger.map((entry) => entry && entry.id),
+            deletedIds
+        });
+    }
+
+    function isPersistableEntry(entry) {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return false;
+        const id = typeof entry.id === 'string' ? entry.id.trim() : '';
+        const date = typeof entry.date === 'string' ? entry.date : '';
+        const symbol = typeof entry.symbol === 'string' ? entry.symbol : '';
+        const amount = Number(entry.amount);
+        const price = Number(entry.price);
+        const shares = Number(entry.shares);
+        return Boolean(id)
+            && id.length <= MAX_LEDGER_ID_CHARS
+            && isCalendarDate(date)
+            && SYMBOLS.includes(symbol)
+            && Number.isFinite(amount)
+            && amount > 0
+            && Number.isFinite(price)
+            && price >= 0
+            && Number.isFinite(shares)
+            && shares >= 0;
+    }
+
+    function readStoredJournal() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw || raw.length > MAX_PERSISTED_STATE_CHARS) return null;
+            const saved = JSON.parse(raw);
+            if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return null;
+            const deletedIds = journal ? journal.normalizeDeletedIds(saved.deletedIds) : [];
+            const deleted = new Set(deletedIds);
+            const seen = new Set();
+            const ledger = [];
+            (Array.isArray(saved.ledger) ? saved.ledger : []).forEach((entry) => {
+                if (!isPersistableEntry(entry)) return;
+                const id = entry.id.trim();
+                if (seen.has(id) || deleted.has(id)) return;
+                seen.add(id);
+                ledger.push(entry);
+            });
+            const isRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+            return {
+                settings: isRecord(saved.settings) ? saved.settings : {},
+                months: isRecord(saved.months) ? saved.months : {},
+                ledger,
+                deletedIds,
+                updatedAt: Number(saved.updatedAt) || 0
+            };
+        } catch (error) {
+            console.warn('[DCA Lab] Could not read the other journal copy.', error);
+            return null;
+        }
+    }
+
+    function rememberDeletion(entry) {
+        if (!entry || typeof entry.id !== 'string' || !entry.id) return;
+        if (!Array.isArray(state.deletedIds)) state.deletedIds = [];
+        if (!state.deletedIds.includes(entry.id)) state.deletedIds.push(entry.id);
+        if (state.deletedIds.length > MAX_PERSISTED_LEDGER_ROWS) {
+            state.deletedIds = state.deletedIds.slice(-MAX_PERSISTED_LEDGER_ROWS);
+        }
+    }
+
+    function absorbStoredJournal() {
+        if (!journal || applyingStorage) return 'unchanged';
+        const stored = readStoredJournal();
+        if (!stored) return 'unchanged';
+        const merged = journal.mergeJournalState(
+            { ...state, updatedAt: Number.MAX_SAFE_INTEGER },
+            stored
+        );
+        const outcome = journal.journalWriteOutcome(state, stored, merged);
+        state.ledger = merged.ledger;
+        state.deletedIds = merged.deletedIds;
+        if (outcome !== 'unchanged') state.months = merged.months;
+        return outcome;
+    }
+
+    function mergeStatus(message, outcome) {
+        const note = journal && outcome ? journal.journalMergeMessage(outcome) : '';
+        return note ? `${message} ${note}` : message;
+    }
+
+    function commitState() {
         state.updatedAt = Date.now();
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
             storageWriteBlocked = false;
             storageRecoveryMessage = '';
             renderStorageNotice();
+            lastJournalFingerprint = journalFingerprint(state);
             if (!applyingCloud && cloud && typeof cloud.pushSoon === 'function') {
                 cloud.pushSoon(state);
             }
@@ -303,6 +415,35 @@
             renderStorageNotice();
             return false;
         }
+    }
+
+    function saveState() {
+        const outcome = absorbStoredJournal();
+        commitState();
+        return outcome;
+    }
+
+    function applyStoredJournal(stored) {
+        if (!journal || !stored || applyingStorage) return 'unchanged';
+        const clean = journalFingerprint(state) === lastJournalFingerprint;
+        const typing = isTypingTarget(document.activeElement);
+        const preferLocal = !clean || typing;
+        const merged = journal.mergeJournalState(
+            preferLocal ? { ...state, updatedAt: Number.MAX_SAFE_INTEGER } : state,
+            stored
+        );
+        const outcome = journal.journalWriteOutcome(state, stored, merged);
+        if (outcome === 'unchanged') return outcome;
+        state.ledger = merged.ledger;
+        state.deletedIds = merged.deletedIds;
+        state.months = merged.months;
+        if (!typing) {
+            if (!preferLocal) {
+                state.settings = merged.settings;
+                state.updatedAt = merged.updatedAt;
+            }
+        }
+        return outcome;
     }
 
     function schedulePersist() {
@@ -1181,28 +1322,6 @@
         confidence.className = `confidence-badge is-${indicator.confidence}`;
     }
 
-    function chartRows(symbol, record, asset) {
-        const rows = record.history.map((row) => ({
-            date: String(row.date),
-            close: Number(row.close)
-        }));
-        const current = {
-            date: asset.price.currentDate,
-            close: Number(asset.price.value)
-        };
-        const final = rows[rows.length - 1];
-        if (current.date > final.date) rows.push(current);
-        else if (current.date === final.date) rows[rows.length - 1] = current;
-        const range = chartRanges[symbol];
-        return range === 'all' ? rows : rows.slice(-Number(range));
-    }
-
-    function svgElement(namespace, tag, attributes = {}) {
-        const element = document.createElementNS(namespace, tag);
-        Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, String(value)));
-        return element;
-    }
-
     function shortChartDate(dateText) {
         return new Intl.DateTimeFormat('en-US', {
             month: 'short',
@@ -1227,7 +1346,9 @@
         const model = chartModels[symbol];
         if (!model || !model.points.length) return;
         const lower = symbol.toLowerCase();
-        const index = clamp(Math.round(requestedIndex), 0, model.points.length - 1);
+        const index = charts
+            ? charts.clampIndex(model.points.length, requestedIndex)
+            : clamp(Math.round(requestedIndex), 0, model.points.length - 1);
         const point = model.points[index];
         const previous = index > 0 ? model.rows[index - 1].close : null;
         const sessionMove = previous ? (point.row.close / previous) - 1 : null;
@@ -1257,85 +1378,23 @@
     }
 
     function renderPriceChart(symbol, record, asset) {
+        if (!charts) return;
         const lower = symbol.toLowerCase();
-        const rows = chartRows(symbol, record, asset);
-        const prices = rows.map((row) => Number(row.close));
-        if (prices.length < 2) return;
-        const minimum = Math.min(...prices);
-        const maximum = Math.max(...prices);
-        const spread = maximum - minimum || Math.max(maximum * 0.02, 1);
-        const width = 600;
-        const top = 18;
-        const bottom = 145;
-        const points = prices.map((price, index) => {
-            const x = 12 + ((index / (prices.length - 1)) * 576);
-            const y = bottom - (((price - minimum) / spread) * (bottom - top));
-            return { x, y, row: rows[index] };
-        });
-        const pointText = points.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(' ');
-        const color = symbol === 'TSLA' ? '#f1d574' : '#49d6c8';
-        const gradientId = `chart-fill-${symbol.toLowerCase()}`;
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('viewBox', '0 0 600 180');
-        svg.setAttribute('preserveAspectRatio', 'none');
-        svg.setAttribute('aria-hidden', 'true');
-
-        const defs = svgElement(svg.namespaceURI, 'defs');
-        const gradient = svgElement(svg.namespaceURI, 'linearGradient', { id: gradientId, x1: '0', x2: '0', y1: '0', y2: '1' });
-        gradient.append(
-            svgElement(svg.namespaceURI, 'stop', { offset: '0%', 'stop-color': color, 'stop-opacity': '0.22' }),
-            svgElement(svg.namespaceURI, 'stop', { offset: '100%', 'stop-color': color, 'stop-opacity': '0' })
+        const rows = charts.rowsForRange(
+            record.history,
+            { date: asset.price.currentDate, close: Number(asset.price.value) },
+            chartRanges[symbol]
         );
-        defs.appendChild(gradient);
-        const grid = svgElement(svg.namespaceURI, 'path', {
-            d: 'M0 30H600 M0 81.5H600 M0 133H600',
-            stroke: 'rgba(148,163,184,0.12)',
-            'stroke-width': '1'
-        });
-        const area = svgElement(svg.namespaceURI, 'polygon', {
-            points: `12,${bottom} ${pointText} 588,${bottom}`,
-            fill: `url(#${gradientId})`
-        });
-        const line = svgElement(svg.namespaceURI, 'polyline', {
-            points: pointText,
-            fill: 'none',
-            stroke: color,
-            'stroke-width': '2.5',
-            'vector-effect': 'non-scaling-stroke'
-        });
-        const crosshair = svgElement(svg.namespaceURI, 'line', {
-            y1: top,
-            y2: bottom,
-            stroke: 'rgba(226,232,240,0.55)',
-            'stroke-width': '1',
-            opacity: '0',
-            'data-chart-crosshair': ''
-        });
-        const focus = svgElement(svg.namespaceURI, 'circle', {
-            r: '4.5',
-            fill: color,
-            stroke: '#07111f',
-            'stroke-width': '2',
-            opacity: '0',
-            'data-chart-focus': ''
-        });
-        const startLabel = svgElement(svg.namespaceURI, 'text', {
-            x: '12', y: '169', fill: 'rgba(158,172,192,0.75)', 'font-size': '10'
-        });
-        const endLabel = svgElement(svg.namespaceURI, 'text', {
-            x: '588', y: '169', fill: 'rgba(158,172,192,0.75)', 'font-size': '10', 'text-anchor': 'end'
-        });
-        startLabel.textContent = shortChartDate(rows[0].date);
-        endLabel.textContent = shortChartDate(rows[rows.length - 1].date);
-        svg.append(defs, grid, area, line, crosshair, focus, startLabel, endLabel);
+        const model = charts.buildPriceChartModel(symbol, rows);
+        if (!model) return;
         const chart = elements[`${lower}Sparkline`];
-        chart.replaceChildren(svg);
-        const totalReturn = (rows[rows.length - 1].close / rows[0].close) - 1;
-        const summary = `${shortChartDate(rows[0].date)}–${shortChartDate(rows[rows.length - 1].date)} · ${formatPercent(totalReturn)}`;
-        chartModels[symbol] = { rows, points, width, summary, selectedIndex: null };
+        chart.replaceChildren(charts.renderSvg(model, shortChartDate));
+        const summary = `${shortChartDate(rows[0].date)}–${shortChartDate(rows[rows.length - 1].date)} · ${formatPercent(model.totalReturn)}`;
+        model.summary = summary;
+        chartModels[symbol] = model;
         chart.setAttribute('aria-valuemin', '0');
-        chart.setAttribute('aria-valuemax', String(points.length - 1));
-        chart.setAttribute('aria-valuenow', String(points.length - 1));
+        chart.setAttribute('aria-valuemax', String(model.points.length - 1));
+        chart.setAttribute('aria-valuenow', String(model.points.length - 1));
         chart.setAttribute('aria-valuetext', `${formatDate(rows[rows.length - 1].date, { short: true })}, ${formatCurrency(rows[rows.length - 1].close, 2)}`);
         elements[`${lower}ChartSummary`].textContent = summary;
         elements[`${lower}ChartTooltip`].hidden = true;
@@ -1811,17 +1870,22 @@
     function applyCloudJournal(remote) {
         if (!journal || !remote) return;
         const merged = journal.mergeJournalState(state, remote);
+        const cloudOutcome = journal.journalWriteOutcome(state, remote, merged);
         applyingCloud = true;
         state.settings = merged.settings;
         state.months = merged.months;
         state.ledger = merged.ledger;
+        state.deletedIds = merged.deletedIds || [];
         state.updatedAt = merged.updatedAt;
         applySavedSettings({ keepPlanDate: true });
         renderJournal();
         renderCatchUp();
         recalculate({ persist: true, preserveStatus: true });
         applyingCloud = false;
-        saveState();
+        const storedOutcome = saveState();
+        const outcome = storedOutcome !== 'unchanged' ? storedOutcome : cloudOutcome;
+        const message = journal.journalMergeMessage(outcome);
+        if (message) showStatus(message, 'info');
     }
 
     function renderCloudStatus(kind, message) {
@@ -1884,15 +1948,16 @@
         });
         if (!recorded.length) return;
         clearFillEdits();
-        saveState();
+        const outcome = saveState();
         advancePlanDate(date);
         loadMonthInputs();
         renderJournal();
         recalculate();
-        showStatus(`Recorded ${recorded.join(' and ')} in this browser journal. No brokerage order was placed.`, 'info');
+        showStatus(mergeStatus(`Recorded ${recorded.join(' and ')} in this browser journal. No brokerage order was placed.`, outcome), 'info');
     }
 
     function applyLedgerRemoval(entry) {
+        rememberDeletion(entry);
         const entryMonth = entry.date.slice(0, 7);
         if (state.months[entryMonth]) {
             state.months[entryMonth][entry.symbol] = Math.max(
@@ -1908,11 +1973,11 @@
         const entry = state.ledger.find((candidate) => candidate.id === id);
         if (!entry) return;
         const entryMonth = applyLedgerRemoval(entry);
-        saveState();
+        const outcome = saveState();
         if (entryMonth === monthKey()) loadMonthInputs();
         renderJournal();
         recalculate();
-        showStatus('Journal entry removed and the month-to-date total was adjusted.', 'info');
+        showStatus(mergeStatus('Journal entry removed and the month-to-date total was adjusted.', outcome), 'info');
     }
 
     function undoLastRecording() {
@@ -1926,11 +1991,11 @@
             const entryMonth = applyLedgerRemoval(entry);
             if (entryMonth === monthKey()) touchedCurrentMonth = true;
         });
-        saveState();
+        const outcome = saveState();
         if (touchedCurrentMonth) loadMonthInputs();
         renderJournal();
         recalculate();
-        showStatus('Last recorded session was removed from this browser journal.', 'info');
+        showStatus(mergeStatus('Last recorded session was removed from this browser journal.', outcome), 'info');
     }
 
     function renderJournal() {
@@ -2027,12 +2092,13 @@
         const currentMonth = monthKey();
         if (!window.confirm(`Reset contribution totals and recorded entries for ${formatMonth(currentMonth)}?`)) return;
         delete state.months[currentMonth];
+        state.ledger.filter((entry) => entry.date.startsWith(currentMonth)).forEach(rememberDeletion);
         state.ledger = state.ledger.filter((entry) => !entry.date.startsWith(currentMonth));
-        saveState();
+        const outcome = saveState();
         loadMonthInputs();
         renderJournal();
         recalculate();
-        showStatus(`${formatMonth(currentMonth)} was reset in this browser.`, 'info');
+        showStatus(mergeStatus(`${formatMonth(currentMonth)} was reset in this browser.`, outcome), 'info');
     }
 
     function splitCsvLine(line) {
@@ -2121,11 +2187,11 @@
         });
         if (!imported) throw new Error('No new rows were imported.');
         if (importedOutsideCurrentMonth) journalThisMonthOnly = false;
-        saveState();
+        const outcome = saveState();
         loadMonthInputs();
         renderJournal();
         recalculate();
-        showStatus(`Imported ${imported} journal row${imported === 1 ? '' : 's'} into this browser.`, 'info');
+        showStatus(mergeStatus(`Imported ${imported} journal row${imported === 1 ? '' : 's'} into this browser.`, outcome), 'info');
     }
 
     function isTypingTarget(target) {
@@ -2428,6 +2494,34 @@
             }
             refreshLiveQuotes().finally(scheduleQuotePoll);
         });
+        window.addEventListener('storage', (event) => {
+            if (event.key !== STORAGE_KEY || !event.newValue || applyingStorage) return;
+            const stored = readStoredJournal();
+            if (!stored) return;
+            const wasClean = journalFingerprint(state) === lastJournalFingerprint;
+            const typing = isTypingTarget(document.activeElement);
+            const outcome = applyStoredJournal(stored);
+            if (outcome === 'unchanged') return;
+            applyingStorage = true;
+            try {
+                if (!wasClean || typing) commitState();
+                else lastJournalFingerprint = journalFingerprint(state);
+                if (!typing) {
+                    applySavedSettings({ keepPlanDate: true });
+                } else {
+                    // Keep the active plan controls, but show the contributions
+                    // represented by the journal we just merged and persisted.
+                    loadMonthInputs();
+                }
+                renderJournal();
+                renderCatchUp();
+                if (marketData) recalculate({ persist: false, preserveStatus: true });
+                const message = journal.journalMergeMessage(outcome);
+                if (message) showStatus(message, 'info');
+            } finally {
+                applyingStorage = false;
+            }
+        });
         window.addEventListener('pagehide', () => {
             flushPersist();
             if (clockTimer) window.clearInterval(clockTimer);
@@ -2451,6 +2545,7 @@
             console.error('[DCA Lab] Calculation engine did not load.');
             return;
         }
+        lastJournalFingerprint = journalFingerprint(state);
         cacheElements();
         applySavedSettings();
         applyQueryOverrides();

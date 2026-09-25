@@ -988,6 +988,42 @@ test('DCA Lab applies optional quotes per symbol without moving newer snapshots 
   await expect(page.locator('#spcxPriceMeta')).toContainText('Nasdaq last sale');
 });
 
+test('DCA Lab keeps cross-tab journal totals current while a plan input is focused', async ({ page, context }) => {
+  await mockDcaQuotes(page);
+  await page.goto('/pages/dca-calculator.html?d=2026-09-25', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#totalRecommendation')).not.toHaveText('—');
+  await page.locator('#monthlyBudget').fill('3200');
+  const peer = await context.newPage();
+  await peer.route('**/journal-peer', route => route.fulfill({ contentType: 'text/html', body: '<p>Journal peer</p>' }));
+  await peer.goto('/journal-peer');
+  await page.locator('#monthlyBudget').focus();
+  await peer.evaluate(() => {
+    const key = 'alphaeus-conviction-dca-lab-v1';
+    const saved = JSON.parse(localStorage.getItem(key));
+    saved.ledger.push({ id: 'peer-fill', date: '2026-09-25', symbol: 'TSLA', amount: 20, price: 400, shares: 0.05 });
+    saved.months['2026-09'] = { TSLA: 20, SPCX: 0 };
+    saved.updatedAt = Date.now();
+    localStorage.setItem(key, JSON.stringify(saved));
+  });
+  await expect(page.locator('#journalBody tr')).toHaveCount(1);
+  await expect(page.locator('#tslaInvested')).toHaveValue('20');
+  await expect(page.locator('#monthlyBudget')).toHaveValue('3200');
+  await expect(page.locator('#monthlyBudget')).toBeFocused();
+  await peer.evaluate(() => {
+    const key = 'alphaeus-conviction-dca-lab-v1';
+    const saved = JSON.parse(localStorage.getItem(key));
+    saved.ledger = [];
+    saved.deletedIds = ['peer-fill'];
+    saved.months['2026-09'] = { TSLA: 0, SPCX: 0 };
+    saved.updatedAt = Date.now();
+    localStorage.setItem(key, JSON.stringify(saved));
+  });
+  await expect(page.locator('#journalBody tr')).toHaveCount(0);
+  await expect(page.locator('#tslaInvested')).toHaveValue('0');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('alphaeus-conviction-dca-lab-v1')).months['2026-09'].TSLA)).toBe(0);
+  await peer.close();
+});
+
 test('DCA Lab labels date-only Nasdaq closes without inventing a time', async ({ page }) => {
   const dateOnly = new Date().toISOString().slice(0, 10);
   const dateLabel = new Intl.DateTimeFormat('en-US', {
@@ -997,6 +1033,16 @@ test('DCA Lab labels date-only Nasdaq closes without inventing a time', async ({
     asOf: dateOnly,
     timestampPrecision: 'date',
     marketStatus: 'Closed',
+  });
+  // A same-day minute-precision snapshot correctly outranks a date-only quote.
+  // Keep this label test independent of the repository's daily snapshot refresh.
+  await page.route('**/data/dca_market_history.json', async route => {
+    const response = await route.fetch();
+    const snapshot = await response.json();
+    for (const record of Object.values(snapshot.symbols)) {
+      record.quote.asOf = '2026-08-01T16:00:00-04:00';
+    }
+    await route.fulfill({ json: snapshot });
   });
 
   await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });

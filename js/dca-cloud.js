@@ -50,7 +50,8 @@
             updatedMs: Number(state && state.updatedAt) || Date.now(),
             settings: state && state.settings && typeof state.settings === 'object' ? state.settings : {},
             months: state && state.months && typeof state.months === 'object' ? state.months : {},
-            ledger: Array.isArray(state && state.ledger) ? state.ledger : []
+            ledger: Array.isArray(state && state.ledger) ? state.ledger : [],
+            deletedIds: Array.isArray(state && state.deletedIds) ? state.deletedIds : []
         };
         const encoded = JSON.stringify(payload);
         if (encoded.length > MAX_JSON_CHARS) {
@@ -65,6 +66,7 @@
             settings: data.settings && typeof data.settings === 'object' ? data.settings : {},
             months: data.months && typeof data.months === 'object' ? data.months : {},
             ledger: Array.isArray(data.ledger) ? data.ledger : [],
+            deletedIds: Array.isArray(data.deletedIds) ? data.deletedIds : [],
             updatedAt: Number(data.updatedMs) || 0
         };
     }

@@ -4,6 +4,7 @@ import test from 'node:test';
 
 const require = createRequire(import.meta.url);
 const engine = require('../js/dca-engine.js');
+const charts = require('../js/dca-chart.js');
 
 function history(direction, sessions = 220) {
   const rows = [];
@@ -144,4 +145,29 @@ test('historical replay deploys equal budgets for a fair comparison', () => {
   assert.ok(replay);
   assert.equal(replay.adaptive.spent, 1200);
   assert.equal(replay.flat.spent, 1200);
+});
+
+test('price chart replaces the same session, appends a newer close, and slices the range', () => {
+  const historyRows = [
+    { date: '2026-08-17', close: 100 },
+    { date: '2026-08-18', close: 110 },
+    { date: '2026-08-19', close: 120 },
+  ];
+  const replaced = charts.rowsForRange(historyRows, { date: '2026-08-19', close: 121 }, '66');
+  assert.equal(replaced.length, 3);
+  assert.equal(replaced.at(-1).close, 121);
+  const ranged = charts.rowsForRange(historyRows, { date: '2026-08-20', close: 130 }, '2');
+  assert.deepEqual(ranged.map((row) => row.date), ['2026-08-19', '2026-08-20']);
+  const model = charts.buildPriceChartModel('TSLA', ranged);
+  assert.equal(model.color, '#f1d574');
+  assert.equal(model.gradientId, 'chart-fill-tsla');
+  assert.equal(model.points[0].x, 12);
+  assert.equal(model.points[1].x, 588);
+  assert.equal(model.width, 600);
+  assert.ok(model.totalReturn > 0);
+  assert.equal(charts.clampIndex(model.points.length, 8.2), 1);
+  assert.equal(charts.clampIndex(model.points.length, -3), 0);
+  const spcx = charts.buildPriceChartModel('SPCX', ranged);
+  assert.equal(spcx.color, '#49d6c8');
+  assert.equal(charts.buildPriceChartModel('TSLA', ranged.slice(0, 1)), null);
 });

@@ -28,7 +28,7 @@
     
     <!-- Committed utility CSS keeps the zero-build Pages deploy while avoiding
          Tailwind's render-blocking browser compiler. -->
-    <link rel="stylesheet" href="css/tailwind-home.css?v=2026.09.14.1">
+    <link rel="stylesheet" href="css/tailwind-home.css?v=2026.09.25.1">
     
     <!-- Elegant Fonts: non-blocking for first paint, with a no-JS fallback. -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap" media="print" onload="this.onload=null;this.media='all'" data-portfolio-fonts>
@@ -1000,10 +1000,14 @@
                     </svg>
                 </button>
             </div>
-            
-            <!-- Scrollable case study body (populated by renderer; .case-study CSS applies to children) -->
-            <div id="modal-case-study-body" class="case-study overflow-y-auto px-8 py-7 text-[15px] flex-1">
-                <!-- Content (intro, h4 sections, .intersection, quotes, visuals) injected via appendChild / textContent. Starts empty. -->
+
+            <div class="case-scroll">
+                <div id="modal-case-opening" class="case-open" hidden></div>
+
+                <!-- Opening and details share a scroll area on short phone screens. -->
+                <div id="modal-case-study-body" class="case-study px-8 py-7 text-[15px]">
+                    <!-- Content injected by the case-study renderer. -->
+                </div>
             </div>
             
             <!-- Footer actions (primary/secondary links populated dynamically) -->
@@ -1054,7 +1058,7 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.09.14.1"
+    <script src="js/kofi-support.js?v=2026.09.25.1"
             data-auto-footer
             data-message="Tell me what worked or what would help."
             defer></script>

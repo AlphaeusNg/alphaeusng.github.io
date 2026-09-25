@@ -4,15 +4,17 @@ This repo is a static GitHub Pages portfolio for Alphaeus Ng. Future agents shou
 
 ## Primary Workflow
 
-1. Work from `/home/alph/alphaeusng.github.io`.
+1. Work from `/home/alph/projects/alphaeusng.github.io`. The older `/home/alph/alphaeusng.github.io` checkout is not the primary tree.
 2. Check `git status --short --branch` before edits.
 3. Use `rg --files` and `rg -n "href=|src=|resume|Seeking-Biblical-Truth|kobo"` before changing links.
 4. Serve locally with `python3 -m http.server 8000`.
 5. Validate key routes:
    - `/`
-   - `/conviction.html`
+   - `/pages/conviction.html`
+   - `/pages/dca-calculator.html`
    - `/data/conviction_tsla_history.json`
-   - `/kobo-forge.html`
+   - `/data/dca_market_history.json`
+   - `/pages/kobo-forge.html` (compatibility redirect to the KoboForge project site)
    - `/pages/seeking-biblical-truth/`
    - compatibility redirect: `/seeking-biblical-truth/`
 6. Check browser console and responsive layout at mobile and desktop widths when possible.
@@ -35,8 +37,9 @@ This repo is a static GitHub Pages portfolio for Alphaeus Ng. Future agents shou
 
 - GitHub Pages serves from the root of `main`.
 - `.nojekyll` is present so GitHub Pages serves this as static files.
-- There is no build/lint/test script in the current repo.
-- External CDNs used by the pages include Tailwind, D3, html2canvas, Google Fonts, and Chart.js.
+- Home and page Tailwind CSS are committed files (`css/tailwind-home.css`, `css/tailwind-pages.css`), rebuilt with `npm run build:styles` when their sources change.
+- Checks that exist now: `python3 tools/check_site.py`, `npm run test:dca`, `npm run test:project-routes`, and `npm run test:browser` (Playwright).
+- Some pages still load D3, Google Fonts, or Chart.js from a CDN. Do not assume every stylesheet is local.
 
 ## Sub-Agent Use
 

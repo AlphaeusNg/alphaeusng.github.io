@@ -298,6 +298,65 @@ function renderNoteContent(note) {
   return renderMarkdown(note);
 }
 
+function returnToNoteList() {
+  setVaultSurface('notes');
+  const active = document.querySelector('#file-tree .file-tree-item.active');
+  if (active) {
+    active.focus({ preventScroll: false });
+    active.scrollIntoView({ block: 'nearest' });
+  } else {
+    document.getElementById('search')?.focus();
+  }
+}
+
+function mountNoteOutline() {
+  if (state.noteView !== 'rendered') return;
+  const panel = document.getElementById('note-panel');
+  const body = panel?.querySelector('.note-body');
+  if (!body) return;
+  const headings = [...body.querySelectorAll('h1[id], h2[id], h3[id], h4[id]')]
+    .filter((heading) => heading.textContent.trim());
+  if (headings.length < 2) return;
+  const nav = document.createElement('nav');
+  nav.className = 'note-outline';
+  nav.setAttribute('aria-label', 'In this note');
+  const back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'note-outline-back';
+  back.textContent = 'Note list';
+  back.addEventListener('click', returnToNoteList);
+  const links = document.createElement('div');
+  links.className = 'note-outline-links';
+  headings.forEach((heading) => {
+    const link = document.createElement('a');
+    link.className = `note-outline-link is-${heading.tagName.toLowerCase()}`;
+    link.href = `#${heading.id}`;
+    link.textContent = heading.textContent.trim();
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (!heading.hasAttribute('tabindex')) heading.setAttribute('tabindex', '-1');
+      heading.scrollIntoView({ block: 'start' });
+      heading.focus({ preventScroll: true });
+    });
+    links.appendChild(link);
+  });
+  links.addEventListener('keydown', (event) => {
+    const items = [...links.querySelectorAll('a')];
+    const index = items.indexOf(document.activeElement);
+    if (index < 0) return;
+    let next = index;
+    if (event.key === 'ArrowRight') next = Math.min(items.length - 1, index + 1);
+    else if (event.key === 'ArrowLeft') next = Math.max(0, index - 1);
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = items.length - 1;
+    else return;
+    event.preventDefault();
+    items[next].focus();
+  });
+  nav.append(back, links);
+  body.before(nav);
+}
+
 function authState() {
   return window.VaultCloud?.getAuthState?.() || { canEdit: false, configured: false, status: 'off' };
 }
@@ -723,6 +782,7 @@ function paintNotePanel(d, { liveStatus = '' } = {}) {
   }
 
   bindPanelLinks(d);
+  mountNoteOutline();
   renderFileTree();
 
   const copyBtn = document.getElementById('btn-copy-note-link');

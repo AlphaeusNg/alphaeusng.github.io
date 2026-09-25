@@ -655,6 +655,7 @@ def main() -> None:
         ROOT / "js" / "dca-engine.js",
         ROOT / "js" / "dca-quotes.js",
         ROOT / "js" / "dca-calculator.js",
+        ROOT / "js" / "dca-chart.js",
         ROOT / "pages" / "conviction.html",
         ROOT / "pages" / "dca-calculator.html",
         ROOT / "pages" / "kobo-forge.html",
@@ -727,6 +728,7 @@ def main() -> None:
         ("journal", rf'src="\.\./js/dca-journal\.js\?v={re.escape(site_version)}"'),
         ("quotes", rf'src="\.\./js/dca-quotes\.js\?v={re.escape(site_version)}"'),
         ("cloud", rf'src="\.\./js/dca-cloud\.js\?v={re.escape(site_version)}"'),
+        ("chart", rf'src="\.\./js/dca-chart\.js\?v={re.escape(site_version)}"'),
         ("calculator", rf'src="\.\./js/dca-calculator\.js\?v={re.escape(site_version)}"'),
     ):
         if not re.search(pattern, dca_html):
