@@ -9,8 +9,8 @@ DCA header: a non-manual stored close behind the last completed US session is na
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.10.05.1`. DCA snapshot latest close is 2026-09-24
-  (Nasdaq history); quote as-of 2026-09-25T04:10:00-04:00.
+- Deployment stamp: `2026.10.05.1`. DCA snapshot latest close is 2026-10-02
+  (Nasdaq history); the stored quote for that session is a date-only close.
 
 ## Previous cycle: chart module, market snapshot, note outline, case openings
 
