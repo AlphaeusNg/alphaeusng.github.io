@@ -63,7 +63,7 @@
             'spcxRemaining', 'tslaSignalBadge', 'spcxSignalBadge',
             'recommendationReasons', 'recordPurchase', 'heroTslaPrice',
             'heroSpcxPrice', 'heroTslaMove', 'heroSpcxMove', 'marketFreshness',
-            'marketTimestamp', 'tslaConfidenceBadge', 'spcxConfidenceBadge',
+            'marketTimestamp', 'marketCloseGap', 'tslaConfidenceBadge', 'spcxConfidenceBadge',
             'tslaIndicators', 'spcxIndicators', 'tslaSparkline', 'spcxSparkline',
             'tslaChartSummary', 'spcxChartSummary', 'tslaChartTooltip',
             'spcxChartTooltip',
@@ -511,15 +511,31 @@
         }).format(new Date(`${monthText}-01T12:00:00Z`));
     }
 
-    function newYorkDate() {
+    function newYorkDate(instant = new Date()) {
+        const moment = instant instanceof Date ? instant : new Date(instant);
         const parts = new Intl.DateTimeFormat('en-US', {
             timeZone: 'America/New_York',
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
-        }).formatToParts(new Date());
+        }).formatToParts(moment);
         const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
         return `${values.year}-${values.month}-${values.day}`;
+    }
+
+    function quoteNewYorkDate(quote) {
+        const asOf = String((quote && quote.asOf) || '');
+        // Date-only closes are session dates. A UTC instant is read in New York, not sliced.
+        if (/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return asOf;
+        const parsed = Date.parse(asOf);
+        if (!Number.isFinite(parsed)) return '';
+        return newYorkDate(new Date(parsed));
+    }
+
+    function quotePrintIsClose(quote) {
+        const asOf = String((quote && quote.asOf) || '');
+        if (/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return true;
+        return String(quote && quote.marketStatus || '').toLowerCase() === 'closed';
     }
 
     function monthKey() {
@@ -1026,8 +1042,35 @@
         updatePriceControls();
     }
 
+    function renderCloseGap() {
+        if (!elements.marketCloseGap) return;
+        const now = new Date();
+        let oldest = '';
+        let oldestIsClose = true;
+        if (marketData && engine && typeof engine.lastCompletedSession === 'function') {
+            const lastSession = engine.lastCompletedSession(now);
+            SYMBOLS.forEach((symbol) => {
+                if (manualEnabled(symbol)) return;
+                const quote = marketData.symbols[symbol] && marketData.symbols[symbol].quote;
+                const sessionDate = quoteNewYorkDate(quote);
+                if (!sessionDate || sessionDate >= lastSession) return;
+                const isClose = quotePrintIsClose(quote);
+                if (!oldest || sessionDate < oldest) {
+                    oldest = sessionDate;
+                    oldestIsClose = isClose;
+                } else if (sessionDate === oldest) {
+                    oldestIsClose = oldestIsClose && isClose;
+                }
+            });
+        }
+        elements.marketCloseGap.textContent = oldest && engine && typeof engine.describeCloseGap === 'function'
+            ? engine.describeCloseGap(oldest, now, oldestIsClose ? 'close' : 'quote')
+            : '';
+    }
+
     function renderMarketClock() {
         if (!elements.marketSession || !engine) return;
+        renderCloseGap();
         const today = newYorkDate();
         const hour = Number(new Intl.DateTimeFormat('en-US', {
             timeZone: 'America/New_York',
@@ -1040,10 +1083,11 @@
         }).format(new Date()));
         const minutes = (hour * 60) + minute;
         const trading = engine.isTradingDay(today);
+        const closeMinutes = engine.tradingSessionCloseMinutes(today);
         let label = 'Closed';
-        if (trading && minutes >= (9 * 60) + 30 && minutes < (16 * 60)) label = 'Open';
+        if (trading && minutes >= (9 * 60) + 30 && minutes < closeMinutes) label = 'Open';
         else if (trading && minutes >= (4 * 60) && minutes < (9 * 60) + 30) label = 'Pre-market';
-        else if (trading && minutes >= (16 * 60) && minutes < (20 * 60)) label = 'After hours';
+        else if (trading && minutes >= closeMinutes && minutes < (20 * 60)) label = 'After hours';
         elements.marketSession.textContent = label;
         if (elements.marketClock) {
             elements.marketClock.textContent = new Intl.DateTimeFormat('en-US', {

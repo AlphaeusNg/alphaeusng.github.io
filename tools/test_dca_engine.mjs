@@ -38,6 +38,67 @@ test('next trading day snaps weekends and holidays and can skip the current sess
   assert.equal(engine.nextTradingDay('2026-08-18', { inclusive: false }), '2026-08-19');
 });
 
+function countSessionsAfter(closeDate, lastSession) {
+  let count = 0;
+  const cursor = new Date(`${closeDate}T00:00:00Z`);
+  cursor.setUTCDate(cursor.getUTCDate() + 1);
+  const end = new Date(`${lastSession}T00:00:00Z`);
+  while (cursor <= end) {
+    if (engine.isTradingDay(cursor.toISOString().slice(0, 10))) count += 1;
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return count;
+}
+
+function gapSentence(closeDate, lastSession, count) {
+  const sessionLabel = count === 1 ? '1 US session' : `${count} US sessions`;
+  return `Stored close ${closeDate} is ${sessionLabel} behind the last completed session (${lastSession}).`;
+}
+
+test('after the close, that session stays quiet and an older close names the calendar gap', () => {
+  // Tuesday 2026-09-08 17:00 America/New_York. 2026-09-07 is Labor Day.
+  const now = new Date('2026-09-08T17:00:00-04:00');
+  assert.equal(engine.lastCompletedSession(now), '2026-09-08');
+  assert.equal(engine.describeCloseGap('2026-09-08', now), '');
+  assert.equal(engine.describeCloseGap('2026-09-09', now), '');
+  const count = countSessionsAfter('2026-09-04', '2026-09-08');
+  assert.equal(
+    engine.describeCloseGap('2026-09-04', now),
+    gapSentence('2026-09-04', '2026-09-08', count)
+  );
+});
+
+test('before 16:00 New York, the last completed session is the previous trading day', () => {
+  const now = new Date('2026-09-08T09:00:00-04:00');
+  assert.equal(engine.lastCompletedSession(now), '2026-09-04');
+  assert.equal(engine.describeCloseGap('2026-09-04', now), '');
+  assert.match(
+    engine.describeCloseGap('2026-09-03', now, 'quote'),
+    /^Stored quote 2026-09-03 is /
+  );
+  const count = countSessionsAfter('2026-09-03', '2026-09-04');
+  const gap = engine.describeCloseGap('2026-09-03', now);
+  assert.notEqual(gap, '');
+  assert.equal(gap, gapSentence('2026-09-03', '2026-09-04', count));
+});
+
+test('an invalid close date has no session gap', () => {
+  const now = new Date('2026-09-08T17:00:00-04:00');
+  assert.equal(engine.describeCloseGap('not-a-date', now), '');
+  assert.equal(engine.describeCloseGap('', now), '');
+  assert.equal(engine.describeCloseGap(null, now), '');
+});
+
+test('scheduled early closes finish at 13:00 New York and closed holidays stay skipped', () => {
+  assert.equal(engine.lastCompletedSession('2026-11-27T12:59:59-05:00'), '2026-11-25');
+  assert.equal(engine.lastCompletedSession('2026-11-27T13:00:00-05:00'), '2026-11-27');
+  assert.equal(engine.lastCompletedSession('2026-12-24T13:00:00-05:00'), '2026-12-24');
+  assert.equal(engine.lastCompletedSession('2025-07-03T13:00:00-04:00'), '2025-07-03');
+  assert.equal(engine.lastCompletedSession('2026-07-03T17:00:00-04:00'), '2026-07-02');
+  assert.equal(engine.describeCloseGap('2026-11-25', '2026-11-27T13:00:00-05:00'),
+    'Stored close 2026-11-25 is 1 US session behind the last completed session (2026-11-27).');
+});
+
 test('portfolio pacing preserves the hard cap when prior contributions drift from targets', () => {
   const normal = engine.allocateRemainingBudget(3000, { TSLA: 0.7, SPCX: 0.3 }, { TSLA: 700, SPCX: 300 });
   assert.deepEqual(normal.effectiveRemaining, { TSLA: 1400, SPCX: 600 });

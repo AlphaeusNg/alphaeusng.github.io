@@ -261,6 +261,7 @@ summary:focus-visible {
     display: grid;
     grid-template-columns: 1fr 1fr 1.15fr 1.15fr;
     max-width: 980px;
+    min-width: 0;
     margin-top: 3rem;
     overflow: hidden;
     border: 1px solid var(--dca-line);
@@ -274,6 +275,7 @@ summary:focus-visible {
     grid-template-columns: auto auto;
     gap: 0.3rem 0.75rem;
     align-items: baseline;
+    min-width: 0;
     padding: 1rem 1.15rem;
 }
 
@@ -281,6 +283,7 @@ summary:focus-visible {
 
 .market-strip__freshness {
     position: relative;
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .market-strip__actions {
@@ -349,6 +352,18 @@ summary:focus-visible {
     color: var(--dca-dim);
     font-size: 0.73rem;
 }
+
+.market-close-gap {
+    grid-column: 1 / -1;
+    min-width: 0;
+    color: var(--dca-dim);
+    font-size: 0.73rem;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+.market-close-gap:empty { display: none; }
 
 .market-move.is-up { color: var(--dca-green) !important; }
 .market-move.is-down { color: var(--dca-red) !important; }

@@ -1,16 +1,18 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-09-25
+Last updated: 2026-10-05
+
+DCA header: a non-manual stored close behind the last completed US session is named in the quote strip. A close from that session stays quiet. Deployment stamp `2026.10.05.1`.
 
 ## Current state
 
 - Branch: `main` matches `origin/main` at cycle start aside from this cycle.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.09.25.1`. DCA snapshot latest close is 2026-09-24
+- Deployment stamp: `2026.10.05.1`. DCA snapshot latest close is 2026-09-24
   (Nasdaq history); quote as-of 2026-09-25T04:10:00-04:00.
 
-## Latest cycle: chart module, market snapshot, note outline, case openings
+## Previous cycle: chart module, market snapshot, note outline, case openings
 
 ### Why this was selected
 

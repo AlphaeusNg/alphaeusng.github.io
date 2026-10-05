@@ -1024,6 +1024,40 @@ test('DCA Lab keeps cross-tab journal totals current while a plan input is focus
   await peer.close();
 });
 
+test('DCA stale-session notice follows the clock and excludes manual prices', async ({ page }) => {
+  // Christmas Eve 2026 closes at 13:00. The live feed drops prints older than 36 hours,
+  // so the stored close is the prior session, not the November holiday gap.
+  await page.clock.install({ time: new Date('2026-12-24T12:59:45-05:00') });
+  await mockDcaQuotes(page, { asOf: '2026-12-23T16:00:00-05:00', marketStatus: 'Closed' });
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#tslaPriceMeta')).toContainText('Dec 23');
+  await expect(page.locator('#marketCloseGap')).toBeEmpty();
+  // No quote refresh: the clock alone must notice the 13:00 early close.
+  await page.clock.fastForward(31_000);
+  await expect(page.locator('#marketCloseGap')).toHaveText(
+    'Stored close 2026-12-23 is 1 US session behind the last completed session (2026-12-24).'
+  );
+  await expect(page.locator('#marketSession')).toHaveText('After hours');
+  await page.locator('#tslaManualToggle').check();
+  await expect(page.locator('#marketCloseGap')).not.toBeEmpty();
+  await page.locator('#spcxManualToggle').check();
+  await expect(page.locator('#marketCloseGap')).toBeEmpty();
+  await page.locator('#tslaManualToggle').uncheck();
+  await expect(page.locator('#marketCloseGap')).toContainText('1 US session');
+  const contained = await page.evaluate(() => {
+    const strip = document.querySelector('.market-strip');
+    const gap = document.querySelector('#marketCloseGap');
+    const shell = document.querySelector('.dca-hero .dca-shell');
+    const stripBox = strip.getBoundingClientRect();
+    const shellBox = shell.getBoundingClientRect();
+    return stripBox.right <= shellBox.right + 1
+      && stripBox.width <= shellBox.width + 1
+      && gap.scrollWidth <= gap.clientWidth + 1;
+  });
+  expect(contained).toBe(true);
+});
+
 test('DCA Lab labels date-only Nasdaq closes without inventing a time', async ({ page }) => {
   const dateOnly = new Date().toISOString().slice(0, 10);
   const dateLabel = new Intl.DateTimeFormat('en-US', {

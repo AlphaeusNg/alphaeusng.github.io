@@ -141,6 +141,86 @@
         throw new Error(`No U.S. trading session found near ${dateText}`);
     }
 
+    function previousTradingDay(dateText) {
+        let cursor = addDays(parseDate(dateText), -1);
+        for (let attempt = 0; attempt < 21; attempt += 1) {
+            if (isTradingDay(cursor)) return isoDate(cursor);
+            cursor = addDays(cursor, -1);
+        }
+        throw new Error(`No U.S. trading session found near ${dateText}`);
+    }
+
+    function newYorkClock(now) {
+        const instant = now instanceof Date ? now : new Date(now);
+        if (Number.isNaN(instant.getTime())) throw new Error('Invalid instant');
+        const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/New_York',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hourCycle: 'h23'
+        }).formatToParts(instant);
+        const values = {};
+        parts.forEach((part) => {
+            if (part.type !== 'literal') values[part.type] = part.value;
+        });
+        let hour = Number(values.hour);
+        if (hour === 24) hour = 0;
+        return {
+            date: `${values.year}-${String(values.month).padStart(2, '0')}-${String(values.day).padStart(2, '0')}`,
+            minutes: (hour * 60) + Number(values.minute)
+        };
+    }
+
+    function canonicalIsoDate(dateText) {
+        if (typeof dateText !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateText)) return '';
+        const parsed = parseDate(dateText);
+        return isoDate(parsed) === dateText ? dateText : '';
+    }
+
+    // Nasdaq's scheduled early closes are 13:00 ET: the Friday after
+    // Thanksgiving, and July 3 / Christmas Eve when they are trading days.
+    // https://www.nasdaq.com/market-activity/stock-market-holiday-schedule
+    function tradingSessionCloseMinutes(dateText) {
+        const date = parseDate(dateText);
+        const year = date.getUTCFullYear();
+        const afterThanksgiving = isoDate(addDays(nthWeekday(year, 10, 4, 4), 1));
+        const early = dateText === afterThanksgiving
+            || dateText === `${year}-07-03`
+            || dateText === `${year}-12-24`;
+        return early && isTradingDay(dateText) ? 13 * 60 : 16 * 60;
+    }
+
+    function lastCompletedSession(now) {
+        const clock = newYorkClock(now);
+        if (isTradingDay(clock.date) && clock.minutes >= tradingSessionCloseMinutes(clock.date)) return clock.date;
+        return previousTradingDay(clock.date);
+    }
+
+    function sessionsAfterThrough(closeDate, lastSession) {
+        let count = 0;
+        let cursor = addDays(parseDate(closeDate), 1);
+        const end = parseDate(lastSession);
+        while (cursor <= end) {
+            if (isTradingDay(cursor)) count += 1;
+            cursor = addDays(cursor, 1);
+        }
+        return count;
+    }
+
+    function describeCloseGap(closeDate, now, kind) {
+        const close = canonicalIsoDate(closeDate);
+        if (!close) return '';
+        const lastSession = lastCompletedSession(now);
+        if (close >= lastSession) return '';
+        const count = sessionsAfterThrough(close, lastSession);
+        const sessionLabel = count === 1 ? '1 US session' : `${count} US sessions`;
+        const noun = kind === 'quote' ? 'Stored quote' : 'Stored close';
+        return `${noun} ${close} is ${sessionLabel} behind the last completed session (${lastSession}).`;
+    }
+
     function tradingSessionsRemaining(planDateText) {
         const planDate = parseDate(planDateText);
         const finalDate = new Date(Date.UTC(planDate.getUTCFullYear(), planDate.getUTCMonth() + 1, 0));
@@ -488,9 +568,13 @@
         allocateRemainingBudget,
         calculateIndicators,
         calculateSignal,
+        describeCloseGap,
         isTradingDay,
+        lastCompletedSession,
         marketHolidaySet,
         nextTradingDay,
+        previousTradingDay,
+        tradingSessionCloseMinutes,
         paceVsEven,
         recommendAsset,
         replayCompletedMonth,
