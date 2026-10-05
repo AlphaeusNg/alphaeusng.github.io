@@ -87,6 +87,22 @@ SITEMAP_ROUTES = (
             "js/kofi-support.js",
         ),
     ),
+    SitemapRoute(
+        "https://alphaeusng.github.io/pages/alphaeus-thoughts.html",
+        "pages/alphaeus-thoughts.html",
+        "monthly",
+        "0.6",
+        (
+            "pages/alphaeus-thoughts.html",
+            "css/thoughts.css",
+            "js/thoughts.js",
+            "data/thoughts/alphaeus-thoughts.json",
+            "assets/thoughts/lamp.jpg",
+            "assets/thoughts/doorway.jpg",
+            "assets/thoughts/scripture.jpg",
+            "assets/thoughts/water.jpg",
+        ),
+    ),
     SitemapRoute("https://alphaeusng.github.io/AIly/", None, "weekly", "0.7"),
     SitemapRoute(
         "https://alphaeusng.github.io/KoboForge/", None, "monthly", "0.7"

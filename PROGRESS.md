@@ -1,16 +1,18 @@
 # Portfolio continuous improvement log
 
-Last updated: 2026-10-05
+Last updated: 2026-10-06
 
-DCA header: a non-manual stored close behind the last completed US session is named in the quote strip. A close from that session stays quiet. Deployment stamp `2026.10.05.1`.
+Alphaeus' thoughts has a guided reader: his Google Doc, in his own words, with a path through the letter, search, notes, a baptism-verse toggle, and four illustrations. Deployment stamp `2026.10.06.1`.
 
 ## Current state
 
-- Branch: `main` matches `origin/main` at cycle start aside from this cycle.
+- Branch: `main`.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
-  compatibility redirect, and Biblical Truth viewer pages.
-- Deployment stamp: `2026.10.05.1`. DCA snapshot latest close is 2026-10-02
+  compatibility redirect, Biblical Truth viewer, and the Alphaeus' thoughts reader.
+- Deployment stamp: `2026.10.06.1`. DCA snapshot latest close is 2026-10-02
   (Nasdaq history); the stored quote for that session is a date-only close.
+- Refresh the letter from a public HTML export with `python3 tools/sync_gdoc.py`.
+  The page does not fetch Google Docs in the browser.
 
 ## Previous cycle: chart module, market snapshot, note outline, case openings
 

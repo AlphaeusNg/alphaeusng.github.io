@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphaeus' thoughts · Alphaeus Ng</title>
+    <meta name="description" content="Alphaeus' own letter on exploring beyond LCOC and the theology of baptism, set for the screen with the turns in the argument marked.">
+    <meta name="author" content="Alphaeus Ng">
+    <meta name="theme-color" content="#0A0F1C">
+    <meta name="color-scheme" content="dark">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://alphaeusng.github.io/pages/alphaeus-thoughts.html">
+    <meta property="og:title" content="Alphaeus' thoughts">
+    <meta property="og:description" content="Alphaeus' own letter on exploring beyond LCOC and the theology of baptism.">
+    <meta property="og:url" content="https://alphaeusng.github.io/pages/alphaeus-thoughts.html">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://alphaeusng.github.io/assets/thoughts/lamp.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" href="../assets/alphaeus-portrait.jpg" type="image/jpeg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" media="print" onload="this.onload=null;this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap"></noscript>
+    <link rel="stylesheet" href="../css/thoughts.css?v=2026.10.06.1">
+</head>
+<body>
+    <a class="skip-link" href="#essay">Skip to the letter</a>
+    <header class="read-bar">
+        <div class="read-bar__top">
+            <div class="read-bar__progress" aria-hidden="true"><span></span></div>
+            <div class="read-bar__row">
+                <a href="../index.html#journey-documents">Portfolio</a>
+                <p class="read-bar__title">Alphaeus' thoughts</p>
+                <button type="button" class="contents-button" id="outline-open" aria-haspopup="dialog">Contents</button>
+            </div>
+        </div>
+        <div class="read-tools">
+            <div class="search" role="search">
+                <label class="visually-hidden" for="search-input">Search the letter</label>
+                <input id="search-input" type="search" placeholder="Search the letter" autocomplete="off" enterkeyhint="search">
+                <button type="button" id="search-prev" aria-label="Previous match">Previous</button>
+                <button type="button" id="search-next" aria-label="Next match">Next</button>
+                <span id="search-count" class="search-count" aria-live="polite"></span>
+            </div>
+            <p class="lens-label" id="lens-label">Baptism verses</p>
+            <div class="lens" role="radiogroup" aria-labelledby="lens-label">
+                <button type="button" role="radio" data-lens="both" aria-checked="true">Both</button>
+                <button type="button" role="radio" data-lens="coc" aria-checked="false">Church of Christ</button>
+                <button type="button" role="radio" data-lens="fide" aria-checked="false">Faith alone</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="read-shell">
+        <nav id="outline" class="outline" aria-label="Letter outline"></nav>
+        <main id="essay" class="essay">
+            <header class="essay-intro">
+                <p class="eyebrow">A letter</p>
+                <h1>Alphaeus' thoughts</h1>
+                <p class="lede">These are Alphaeus’s own words from his Google Doc, arranged so the letter can be walked through. The pictures mark turns he already makes. They do not add a second argument.</p>
+                <p id="meta" class="meta"></p>
+            </header>
+            <nav id="path" class="path" aria-label="Parts of the letter"></nav>
+            <div id="letter">
+                <p>Opening the letter…</p>
+            </div>
+            <footer class="essay-end">
+                <p>The wording lives in the Google Doc. This page is a reading of that export.</p>
+                <p><a id="source-link" href="https://docs.google.com/document/d/1qqXT6QfX_3ep1EMuEpqc021aJ3Vwd1EOTasuRBkqR1I/edit">Original Google Doc</a></p>
+            </footer>
+        </main>
+    </div>
+
+    <dialog id="outline-dialog" aria-labelledby="outline-dialog-title">
+        <div class="dialog-row">
+            <h2 id="outline-dialog-title">Contents</h2>
+            <button type="button" class="note__close" id="outline-close">Close</button>
+        </div>
+        <nav id="outline-mobile" class="outline" aria-label="Letter outline"></nav>
+    </dialog>
+
+    <div id="note-backdrop" class="note-backdrop" hidden>
+        <div id="note" class="note" role="dialog" aria-modal="true" aria-labelledby="note-title">
+            <div class="note__row">
+                <h2 id="note-title">Note</h2>
+                <button type="button" class="note__close" id="note-close">Close</button>
+            </div>
+            <div id="note-body"></div>
+        </div>
+    </div>
+
+    <script src="../js/thoughts.js?v=2026.10.06.1" defer></script>
+</body>
+</html>

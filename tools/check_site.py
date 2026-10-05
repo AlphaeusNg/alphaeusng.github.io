@@ -644,11 +644,13 @@ def main() -> None:
         ROOT / "css" / "dca-calculator.css",
         ROOT / "css" / "home.css",
         ROOT / "css" / "main.css",
+        ROOT / "css" / "thoughts.css",
         ROOT / "css" / "tailwind-home.css",
         ROOT / "css" / "tailwind-pages.css",
         ROOT / "tailwind.home.config.cjs",
         ROOT / "tailwind.pages.config.cjs",
         ROOT / "js" / "main.js",
+        ROOT / "js" / "thoughts.js",
         ROOT / "js" / "project-case-route.js",
         ROOT / "js" / "modals.js",
         ROOT / "js" / "conviction.js",
@@ -657,6 +659,7 @@ def main() -> None:
         ROOT / "js" / "dca-calculator.js",
         ROOT / "js" / "dca-chart.js",
         ROOT / "pages" / "conviction.html",
+        ROOT / "pages" / "alphaeus-thoughts.html",
         ROOT / "pages" / "dca-calculator.html",
         ROOT / "pages" / "kobo-forge.html",
         ROOT / "pages" / "feedback" / "index.html",
@@ -668,6 +671,11 @@ def main() -> None:
         ROOT / "pages" / "seeking-biblical-truth" / "js" / "app.js",
         ROOT / "pages" / "seeking-biblical-truth" / "vault-data.json",
         ROOT / "data" / "conviction_tsla_history.json",
+        ROOT / "data" / "thoughts" / "alphaeus-thoughts.json",
+        ROOT / "assets" / "thoughts" / "lamp.jpg",
+        ROOT / "assets" / "thoughts" / "doorway.jpg",
+        ROOT / "assets" / "thoughts" / "scripture.jpg",
+        ROOT / "assets" / "thoughts" / "water.jpg",
         ROOT / "data" / "dca_market_history.json",
         ROOT / "data" / "tsla_transactions.csv",
         ROOT / "tools" / "finance" / "generate_conviction_history.py",
@@ -735,6 +743,15 @@ def main() -> None:
             fail(f"DCA Lab {asset} cache key must match SITE_VERSION.id {site_version}")
     ok(f"DCA Lab asset cache keys match {site_version}")
 
+    thoughts_html = (ROOT / "pages" / "alphaeus-thoughts.html").read_text(encoding="utf-8")
+    for asset, pattern in (
+        ("css", rf'href="\.\./css/thoughts\.css\?v={re.escape(site_version)}"'),
+        ("js", rf'src="\.\./js/thoughts\.js\?v={re.escape(site_version)}"'),
+    ):
+        if not re.search(pattern, thoughts_html):
+            fail(f"thoughts reader {asset} cache key must match SITE_VERSION.id {site_version}")
+    ok(f"thoughts reader cache keys match {site_version}")
+
     for element_id in (
         "enableRealtime",
         "realtimeDialog",
@@ -757,6 +774,11 @@ def main() -> None:
     ok("DCA Lab real-time controls and secure secret input present")
 
     home_html = (ROOT / "index.html").read_text(encoding="utf-8")
+    if 'href="pages/alphaeus-thoughts.html"' not in home_html:
+        fail("home journey documents must open the Alphaeus' thoughts reader")
+    if "1qqXT6QfX_3ep1EMuEpqc021aJ3Vwd1EOTasuRBkqR1I" not in home_html:
+        fail("home must keep the original Alphaeus' thoughts Google Doc")
+    ok("home journey documents open the thoughts reader and keep the Google Doc")
     if not re.search(
         r'id="dca-lab-home-link"[\s\S]{0,800}?href="pages/dca-calculator\.html"',
         home_html,
@@ -1006,6 +1028,7 @@ def main() -> None:
         ROOT / "index.html",
         ROOT / "404.html",
         ROOT / "pages" / "conviction.html",
+        ROOT / "pages" / "alphaeus-thoughts.html",
         ROOT / "pages" / "dca-calculator.html",
         ROOT / "pages" / "kobo-forge.html",
         ROOT / "pages" / "feedback" / "index.html",
