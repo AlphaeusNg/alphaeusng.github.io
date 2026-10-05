@@ -21,6 +21,18 @@ test('opens his letter with the four pictures', async ({ page }) => {
   });
   await expect(page.locator('#letter figcaption').first()).toContainText('with utmost love in the hope of unity');
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior)).toBe('auto');
+  const sizes = await page.evaluate(() => {
+    const body = document.querySelector('#letter p');
+    const note = [...document.querySelectorAll('#letter em')].find((node) => node.textContent.startsWith('26/1/26'));
+    const tiny = document.querySelector('#letter [data-size="9"]');
+    return {
+      body: Number.parseFloat(getComputedStyle(body).fontSize),
+      note: Number.parseFloat(getComputedStyle(note).fontSize),
+      tiny: Number.parseFloat(getComputedStyle(tiny).fontSize),
+    };
+  });
+  expect(sizes.note).toBeLessThan(sizes.body);
+  expect(sizes.tiny).toBeLessThan(sizes.note);
 });
 
 test('search and notes stay on his words', async ({ page }) => {

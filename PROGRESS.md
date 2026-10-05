@@ -2,14 +2,14 @@
 
 Last updated: 2026-10-06
 
-Alphaeus' thoughts has a guided reader: his Google Doc, in his own words, with a path through the letter, search, notes, a baptism-verse toggle, and four illustrations. Deployment stamp `2026.10.06.1`.
+Alphaeus' thoughts has a guided reader. Italics sit a step under the body, and the Doc's smaller note sizes stay smaller. Deployment stamp `2026.10.06.2`.
 
 ## Current state
 
 - Branch: `main`.
 - Runtime: zero-build static GitHub Pages portfolio plus conviction, feedback,
   compatibility redirect, Biblical Truth viewer, and the Alphaeus' thoughts reader.
-- Deployment stamp: `2026.10.06.1`. DCA snapshot latest close is 2026-10-02
+- Deployment stamp: `2026.10.06.2`. DCA snapshot latest close is 2026-10-02
   (Nasdaq history); the stored quote for that session is a date-only close.
 - Refresh the letter from a public HTML export with `python3 tools/sync_gdoc.py`.
   The page does not fetch Google Docs in the browser.

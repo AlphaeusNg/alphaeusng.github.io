@@ -296,6 +296,21 @@ body {
 
 .essay p { margin: 0.85rem 0; }
 
+.essay em,
+.note em { font-size: 0.88em; }
+
+.essay [data-size="13"],
+.note [data-size="13"] { font-size: 1.18em; }
+
+.essay [data-size="12"],
+.note [data-size="12"] { font-size: 1.09em; }
+
+.essay [data-size="10"],
+.note [data-size="10"] { font-size: 0.91em; }
+
+.essay [data-size="9"],
+.note [data-size="9"] { font-size: 0.82em; }
+
 .pull {
     font-family: "Playfair Display", Georgia, serif;
     font-size: 1.35rem;

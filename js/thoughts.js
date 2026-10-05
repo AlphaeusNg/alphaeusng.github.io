@@ -51,6 +51,11 @@
         return (inlines || []).map(function (part) { return part.text || ""; }).join("").trim();
     }
 
+    function whollyItalic(inlines) {
+        var parts = (inlines || []).filter(function (part) { return part.text && part.text.trim(); });
+        return parts.length > 0 && parts.every(function (part) { return part.italic; });
+    }
+
     function lensOf(text) {
         if (/^COC Understanding\b/i.test(text)) return "coc";
         if (/^Sola Fide Understanding\b/i.test(text)) return "fide";
@@ -102,6 +107,7 @@
                 parent.appendChild(node);
             }
             var styled = node;
+            var inHeading = /^H[1-6]$/.test(parent.tagName);
             if (part.bold) {
                 styled = document.createElement("strong");
                 node.appendChild(styled);
@@ -110,7 +116,12 @@
                 var italic = document.createElement("em");
                 styled.appendChild(italic);
                 styled = italic;
+            } else if (!inHeading && part.size) {
+                var sized = document.createElement("span");
+                node.appendChild(sized);
+                styled = sized;
             }
+            if (!inHeading && part.size) styled.dataset.size = String(part.size);
             appendLinkified(styled, part.text || "");
         });
     }
@@ -228,7 +239,7 @@
                 var text = plain(block.inlines);
                 var paragraph = document.createElement("p");
                 if (/^(p(?:\.p)*\.s|p\^5\.s)\b/i.test(text)) paragraph.classList.add("aside");
-                else if (/^[“"]/.test(text) && text.length < 220) paragraph.classList.add("pull");
+                else if (!whollyItalic(block.inlines) && /^[“"]/.test(text) && text.length < 220) paragraph.classList.add("pull");
                 var lens = lensOf(text);
                 if (lens) paragraph.dataset.lens = lens;
                 renderInlines(paragraph, block.inlines);

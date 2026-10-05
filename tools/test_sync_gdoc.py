@@ -8,9 +8,12 @@ SAMPLE = """
 <html><head><style>
 .c2 { font-weight: 700; }
 .c7 { font-style: italic; }
+.c19 { font-size: 10pt; }
+.c12 { font-size: 12pt; }
+p { font-size: 11pt; }
 </style></head><body>
 <h1 id="h.opening">Opening thought</h1>
-<p>Hello <span class="c7">friend</span>
+<p>Hello <span class="c7">friend</span> <span class="c19 c7">small note</span> <span class="c12 c7">kept line</span>
 <a href="https://www.google.com/url?q=https%3A%2F%2Fexample.com%2Fnote&amp;sa=D">the note</a>
 <sup><a href="#ftnt1" id="ftnt_ref1">[1]</a></sup></p>
 <p class="empty"><span></span></p>
@@ -32,7 +35,10 @@ class SyncGdocTests(unittest.TestCase):
         self.assertEqual(blocks[0]["id"], "h.opening")
         paragraph = blocks[1]
         self.assertEqual(paragraph["inlines"][1]["italic"], True)
-        self.assertEqual(paragraph["inlines"][2]["href"], "https://example.com/note")
+        self.assertNotIn("size", paragraph["inlines"][1])
+        self.assertEqual(paragraph["inlines"][2]["size"], 10)
+        self.assertEqual(paragraph["inlines"][3]["size"], 12)
+        self.assertEqual(paragraph["inlines"][4]["href"], "https://example.com/note")
         self.assertEqual(paragraph["inlines"][-1], {"footnote": "1"})
         listing = next(block for block in blocks if block["type"] == "list")
         self.assertEqual(plain_inlines(listing["items"][0]["inlines"]), "One")

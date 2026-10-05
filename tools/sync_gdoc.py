@@ -78,17 +78,37 @@ class TreeBuilder(HTMLParser):
         self.handle_starttag(tag, attrs)
 
 
-def style_marks(style_text: str) -> tuple[set[str], set[str]]:
+def point_size(value: str) -> int | None:
+    match = re.fullmatch(r"(\d+(?:\.\d+)?)pt", value.strip())
+    if not match:
+        return None
+    return int(round(float(match.group(1))))
+
+
+def style_marks(style_text: str) -> tuple[set[str], set[str], dict[str, int], dict[str, int]]:
     bold: set[str] = set()
     italic: set[str] = set()
-    for name, body in re.findall(r"\.([A-Za-z0-9_-]+)\s*\{([^}]*)\}", style_text):
+    sizes: dict[str, int] = {}
+    tag_sizes: dict[str, int] = {}
+    for selector, body in re.findall(r"([^{}]+)\{([^}]*)\}", style_text):
         weight = re.search(r"font-weight:\s*([^;]+)", body)
         font_style = re.search(r"font-style:\s*([^;]+)", body)
-        if weight and weight.group(1).strip() in {"700", "bold", "800", "900"}:
-            bold.add(name)
-        if font_style and font_style.group(1).strip() == "italic":
-            italic.add(name)
-    return bold, italic
+        font_size = re.search(r"font-size:\s*([^;]+)", body)
+        point = point_size(font_size.group(1)) if font_size else None
+        for name in (part.strip() for part in selector.split(",")):
+            class_name = re.fullmatch(r"\.([A-Za-z0-9_-]+)", name)
+            tag_name = re.fullmatch(r"[a-z][a-z0-9]*", name)
+            if class_name:
+                token = class_name.group(1)
+                if weight and weight.group(1).strip() in {"700", "bold", "800", "900"}:
+                    bold.add(token)
+                if font_style and font_style.group(1).strip() == "italic":
+                    italic.add(token)
+                if point is not None:
+                    sizes[token] = point
+            elif tag_name and point is not None:
+                tag_sizes[tag_name.group(0)] = point
+    return bold, italic, sizes, tag_sizes
 
 
 def clean_text(value: str) -> str:
@@ -122,35 +142,50 @@ def plain_inlines(inlines: list[dict[str, object]]) -> str:
 
 
 class DocumentConverter:
-    def __init__(self, bold: set[str], italic: set[str]) -> None:
+    def __init__(self, bold: set[str], italic: set[str], sizes: dict[str, int], tag_sizes: dict[str, int]) -> None:
         self.bold = bold
         self.italic = italic
+        self.sizes = sizes
+        self.tag_sizes = tag_sizes
 
     def marked(self, node: Node) -> tuple[bool, bool]:
         classes = node.classes
         return bool(classes & self.bold), bool(classes & self.italic)
 
+    def explicit_size(self, node: Node) -> int | None:
+        found: int | None = None
+        for name in node.attrs.get("class", "").split():
+            if name in self.sizes:
+                found = self.sizes[name]
+        return found
+
     def inlines_from(self, node: Node) -> list[dict[str, object]]:
         parts: list[dict[str, object]] = []
+        opening = self.explicit_size(node)
+        if opening is None:
+            opening = self.tag_sizes.get(node.tag, 11)
 
-        def add(text: str, bold: bool, italic: bool, href: str, footnote: str) -> None:
+        def add(text: str, bold: bool, italic: bool, href: str, footnote: str, size: int) -> None:
             text = clean_text(text)
             if not text:
                 return
-            flags = {"bold": bold, "italic": italic, "href": href, "footnote": footnote}
+            flags = {"bold": bold, "italic": italic, "href": href, "footnote": footnote, "size": size}
             if parts and all(parts[-1].get(key) == value for key, value in flags.items()):
                 parts[-1]["text"] = str(parts[-1]["text"]) + text
                 return
             parts.append({"text": text, **flags})
 
-        def walk(current: Node | str, bold: bool, italic: bool, href: str, footnote: str) -> None:
+        def walk(current: Node | str, bold: bool, italic: bool, href: str, footnote: str, size: int) -> None:
             if isinstance(current, str):
-                add(current, bold, italic, href, footnote)
+                add(current, bold, italic, href, footnote, size)
                 return
             if current.tag == "br":
-                add(" ", bold, italic, href, footnote)
+                add(" ", bold, italic, href, footnote, size)
                 return
             next_bold, next_italic = self.marked(current)
+            found_size = self.explicit_size(current)
+            if found_size is not None:
+                size = found_size
             next_href = href
             next_footnote = footnote
             if current.tag == "a":
@@ -161,12 +196,12 @@ class DocumentConverter:
                 else:
                     next_href = unwrap_href(raw)
             for child in current.children:
-                walk(child, bold or next_bold, italic or next_italic, next_href, next_footnote)
+                walk(child, bold or next_bold, italic or next_italic, next_href, next_footnote, size)
                 if next_footnote:
                     next_footnote = ""
 
         for child in node.children:
-            walk(child, False, False, "", "")
+            walk(child, False, False, "", "", opening)
         result: list[dict[str, object]] = []
         for part in parts:
             if part.get("footnote"):
@@ -182,6 +217,8 @@ class DocumentConverter:
                 item["italic"] = True
             if part.get("href"):
                 item["href"] = part["href"]
+            if part.get("size") not in {None, 11}:
+                item["size"] = part["size"]
             result.append(item)
         return result
 
@@ -321,11 +358,11 @@ def pack_items(items: list[dict[str, object]]) -> list[dict[str, object]]:
 
 def parse_html(html: str) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
     style = "\n".join(re.findall(r"<style[^>]*>([\s\S]*?)</style>", html, flags=re.I))
-    bold, italic = style_marks(style)
+    bold, italic, sizes, tag_sizes = style_marks(style)
     builder = TreeBuilder()
     builder.feed(html)
     builder.close()
-    return DocumentConverter(bold, italic).convert(find_body(builder.root))
+    return DocumentConverter(bold, italic, sizes, tag_sizes).convert(find_body(builder.root))
 
 
 def fetch_html(document_id: str) -> str:
