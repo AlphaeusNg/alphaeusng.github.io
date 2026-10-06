@@ -125,6 +125,7 @@ body { font-family: Inter, system-ui, sans-serif; }
 }
 .note-outline-link { flex: 0 0 auto; max-width: 14rem; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
 .note-outline-link.is-h3, .note-outline-link.is-h4 { color: #94A3B8; }
+.note-outline-link[aria-current="location"] { border-color: #C9A227; color: #F8FAFC; background: rgba(201,162,39,.12); }
 @media (max-width: 767px) {
   .note-outline { margin-top: .65rem; }
   .note-outline-back, .note-outline-link { padding: .4rem .65rem; }

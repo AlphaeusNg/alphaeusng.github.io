@@ -1556,3 +1556,39 @@ test('feedback offers a GitHub draft when Firebase cannot initialize', async ({ 
   );
   expect(fallbackUrl.searchParams.get('body')).not.toContain('secret@example.com');
 });
+
+test('vault outline follows the heading visible inside the note reader', async ({ page }) => {
+  const payload = structuredClone(VAULT_FIXTURE);
+  const note = payload.nodes.find(node => node.type === 'note');
+  const html = '<h3>Opening</h3>' + '<p>First section</p>'.repeat(35)
+    + '<h3>Second section</h3>' + '<p>Second section</p>'.repeat(35);
+  await page.route('https://cdn.jsdelivr.net/npm/markdown-it/**', route =>
+    route.fulfill({ contentType: 'application/javascript',
+      body: `window.markdownit = () => ({ render: () => ${JSON.stringify(html)} });` })
+  );
+  await page.route('https://cdn.jsdelivr.net/npm/dompurify/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://www.gstatic.com/firebasejs/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.route('https://raw.githubusercontent.com/AlphaeusNg/Seeking-Biblical-Truth/main/**', route =>
+    route.fulfill({ contentType: 'text/markdown', body: '# Opening\n' })
+  );
+  await page.route('**/pages/seeking-biblical-truth/vault-data.json', route =>
+    route.fulfill({ contentType: 'application/json', body: JSON.stringify(payload) })
+  );
+  await page.goto(`/pages/seeking-biblical-truth/#/${encodeURIComponent(note.id)}`, { waitUntil: 'domcontentloaded' });
+  const current = page.locator('.note-outline-link[aria-current="location"]');
+  await expect(current).toHaveText('Opening');
+  await page.locator('.note-body').evaluate(body => {
+    const target = body.querySelector('#h-second-section');
+    body.scrollTop += target.getBoundingClientRect().top - body.getBoundingClientRect().top - 16;
+  });
+  await expect(current).toHaveText('Second section');
+  await page.locator('.note-body').evaluate(body => { body.scrollTop = 0; });
+  await expect(current).toHaveText('Opening');
+  await page.locator('.note-outline-back').click();
+  await expect(page.locator('#file-tree .file-tree-item.active')).toBeFocused();
+  await expect(page.locator('#file-tree .file-tree-item.active')).toContainText(note.title);
+});

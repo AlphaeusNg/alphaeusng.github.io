@@ -355,6 +355,28 @@ function mountNoteOutline() {
   });
   nav.append(back, links);
   body.before(nav);
+  const items = [...links.querySelectorAll('a')];
+  let current = -1;
+  let frame = 0;
+  const markVisibleHeading = () => {
+    frame = 0;
+    if (!body.isConnected) return;
+    const threshold = body.getBoundingClientRect().top + 24;
+    let next = 0;
+    headings.forEach((heading, index) => {
+      if (heading.getBoundingClientRect().top <= threshold) next = index;
+    });
+    if (next === current) return;
+    current = next;
+    items.forEach((link, index) => {
+      if (index === current) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  };
+  body.addEventListener('scroll', () => {
+    if (!frame) frame = requestAnimationFrame(markVisibleHeading);
+  }, { passive: true });
+  markVisibleHeading();
 }
 
 function authState() {

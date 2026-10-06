@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = dirname(fileURLToPath(new URL('../../package.json', import.meta.url)));
 const skipDirs = new Set(['.git', 'node_modules', 'playwright-report', 'test-results']);
+const siteVersion = /id:\s*"([^"]+)"/.exec(readFileSync(join(root, 'js/version.js'), 'utf8'))[1];
 const homeSource = readFileSync(join(root, 'index.html'), 'utf8');
 
 function collectHtml(dir, acc = []) {
@@ -33,18 +34,18 @@ test('no HTML entry loads the Tailwind browser compiler', () => {
 });
 
 test('home utilities load locally without the Tailwind browser compiler', () => {
-  expect(homeSource).toContain('href="css/tailwind-home.css?v=2026.10.06.2"');
+  expect(homeSource).toContain(`href="css/tailwind-home.css?v=${siteVersion}"`);
 });
 
 test('404, conviction, and vault utilities load from committed CSS', () => {
   expect(readFileSync(join(root, '404.html'), 'utf8')).toContain(
-    'href="css/tailwind-pages.css?v=2026.10.06.2"'
+    `href="css/tailwind-pages.css?v=${siteVersion}"`
   );
   expect(readFileSync(join(root, 'pages/conviction.html'), 'utf8')).toContain(
-    'href="../css/tailwind-pages.css?v=2026.10.06.2"'
+    `href="../css/tailwind-pages.css?v=${siteVersion}"`
   );
   expect(readFileSync(join(root, 'pages/seeking-biblical-truth/index.html'), 'utf8')).toContain(
-    'href="../../css/tailwind-pages.css?v=2026.10.06.2"'
+    `href="../../css/tailwind-pages.css?v=${siteVersion}"`
   );
 });
 
