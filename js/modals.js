@@ -701,7 +701,7 @@ function openRichProjectModal(slug, { updateHistory = true } = {}) {
       }
       actionRow.appendChild(link);
     });
-    if (actionRow.childElementCount) openingHost.appendChild(actionRow);
+    if (actionRow.childElementCount) openingHost.prepend(actionRow);
     openingHost.hidden = openingHost.childElementCount === 0;
   }
 

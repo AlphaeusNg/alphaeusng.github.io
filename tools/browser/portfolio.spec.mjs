@@ -1592,3 +1592,16 @@ test('vault outline follows the heading visible inside the note reader', async (
   await expect(page.locator('#file-tree .file-tree-item.active')).toBeFocused();
   await expect(page.locator('#file-tree .file-tree-item.active')).toContainText(note.title);
 });
+
+
+test('case-study actions precede the opening explanation on small phones', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('/?case=aily', { waitUntil: 'domcontentloaded' });
+  const actions = page.locator('.case-open-actions');
+  await expect(actions).toBeVisible();
+  const actionBox = await actions.boundingBox();
+  const textBox = await page.locator('#modal-case-opening > p').first().boundingBox();
+  expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(textBox.y);
+  expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(568);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+});

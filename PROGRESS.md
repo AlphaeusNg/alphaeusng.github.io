@@ -1316,3 +1316,8 @@ repository unless the owner supplies the missing evidence.
 ## 2026-10-07 — Track the visible heading in the vault outline
 
 The rendered note outline marks the current heading with aria-current while its reading pane scrolls; returning to the note list keeps the selected note. Version assertions read the deployment stamp. Site, DCA, route and 43 Chromium checks passed.
+
+
+## 2026-10-07 — Put case-study actions first on small phones
+
+Demo/source actions now precede the problem/contribution/outcome paragraphs. A 320×568 Chromium regression proves actions fit in the opening screen without horizontal overflow. Validation: generated CSS, site/sitemap, DCA/route contracts and all 44 Chromium journeys passed. Version 2026.10.07.2.
