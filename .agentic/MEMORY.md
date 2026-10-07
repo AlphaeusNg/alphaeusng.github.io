@@ -13,6 +13,7 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `js/main.js`: navbar, mobile menu, smooth scroll, active section highlighting, accessibility behavior.
 - `js/modals.js`: rich project case-study modal data and rendering.
 - `js/conviction.js`: conviction chart and benchmark application.
+- `js/dca-journal-view.js`: DOM-only DCA journal, quick-chip and catch-up presentation; persistence stays in the controller and merge rules stay in `dca-journal.js`.
 - `pages/`: secondary public pages.
 - `pages/conviction.html`: standalone TSLA conviction entry point.
 - `pages/kobo-forge.html`: compatibility redirect to the separate

@@ -24,7 +24,8 @@ js/main.js                 # Nav, mobile menu, scroll, a11y
 js/modals.js               # Project case-study modal content
 js/conviction.js
 js/dca-engine.js           # Pure DCA math
-js/dca-journal.js          # Fills, chips, catch-up, local↔cloud merge
+js/dca-journal.js          # Fill/ledger/chip/catch-up rules and local↔cloud merge
+js/dca-journal-view.js     # DOM presentation for log, chips and catch-up rows
 js/dca-cloud.js            # Optional Google journal sync
 js/dca-firebase-config.js  # Runtime keys for DCA journal sync
 js/version.js              # SITE_VERSION — bump every deploy

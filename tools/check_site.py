@@ -734,6 +734,7 @@ def main() -> None:
         ("css", rf'href="\.\./css/dca-calculator\.css\?v={re.escape(site_version)}"'),
         ("engine", rf'src="\.\./js/dca-engine\.js\?v={re.escape(site_version)}"'),
         ("journal", rf'src="\.\./js/dca-journal\.js\?v={re.escape(site_version)}"'),
+        ("journal view", rf'src="\.\./js/dca-journal-view\.js\?v={re.escape(site_version)}"'),
         ("quotes", rf'src="\.\./js/dca-quotes\.js\?v={re.escape(site_version)}"'),
         ("cloud", rf'src="\.\./js/dca-cloud\.js\?v={re.escape(site_version)}"'),
         ("chart", rf'src="\.\./js/dca-chart\.js\?v={re.escape(site_version)}"'),

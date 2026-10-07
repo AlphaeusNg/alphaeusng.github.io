@@ -1321,3 +1321,8 @@ The rendered note outline marks the current heading with aria-current while its 
 ## 2026-10-07 — Put case-study actions first on small phones
 
 Demo/source actions now precede the problem/contribution/outcome paragraphs. A 320×568 Chromium regression proves actions fit in the opening screen without horizontal overflow. Validation: generated CSS, site/sitemap, DCA/route contracts and all 44 Chromium journeys passed. Version 2026.10.07.2.
+
+
+## 2026-10-07 — Separate journal presentation from orchestration
+
+The log, quick-chip buttons/editor and catch-up row DOM now live in js/dca-journal-view.js. The controller supplies measured rows, selected scope and callbacks; persistence and local/cloud merge rules stay in their existing boundaries. Validation: site/sitemap/CSS and DCA/route gates, 44 Chromium journeys and 17 affected DCA journeys after the final chip-editor extraction passed. Version 2026.10.07.3.
