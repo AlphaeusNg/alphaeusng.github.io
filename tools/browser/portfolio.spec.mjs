@@ -1605,3 +1605,21 @@ test('case-study actions precede the opening explanation on small phones', async
   expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(568);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
 });
+
+test('DCA Lab lets a caught-up month expand beyond the eight-session preview', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.addInitScript(() => {
+    const ledger = [];
+    for (let day = 1; day <= 31; day++) {
+      const date = `2026-08-${String(day).padStart(2, '0')}`;
+      if ([0, 6].includes(new Date(`${date}T12:00:00Z`).getUTCDay())) continue;
+      ledger.push({ id: date, date, symbol: 'TSLA', amount: 1, price: 1, shares: 1 });
+    }
+    localStorage.setItem('alphaeus-conviction-dca-lab-v1', JSON.stringify({settings: {}, ledger}));
+  });
+  await page.goto('/pages/dca-calculator.html?d=2026-08-28');
+  await expect(page.locator('#catchUpSummary')).toContainText('Caught up');
+  await expect(page.locator('#catchUpList .catchup-row')).toHaveCount(8);
+  await page.locator('#catchUpShowAll').click();
+  await expect(page.locator('#catchUpList .catchup-row')).toHaveCount(21);
+});

@@ -79,7 +79,8 @@
                 : 'No U.S. sessions in this month yet.';
         }
         if (elements.catchUpShowAll) {
-            const hiddenFills = !catchUpShowAll && filledRows.length && missedRows.length;
+            const hiddenFills = !catchUpShowAll && filledRows.length
+                && (missedRows.length || filledRows.length > CATCH_UP_PREVIEW);
             elements.catchUpShowAll.hidden = catchUpShowAll || !hiddenFills;
             elements.catchUpShowAll.textContent = `Show ${filledRows.length} filled session${filledRows.length === 1 ? '' : 's'} too`;
         }

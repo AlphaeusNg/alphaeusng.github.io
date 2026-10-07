@@ -1326,3 +1326,7 @@ Demo/source actions now precede the problem/contribution/outcome paragraphs. A 3
 ## 2026-10-07 — Separate journal presentation from orchestration
 
 The log, quick-chip buttons/editor and catch-up row DOM now live in js/dca-journal-view.js. The controller supplies measured rows, selected scope and callbacks; persistence and local/cloud merge rules stay in their existing boundaries. Validation: site/sitemap/CSS and DCA/route gates, 44 Chromium journeys and 17 affected DCA journeys after the final chip-editor extraction passed. Version 2026.10.07.3.
+
+## 2026-10-07 — Expose all filled catch-up sessions
+
+A caught-up month with more than eight U.S. sessions now keeps Show filled sessions available. Previously its preview hid the remaining rows with no way to expand them. Site/sitemap/CSS/DCA/route gates and 45 Chromium journeys passed, including a fully filled 21-session month. Market data was not changed.
