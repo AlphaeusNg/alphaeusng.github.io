@@ -94,9 +94,12 @@ test("home opens the transit note and comments stay on the page", async ({ page 
   await expect(page.locator(".clock-svg")).toBeVisible();
   await expect(page.locator(".transit-steps")).toBeHidden();
   await expect(page.locator('img[src="../assets/sg-transit/station.jpg"]')).toBeVisible();
-  await expect(page.locator("#share-copy")).toBeVisible();
-  await expect(page.locator('a[href*="twitter.com/intent/tweet"]')).toBeVisible();
-  await expect(page.locator('a[href*="wa.me/"]')).toBeVisible();
+  await expect(page.locator("#share-copy")).toHaveAttribute("aria-label", "Copy link");
+  await expect(page.locator('a[href*="twitter.com/intent/tweet"]')).toHaveAttribute("aria-label", "Share on X");
+  await expect(page.locator('a[href*="wa.me/"]')).toHaveAttribute("aria-label", "Share on WhatsApp");
+  await expect(page.locator('a[href*="linkedin.com"]')).toHaveAttribute("aria-label", "Share on LinkedIn");
+  await expect(page.locator('a[href^="mailto:"]')).toHaveAttribute("aria-label", "Email this note");
+  await expect(page.locator("#comments")).not.toContainText("public on this page");
   await expect(page.locator("#comment-list")).toContainText("No comments yet");
 
   await page.locator("#comment-name").fill("Ada");
@@ -117,6 +120,14 @@ test("home opens the transit note and comments stay on the page", async ({ page 
   await expect(page.locator("#comment-list")).toContainText("Ada");
   await expect(page.locator("#comment-list")).toContainText("The 45 minute gap is the whole trick.");
   await expect(page.locator("#comment-list")).not.toContainText("honeypot-should-not-appear-9f3c");
+
+  await page.evaluate(() => localStorage.removeItem("alphaeus-transit-comment-at-v1"));
+  await page.locator("#comment-name").fill("   ");
+  await page.locator("#comment-body").fill("No name on this one.");
+  await page.locator("#comment-submit").click();
+  await expect(page.locator("#comment-status")).toHaveText("Comment posted.");
+  await expect(page.locator("#comment-list")).toContainText("Anonymous");
+  await expect(page.locator("#comment-list")).toContainText("No name on this one.");
 
   await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.locator("#share-copy").click();

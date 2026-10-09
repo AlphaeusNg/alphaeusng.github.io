@@ -174,7 +174,7 @@
             var data = doc.data() || {};
             return {
               ref: doc.ref,
-              name: String(data.name || "Someone"),
+              name: String(data.name || "Anonymous"),
               body: String(data.body || ""),
               createdAt: data.createdAt || null,
             };
@@ -255,8 +255,9 @@
       setStatus("Comment posted.", "ok");
       return;
     }
-    if (name.length < 1 || name.length > MAX_NAME) {
-      setStatus("Add a name of 1 to 40 characters.", "error");
+    if (!name) name = "Anonymous";
+    if (name.length > MAX_NAME) {
+      setStatus("Use a name of 40 characters or fewer.", "error");
       nameInput.focus();
       return;
     }

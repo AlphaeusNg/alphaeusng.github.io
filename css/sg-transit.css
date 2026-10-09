@@ -266,6 +266,13 @@ html {
   margin-top: 0.8rem;
 }
 
+.transit-actions svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  display: block;
+  fill: currentColor;
+}
+
 .transit-actions a,
 .transit-actions button,
 .transit-form button,
@@ -283,6 +290,18 @@ html {
   padding: 0.35rem 0.9rem;
   text-decoration: none;
   cursor: pointer;
+}
+
+.transit-actions a,
+.transit-actions button {
+  width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+}
+
+.transit-actions button[hidden] {
+  display: none;
 }
 
 .transit-actions a:hover,

@@ -1350,3 +1350,7 @@ The home page links to `pages/sg-transit.html`, a note on how a bus, MRT, and bu
 ## 2026-10-09 — Show the bus card reader on the transit note
 
 The tap illustration now shows a hand holding a plain card against the rectangular pad of a pole-mounted bus card reader, with a blank screen. The fare note, comments, and share links are unchanged. Site version: 2026.10.09.5.
+
+## 2026-10-09 — Icon share actions and optional comment names
+
+Share actions use the X, WhatsApp, LinkedIn, email, copy, and system share icons. A comment can omit a name and is stored as Anonymous. Site version: 2026.10.09.6.
