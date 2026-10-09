@@ -1,0 +1,438 @@
+/* Singapore transit note. Page chrome comes from main.css and conviction.css. */
+
+html {
+  scroll-padding-top: 6.5rem;
+}
+
+.transit,
+.transit *,
+.transit-foot,
+.transit-foot * {
+  box-sizing: border-box;
+}
+
+.transit {
+  width: min(46rem, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.transit-kicker {
+  margin: 0 0 0.75rem;
+  color: #c9a227;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.transit h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  line-height: 0.98;
+  color: #f8fafc;
+}
+
+.transit-dek {
+  margin: 1.1rem 0 0;
+  color: #e2e8f0;
+  font-size: 1.25rem;
+  line-height: 1.45;
+}
+
+.transit-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.15rem;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.transit-meta span,
+.transit-chip {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.3rem 0.75rem;
+}
+
+.transit-hero {
+  padding: 3.2rem 0 1.5rem;
+}
+
+.transit-figure {
+  margin: 1.25rem 0 0.35rem;
+}
+
+.transit-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1rem;
+}
+
+.transit-caption,
+.transit-note {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.transit h2 {
+  margin: 2.4rem 0 0.7rem;
+  color: #f8fafc;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.7rem, 3vw, 2.15rem);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.transit h3 {
+  margin: 0 0 0.75rem;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.transit p,
+.transit li {
+  color: #cbd5e1;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.transit p {
+  margin: 0.8rem 0;
+}
+
+.transit a {
+  color: #e8c547;
+}
+
+.transit a:hover {
+  color: #f4d26a;
+}
+
+.transit-diagram,
+.transit-rule,
+.transit-panel {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.transit-diagram,
+.transit-panel {
+  margin: 1.1rem 0;
+  padding: 1rem 1rem 0.9rem;
+}
+
+.transit-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.transit-rules {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.transit-rule {
+  padding: 0.95rem 1rem 1rem;
+}
+
+.transit-rule strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: #f8fafc;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.transit-rule span {
+  color: #94a3b8;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.transit-bars {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.transit-bar {
+  display: grid;
+  grid-template-columns: 11rem 1fr auto;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.transit-bar span {
+  color: #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.transit-track {
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.transit-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.transit-fill.bad { background: #c2410c; }
+.transit-fill.ok { width: 65.8%; background: #15803d; }
+
+.transit-amt {
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.transit-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.6rem 0 0.2rem;
+  font-size: 0.92rem;
+}
+
+.transit-table th,
+.transit-table td {
+  padding: 0.6rem 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.transit-table th {
+  color: #94a3b8;
+  font-weight: 650;
+}
+
+.transit-table td {
+  color: #e2e8f0;
+}
+
+.transit-steps {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.transit-steps li {
+  display: grid;
+  grid-template-columns: 4.2rem 1fr;
+  gap: 0.6rem;
+  padding: 0.45rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.95rem;
+}
+
+.transit-steps time {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.transit-steps .gap {
+  color: #86efac;
+  font-weight: 700;
+}
+
+.transit-sources {
+  padding-left: 1.2rem;
+}
+
+.transit-sources li {
+  margin: 0.4rem 0;
+}
+
+.transit-share,
+.transit-comments {
+  margin-top: 2.2rem;
+}
+
+.transit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.transit-actions a,
+.transit-actions button,
+.transit-form button,
+.transit-moderate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  border-radius: 999px;
+  background: rgba(201, 162, 39, 0.1);
+  color: #f8fafc;
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.transit-actions a:hover,
+.transit-actions button:hover,
+.transit-form button:hover,
+.transit-moderate:hover {
+  border-color: rgba(232, 197, 71, 0.8);
+  color: #f8fafc;
+}
+
+.transit-actions a:focus-visible,
+.transit-actions button:focus-visible,
+.transit-form button:focus-visible,
+.transit-form input:focus-visible,
+.transit-form textarea:focus-visible,
+.transit-moderate:focus-visible,
+.transit-delete:focus-visible {
+  outline: 3px solid rgba(201, 162, 39, 0.75);
+  outline-offset: 2px;
+}
+
+.transit-form {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.transit-form label {
+  display: grid;
+  gap: 0.3rem;
+  color: #e2e8f0;
+  font-size: 0.92rem;
+}
+
+.transit-form input,
+.transit-form textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  background: #0b1220;
+  color: #f8fafc;
+  font: inherit;
+  padding: 0.65rem 0.75rem;
+}
+
+.transit-form textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.transit-status {
+  min-height: 1.4rem;
+  margin: 0.4rem 0 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.transit-status.is-error { color: #fdba74; }
+.transit-status.is-ok { color: #86efac; }
+
+.transit-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.transit-comment {
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.9rem;
+  background: rgba(11, 18, 32, 0.84);
+}
+
+.transit-comment header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.transit-comment strong {
+  color: #f8fafc;
+}
+
+.transit-comment time,
+.transit-empty {
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.transit-comment p {
+  margin: 0.45rem 0 0;
+  white-space: pre-wrap;
+}
+
+.transit-delete {
+  margin-top: 0.55rem;
+  border: 0;
+  background: transparent;
+  color: #fdba74;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.honeypot input {
+  width: 1px;
+  min-width: 0;
+  padding: 0;
+}
+
+.transit-foot {
+  width: min(46rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.2rem 0 3rem;
+  color: #64748b;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.transit-foot a {
+  color: #94a3b8;
+}
+
+@media (max-width: 640px) {
+  .transit-rules,
+  .transit-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .transit-bar { gap: 0.25rem; }
+  .transit-diagram svg.clock-svg { display: none; }
+  .transit-steps { display: block; }
+  .transit { font-size: 1.02rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transit-actions a,
+  .transit-form button {
+    transition: none;
+  }
+}

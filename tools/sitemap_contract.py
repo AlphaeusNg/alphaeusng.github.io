@@ -103,6 +103,20 @@ SITEMAP_ROUTES = (
             "assets/thoughts/water.jpg",
         ),
     ),
+    SitemapRoute(
+        "https://alphaeusng.github.io/pages/sg-transit.html",
+        "pages/sg-transit.html",
+        "monthly",
+        "0.6",
+        (
+            "pages/sg-transit.html",
+            "css/sg-transit.css",
+            "js/sg-transit.js",
+            "assets/sg-transit/station.jpg",
+            "assets/sg-transit/ribbon.jpg",
+            "assets/sg-transit/tap.jpg",
+        ),
+    ),
     SitemapRoute("https://alphaeusng.github.io/AIly/", None, "weekly", "0.7"),
     SitemapRoute(
         "https://alphaeusng.github.io/KoboForge/", None, "monthly", "0.7"

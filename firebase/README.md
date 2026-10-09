@@ -8,12 +8,13 @@ Infra for the **shared** Firebase project used by:
 | **Seeking Biblical Truth** viewer | `vaultNotes` | `pages/seeking-biblical-truth/js/firebase-config.js` |
 | **Shared project feedback** | `feedback` | `pages/feedback/js/app.js` |
 | **Conviction DCA Lab** | `dcaJournals/{uid}` | `js/dca-firebase-config.js` |
+| **Portfolio notes** | `posts/{postId}/comments` | `js/sg-transit.js` |
 
 ## Layout (standard practice)
 
 | Path | Role |
 |------|------|
-| `firestore.rules` | **Combined** rules (arcade + vault + feedback + DCA journals) — deploy this when sharing one project |
+| `firestore.rules` | **Combined** rules (arcade + vault + feedback + DCA journals + post comments) — deploy this when sharing one project |
 | `firestore.indexes.json` | Arcade scoreboard composite index |
 | `../firebase.json` | Firebase CLI entry (**repo root**) |
 | `../.firebaserc` | Default project `alparcade-cb87c` |
@@ -45,7 +46,7 @@ npx firebase-tools deploy --only firestore:indexes
 Validate feedback permissions locally:
 
 ```bash
-npx firebase-tools emulators:exec --only firestore 'node tools/test-feedback-rules.mjs'
+npx firebase-tools emulators:exec --only firestore 'node tools/test-feedback-rules.mjs && node tools/test-comment-rules.mjs'
 ```
 
 Console: [Firestore Rules](https://console.firebase.google.com/project/alparcade-cb87c/firestore/rules) → paste `firestore.rules` → **Publish**.
@@ -86,6 +87,7 @@ Runtime config: [`../pages/seeking-biblical-truth/js/firebase-config.js`](../pag
 - Client `apiKey` in the repo is expected; **rules** enforce who can write  
 - Public read of vault notes is intentional; tighten `allow read` if you need private notes  
 - Feedback accepts validated public creates only; entries are not publicly readable
+- Portfolio comments (`posts/sg-transit-one-fare/comments`) are publicly readable. Creates must be a short name, a 4–1000 character body, and a server timestamp. Only the vault editor can delete one. Updates are closed.
 - DCA journals are owner-only (`dcaJournals/{uid}`); they are not publicly readable
 - Never commit PATs or service-account JSON
 

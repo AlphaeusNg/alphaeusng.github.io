@@ -31,11 +31,12 @@ js/dca-firebase-config.js  # Runtime keys for DCA journal sync
 js/version.js              # SITE_VERSION — bump every deploy
 firebase/                  # Shared Firebase infra (rules + indexes + docs)
   README.md
-  firestore.rules          # Combined: arcade + vaultNotes + feedback + dcaJournals
+  firestore.rules          # Combined: arcade + vaultNotes + feedback + dcaJournals + post comments
   firestore.indexes.json
 firebase.json  .firebaserc # CLI entry (repo root — standard)
 pages/
   conviction.html
+  sg-transit.html          # Singapore distance-fare note, public comments
   kobo-forge.html          # compatibility redirect to /KoboForge/
   seeking-biblical-truth/  # Public vault viewer (vault-data.json)
     css/main.css

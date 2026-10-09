@@ -660,6 +660,12 @@ def main() -> None:
         ROOT / "js" / "dca-chart.js",
         ROOT / "pages" / "conviction.html",
         ROOT / "pages" / "alphaeus-thoughts.html",
+        ROOT / "pages" / "sg-transit.html",
+        ROOT / "css" / "sg-transit.css",
+        ROOT / "js" / "sg-transit.js",
+        ROOT / "assets" / "sg-transit" / "station.jpg",
+        ROOT / "assets" / "sg-transit" / "ribbon.jpg",
+        ROOT / "assets" / "sg-transit" / "tap.jpg",
         ROOT / "pages" / "dca-calculator.html",
         ROOT / "pages" / "kobo-forge.html",
         ROOT / "pages" / "feedback" / "index.html",
@@ -720,6 +726,10 @@ def main() -> None:
             ROOT / "pages" / "seeking-biblical-truth" / "index.html",
             rf'src="\.\./\.\./js/kofi-support\.js\?v={re.escape(site_version)}"',
         ),
+        (
+            ROOT / "pages" / "sg-transit.html",
+            rf'src="\.\./js/kofi-support\.js\?v={re.escape(site_version)}"',
+        ),
     )
     for path, pattern in kofi_pages:
         if not re.search(pattern, path.read_text(encoding="utf-8")):
@@ -753,6 +763,31 @@ def main() -> None:
             fail(f"thoughts reader {asset} cache key must match SITE_VERSION.id {site_version}")
     ok(f"thoughts reader cache keys match {site_version}")
 
+    transit_html = (ROOT / "pages" / "sg-transit.html").read_text(encoding="utf-8")
+    transit_js = (ROOT / "js" / "sg-transit.js").read_text(encoding="utf-8")
+    transit_rules = (ROOT / "firebase" / "firestore.rules").read_text(encoding="utf-8")
+    for asset, pattern in (
+        ("css", rf'href="\.\./css/sg-transit\.css\?v={re.escape(site_version)}"'),
+        ("js", rf'src="\.\./js/sg-transit\.js\?v={re.escape(site_version)}"'),
+    ):
+        if not re.search(pattern, transit_html):
+            fail(f"transit note {asset} cache key must match SITE_VERSION.id {site_version}")
+    for fact in (
+        "45 minutes",
+        "$1.75",
+        "$2.66",
+        "New Ride",
+        "27 December 2025",
+        "sg-transit-one-fare",
+    ):
+        if fact not in transit_html and fact not in transit_js:
+            fail(f"transit note is missing {fact}")
+    if transit_html.count("sg-transit-one-fare") and "sg-transit-one-fare" not in transit_js:
+        fail("transit note page and comment script disagree on the post id")
+    if "sg-transit-one-fare" not in transit_js or "sg-transit-one-fare" not in transit_rules:
+        fail("transit comments must use the allowlisted post id in rules and script")
+    ok(f"transit note cache keys, fares, and comment post id match {site_version}")
+
     for element_id in (
         "enableRealtime",
         "realtimeDialog",
@@ -777,6 +812,8 @@ def main() -> None:
     home_html = (ROOT / "index.html").read_text(encoding="utf-8")
     if 'href="pages/alphaeus-thoughts.html"' not in home_html:
         fail("home journey documents must open the Alphaeus' thoughts reader")
+    if 'href="pages/sg-transit.html"' not in home_html:
+        fail("home thoughts must link to the Singapore transit note")
     if "1qqXT6QfX_3ep1EMuEpqc021aJ3Vwd1EOTasuRBkqR1I" not in home_html:
         fail("home must keep the original Alphaeus' thoughts Google Doc")
     ok("home journey documents open the thoughts reader and keep the Google Doc")
@@ -1030,6 +1067,7 @@ def main() -> None:
         ROOT / "404.html",
         ROOT / "pages" / "conviction.html",
         ROOT / "pages" / "alphaeus-thoughts.html",
+        ROOT / "pages" / "sg-transit.html",
         ROOT / "pages" / "dca-calculator.html",
         ROOT / "pages" / "kobo-forge.html",
         ROOT / "pages" / "feedback" / "index.html",

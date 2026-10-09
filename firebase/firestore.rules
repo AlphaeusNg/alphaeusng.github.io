@@ -1,5 +1,6 @@
 rules_version = '2';
-// Combined rules: AlpArcade, Seeking Biblical Truth, shared feedback, and DCA Lab journals.
+// Combined rules: AlpArcade, Seeking Biblical Truth, shared feedback,
+// DCA Lab journals, and public notes on portfolio posts.
 // Deploy from portfolio root:
 //   npx firebase-tools deploy --only firestore:rules
 //
@@ -188,6 +189,39 @@ service cloud.firestore {
     match /dcaJournals/{uid} {
       allow read, delete: if signedIn() && request.auth.uid == uid;
       allow create, update: if validDcaJournal(uid);
+    }
+
+    // Public comments on an allowlisted portfolio note. Pass postId in.
+    // Anyone can read and create a tightly shaped comment. Only the vault
+    // editor can delete. Updates are closed so a comment cannot be rewritten.
+    function validTransitPost(postId) {
+      return postId == 'sg-transit-one-fare';
+    }
+
+    function validTransitComment(postId) {
+      let d = request.resource.data;
+      return validTransitPost(postId)
+        && d.keys().hasOnly(['name', 'body', 'createdAt'])
+        && d.name is string
+        && d.name.size() >= 1
+        && d.name.size() <= 40
+        && d.body is string
+        && d.body.size() >= 4
+        && d.body.size() <= 1000
+        && d.createdAt is timestamp
+        && d.createdAt == request.time;
+    }
+
+    match /posts/{postId} {
+      allow read: if validTransitPost(postId);
+      allow create, update, delete: if false;
+
+      match /comments/{commentId} {
+        allow read: if validTransitPost(postId);
+        allow create: if validTransitComment(postId);
+        allow update: if false;
+        allow delete: if isVaultEditor();
+      }
     }
   }
 }

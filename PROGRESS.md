@@ -1342,3 +1342,7 @@ Validation: site and sitemap checks, JavaScript syntax, all five thoughts-reader
 Replaced the human baptism scene with abstract waterline, underwater light, ripples and bubbles. No people or human forms appear. Updated descriptive alt text and recorded the final built-in imagegen prompt in `assets/thoughts/water.prompt.md`. The five complete P.S. asides remain unchanged. Site version 2026.10.09.3 reserves the concurrent local 2026.10.09.2 work separately.
 
 Validation: site and sitemap checks, JavaScript syntax, and all five thoughts-reader browser journeys, including loaded images and 320px layout. Release prepared in an isolated worktree to preserve concurrent staged transit-page work in the primary checkout.
+
+## 2026-10-09 — Publish the Singapore transit note
+
+The home page links to `pages/sg-transit.html`, a note on how a bus, MRT, and bus stay one distance fare. Visitors can share the canonical URL and post a public comment. Comments are `posts/sg-transit-one-fare/comments` on the shared Firebase project. The private feedback inbox is unchanged. Site version: 2026.10.09.4.
