@@ -1346,3 +1346,7 @@ Validation: site and sitemap checks, JavaScript syntax, and all five thoughts-re
 ## 2026-10-09 — Publish the Singapore transit note
 
 The home page links to `pages/sg-transit.html`, a note on how a bus, MRT, and bus stay one distance fare. Visitors can share the canonical URL and post a public comment. Comments are `posts/sg-transit-one-fare/comments` on the shared Firebase project. The private feedback inbox is unchanged. Site version: 2026.10.09.4.
+
+## 2026-10-09 — Show the bus card reader on the transit note
+
+The tap illustration now shows a hand holding a plain card against the rectangular pad of a pole-mounted bus card reader, with a blank screen. The fare note, comments, and share links are unchanged. Site version: 2026.10.09.5.
