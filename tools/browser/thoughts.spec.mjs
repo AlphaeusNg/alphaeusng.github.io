@@ -14,6 +14,15 @@ test('opens his letter with the four pictures', async ({ page }) => {
   await expect(page.locator('#letter')).toContainText('with utmost love in the hope of unity');
   await expect(page.locator('#letter')).toContainText('for each verse and its explanation');
   await expect(page.locator('#meta')).toContainText('minute read');
+  const postscripts = page.locator('#letter aside.aside');
+  await expect(postscripts).toHaveCount(5);
+  const bodies = ["Please don't read this", "All of you who are in here", "I'll still be going to LCOC", "Not as I will, but as He wills", "I would want to listen and understand"];
+  for (let i = 0; i < bodies.length; i++) {
+    await expect(postscripts.nth(i)).toContainText(bodies[i]);
+    await expect(postscripts.nth(i).locator('p')).toHaveCount(i < 3 ? 2 : 3);
+  }
+  await expect(page.locator('#letter .figure img').nth(2)).toHaveAttribute('alt', /immersion baptism/);
+
   await expect(page.locator('#source-link')).toHaveAttribute('href', /1qqXT6QfX_3ep1EMuEpqc021aJ3Vwd1EOTasuRBkqR1I/);
   await page.waitForFunction(() => {
     const images = [...document.querySelectorAll('#letter img')];

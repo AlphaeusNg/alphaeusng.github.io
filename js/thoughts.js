@@ -1,6 +1,8 @@
 (function () {
     "use strict";
 
+    var assetVersion = new URL(document.currentScript.src).searchParams.get("v");
+
     var FIGURES = {
         "opening thought": {
             src: "../assets/thoughts/lamp.jpg",
@@ -14,7 +16,7 @@
         },
         "theology of baptism": {
             src: "../assets/thoughts/water.jpg",
-            alt: "A stone basin of still water beside a folded white cloth",
+            alt: "An adult being lowered into a river for an immersion baptism",
             caption: "“not due to the COC’s understanding of baptism”"
         },
         "a little dive": {
@@ -154,7 +156,7 @@
         if (!figure) return;
         var node = el("figure", "figure");
         var image = document.createElement("img");
-        image.src = figure.src;
+        image.src = figure.src + (assetVersion ? "?v=" + encodeURIComponent(assetVersion) : "");
         image.alt = figure.alt;
         image.width = 1280;
         image.height = 720;
@@ -209,8 +211,10 @@
         });
 
         var words = 0;
+        var postscript = null;
         blocks.forEach(function (block, index) {
             if (block.type === "heading") {
+                postscript = null;
                 var title = plain(block.inlines);
                 var nextMajor = null;
                 if (block.level === 1) {
@@ -238,21 +242,29 @@
             if (block.type === "paragraph") {
                 var text = plain(block.inlines);
                 var paragraph = document.createElement("p");
-                if (/^(p(?:\.p)*\.s|p\^5\.s)\b/i.test(text)) paragraph.classList.add("aside");
-                else if (!whollyItalic(block.inlines) && /^[“"]/.test(text) && text.length < 220) paragraph.classList.add("pull");
+                if (/^(p(?:\.p)*\.s|p\^5\.s)\.?$/i.test(text)) {
+                    postscript = el("aside", "aside");
+                    postscript.setAttribute("aria-label", text);
+                    letter.appendChild(postscript);
+                    paragraph.classList.add("aside-label");
+                } else if (!whollyItalic(block.inlines) && /^[“"]/.test(text) && text.length < 220) paragraph.classList.add("pull");
                 var lens = lensOf(text);
                 if (lens) paragraph.dataset.lens = lens;
                 renderInlines(paragraph, block.inlines);
-                letter.appendChild(paragraph);
+                (postscript || letter).appendChild(paragraph);
                 words += countWords(block.inlines);
                 return;
             }
             if (block.type === "list") {
+                postscript = null;
                 letter.appendChild(renderList(block));
                 words += countList(block);
                 return;
             }
-            if (block.type === "rule") letter.appendChild(document.createElement("hr"));
+            if (block.type === "rule") {
+                postscript = null;
+                letter.appendChild(document.createElement("hr"));
+            }
         });
 
         for (var i = 0; i < headings.length; i += 1) {

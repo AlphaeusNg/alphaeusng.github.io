@@ -1330,3 +1330,9 @@ The log, quick-chip buttons/editor and catch-up row DOM now live in js/dca-journ
 ## 2026-10-07 — Expose all filled catch-up sessions
 
 A caught-up month with more than eight U.S. sessions now keeps Show filled sessions available. Previously its preview hid the remaining rows with no way to expand them. Site/sitemap/CSS/DCA/route gates and 45 Chromium journeys passed, including a fully filled 21-session month. Market data was not changed.
+
+## 2026-10-09 — Immersion photo and complete P.S. footnotes
+
+Replaced the baptism basin image with a generated immersion baptism scene and descriptive alt text. Reader photos use the script version as their cache key. Each of the five P.S. labels now shares one aside with all following paragraphs through the next label or heading, preserving every word, link and emphasis in the source JSON. The fourth and fifth notes each retain both body paragraphs.
+
+Validation: site and sitemap checks, JavaScript syntax, all five thoughts-reader browser journeys, and visual checks at 1280px and 320px with no horizontal overflow. Built-in image generation prompt and asset provenance: `assets/thoughts/water.prompt.md`. Site version: 2026.10.09.1. Unrelated local copy edits and the untracked screenshot remain separate.
