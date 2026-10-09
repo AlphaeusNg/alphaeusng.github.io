@@ -16,7 +16,7 @@
         },
         "theology of baptism": {
             src: "../assets/thoughts/water.jpg",
-            alt: "An adult being lowered into a river for an immersion baptism",
+            alt: "Abstract immersion baptism imagery with descending light beneath rippling water",
             caption: "“not due to the COC’s understanding of baptism”"
         },
         "a little dive": {

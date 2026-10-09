@@ -1336,3 +1336,9 @@ A caught-up month with more than eight U.S. sessions now keeps Show filled sessi
 Replaced the baptism basin image with a generated immersion baptism scene and descriptive alt text. Reader photos use the script version as their cache key. Each of the five P.S. labels now shares one aside with all following paragraphs through the next label or heading, preserving every word, link and emphasis in the source JSON. The fourth and fifth notes each retain both body paragraphs.
 
 Validation: site and sitemap checks, JavaScript syntax, all five thoughts-reader browser journeys, and visual checks at 1280px and 320px with no horizontal overflow. Built-in image generation prompt and asset provenance: `assets/thoughts/water.prompt.md`. Site version: 2026.10.09.1. Unrelated local copy edits and the untracked screenshot remain separate.
+
+## 2026-10-09 — Abstract immersion baptism image
+
+Replaced the human baptism scene with abstract waterline, underwater light, ripples and bubbles. No people or human forms appear. Updated descriptive alt text and recorded the final built-in imagegen prompt in `assets/thoughts/water.prompt.md`. The five complete P.S. asides remain unchanged. Site version 2026.10.09.3 reserves the concurrent local 2026.10.09.2 work separately.
+
+Validation: site and sitemap checks, JavaScript syntax, and all five thoughts-reader browser journeys, including loaded images and 320px layout. Release prepared in an isolated worktree to preserve concurrent staged transit-page work in the primary checkout.
