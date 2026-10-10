@@ -123,3 +123,17 @@ test('home opens the reader and keeps the original document', async ({ page }) =
   await expect(page).toHaveURL(/\/pages\/alphaeus-thoughts\.html$/);
   await expect(page.locator('#letter')).toContainText('Hello');
 });
+
+test('search shortcut preserves typing in editable fields', async ({ page }) => {
+  await openReader(page, 1280, 800);
+  await page.evaluate(() => {
+    const field = document.createElement('textarea');
+    field.id = 'shortcut-typing'; document.body.append(field); field.focus();
+  });
+  await page.keyboard.type('chapter/verse');
+  await expect(page.locator('#shortcut-typing')).toHaveValue('chapter/verse');
+  await expect(page.locator('#shortcut-typing')).toBeFocused();
+  await page.locator('#shortcut-typing').evaluate((field) => field.blur());
+  await page.keyboard.press('/');
+  await expect(page.locator('input[type="search"]')).toBeFocused();
+});

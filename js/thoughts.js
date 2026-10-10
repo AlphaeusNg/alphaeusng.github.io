@@ -477,7 +477,9 @@
             closeNote();
             return;
         }
-        if (event.key === "/" && document.activeElement !== searchInput && noteBackdrop.hidden && !outlineDialog.open) {
+        if (event.key === "/" && !event.ctrlKey && !event.metaKey && !event.altKey && !event.isComposing
+            && !event.target.closest("input, textarea, select, [contenteditable]:not([contenteditable=\"false\"])")
+            && noteBackdrop.hidden && !outlineDialog.open) {
             event.preventDefault();
             searchInput.focus();
         }

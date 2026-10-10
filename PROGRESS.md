@@ -1354,3 +1354,9 @@ The tap illustration now shows a hand holding a plain card against the rectangul
 ## 2026-10-09 — Icon share actions and optional comment names
 
 Share actions use the X, WhatsApp, LinkedIn, email, copy, and system share icons. A comment can omit a name and is stored as Anonymous. Site version: 2026.10.09.6.
+
+## 2026-10-11 — Keep the thoughts search shortcut out of editable fields
+
+The slash shortcut now ignores inputs, textareas, selects, editable content, modifier chords and composition. Comment drafting keeps its slash characters and focus. The abstract immersion image and complete P.S. footnotes remain intact. Updated cache keys, version and sitemap.
+
+Validation: CSS, site/sitemap, DCA and route gates; 48 Chromium journeys.
