@@ -1623,3 +1623,28 @@ test('DCA Lab lets a caught-up month expand beyond the eight-session preview', a
   await page.locator('#catchUpShowAll').click();
   await expect(page.locator('#catchUpList .catchup-row')).toHaveCount(21);
 });
+
+test('DCA Lab ignores an older CSV file that finishes after a newer selection', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+  await page.evaluate(() => {
+    const read = File.prototype.text;
+    File.prototype.text = function () {
+      if (this.name === 'slow.csv') return new Promise((resolve) => {
+        window.finishSlowCsv = () => read.call(this).then(resolve);
+      });
+      return read.call(this);
+    };
+  });
+  const header = 'date,symbol,dollars_usd,price_usd,shares,signal_multiplier,price_mode\n';
+  const field = page.locator('#importJournal');
+  await field.setInputFiles({ name: 'slow.csv', mimeType: 'text/csv', buffer: Buffer.from(header + '2026-08-18,TSLA,200,400,0.5,1,manual\n') });
+  await expect.poll(() => page.evaluate(() => typeof window.finishSlowCsv)).toBe('function');
+  await field.setInputFiles({ name: 'latest.csv', mimeType: 'text/csv', buffer: Buffer.from(header + '2026-08-18,SPCX,100,100,1,1,manual\n') });
+  await expect(page.locator('#calculatorStatus')).toContainText('Imported 1 journal row');
+  await page.evaluate(() => window.finishSlowCsv());
+  await page.waitForTimeout(100);
+  await expect(page.locator('#journalBody tr')).toHaveCount(1);
+  await expect(page.locator('#journalBody')).toContainText('SPCX');
+  await expect(page.locator('#journalBody')).not.toContainText('TSLA');
+});

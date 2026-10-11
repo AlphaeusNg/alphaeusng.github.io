@@ -1360,3 +1360,9 @@ Share actions use the X, WhatsApp, LinkedIn, email, copy, and system share icons
 The slash shortcut now ignores inputs, textareas, selects, editable content, modifier chords and composition. Comment drafting keeps its slash characters and focus. The abstract immersion image and complete P.S. footnotes remain intact. Updated cache keys, version and sitemap.
 
 Validation: CSS, site/sitemap, DCA and route gates; 48 Chromium journeys.
+
+## 2026-10-11 — Ignore superseded journal CSV reads
+
+Only the latest selected CSV can append journal rows or report an import error. A slower previous selection cannot silently add an unwanted batch after a later file succeeds.
+
+Validation: CSS/site/sitemap/DCA/routes and 49 Chromium journeys.

@@ -2309,9 +2309,11 @@
                 renderJournal();
             });
         }
+        let journalImportGeneration = 0;
         if (elements.importJournalButton && elements.importJournal) {
             elements.importJournalButton.addEventListener('click', () => elements.importJournal.click());
             elements.importJournal.addEventListener('change', async (event) => {
+                const generation = ++journalImportGeneration;
                 const file = event.target.files && event.target.files[0];
                 event.target.value = '';
                 if (!file) return;
@@ -2319,8 +2321,11 @@
                     if (file.size > MAX_CSV_FILE_BYTES) {
                         throw new Error('Import CSV files up to 1 MB.');
                     }
-                    importJournalText(await file.text());
+                    const text = await file.text();
+                    if (generation !== journalImportGeneration) return;
+                    importJournalText(text);
                 } catch (error) {
+                    if (generation !== journalImportGeneration) return;
                     showStatus(error.message || 'The CSV file could not be imported.', 'error');
                 }
             });
