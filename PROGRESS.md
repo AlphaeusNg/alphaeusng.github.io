@@ -1366,3 +1366,9 @@ Validation: CSS, site/sitemap, DCA and route gates; 48 Chromium journeys.
 Only the latest selected CSV can append journal rows or report an import error. A slower previous selection cannot silently add an unwanted batch after a later file succeeds.
 
 Validation: CSS/site/sitemap/DCA/routes and 49 Chromium journeys.
+
+## 2026-10-13 — Cancel pending journal imports on month reset
+
+Confirmed month reset invalidates pending journal CSV reads. An older file cannot restore contributions after reset; cancelling the confirmation retains the pending operation. Cache keys and sitemap refreshed.
+
+Validation: CSS, site/sitemap, DCA and route gates; 50 Chromium journeys passed.

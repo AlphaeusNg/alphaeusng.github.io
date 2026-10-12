@@ -20,6 +20,7 @@
 
     const elements = {};
     const PAGE_TITLE = 'Conviction DCA Lab • Alphaeus Ng';
+    let journalImportGeneration = 0;
     let marketData = null;
     let currentPlan = null;
     let storageRecoveryMessage = '';
@@ -1984,6 +1985,7 @@
     function resetMonth() {
         const currentMonth = monthKey();
         if (!window.confirm(`Reset contribution totals and recorded entries for ${formatMonth(currentMonth)}?`)) return;
+        journalImportGeneration += 1;
         delete state.months[currentMonth];
         state.ledger.filter((entry) => entry.date.startsWith(currentMonth)).forEach(rememberDeletion);
         state.ledger = state.ledger.filter((entry) => !entry.date.startsWith(currentMonth));
@@ -2309,7 +2311,6 @@
                 renderJournal();
             });
         }
-        let journalImportGeneration = 0;
         if (elements.importJournalButton && elements.importJournal) {
             elements.importJournalButton.addEventListener('click', () => elements.importJournal.click());
             elements.importJournal.addEventListener('change', async (event) => {

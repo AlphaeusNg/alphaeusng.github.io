@@ -1648,3 +1648,25 @@ test('DCA Lab ignores an older CSV file that finishes after a newer selection', 
   await expect(page.locator('#journalBody')).toContainText('SPCX');
   await expect(page.locator('#journalBody')).not.toContainText('TSLA');
 });
+
+
+test('DCA month reset cancels pending CSV reads after confirmation', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.goto('/pages/dca-calculator.html?d=2026-08-18', { waitUntil: 'domcontentloaded' });
+  await page.evaluate(() => {
+    const read = File.prototype.text;
+    File.prototype.text = function () { return new Promise(resolve => {
+      window.finishResetCsv = () => read.call(this).then(resolve);
+    }); };
+  });
+  const csv = 'date,symbol,dollars_usd,price_usd,shares\n2026-08-18,TSLA,200,400,0.5\n';
+  await page.locator('#importJournal').setInputFiles({name:'pending.csv',mimeType:'text/csv',buffer:Buffer.from(csv)});
+  await expect.poll(() => page.evaluate(() => typeof window.finishResetCsv)).toBe('function');
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#resetMonth').click();
+  await expect(page.locator('#calculatorStatus')).toContainText('was reset');
+  await page.evaluate(() => window.finishResetCsv());
+  await page.waitForTimeout(100);
+  await expect(page.locator('#journalBody tr')).toHaveCount(0);
+  await expect(page.locator('#calculatorStatus')).toContainText('was reset');
+});
