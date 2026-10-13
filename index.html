@@ -28,7 +28,7 @@
     
     <!-- Committed utility CSS keeps the zero-build Pages deploy while avoiding
          Tailwind's render-blocking browser compiler. -->
-    <link rel="stylesheet" href="css/tailwind-home.css?v=2026.10.13.2">
+    <link rel="stylesheet" href="css/tailwind-home.css?v=2026.10.14.1">
     
     <!-- Elegant Fonts: non-blocking for first paint, with a no-JS fallback. -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap" media="print" onload="this.onload=null;this.media='all'" data-portfolio-fonts>
@@ -509,9 +509,25 @@
                 <p class="mt-4 max-w-2xl text-[#94A3B8]">Selected work with outcomes and links. Case studies open in-page; demos and repos where they exist.</p>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="project-discovery" class="project-discovery" hidden>
+                <div class="project-filter-list" role="group" aria-label="Filter projects by topic">
+                    <button type="button" data-project-filter="all" aria-pressed="true" aria-controls="project-grid">All projects</button>
+                    <button type="button" data-project-filter="ai" aria-pressed="false" aria-controls="project-grid">AI &amp; ML</button>
+                    <button type="button" data-project-filter="tools" aria-pressed="false" aria-controls="project-grid">Tools &amp; apps</button>
+                    <button type="button" data-project-filter="faith" aria-pressed="false" aria-controls="project-grid">Faith</button>
+                </div>
+                <div class="project-search-row">
+                    <label for="project-search">Search projects</label>
+                    <input id="project-search" type="search" maxlength="160" placeholder="Name, technology, or purpose" aria-controls="project-grid" autocomplete="off">
+                    <button id="project-filter-clear" type="button">Clear filters</button>
+                </div>
+                <p id="project-result-count" class="project-result-count" role="status" aria-live="polite" aria-atomic="true"></p>
+                <p id="project-no-results" hidden>No projects match. Try another search or clear the filters.</p>
+            </div>
+
+            <div id="project-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- HTX Work -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="htx-threat">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="htx-threat" data-project-topics="ai">
                     <div>
                         <div class="project-badge mb-4">APPLIED COMPUTER VISION</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">Threat Detection Systems</h3>
@@ -544,7 +560,7 @@
                 </div>
 
                 <!-- FYP -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="scene-text">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="scene-text" data-project-topics="ai">
                     <div>
                         <div class="project-badge mb-4">COMPUTER VISION + NLP</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">Scene Text Translator</h3>
@@ -563,7 +579,7 @@
                 </div>
 
                 <!-- VotaFun -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="votafun">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="votafun" data-project-topics="ai tools">
                     <div>
                         <div class="project-badge mb-4">FULL-STACK · REAL-TIME</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">VotaFun</h3>
@@ -582,7 +598,7 @@
                 </div>
 
                 <!-- AIly -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="aily">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="aily" data-project-topics="tools">
                     <div>
                         <div class="project-badge mb-4">LOCAL-FIRST ALLY</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">AIly</h3>
@@ -602,7 +618,7 @@
                 </div>
 
                 <!-- KoboForge -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="koboforge">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="koboforge" data-project-topics="tools">
                     <div>
                         <div class="project-badge mb-4">LOCAL-FIRST TOOLING</div>
                         <h3 class="text-3xl tracking-tighter font-semibold">KoboForge</h3>
@@ -621,7 +637,7 @@
                 </div>
 
                 <!-- ChristoDay -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="christoday">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="christoday" data-project-topics="faith">
                     <div class="project-badge mb-4">FAITH × CODE</div>
                     <h3 class="text-3xl tracking-tighter font-semibold">ChristoDay</h3>
                     <p class="text-sm text-[#64748B] mt-1">Christ-centered weekday gospel reading</p>
@@ -636,7 +652,7 @@
                 </div>
 
                 <!-- CardFitSG -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="cardfitsg">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="cardfitsg" data-project-topics="tools">
                     <div class="project-badge mb-4">SG PRACTICAL</div>
                     <h3 class="text-3xl tracking-tighter font-semibold">CardFitSG</h3>
                     <p class="text-sm text-[#64748B] mt-1">Fuss-free cashback card fit calculator</p>
@@ -651,7 +667,7 @@
                 </div>
 
                 <!-- VerseKeep -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="versekeep">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="versekeep" data-project-topics="faith">
                     <div class="project-badge mb-4">FAITH × CODE</div>
                     <h3 class="text-3xl tracking-tighter font-semibold">VerseKeep</h3>
                     <p class="text-sm text-[#64748B] mt-1">Scripture meditation, then memory</p>
@@ -666,7 +682,7 @@
                 </div>
 
                 <!-- AlpArcade -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="alparcade">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col" data-project-slug="alparcade" data-project-topics="tools">
                     <div class="project-badge mb-4">PLAY</div>
                     <h3 class="text-3xl tracking-tighter font-semibold">AlpArcade</h3>
                     <p class="text-sm text-[#64748B] mt-1">Need a break? Have an AlpArcade</p>
@@ -681,7 +697,7 @@
                 </div>
 
                 <!-- Seeking Biblical Truth -->
-                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col md:col-span-2 lg:col-span-2" data-project-slug="seeking-biblical-truth">
+                <div class="card group bg-[#0A0F1C] border border-white/10 rounded-3xl p-8 flex flex-col md:col-span-2 lg:col-span-2" data-project-slug="seeking-biblical-truth" data-project-topics="faith">
                     <div class="flex items-start justify-between">
                         <div>
                             <div class="project-badge mb-4">FAITH × CODE</div>
@@ -1068,11 +1084,12 @@
     </template>
 
     <!-- External modular JavaScript (defer so HTML paints first) -->
-    <script src="js/kofi-support.js?v=2026.10.13.2"
+    <script src="js/kofi-support.js?v=2026.10.14.1"
             data-auto-footer
             data-message="Tell me what worked or what would help."
             defer></script>
     <script src="js/main.js" defer></script>
+    <script src="js/project-discovery.js?v=2026.10.14.1" defer></script>
     <script src="js/project-case-route.js" defer></script>
     <script src="js/modals.js" defer></script>
 </body>

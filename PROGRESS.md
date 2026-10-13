@@ -1379,3 +1379,12 @@ Validation: CSS, site/sitemap, DCA and route gates; 50 Chromium journeys passed.
 DCA record/today shortcuts now ignore active composition and legacy keycode 229. Chart inspection also leaves composition and browser modifier chords available. Ordinary record and arrow inspection still work. Version 2026.10.13.2; financial datasets unchanged.
 
 Validation: regression reproduced the original composition failure; CSS, 37 Python contracts, site/sitemap, 32 DCA and 4 route tests, Python compilation and JavaScript syntax passed. All 51 Chromium journeys passed, including the new regression and ordinary record/chart action checks.
+
+
+## 2026-10-14 — Search and share a project shortlist
+
+The Craft catalog now combines AI & ML, Tools & apps, and Faith filters with text search over existing card copy. The count is announced without moving focus; empty results have a clear recovery action. Encoded URL state preserves case-study links, unrelated parameters and anchors, restores on back/forward, and waits for text composition. All cards and original links remain available without JavaScript. A deep-linked case outside the shortlist returns focus to visible search when closed.
+
+Research, acceptance and next feature priorities are recorded in docs/FEATURE_ROADMAP.md with W3C and MDN primary references. Version 2026.10.14.1. Market snapshots, essays and vault data unchanged.
+
+Validation: four focused catalog journeys passed, including share/reload/history, 320px keyboard/IME layout and case routing/fallback. CSS, 37 Python contracts, site/sitemap/data freshness, 32 DCA and 4 route checks, compilation and syntax passed. All 56 Chromium journeys passed (including the actual JavaScript-disabled link-access check); a 320px screenshot confirmed no horizontal overflow and a 210px discovery control area.

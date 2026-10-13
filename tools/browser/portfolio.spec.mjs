@@ -1709,3 +1709,109 @@ test('DCA keyboard actions preserve composition and browser chart chords', async
   await page.keyboard.press('r');
   await expect(page.locator('#journalBody tr')).toHaveCount(rows + 2);
 });
+
+
+test('project discovery combines topic and search and restores shareable history', async ({ page }) => {
+  await page.goto('/?utm_source=catalog#craft', { waitUntil: 'domcontentloaded' });
+  const cards = page.locator('#project-grid [data-project-slug]:visible');
+  const search = page.getByLabel('Search projects', { exact: true });
+  const tools = page.getByRole('button', { name: 'Tools & apps', exact: true });
+  await expect(cards).toHaveCount(10);
+  await tools.click();
+  await expect(cards).toHaveCount(5);
+  await expect(tools).toHaveAttribute('aria-pressed', 'true');
+  await expect(tools).toBeFocused();
+  await search.fill('kobo browser');
+  await expect(cards).toHaveCount(1);
+  await expect(cards).toHaveAttribute('data-project-slug', 'koboforge');
+  await expect(page.locator('#project-result-count')).toHaveText('1 of 10 projects');
+  expect(new URL(page.url()).searchParams.get('utm_source')).toBe('catalog');
+  expect(new URL(page.url()).hash).toBe('#craft');
+  const shared = page.url();
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(search).toHaveValue('kobo browser');
+  await expect(cards).toHaveCount(1);
+  await page.locator('[data-project-slug="koboforge"] .project-card-open').click();
+  await expect(page.locator('#project-modal')).toBeVisible();
+  expect(new URL(page.url()).searchParams.get('project-search')).toBe('kobo browser');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#project-modal')).toBeHidden();
+  await expect(cards).toHaveCount(1);
+  await expect(page.locator('[data-project-slug="koboforge"] .project-card-open')).toBeFocused();
+  await expect(page).toHaveURL(shared);
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
+  await expect(cards).toHaveCount(10);
+  await expect(search).toBeFocused();
+  await page.goBack();
+  await expect(search).toHaveValue('kobo browser');
+  await expect(cards).toHaveCount(1);
+  await page.goForward();
+  await expect(cards).toHaveCount(10);
+  await search.fill('no such project xyz');
+  await expect(cards).toHaveCount(0);
+  await expect(page.locator('#project-no-results')).toBeVisible();
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
+  await expect(cards).toHaveCount(10);
+});
+
+test('project discovery keeps phone controls compact and defers composing searches', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('/#craft', { waitUntil: 'domcontentloaded' });
+  const search = page.locator('#project-search');
+  const cards = page.locator('#project-grid [data-project-slug]:visible');
+  await search.focus();
+  await search.evaluate(element => {
+    element.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+    element.value = 'Kobo';
+    element.dispatchEvent(new InputEvent('input', { bubbles: true, isComposing: true }));
+  });
+  await expect(cards).toHaveCount(10);
+  expect(new URL(page.url()).searchParams.has('project-search')).toBe(false);
+  await search.evaluate(element => element.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true })));
+  await expect(cards).toHaveCount(1);
+  await page.getByRole('button', { name: 'Clear filters', exact: true }).click();
+  const faith = page.getByRole('button', { name: 'Faith', exact: true });
+  await faith.focus();
+  await page.keyboard.press('Space');
+  await expect(cards).toHaveCount(3);
+  await expect(faith).toBeFocused();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  expect(await page.locator('#project-discovery').evaluate(element => element.getBoundingClientRect().height)).toBeLessThan(240);
+  await search.fill('<script>');
+  await expect(cards).toHaveCount(0);
+  await expect(page.locator('#project-no-results')).toBeVisible();
+});
+
+test('project discovery permits direct case links outside the filtered subset', async ({ page }) => {
+  await page.goto('/?projects=faith&case=htx-threat#craft', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#project-modal')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#project-modal')).toBeHidden();
+  await expect(page.locator('#project-search')).toBeFocused();
+  await expect(page.locator('#project-grid [data-project-slug]:visible')).toHaveCount(3);
+  expect(new URL(page.url()).searchParams.get('projects')).toBe('faith');
+});
+
+test('project cards remain usable when discovery JavaScript is unavailable', async ({ page }) => {
+  await page.route('**/js/project-discovery.js*', route => route.fulfill({ contentType: 'application/javascript', body: '' }));
+  await page.goto('/?projects=faith#craft', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#project-discovery')).toBeHidden();
+  await expect(page.locator('#project-grid [data-project-slug]:visible')).toHaveCount(10);
+  await page.locator('[data-project-slug="koboforge"] .project-card-open').click();
+  await expect(page.locator('#project-modal')).toBeVisible();
+});
+
+
+test('all project links remain available without JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 320, height: 568 } });
+  try {
+    const page = await context.newPage();
+    await page.goto('http://127.0.0.1:4173/#craft');
+    await expect(page.locator('#project-discovery')).toBeHidden();
+    await expect(page.locator('#project-grid [data-project-slug]:visible')).toHaveCount(10);
+    await expect(page.locator('[data-project-slug="koboforge"] a')).toHaveAttribute('href', 'https://alphaeusng.github.io/KoboForge/');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  } finally {
+    await context.close();
+  }
+});

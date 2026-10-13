@@ -11,6 +11,8 @@ Personal portfolio for Alphaeus Ng, presenting applied AI/computer-vision work, 
 - `css/home.css`, `css/404.css`, and `css/conviction.css`: route-specific
   styles kept out of HTML entry points.
 - `js/main.js`: navbar, mobile menu, smooth scroll, active section highlighting, accessibility behavior.
+- `js/project-discovery.js`: progressive Craft topic/text filtering, result count, composition and bookmark/history state (`projects`, `project-search`). Native case routes retain those parameters.
+- `docs/FEATURE_ROADMAP.md`: primary-source feature research, shipped acceptance and next priorities.
 - `js/modals.js`: rich project case-study modal data and rendering.
 - `js/conviction.js`: conviction chart and benchmark application.
 - `js/dca-journal-view.js`: DOM-only DCA journal, quick-chip and catch-up presentation; persistence stays in the controller and merge rules stay in `dca-journal.js`.

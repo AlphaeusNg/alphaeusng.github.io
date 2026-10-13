@@ -604,3 +604,21 @@ button.mobile-link.email-copy-btn {
     white-space: nowrap;
     display: inline-block;
 }
+
+/* Keep discovery compact and let native controls retain keyboard behavior. */
+.project-discovery { margin: -1rem 0 1.5rem; color: #94A3B8; }
+.project-filter-list { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.project-discovery button { min-height: 44px; padding: .5rem .8rem; border: 1px solid rgba(255,255,255,.15); border-radius: .8rem; background: #0A0F1C; font-size: .85rem; }
+.project-discovery button[aria-pressed="true"] { color: #E8C547; border-color: #C9A227; }
+.project-discovery button:disabled { opacity: .45; cursor: default; }
+.project-search-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.project-search-row label { font-size: .85rem; }
+.project-search-row input { flex: 1 1 15rem; min-width: 0; min-height: 44px; padding: .55rem .8rem; border: 1px solid rgba(255,255,255,.15); border-radius: .8rem; background: #0A0F1C; color: #E2E8F0; }
+.project-discovery :is(input,button):focus-visible { outline: 2px solid #E8C547; outline-offset: 3px; }
+.project-result-count, #project-no-results { margin-top: .65rem; font-size: .85rem; }
+#project-grid [hidden], #project-discovery[hidden], #project-no-results[hidden] { display: none; }
+@media (max-width: 480px) {
+    .project-search-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+    .project-search-row label { grid-column: 1 / -1; }
+    .project-search-row input { width: 100%; }
+}

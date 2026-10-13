@@ -736,7 +736,9 @@ function hideProjectModal({ restoreFocus = true } = {}) {
   if (restoreFocus && trigger?.isConnected) {
     requestAnimationFrame(() => {
       if (trigger.isConnected && modal.classList.contains('hidden')) {
-        trigger.focus({ preventScroll: true });
+        const target = trigger.getClientRects().length ? trigger
+          : document.getElementById('project-search');
+        target?.focus({ preventScroll: true });
       }
     });
   }
