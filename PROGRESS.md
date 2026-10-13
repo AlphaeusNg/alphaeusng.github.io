@@ -1372,3 +1372,10 @@ Validation: CSS/site/sitemap/DCA/routes and 49 Chromium journeys.
 Confirmed month reset invalidates pending journal CSV reads. An older file cannot restore contributions after reset; cancelling the confirmation retains the pending operation. Cache keys and sitemap refreshed.
 
 Validation: CSS, site/sitemap, DCA and route gates; 50 Chromium journeys passed.
+
+
+## 2026-10-13 — Preserve composition and browser chart shortcuts
+
+DCA record/today shortcuts now ignore active composition and legacy keycode 229. Chart inspection also leaves composition and browser modifier chords available. Ordinary record and arrow inspection still work. Version 2026.10.13.2; financial datasets unchanged.
+
+Validation: regression reproduced the original composition failure; CSS, 37 Python contracts, site/sitemap, 32 DCA and 4 route tests, Python compilation and JavaScript syntax passed. All 51 Chromium journeys passed, including the new regression and ordinary record/chart action checks.

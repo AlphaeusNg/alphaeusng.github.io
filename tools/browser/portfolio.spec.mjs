@@ -1670,3 +1670,42 @@ test('DCA month reset cancels pending CSV reads after confirmation', async ({ pa
   await expect(page.locator('#journalBody tr')).toHaveCount(0);
   await expect(page.locator('#calculatorStatus')).toContainText('was reset');
 });
+
+
+test('DCA keyboard actions preserve composition and browser chart chords', async ({ page }) => {
+  await mockDcaQuotes(page);
+  await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#totalRecommendation')).not.toHaveText('—');
+  await page.locator('#planDate').fill('2026-08-18');
+  const date = await page.locator('#planDate').inputValue();
+  const rows = await page.locator('#journalBody tr').count();
+  for (const key of ['t', 'r']) {
+    for (const composition of [{ isComposing: true }, { keyCode: 229 }]) {
+      const prevented = await page.evaluate(({ key, composition }) => {
+        const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...composition });
+        document.body.dispatchEvent(event);
+        return event.defaultPrevented;
+      }, { key, composition });
+      expect(prevented).toBe(false);
+      await expect(page.locator('#planDate')).toHaveValue(date);
+      await expect(page.locator('#journalBody tr')).toHaveCount(rows);
+    }
+  }
+  const chart = page.locator('#tslaSparkline');
+  await chart.focus();
+  const selected = await chart.getAttribute('aria-valuenow');
+  for (const flags of [{ altKey: true }, { ctrlKey: true }, { metaKey: true }, { isComposing: true }, { keyCode: 229 }]) {
+    const prevented = await chart.evaluate((element, flags) => {
+      const event = new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true, ...flags });
+      element.dispatchEvent(event);
+      return event.defaultPrevented;
+    }, flags);
+    expect(prevented).toBe(false);
+    await expect(chart).toHaveAttribute('aria-valuenow', selected);
+  }
+  await chart.press('ArrowLeft');
+  await expect(chart).toHaveAttribute('aria-valuenow', String(Number(selected) - 1));
+  await page.locator('h1').click();
+  await page.keyboard.press('r');
+  await expect(page.locator('#journalBody tr')).toHaveCount(rows + 2);
+});

@@ -52,6 +52,7 @@ as a compatibility redirect for old bookmarks.
 - Local CSS and application JavaScript belong in grouped external assets, not
   inline in HTML. Keep vault-only assets beneath `pages/seeking-biblical-truth/`.
 - The Biblical Truth viewer now defaults to rendered Markdown previews and offers a raw-source toggle. Verify both modes after viewer edits.
+- DCA keyboard actions ignore composition (including legacy keycode 229); chart inspection also preserves browser modifier chords. Keep the ordinary record and arrow controls working.
 - Local resume PDFs/DOCX may become stale. The canonical resume share target is the provided Google Drive link.
 - The conviction page is intentionally static and should not load private spreadsheets in the browser. Regenerate `data/conviction_tsla_history.json` from `data/tsla_transactions.csv` when the source ledger changes.
 - Legacy Jekyll/Minimal Mistakes files were removed after reference checks confirmed the current static entry pages do not use them.

@@ -2184,6 +2184,8 @@
             });
             chart.addEventListener('blur', () => hideChartPoint(symbol));
             chart.addEventListener('keydown', (event) => {
+                if (event.defaultPrevented || event.isComposing || event.keyCode === 229
+                    || event.metaKey || event.ctrlKey || event.altKey) return;
                 const model = chartModels[symbol];
                 if (!model) return;
                 const current = model.selectedIndex ?? model.points.length - 1;
@@ -2334,7 +2336,8 @@
         elements.exportJournal.addEventListener('click', exportJournal);
         elements.resetMonth.addEventListener('click', resetMonth);
         window.addEventListener('keydown', (event) => {
-            if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+            if (event.defaultPrevented || event.isComposing || event.keyCode === 229
+                || event.metaKey || event.ctrlKey || event.altKey) return;
             if (isTypingTarget(event.target)) return;
             const key = event.key.toLowerCase();
             if (key === 't') {
