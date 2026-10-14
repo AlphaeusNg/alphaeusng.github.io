@@ -76,7 +76,7 @@ const PROJECT_MODAL_DATA = {
       }
     ],
     intersection: {
-      content: 'Same instinct as the rest of the site: preserve meaning across format boundaries, be honest when a tool can fail, and keep private material private by default.'
+      content: 'Preserve meaning across format boundaries, be honest when a tool can fail, and keep private material private by default. That is the same instinct as the rest of the site.'
     },
     challenges: {
       heading: 'Current Limitations',
@@ -221,7 +221,7 @@ const PROJECT_MODAL_DATA = {
     },
     currentState: {
       heading: 'Current State',
-      content: 'The important thing is that it runs. The project is open source under the VetoFun organization, and the live deployment lets people test the interaction directly instead of reading about it in the abstract.'
+      content: 'It runs. The project is open source under the VetoFun organization, and the live deployment lets people test the interaction directly instead of reading about it in the abstract.'
     },
     quote: {
       text: 'They illuminate; they do not decide.',

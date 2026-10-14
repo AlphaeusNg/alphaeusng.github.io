@@ -294,7 +294,7 @@ function updateBenchmarkMetrics(data) {
     document.getElementById('benchmarkDifferentialText').textContent =
         outperformed
             ? `Measured against the same net invested capital, the actual TSLA path currently sits ${formatSignedCurrency(summary.finalDifferenceUsd)} ahead of SPY. That is the payoff concentration aims for when the thesis survives and the holder survives with it.`
-            : `Measured against the same net invested capital, the actual TSLA path currently sits ${formatSignedCurrency(summary.finalDifferenceUsd)} behind SPY. That gap is the cost of selling on margin near the bottom. The hard lesson is that a good thesis still fails financially if the structure cannot hold through volatility.`;
+            : `Measured against the same net invested capital, the actual TSLA path currently sits ${formatSignedCurrency(summary.finalDifferenceUsd)} behind SPY. That gap is the cost of selling on margin near the bottom. A good thesis still fails financially if the structure cannot hold through volatility.`;
     document.getElementById('benchmarkSource').textContent =
         `${data.meta.tslaSymbol} vs ${data.meta.benchmarkSymbol} • same signed monthly cash flows`;
     document.getElementById('benchmarkChartStatus').textContent =

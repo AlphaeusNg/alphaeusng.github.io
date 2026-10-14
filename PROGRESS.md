@@ -1395,3 +1395,9 @@ Validation: four focused catalog journeys passed, including share/reload/history
 Measured seven public routes at 320, 375, 768 and 1280px, a 640px zoom-equivalent viewport and 375px with 200% root text. Fixed measured minimum-content overflow in home cards/timeline/downloads, shared conviction/transit navigation, benchmark controls, vault reading, thoughts chrome/headings and DCA panels. Closed chip content and hidden journal labels no longer create phantom page scroll. Quote actions have 24px minimum height; compact footnote targets are 24px. Primary action sizing is retained. Details, classifications, screenshots and limits: docs/UI_SIZING_AUDIT.md. Version 2026.10.14.2.
 
 Validation: all 42 reflow configurations and two focused target/editor/footnote checks passed; generated CSS, 37 Python contracts, site/sitemap/data freshness, 32 DCA and 4 route checks, compilation and syntax passed. Two existing live-price fixtures now use a consistent clock newer than the bundled quote date, retaining the production stale/future-quote protections. All 59 Chromium journeys passed; the final heading/quote reflow refinement was checked again across the three sizing journeys (42 configurations plus target/editor/footnote checks). Financial and vault datasets unchanged.
+
+## 2026-10-15 — Say the home, 404, and DCA lines in fewer words
+
+The 404 page still sends visitors home. The DCA title names the monthly cap. Conviction and benchmark numbers stay on the existing ledger. Market snapshots, essays' facts, and vault data are unchanged. Version `2026.10.15.1`.
+
+Validation: `tools/check_site.py` passed after the sitemap lastmod refresh. Chromium journeys were not rerun.
