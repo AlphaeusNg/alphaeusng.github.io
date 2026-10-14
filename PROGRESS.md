@@ -1388,3 +1388,10 @@ The Craft catalog now combines AI & ML, Tools & apps, and Faith filters with tex
 Research, acceptance and next feature priorities are recorded in docs/FEATURE_ROADMAP.md with W3C and MDN primary references. Version 2026.10.14.1. Market snapshots, essays and vault data unchanged.
 
 Validation: four focused catalog journeys passed, including share/reload/history, 320px keyboard/IME layout and case routing/fallback. CSS, 37 Python contracts, site/sitemap/data freshness, 32 DCA and 4 route checks, compilation and syntax passed. All 56 Chromium journeys passed (including the actual JavaScript-disabled link-access check); a 320px screenshot confirmed no horizontal overflow and a 210px discovery control area.
+
+
+## 2026-10-14 — Audit controls and enlarged-text reflow
+
+Measured seven public routes at 320, 375, 768 and 1280px, a 640px zoom-equivalent viewport and 375px with 200% root text. Fixed measured minimum-content overflow in home cards/timeline/downloads, shared conviction/transit navigation, benchmark controls, vault reading, thoughts chrome/headings and DCA panels. Closed chip content and hidden journal labels no longer create phantom page scroll. Quote actions have 24px minimum height; compact footnote targets are 24px. Primary action sizing is retained. Details, classifications, screenshots and limits: docs/UI_SIZING_AUDIT.md. Version 2026.10.14.2.
+
+Validation: all 42 reflow configurations and two focused target/editor/footnote checks passed; generated CSS, 37 Python contracts, site/sitemap/data freshness, 32 DCA and 4 route checks, compilation and syntax passed. Two existing live-price fixtures now use a consistent clock newer than the bundled quote date, retaining the production stale/future-quote protections. All 59 Chromium journeys passed; the final heading/quote reflow refinement was checked again across the three sizing journeys (42 configurations plus target/editor/footnote checks). Financial and vault datasets unchanged.

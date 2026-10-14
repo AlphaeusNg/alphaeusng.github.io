@@ -11,6 +11,10 @@ const D3_RUNTIME = readFileSync(
   new URL('../../node_modules/d3/dist/d3.min.js', import.meta.url),
   'utf8'
 );
+// These live-feed fixtures must be newer than the bundled snapshot, even when
+// upstream quote dates advance independently of the test runner clock.
+const DCA_SNAPSHOT = JSON.parse(readFileSync(new URL('../../data/dca_market_history.json', import.meta.url), 'utf8'));
+const DCA_NEW_QUOTE_TIME = new Date(Math.max(Date.now(), ...Object.values(DCA_SNAPSHOT.symbols).map(symbol => Date.parse(symbol.quote.asOf))) + 60_000).toISOString();
 const CHART_STUB = `
   window.__chartInstances = [];
   window.Chart = class {
@@ -172,8 +176,8 @@ async function mockDcaHistoryLength(page, symbol, sessions) {
   });
 }
 
-async function mockAlpacaStream(page, { tsla = 410.5, spcx = 91.25 } = {}) {
-  await page.addInitScript(({ tslaPrice, spcxPrice }) => {
+async function mockAlpacaStream(page, { tsla = 410.5, spcx = 91.25, asOf = DCA_NEW_QUOTE_TIME } = {}) {
+  await page.addInitScript(({ tslaPrice, spcxPrice, asOfTime }) => {
     window.__alpacaSent = [];
     class MockAlpacaWebSocket {
       constructor(url) {
@@ -193,8 +197,8 @@ async function mockAlpacaStream(page, { tsla = 410.5, spcx = 91.25 } = {}) {
         } else if (message.action === 'subscribe') {
           queueMicrotask(() => this.emit([
             { T: 'subscription', trades: message.trades },
-            { T: 't', S: 'TSLA', p: tslaPrice, s: 5, t: new Date().toISOString(), x: 'V' },
-            { T: 't', S: 'SPCX', p: spcxPrice, s: 3, t: new Date().toISOString(), x: 'V' },
+            { T: 't', S: 'TSLA', p: tslaPrice, s: 5, t: asOfTime, x: 'V' },
+            { T: 't', S: 'SPCX', p: spcxPrice, s: 3, t: asOfTime, x: 'V' },
           ]));
         }
       }
@@ -209,7 +213,7 @@ async function mockAlpacaStream(page, { tsla = 410.5, spcx = 91.25 } = {}) {
       }
     }
     window.WebSocket = MockAlpacaWebSocket;
-  }, { tslaPrice: tsla, spcxPrice: spcx });
+  }, { tslaPrice: tsla, spcxPrice: spcx, asOfTime: asOf });
 }
 
 test.beforeEach(async ({ page, baseURL }) => {
@@ -924,7 +928,8 @@ test('DCA Lab builds a budget-capped plan and persists its local journal', async
 });
 
 test('DCA Lab replaces the snapshot with live last-sale quotes', async ({ page }) => {
-  await mockDcaQuotes(page, { tsla: 401.25, spcx: 88.5 });
+  await page.clock.setFixedTime(new Date(DCA_NEW_QUOTE_TIME));
+  await mockDcaQuotes(page, { tsla: 401.25, spcx: 88.5, asOf: DCA_NEW_QUOTE_TIME });
 
   await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('#heroTslaPrice')).toHaveText('$401.25');
@@ -1087,7 +1092,8 @@ test('DCA Lab labels date-only Nasdaq closes without inventing a time', async ({
 });
 
 test('DCA Lab streams Alpaca trades without persisting credentials', async ({ page }) => {
-  await mockDcaQuotes(page);
+  await page.clock.setFixedTime(new Date(DCA_NEW_QUOTE_TIME));
+  await mockDcaQuotes(page, { asOf: DCA_NEW_QUOTE_TIME });
   await mockAlpacaStream(page);
   await page.goto('/pages/dca-calculator.html', { waitUntil: 'domcontentloaded' });
 

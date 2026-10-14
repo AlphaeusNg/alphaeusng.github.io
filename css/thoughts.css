@@ -520,3 +520,8 @@ body[data-lens="fide"] #letter [data-lens="coc"] { display: none; }
     outline: 2px solid var(--gold);
     outline-offset: 2px;
 }
+
+/* Text enlargement can put both header actions on separate lines. */
+.read-bar__row { flex-wrap: wrap; }
+.footnote { min-width: 24px; min-height: 24px; }
+body { overflow-wrap: anywhere; }

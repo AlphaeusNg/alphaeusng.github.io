@@ -178,3 +178,9 @@ body { font-family: Inter, system-ui, sans-serif; }
 #note-editor:focus { outline: none; border-color: rgba(201,162,39,.6); }
 .auth-chip { display: inline-flex; align-items: center; gap: .5rem; }
 .auth-chip img { width: 22px; height: 22px; border-radius: 999px; }
+
+/* Min-content sizing must not force the reading pane past a phone viewport. */
+body { overflow-wrap: anywhere; }
+.vault-surface-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.vault-surface-tabs button { min-width: 0; padding-inline: min(.75rem, 12px); }
+.vault-layout > * { min-width: 0; }

@@ -622,3 +622,9 @@ button.mobile-link.email-copy-btn {
     .project-search-row label { grid-column: 1 / -1; }
     .project-search-row input { width: 100%; }
 }
+
+/* Enlarged text must be allowed to wrap inside flex/grid content. */
+body { overflow-wrap: anywhere; }
+.timeline-item > .flex-1 { min-width: 0; }
+#craft [data-project-slug] > div:last-child > .flex { flex-wrap: wrap; }
+#cv-downloads a[download] { flex-wrap: wrap; }
