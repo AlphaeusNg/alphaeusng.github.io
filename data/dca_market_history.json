@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-13T03:05:39+00:00",
+  "generatedAt": "2026-10-14T01:18:21+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -21,27 +21,19 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-10-12",
-        "price": 378.03
+        "date": "2026-10-13",
+        "price": 375.23
       },
       "quote": {
-        "price": 378.03,
-        "asOf": "2026-10-12",
+        "price": 375.23,
+        "asOf": "2026-10-13",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
-        "netChange": -4.67,
-        "percentChange": -0.0122
+        "netChange": -2.8,
+        "percentChange": -0.0074
       },
       "history": [
-        {
-          "date": "2025-08-19",
-          "open": 335.79,
-          "high": 340.55,
-          "low": 327.85,
-          "close": 329.31,
-          "volume": 75956000
-        },
         {
           "date": "2025-08-20",
           "open": 329.22,
@@ -2345,6 +2337,14 @@
           "low": 377.58,
           "close": 378.03,
           "volume": 20244290
+        },
+        {
+          "date": "2026-10-13",
+          "open": 372.325,
+          "high": 377.05,
+          "low": 371.3,
+          "close": 375.23,
+          "volume": 18393040
         }
       ]
     },
@@ -2358,12 +2358,12 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-10-12",
-        "price": 163.42
+        "date": "2026-10-13",
+        "price": 156.54
       },
       "quote": {
         "price": 163.42,
-        "asOf": "2026-10-12",
+        "asOf": "2026-10-15",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
@@ -3042,6 +3042,14 @@
           "low": 160.85,
           "close": 163.42,
           "volume": 67434500
+        },
+        {
+          "date": "2026-10-13",
+          "open": 161.982,
+          "high": 161.982,
+          "low": 156.05,
+          "close": 156.54,
+          "volume": 69022480
         }
       ]
     }
