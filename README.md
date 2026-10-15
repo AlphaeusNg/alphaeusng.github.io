@@ -136,17 +136,9 @@ It also defaults to rendered Markdown previews with a raw-source toggle in the n
 Run before pushing:
 
 ```bash
-python3 -m unittest discover -s tools -p 'test_*.py'
-npm run test:dca
-npm run test:project-routes
-python3 tools/finance/generate_conviction_history.py --check
-python3 tools/generate_sitemap.py --check
-python3 tools/check_site.py
 npm ci
 npx playwright install chromium
-npm run test:browser
-python3 -m compileall tools
-while IFS= read -r file; do node --check "$file"; done < <(rg --files -g '*.js' | sort)
+npm test
 python3 -m http.server 8000
 ```
 

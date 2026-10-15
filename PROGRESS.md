@@ -1401,3 +1401,10 @@ Validation: all 42 reflow configurations and two focused target/editor/footnote 
 The 404 page still sends visitors home. The DCA title names the monthly cap. Conviction and benchmark numbers stay on the existing ledger. Market snapshots, essays' facts, and vault data are unchanged. Version `2026.10.15.1`.
 
 Validation: `tools/check_site.py` passed after the sitemap lastmod refresh. Chromium journeys were not rerun.
+
+
+## 2026-10-16 — Run the complete portfolio gate with one command
+
+Added `npm test` as the local equivalent of the existing CI checks: committed CSS, Python contracts, DCA math/journals, project routes, conviction/sitemap freshness, site structure, Python compilation, recursive JavaScript syntax and browser journeys. This prevents an incomplete manual subset from appearing to validate a release. Retained the newly fetched upstream DCA market snapshot. Deployment stamp: 2026.10.16.1.
+
+Validation: the new complete npm test command passed, including all Python/domain checks, committed styles and all 59 Chromium journeys. README documents the command. All cache keys and the generated sitemap match the new stamp; the pre-existing screenshot remains untracked.

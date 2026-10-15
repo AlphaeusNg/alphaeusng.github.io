@@ -8,7 +8,8 @@
     "test:styles": "npm run build:styles && git diff --exit-code -- css/tailwind-home.css css/tailwind-pages.css",
     "test:browser": "playwright test",
     "test:project-routes": "node --test tools/test_project_case_route.mjs",
-    "test:dca": "node --test tools/test_dca_engine.mjs tools/test_dca_quotes.mjs tools/test_dca_journal.mjs"
+    "test:dca": "node --test tools/test_dca_engine.mjs tools/test_dca_quotes.mjs tools/test_dca_journal.mjs",
+    "test": "npm run test:styles && python3 -m unittest discover -s tools -p 'test_*.py' && npm run test:dca && npm run test:project-routes && python3 tools/finance/generate_conviction_history.py --check && python3 tools/generate_sitemap.py --check && python3 tools/check_site.py && python3 -m compileall -q tools && find . -path './node_modules' -prune -o -type f -name '*.js' -print0 | sort -z | xargs -0 -n1 node --check && npm run test:browser"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
