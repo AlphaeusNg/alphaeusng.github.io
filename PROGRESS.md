@@ -1408,3 +1408,9 @@ Validation: `tools/check_site.py` passed after the sitemap lastmod refresh. Chro
 Added `npm test` as the local equivalent of the existing CI checks: committed CSS, Python contracts, DCA math/journals, project routes, conviction/sitemap freshness, site structure, Python compilation, recursive JavaScript syntax and browser journeys. This prevents an incomplete manual subset from appearing to validate a release. Retained the newly fetched upstream DCA market snapshot. Deployment stamp: 2026.10.16.1.
 
 Validation: the new complete npm test command passed, including all Python/domain checks, committed styles and all 59 Chromium journeys. README documents the command. All cache keys and the generated sitemap match the new stamp; the pre-existing screenshot remains untracked.
+
+### Dependency follow-up from the latest bot alerts
+
+Reviewed the newly opened Dependabot PRs and patched the two reported build-tool packages: source-map-js 1.2.2 ([GHSA-68fv-2mgg-jv7q](https://github.com/advisories/GHSA-68fv-2mgg-jv7q)) and an explicit postcss-selector-parser 7.1.6 override ([GHSA-rj75-hqrm-r3gf](https://github.com/advisories/GHSA-rj75-hqrm-r3gf)). The override covers Tailwind and postcss-nested while retaining the existing working Tailwind 3 CLI/configuration. A blind Tailwind 4 bump would remove that CLI, as seen in KoboForge's earlier migration.
+
+Validation: clean npm ci and the complete npm test gate passed, including all 59 Chromium journeys. Both generated utility stylesheets remain byte-identical. npm audit no longer lists the two patched packages or the selector-parser dependent advisory; five high-severity entries remain in the existing braces/chokidar/micromatch dependency chain. No all-clear security claim. This follow-up changes development dependencies only; deployed assets retain stamp 2026.10.16.1.
