@@ -1736,8 +1736,9 @@ async function copyTextToClipboard(text) {
             // Fall through to execCommand path.
         }
     }
+    const focused = document.activeElement;
+    const area = document.createElement('textarea');
     try {
-        const area = document.createElement('textarea');
         area.value = value;
         area.setAttribute('readonly', '');
         area.style.position = 'fixed';
@@ -1745,11 +1746,12 @@ async function copyTextToClipboard(text) {
         area.style.top = '0';
         document.body.appendChild(area);
         area.select();
-        const ok = document.execCommand('copy');
-        area.remove();
-        return ok;
+        return document.execCommand('copy');
     } catch (_) {
         return false;
+    } finally {
+        area.remove();
+        focused?.focus({ preventScroll: true });
     }
 }
 

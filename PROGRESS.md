@@ -1414,3 +1414,10 @@ Validation: the new complete npm test command passed, including all Python/domai
 Reviewed the newly opened Dependabot PRs and patched the two reported build-tool packages: source-map-js 1.2.2 ([GHSA-68fv-2mgg-jv7q](https://github.com/advisories/GHSA-68fv-2mgg-jv7q)) and an explicit postcss-selector-parser 7.1.6 override ([GHSA-rj75-hqrm-r3gf](https://github.com/advisories/GHSA-rj75-hqrm-r3gf)). The override covers Tailwind and postcss-nested while retaining the existing working Tailwind 3 CLI/configuration. A blind Tailwind 4 bump would remove that CLI, as seen in KoboForge's earlier migration.
 
 Validation: clean npm ci and the complete npm test gate passed, including all 59 Chromium journeys. Both generated utility stylesheets remain byte-identical. npm audit no longer lists the two patched packages or the selector-parser dependent advisory; five high-severity entries remain in the existing braces/chokidar/micromatch dependency chain. No all-clear security claim. This follow-up changes development dependencies only; deployed assets retain stamp 2026.10.16.1.
+
+
+## 2026-10-17 — Keep failed copy actions honest and keyboard focus visible
+
+Email-copy fallback always removes its temporary field and returns focus after success or failure. Transit link sharing checks the browser copy result instead of reporting false success. Denied copies leave a manual URL, clean DOM and visible keyboard destination. Preserved the trusted upstream DCA snapshot generated 2026-10-16 (latest close 2026-10-14). Version 2026.10.17.1.
+
+Validation: The complete npm gate passed, including CSS, Python/domain/data/sitemap/syntax checks and 62 Chromium journeys. Three new denied-copy journeys reproduced failures before the fix.

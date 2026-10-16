@@ -70,20 +70,22 @@
   }
 
   function fallbackCopy() {
+    var focused = global.document.activeElement;
     var field = global.document.createElement("textarea");
-    field.value = PAGE_URL;
-    field.setAttribute("readonly", "");
-    field.style.position = "fixed";
-    field.style.left = "-10000px";
-    global.document.body.appendChild(field);
-    field.select();
     try {
-      global.document.execCommand("copy");
-      shareDone("Link copied.");
+      field.value = PAGE_URL;
+      field.setAttribute("readonly", "");
+      field.style.position = "fixed";
+      field.style.left = "-10000px";
+      global.document.body.appendChild(field);
+      field.select();
+      shareDone(global.document.execCommand("copy") ? "Link copied." : PAGE_URL);
     } catch (_error) {
       shareDone(PAGE_URL);
+    } finally {
+      field.remove();
+      if (focused && focused.focus) focused.focus({ preventScroll: true });
     }
-    field.remove();
   }
 
   if (global.navigator.share) {

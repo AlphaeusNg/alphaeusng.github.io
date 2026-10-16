@@ -160,3 +160,18 @@ test("transit note stacks the clock on a phone and explains a missing Firebase s
   );
   expect(overflow).toBeLessThanOrEqual(1);
 });
+
+
+test("transit copy does not claim success when the fallback is denied", async ({ page }) => {
+  await stubFirebase(page);
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("denied"); } } });
+    document.execCommand = () => false;
+  });
+  await page.goto("/pages/sg-transit.html");
+  const button = page.locator("#share-copy");
+  await button.click();
+  await expect(page.locator("#share-status")).toHaveText("https://alphaeusng.github.io/pages/sg-transit.html");
+  await expect(button).toBeFocused();
+  await expect(page.locator("textarea[readonly]")).toHaveCount(0);
+});

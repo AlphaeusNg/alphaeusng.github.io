@@ -1821,3 +1821,19 @@ test('all project links remain available without JavaScript', async ({ browser }
     await context.close();
   }
 });
+
+
+for (const failure of ["false", "throw"]) {
+  test(`email copy cleans up and retains focus when fallback returns ${failure}`, async ({ page }) => {
+    await page.addInitScript(failure => {
+      Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("denied"); } } });
+      document.execCommand = () => { if (failure === "throw") throw new Error("denied"); return false; };
+    }, failure);
+    await page.goto("/");
+    const button = page.locator(".email-copy-btn[data-email]").last();
+    await button.click();
+    await expect(page.locator("#email-copy-live")).toHaveText("Could not copy email address");
+    await expect(button).toBeFocused();
+    await expect(page.locator("textarea[readonly]")).toHaveCount(0);
+  });
+}
