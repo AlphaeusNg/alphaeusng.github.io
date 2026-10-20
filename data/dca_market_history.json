@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-17T00:39:03+00:00",
+  "generatedAt": "2026-10-20T01:08:04+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -21,27 +21,19 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-10-15",
-        "price": 362.44
+        "date": "2026-10-19",
+        "price": 368.06
       },
       "quote": {
-        "price": 352.4502,
-        "asOf": "2026-10-16T19:59:00-04:00",
-        "timestampPrecision": "minute",
-        "marketStatus": "After-Hours",
-        "isRealTime": true,
-        "netChange": -2.2698,
-        "percentChange": -0.0064
+        "price": 368.06,
+        "asOf": "2026-10-19",
+        "timestampPrecision": "date",
+        "marketStatus": "Closed",
+        "isRealTime": false,
+        "netChange": 13.34,
+        "percentChange": 0.0376
       },
       "history": [
-        {
-          "date": "2025-08-25",
-          "open": 338.9,
-          "high": 349.53,
-          "low": 335.03,
-          "close": 346.6,
-          "volume": 86670040
-        },
         {
           "date": "2025-08-26",
           "open": 344.93,
@@ -2337,6 +2329,22 @@
           "low": 355.23,
           "close": 362.44,
           "volume": 26728310
+        },
+        {
+          "date": "2026-10-16",
+          "open": 369.145,
+          "high": 370.5,
+          "low": 349.33,
+          "close": 354.72,
+          "volume": 62067340
+        },
+        {
+          "date": "2026-10-19",
+          "open": 357.5,
+          "high": 369.5808,
+          "low": 354.47,
+          "close": 368.06,
+          "volume": 38817910
         }
       ]
     },
@@ -2350,17 +2358,17 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-10-15",
-        "price": 148.62
+        "date": "2026-10-19",
+        "price": 147.96
       },
       "quote": {
-        "price": 145.4718,
-        "asOf": "2026-10-16T19:59:00-04:00",
-        "timestampPrecision": "minute",
-        "marketStatus": "After-Hours",
-        "isRealTime": true,
-        "netChange": -0.5582,
-        "percentChange": -0.0038
+        "price": 147.96,
+        "asOf": "2026-10-19",
+        "timestampPrecision": "date",
+        "marketStatus": "Closed",
+        "isRealTime": false,
+        "netChange": 1.93,
+        "percentChange": 0.0132
       },
       "history": [
         {
@@ -3058,6 +3066,22 @@
           "low": 140.66,
           "close": 148.62,
           "volume": 101177100
+        },
+        {
+          "date": "2026-10-16",
+          "open": 147.8,
+          "high": 147.92,
+          "low": 142.95,
+          "close": 146.03,
+          "volume": 88552890
+        },
+        {
+          "date": "2026-10-19",
+          "open": 149.23,
+          "high": 151.01,
+          "low": 146.83,
+          "close": 147.96,
+          "volume": 74037780
         }
       ]
     }
