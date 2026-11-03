@@ -1421,3 +1421,18 @@ Validation: clean npm ci and the complete npm test gate passed, including all 59
 Email-copy fallback always removes its temporary field and returns focus after success or failure. Transit link sharing checks the browser copy result instead of reporting false success. Denied copies leave a manual URL, clean DOM and visible keyboard destination. Preserved the trusted upstream DCA snapshot generated 2026-10-16 (latest close 2026-10-14). Version 2026.10.17.1.
 
 Validation: The complete npm gate passed, including CSS, Python/domain/data/sitemap/syntax checks and 62 Chromium journeys. Three new denied-copy journeys reproduced failures before the fix.
+
+## 2026-11-04 — Preserve text composition in vault search
+
+Search Enter now leaves active IME composition (including legacy keycode 229),
+handled events and modifier chords untouched. An ordinary Enter still opens the
+first matching note. The phone regression checks that composing cannot change
+the note, URL or focus, and that the normal action still works. Site version:
+2026.11.04.1. Retained origin's trusted market snapshot generated 3 November
+(latest close 2 November); no prices, essays or vault content were edited.
+
+Validation: the completed regression failed against the original handler and
+passed after the fix. The complete npm test gate passed, including all 63
+Chromium journeys, styles, Python/domain, data, sitemap and syntax checks.
+`npm audit` reports zero advisories for the installed portfolio dependency graph.
+The existing owner screenshot remains untracked.

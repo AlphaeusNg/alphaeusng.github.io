@@ -909,7 +909,9 @@ function dragEnd(e, d) { if (!e.active) state.simulation.alphaTarget(0); d.fx = 
 
 document.getElementById('search').addEventListener('input', applyVisibility);
 document.getElementById('search').addEventListener('keydown', event => {
-  if (event.key !== 'Enter') return;
+  if (event.defaultPrevented || event.isComposing || event.keyCode === 229
+      || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey
+      || event.key !== 'Enter') return;
   const first = visibleNotes()[0];
   if (first) {
     event.preventDefault();

@@ -1837,3 +1837,38 @@ for (const failure of ["false", "throw"]) {
     await expect(page.locator("textarea[readonly]")).toHaveCount(0);
   });
 }
+
+
+test('vault search Enter preserves composition, handled events and browser chords', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  for (const url of ['https://cdn.jsdelivr.net/npm/markdown-it/**', 'https://cdn.jsdelivr.net/npm/dompurify/**', 'https://www.gstatic.com/firebasejs/**']) {
+    await page.route(url, route => route.fulfill({ contentType: 'application/javascript', body: '' }));
+  }
+  await page.route('https://raw.githubusercontent.com/AlphaeusNg/Seeking-Biblical-Truth/main/**', route =>
+    route.fulfill({ contentType: 'text/markdown', body: '# Test note\n' }));
+  await page.goto('/pages/seeking-biblical-truth/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#vault-summary')).toContainText('55 Markdown notes');
+  const initialTitle = await page.locator('#note-panel h2').textContent();
+  const target = VAULT_FIXTURE.nodes.find(node => node.type === 'note' && node.title !== initialTitle);
+  await page.locator('.vault-surface-tabs button[data-surface="notes"]').click();
+  const search = page.locator('#search');
+  await search.fill(target.title);
+  const firstTitle = await page.locator('#file-tree button').first().textContent();
+  expect(firstTitle).not.toBe(initialTitle);
+  const initialUrl = page.url();
+  for (const options of [{ isComposing: true }, { keyCode: 229 }, { ctrlKey: true }, { metaKey: true }, { altKey: true }, { shiftKey: true }, { handled: true }]) {
+    const prevented = await search.evaluate((element, options) => {
+      const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true, ...options });
+      if (options.handled) event.preventDefault();
+      element.dispatchEvent(event);
+      return event.defaultPrevented;
+    }, options);
+    expect(prevented).toBe(!!options.handled);
+    await expect(page).toHaveURL(initialUrl);
+    await expect(page.locator('#note-panel h2')).toHaveText(initialTitle);
+    await expect(search).toBeFocused();
+  }
+  await search.press('Enter');
+  await expect(page.locator('#note-panel h2')).toHaveText(firstTitle);
+  expect(page.url()).not.toBe(initialUrl);
+});
