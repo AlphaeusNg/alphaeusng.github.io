@@ -34,7 +34,9 @@ const FIREBASE_STUB = `
           createdAt: { toDate: function () { return new Date("2026-10-09T08:00:00+08:00"); } },
         });
         emit();
-        return Promise.resolve({ id: "new-comment" });
+        return window.__holdTransitComment
+          ? new Promise(function (resolve) { window.__resolveTransitComment = resolve; })
+          : Promise.resolve({ id: "new-comment" });
       },
     };
   }
@@ -174,4 +176,21 @@ test("transit copy does not claim success when the fallback is denied", async ({
   await expect(page.locator("#share-status")).toHaveText("https://alphaeusng.github.io/pages/sg-transit.html");
   await expect(button).toBeFocused();
   await expect(page.locator("textarea[readonly]")).toHaveCount(0);
+});
+
+
+test("pending transit comments preserve the next draft and reject duplicate submissions", async ({ page }) => {
+  await stubFirebase(page);
+  await page.addInitScript(() => { window.__holdTransitComment = true; });
+  await page.goto("/pages/sg-transit.html", { waitUntil: "domcontentloaded" });
+  await page.locator("#comment-body").fill("First comment awaiting acknowledgement.");
+  await page.locator("#comment-submit").click();
+  await expect(page.locator("#comment-submit")).toBeDisabled();
+  await page.locator("#comment-body").fill("My next draft should stay here.");
+  await page.locator("#comment-form").evaluate(form => form.requestSubmit());
+  await expect(page.locator("#comment-list .transit-comment")).toHaveCount(1);
+  await page.evaluate(() => window.__resolveTransitComment({ id: "saved" }));
+  await expect(page.locator("#comment-submit")).toBeEnabled();
+  await expect(page.locator("#comment-body")).toHaveValue("My next draft should stay here.");
+  await expect(page.locator("#comment-status")).toHaveText("Comment posted.");
 });

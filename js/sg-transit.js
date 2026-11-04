@@ -31,6 +31,7 @@
   var auth = null;
   var owner = false;
   var comments = [];
+  var posting = false;
 
   function setStatus(message, kind) {
     statusNode.textContent = message;
@@ -249,6 +250,8 @@
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+    if (posting) return;
+    var submittedDraft = bodyInput.value;
     var name = nameInput.value.trim().replace(/\s+/g, " ");
     var body = bodyInput.value.trim();
 
@@ -281,6 +284,7 @@
       return;
     }
 
+    posting = true;
     submitButton.disabled = true;
     setStatus("Posting your comment…", "");
     database
@@ -294,7 +298,7 @@
       })
       .then(function () {
         rememberComment();
-        bodyInput.value = "";
+        if (bodyInput.value === submittedDraft) bodyInput.value = "";
         setStatus("Comment posted.", "ok");
       })
       .catch(function () {
@@ -304,6 +308,7 @@
         );
       })
       .then(function () {
+        posting = false;
         submitButton.disabled = false;
       });
   });

@@ -1436,3 +1436,17 @@ passed after the fix. The complete npm test gate passed, including all 63
 Chromium journeys, styles, Python/domain, data, sitemap and syntax checks.
 `npm audit` reports zero advisories for the installed portfolio dependency graph.
 The existing owner screenshot remains untracked.
+
+## 2026-11-05 — Preserve drafts while comments are saving
+
+The transit comment form accepts only one pending submission. A successful save
+clears the submitted text only if the visitor has not changed it, preserving a
+new draft typed during the request. Existing comment validation and cooldown
+remain in place. Site version: 2026.11.05.1. Retained the trusted upstream Nasdaq
+snapshot generated 4 November (latest close 3 November).
+
+Validation: the delayed-save browser regression reproduced duplicate posts
+before the fix. The complete npm test gate passed: 37 Python contracts, 32 DCA
+tests, four route tests, all 64 Chromium journeys, committed styles, freshness,
+site/sitemap, Python compilation and JavaScript syntax. The owner screenshot
+remains untracked. No live comments were posted during testing.
