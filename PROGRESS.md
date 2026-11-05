@@ -1491,3 +1491,16 @@ The complete npm gate passed, including all 67 Chromium journeys, Python/domain
 contracts, committed styles, data/sitemap, compilation and JavaScript syntax.
 No live feedback was submitted. Market and vault data are unchanged, and the
 owner screenshot remains untracked.
+
+
+### Feedback project-switch follow-up — 2026-11-06
+
+Independent review reproduced an existing return-link error: changing the
+selected project and returning to its original value retained the other
+project's source URL. Keep the sanitized initial URL separately and restore
+it on return. Public fallback text follows the same source. Version: 2026.11.06.2.
+
+Validation: the new browser regression failed against .1 with KoboForge's URL
+under a VerseKeep label. The complete final npm gate passed all 68 Chromium
+journeys and the existing style, Python/domain, data/sitemap and syntax checks.
+Contact details, query strings and fragments stay out of public fallback text.

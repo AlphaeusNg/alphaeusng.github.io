@@ -1940,3 +1940,21 @@ test('public feedback fallback follows edits after a failed private write', asyn
   expect(url.searchParams.get('body')).not.toContain('private@example.com');
   expect(await page.evaluate(() => window.__feedbackWrites.length)).toBe(1);
 });
+
+
+test('feedback restores the original source after switching projects and back', async ({ page }) => {
+  await page.route('https://www.gstatic.com/firebasejs/**', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' }));
+  const source = 'https://alphaeusng.github.io/VerseKeep/guide';
+  await page.goto(`/pages/feedback/?project=VerseKeep&from=${encodeURIComponent(source + '?private=1#note')}`, { waitUntil: 'domcontentloaded' });
+  await page.locator('#message').fill('Keep the original page attached when returning to its project.');
+  await page.locator('#project').selectOption('KoboForge');
+  await expect(page.locator('#back-link')).toHaveAttribute('href', 'https://alphaeusng.github.io/KoboForge/');
+  await page.locator('#project').selectOption('VerseKeep');
+  await expect(page.locator('#back-link')).toHaveAttribute('href', source);
+  await expect(page.locator('#source-link')).toHaveAttribute('href', source);
+  const body = new URL(await page.locator('#github-fallback').getAttribute('href')).searchParams.get('body');
+  expect(body).toContain('**Source:** ' + source);
+  expect(body).not.toContain('KoboForge');
+  expect(body).not.toContain('private=1');
+});

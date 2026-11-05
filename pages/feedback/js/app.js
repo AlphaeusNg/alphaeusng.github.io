@@ -79,7 +79,8 @@
   }
 
   var initialProject = knownProject(params.get("project"));
-  var sourceUrl = safeSourceUrl(params.get("from"), initialProject);
+  var initialSourceUrl = safeSourceUrl(params.get("from"), initialProject);
+  var sourceUrl = initialSourceUrl;
   var database = null;
   var submitting = false;
 
@@ -134,9 +135,7 @@
     title.textContent = "Share feedback about " + project;
     global.document.title = project + " feedback · Alphaeus Ng";
     sourceLink.textContent = project;
-    if (project !== initialProject) {
-      sourceUrl = projectUrl(project);
-    }
+    sourceUrl = project === initialProject ? initialSourceUrl : projectUrl(project);
     sourceLink.href = sourceUrl;
     backLink.href = sourceUrl;
     backLink.textContent = "← Back to " + project;
