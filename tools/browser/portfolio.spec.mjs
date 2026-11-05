@@ -48,6 +48,9 @@ const FIREBASE_APP_STUB = `
             if (window.__feedbackReject) {
               return Promise.reject(new Error('private inbox unavailable'));
             }
+            if (window.__feedbackDelay) {
+              return new Promise(resolve => { window.__feedbackResolve = () => resolve({ id: 'feedback-Ab12c3' }); });
+            }
             return Promise.resolve({ id: 'feedback-Ab12c3' });
           },
         };
@@ -1871,4 +1874,36 @@ test('vault search Enter preserves composition, handled events and browser chord
   await search.press('Enter');
   await expect(page.locator('#note-panel h2')).toHaveText(firstTitle);
   expect(page.url()).not.toBe(initialUrl);
+});
+
+
+test('pending feedback keeps new drafts and accepts only one submission', async ({ page }) => {
+  await page.route('https://www.gstatic.com/firebasejs/**/firebase-app-compat.js', route =>
+    route.fulfill({ contentType: 'application/javascript', body: FIREBASE_APP_STUB })
+  );
+  await page.route('https://www.gstatic.com/firebasejs/**/firebase-firestore-compat.js', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' })
+  );
+  await page.goto('/pages/feedback/?project=AIly', { waitUntil: 'domcontentloaded' });
+  await page.evaluate(() => { window.__feedbackDelay = true; });
+  await page.locator('#message').fill('The first feedback draft is ready to send.');
+  await page.locator('#contact').fill('first@example.com');
+  await page.locator('#feedback-type').selectOption('Bug');
+  await page.locator('#rating-5').check();
+  await page.locator('#submit-button').click();
+  await page.locator('#message').fill('A new draft written while the first is sending.');
+  await page.locator('#contact').fill('second@example.com');
+  await page.locator('#feedback-type').selectOption('Design');
+  await page.locator('label[for="rating-3"]').click();
+  await page.locator('#feedback-form').dispatchEvent('submit');
+  expect(await page.evaluate(() => window.__feedbackWrites.length)).toBe(1);
+  await expect(page.locator('#form-status')).toHaveText('Sending your feedback…');
+  await page.evaluate(() => window.__feedbackResolve());
+  await expect(page.locator('#submit-button')).toBeEnabled();
+  await expect(page.locator('#form-status')).toContainText('your feedback has been sent');
+  await expect(page.locator('#message')).toHaveValue('A new draft written while the first is sending.');
+  await expect(page.locator('#contact')).toHaveValue('second@example.com');
+  await expect(page.locator('#feedback-type')).toHaveValue('Design');
+  await expect(page.locator('#rating-3')).toBeChecked();
+  await expect(page.locator('#message-count')).toHaveText('47 / 4000');
 });

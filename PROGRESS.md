@@ -1464,3 +1464,16 @@ with “Wait Infinity seconds”. The complete npm gate passed: 37 Python contra
 32 DCA tests, four route tests, all 65 Chromium journeys, committed styles,
 freshness, site/sitemap, compilation and JavaScript syntax. Tests used a Firebase
 stub; no live comments were posted. The owner screenshot remains untracked.
+
+## 2026-11-05 — Preserve feedback drafts while a request is pending
+
+The private feedback form accepts only one pending request and clears each field
+only when its value still matches the submitted draft. Visitors can write a new
+message, email, type or usefulness rating while the first request finishes.
+Version: 2026.11.05.3. Existing stored-data and public fallback rules remain.
+
+Validation: a delayed-Firebase regression reproduced two writes before the fix.
+The complete npm gate passed, including all 66 Chromium journeys, 37 Python
+contracts, 32 DCA tests, four route tests, styles, source-data/sitemap checks,
+compilation and JavaScript syntax. An independent agent reviewed the fix.
+No live feedback was sent; the owner screenshot remains untracked.

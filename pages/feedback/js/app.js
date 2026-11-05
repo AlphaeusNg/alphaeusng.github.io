@@ -81,6 +81,7 @@
   var initialProject = knownProject(params.get("project"));
   var sourceUrl = safeSourceUrl(params.get("from"), initialProject);
   var database = null;
+  var submitting = false;
 
   function setStatus(message, kind) {
     status.textContent = message;
@@ -200,6 +201,7 @@
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+    if (submitting) return;
     setStatus("", "");
     githubFallback.hidden = true;
 
@@ -232,6 +234,13 @@
       return;
     }
 
+    var submittedDraft = {
+      message: messageInput.value,
+      contact: contactInput.value,
+      type: typeSelect.value,
+      rating: selectedRating(),
+    };
+    submitting = true;
     submitButton.disabled = true;
     submitButton.textContent = "Sending…";
     setStatus("Sending your feedback…", "");
@@ -252,12 +261,14 @@
       .add(payload)
       .then(function (result) {
         rememberSubmit();
-        messageInput.value = "";
-        contactInput.value = "";
-        typeSelect.value = "Suggestion";
-        form.querySelectorAll('input[name="rating"]').forEach(function (input) {
-          input.checked = false;
-        });
+        if (messageInput.value === submittedDraft.message) messageInput.value = "";
+        if (contactInput.value === submittedDraft.contact) contactInput.value = "";
+        if (typeSelect.value === submittedDraft.type) typeSelect.value = "Suggestion";
+        if (selectedRating() === submittedDraft.rating) {
+          form.querySelectorAll('input[name="rating"]').forEach(function (input) {
+            input.checked = false;
+          });
+        }
         updateCount();
         setStatus(
           "Thank you — your feedback has been sent. Reference " +
@@ -270,6 +281,7 @@
         offerGithubFallback(payload, WRITE_FALLBACK_MESSAGE);
       })
       .finally(function () {
+        submitting = false;
         submitButton.disabled = false;
         submitButton.textContent = "Send feedback";
       });
