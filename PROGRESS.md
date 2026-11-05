@@ -1450,3 +1450,16 @@ before the fix. The complete npm test gate passed: 37 Python contracts, 32 DCA
 tests, four route tests, all 64 Chromium journeys, committed styles, freshness,
 site/sitemap, Python compilation and JavaScript syntax. The owner screenshot
 remains untracked. No live comments were posted during testing.
+
+## 2026-11-05 — Recover comment posting after a clock change
+
+Invalid or future cooldown timestamps no longer block transit comments forever.
+Normal successful posts still impose the existing 30-second cooldown. Site
+version: 2026.11.05.2. Incorporated the trusted upstream Nasdaq snapshot generated
+5 November (latest close 3 November); no prices or source terms were edited.
+
+Validation: the invalid/future-clock browser regression failed before the fix
+with “Wait Infinity seconds”. The complete npm gate passed: 37 Python contracts,
+32 DCA tests, four route tests, all 65 Chromium journeys, committed styles,
+freshness, site/sitemap, compilation and JavaScript syntax. Tests used a Firebase
+stub; no live comments were posted. The owner screenshot remains untracked.

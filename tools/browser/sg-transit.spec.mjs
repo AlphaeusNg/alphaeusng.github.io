@@ -194,3 +194,21 @@ test("pending transit comments preserve the next draft and reject duplicate subm
   await expect(page.locator("#comment-body")).toHaveValue("My next draft should stay here.");
   await expect(page.locator("#comment-status")).toHaveText("Comment posted.");
 });
+
+
+test("transit cooldown recovers from invalid or future stored clocks", async ({ page }) => {
+  await stubFirebase(page);
+  await page.goto("/pages/sg-transit.html", { waitUntil: "domcontentloaded" });
+  for (const timestamp of ["Infinity", "NaN", "future"]) {
+    await page.evaluate(value => localStorage.setItem("alphaeus-transit-comment-at-v1",
+      value === "future" ? String(Date.now() + 86400000) : value), timestamp);
+    await page.locator("#comment-body").fill(`Recovered comment for ${timestamp}.`);
+    await page.locator("#comment-submit").click();
+    await expect(page.locator("#comment-status")).toHaveText("Comment posted.");
+    await expect(page.locator("#comment-list")).toContainText(`Recovered comment for ${timestamp}.`);
+  }
+  await page.locator("#comment-body").fill("The normal cooldown still applies.");
+  await page.locator("#comment-submit").click();
+  await expect(page.locator("#comment-status")).toContainText("seconds before posting again.");
+  await expect(page.locator("#comment-list .transit-comment")).toHaveCount(3);
+});

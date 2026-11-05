@@ -41,7 +41,9 @@
   function remainingCooldown() {
     try {
       var last = Number(global.localStorage.getItem(COOLDOWN_KEY) || 0);
-      return Math.max(0, COOLDOWN_MS - (Date.now() - last));
+      var now = Date.now();
+      if (!Number.isFinite(last) || last <= 0 || last > now) return 0;
+      return Math.max(0, COOLDOWN_MS - (now - last));
     } catch (_error) {
       return 0;
     }
