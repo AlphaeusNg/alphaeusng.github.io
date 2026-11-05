@@ -1456,7 +1456,8 @@ remains untracked. No live comments were posted during testing.
 Invalid or future cooldown timestamps no longer block transit comments forever.
 Normal successful posts still impose the existing 30-second cooldown. Site
 version: 2026.11.05.2. Incorporated the trusted upstream Nasdaq snapshot generated
-5 November (latest close 3 November); no prices or source terms were edited.
+5 November (TSLA close 3 November; SPCX close 4 November); no prices or source
+terms were edited.
 
 Validation: the invalid/future-clock browser regression failed before the fix
 with “Wait Infinity seconds”. The complete npm gate passed: 37 Python contracts,
