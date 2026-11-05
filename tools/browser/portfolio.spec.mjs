@@ -49,7 +49,10 @@ const FIREBASE_APP_STUB = `
               return Promise.reject(new Error('private inbox unavailable'));
             }
             if (window.__feedbackDelay) {
-              return new Promise(resolve => { window.__feedbackResolve = () => resolve({ id: 'feedback-Ab12c3' }); });
+              return new Promise((resolve, reject) => {
+                window.__feedbackResolve = () => resolve({ id: 'feedback-Ab12c3' });
+                window.__feedbackFail = () => reject(new Error('private inbox unavailable'));
+              });
             }
             return Promise.resolve({ id: 'feedback-Ab12c3' });
           },
@@ -1906,4 +1909,34 @@ test('pending feedback keeps new drafts and accepts only one submission', async 
   await expect(page.locator('#feedback-type')).toHaveValue('Design');
   await expect(page.locator('#rating-3')).toBeChecked();
   await expect(page.locator('#message-count')).toHaveText('47 / 4000');
+});
+
+
+test('public feedback fallback follows edits after a failed private write', async ({ page }) => {
+  await page.route('https://www.gstatic.com/firebasejs/**/firebase-app-compat.js', route =>
+    route.fulfill({ contentType: 'application/javascript', body: FIREBASE_APP_STUB }));
+  await page.route('https://www.gstatic.com/firebasejs/**/firebase-firestore-compat.js', route =>
+    route.fulfill({ contentType: 'application/javascript', body: '' }));
+  await page.goto('/pages/feedback/?project=AIly', { waitUntil: 'domcontentloaded' });
+  await page.evaluate(() => { window.__feedbackDelay = true; });
+  await page.locator('#message').fill('The original message should be replaced before sharing.');
+  await page.locator('#contact').fill('private@example.com');
+  await page.locator('#submit-button').click();
+  const fallback = page.locator('#github-fallback');
+  await page.locator('#message').fill('This revised message is the one I want to share.');
+  await page.locator('#project').selectOption('KoboForge');
+  await page.locator('#feedback-type').selectOption('Bug');
+  await page.evaluate(() => window.__feedbackFail());
+  await expect(fallback).toBeVisible();
+  const current = new URL(await fallback.getAttribute('href'));
+  expect(current.searchParams.get('body')).toContain('This revised message is the one I want to share.');
+  await page.locator('label[for="rating-3"]').click();
+  const url = new URL(await fallback.getAttribute('href'));
+  expect(url.searchParams.get('title')).toBe('Feedback — KoboForge: Bug');
+  expect(url.searchParams.get('body')).toContain('This revised message is the one I want to share.');
+  expect(url.searchParams.get('body')).toContain('**Usefulness:** 3');
+  expect(url.searchParams.get('body')).toContain('**Source:** https://alphaeusng.github.io/KoboForge/');
+  expect(url.searchParams.get('body')).not.toContain('The original message');
+  expect(url.searchParams.get('body')).not.toContain('private@example.com');
+  expect(await page.evaluate(() => window.__feedbackWrites.length)).toBe(1);
 });

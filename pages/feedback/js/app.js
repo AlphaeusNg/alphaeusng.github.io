@@ -125,8 +125,8 @@
     setStatus(message, "error");
   }
 
-  function refreshOfflineFallback() {
-    if (database) return;
+  function refreshFallback() {
+    if (githubFallback.hidden) return;
     githubFallback.href = fallbackUrl(currentPayload());
   }
 
@@ -191,12 +191,15 @@
 
   projectSelect.addEventListener("change", function () {
     personalize(knownProject(projectSelect.value));
-    refreshOfflineFallback();
+    refreshFallback();
   });
-  typeSelect.addEventListener("change", refreshOfflineFallback);
+  typeSelect.addEventListener("change", refreshFallback);
+  form.querySelectorAll('input[name="rating"]').forEach(function (input) {
+    input.addEventListener("change", refreshFallback);
+  });
   messageInput.addEventListener("input", function () {
     updateCount();
-    refreshOfflineFallback();
+    refreshFallback();
   });
 
   form.addEventListener("submit", function (event) {
@@ -278,7 +281,7 @@
         );
       })
       .catch(function () {
-        offerGithubFallback(payload, WRITE_FALLBACK_MESSAGE);
+        offerGithubFallback(currentPayload(), WRITE_FALLBACK_MESSAGE);
       })
       .finally(function () {
         submitting = false;

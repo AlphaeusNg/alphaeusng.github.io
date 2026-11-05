@@ -1477,3 +1477,17 @@ The complete npm gate passed, including all 66 Chromium journeys, 37 Python
 contracts, 32 DCA tests, four route tests, styles, source-data/sitemap checks,
 compilation and JavaScript syntax. An independent agent reviewed the fix.
 No live feedback was sent; the owner screenshot remains untracked.
+
+
+## 2026-11-06 — Keep public feedback drafts current after inbox failures
+
+The GitHub feedback fallback now reflects the current form when a pending
+private write fails, and follows later message, project, type and rating edits.
+The fallback continues to exclude the contact email. Version: 2026.11.06.1.
+
+Validation: the delayed-failure regression reproduced the old message in the
+original handler; the fix passes and sends only one stubbed private request.
+The complete npm gate passed, including all 67 Chromium journeys, Python/domain
+contracts, committed styles, data/sitemap, compilation and JavaScript syntax.
+No live feedback was submitted. Market and vault data are unchanged, and the
+owner screenshot remains untracked.
