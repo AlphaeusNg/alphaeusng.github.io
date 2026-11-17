@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-14T02:33:44+00:00",
+  "generatedAt": "2026-11-17T04:40:13+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -21,8 +21,8 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-11-13",
-        "price": 390.22
+        "date": "2026-11-16",
+        "price": 379.74
       },
       "quote": {
         "price": 390.22,
@@ -34,14 +34,6 @@
         "percentChange": -0.0182
       },
       "history": [
-        {
-          "date": "2025-09-22",
-          "open": 431.11,
-          "high": 444.98,
-          "low": 429.13,
-          "close": 434.21,
-          "volume": 97108780
-        },
         {
           "date": "2025-09-23",
           "open": 439.88,
@@ -2353,6 +2345,14 @@
           "low": 385.8302,
           "close": 390.22,
           "volume": 32392970
+        },
+        {
+          "date": "2026-11-16",
+          "open": 387.0,
+          "high": 389.7983,
+          "low": 375.63,
+          "close": 379.74,
+          "volume": 30242400
         }
       ]
     },
@@ -2366,8 +2366,8 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-11-13",
-        "price": 139.11
+        "date": "2026-11-16",
+        "price": 137.36
       },
       "quote": {
         "price": 139.11,
@@ -3242,6 +3242,14 @@
           "low": 136.6401,
           "close": 139.11,
           "volume": 78515460
+        },
+        {
+          "date": "2026-11-16",
+          "open": 138.5,
+          "high": 139.98,
+          "low": 135.0,
+          "close": 137.36,
+          "volume": 101662100
         }
       ]
     }
