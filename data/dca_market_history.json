@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T04:40:13+00:00",
+  "generatedAt": "2026-11-18T03:45:33+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -21,27 +21,19 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-11-16",
-        "price": 379.74
+        "date": "2026-11-17",
+        "price": 380.11
       },
       "quote": {
-        "price": 390.22,
-        "asOf": "2026-11-13",
+        "price": 379.74,
+        "asOf": "2026-11-16",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
-        "netChange": -7.23,
-        "percentChange": -0.0182
+        "netChange": -10.48,
+        "percentChange": -0.0269
       },
       "history": [
-        {
-          "date": "2025-09-23",
-          "open": 439.88,
-          "high": 440.97,
-          "low": 423.72,
-          "close": 425.85,
-          "volume": 83422690
-        },
         {
           "date": "2025-09-24",
           "open": 429.83,
@@ -2353,6 +2345,14 @@
           "low": 375.63,
           "close": 379.74,
           "volume": 30242400
+        },
+        {
+          "date": "2026-11-17",
+          "open": 382.19,
+          "high": 382.8399,
+          "low": 374.13,
+          "close": 380.11,
+          "volume": 22286660
         }
       ]
     },
@@ -2366,17 +2366,17 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-11-16",
-        "price": 137.36
+        "date": "2026-11-17",
+        "price": 141.7
       },
       "quote": {
-        "price": 139.11,
-        "asOf": "2026-11-13",
+        "price": 137.36,
+        "asOf": "2026-11-16",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
-        "netChange": -0.83,
-        "percentChange": -0.0059
+        "netChange": -1.75,
+        "percentChange": -0.0126
       },
       "history": [
         {
@@ -3250,6 +3250,14 @@
           "low": 135.0,
           "close": 137.36,
           "volume": 101662100
+        },
+        {
+          "date": "2026-11-17",
+          "open": 138.55,
+          "high": 142.11,
+          "low": 137.39,
+          "close": 141.7,
+          "volume": 89272750
         }
       ]
     }
