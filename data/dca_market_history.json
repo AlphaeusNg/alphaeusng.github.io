@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T03:43:29+00:00",
+  "generatedAt": "2026-11-20T03:37:12+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -21,27 +21,19 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-11-18",
-        "price": 383.72
+        "date": "2026-11-19",
+        "price": 374.41
       },
       "quote": {
-        "price": 380.11,
-        "asOf": "2026-11-17",
+        "price": 383.72,
+        "asOf": "2026-11-18",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
-        "netChange": 0.37,
-        "percentChange": 0.001
+        "netChange": 3.61,
+        "percentChange": 0.0095
       },
       "history": [
-        {
-          "date": "2025-09-25",
-          "open": 435.24,
-          "high": 435.35,
-          "low": 419.08,
-          "close": 423.39,
-          "volume": 96746430
-        },
         {
           "date": "2025-09-26",
           "open": 428.3,
@@ -2353,6 +2345,14 @@
           "low": 378.36,
           "close": 383.72,
           "volume": 26892940
+        },
+        {
+          "date": "2026-11-19",
+          "open": 389.905,
+          "high": 393.598,
+          "low": 370.81,
+          "close": 374.41,
+          "volume": 26532850
         }
       ]
     },
@@ -2366,8 +2366,8 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-11-18",
-        "price": 143.5
+        "date": "2026-11-19",
+        "price": 138.43
       },
       "quote": {
         "price": 143.5,
@@ -3266,6 +3266,14 @@
           "low": 141.22,
           "close": 143.5,
           "volume": 86453880
+        },
+        {
+          "date": "2026-11-19",
+          "open": 144.91,
+          "high": 147.29,
+          "low": 135.5,
+          "close": 138.43,
+          "volume": 119613400
         }
       ]
     }
