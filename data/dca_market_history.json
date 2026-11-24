@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T03:19:14+00:00",
+  "generatedAt": "2026-11-24T06:12:34+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -21,27 +21,19 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-11-20",
-        "price": 345.82
+        "date": "2026-11-23",
+        "price": 385.46
       },
       "quote": {
-        "price": 374.41,
-        "asOf": "2026-11-19",
+        "price": 345.82,
+        "asOf": "2026-11-20",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
-        "netChange": -9.31,
-        "percentChange": -0.0243
+        "netChange": -28.59,
+        "percentChange": -0.0764
       },
       "history": [
-        {
-          "date": "2025-09-29",
-          "open": 444.35,
-          "high": 450.98,
-          "low": 439.5,
-          "close": 443.21,
-          "volume": 79491510
-        },
         {
           "date": "2025-09-30",
           "open": 441.52,
@@ -2353,6 +2345,14 @@
           "low": 344.33,
           "close": 345.82,
           "volume": 46244290
+        },
+        {
+          "date": "2026-11-23",
+          "open": 374.735,
+          "high": 393.83,
+          "low": 371.95,
+          "close": 385.46,
+          "volume": 47105890
         }
       ]
     },
@@ -2366,8 +2366,8 @@
       "currency": "USD",
       "priceBasis": "unadjusted daily close",
       "latestClose": {
-        "date": "2026-11-20",
-        "price": 127.79
+        "date": "2026-11-23",
+        "price": 133.35
       },
       "quote": {
         "price": 127.79,
@@ -3282,6 +3282,14 @@
           "low": 126.28,
           "close": 127.79,
           "volume": 124602700
+        },
+        {
+          "date": "2026-11-23",
+          "open": 140.04,
+          "high": 141.87,
+          "low": 133.1,
+          "close": 133.35,
+          "volume": 96162780
         }
       ]
     }
