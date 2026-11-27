@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T04:14:12+00:00",
+  "generatedAt": "2026-11-27T04:23:14+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -34,14 +34,6 @@
         "percentChange": -0.0118
       },
       "history": [
-        {
-          "date": "2025-10-02",
-          "open": 470.54,
-          "high": 470.75,
-          "low": 435.57,
-          "close": 436.0,
-          "volume": 137009000
-        },
         {
           "date": "2025-10-03",
           "open": 443.285,
