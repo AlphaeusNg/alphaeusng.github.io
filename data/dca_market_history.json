@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-27T04:23:14+00:00",
+  "generatedAt": "2026-11-28T04:02:53+00:00",
   "marketTimezone": "America/New_York",
   "source": {
     "name": "Nasdaq",
@@ -25,23 +25,15 @@
         "price": 380.14
       },
       "quote": {
-        "price": 380.14,
-        "asOf": "2026-11-25",
+        "price": 400.0,
+        "asOf": "2026-11-27",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
-        "netChange": -4.54,
-        "percentChange": -0.0118
+        "netChange": 19.86,
+        "percentChange": 0.0522
       },
       "history": [
-        {
-          "date": "2025-10-03",
-          "open": 443.285,
-          "high": 446.77,
-          "low": 416.575,
-          "close": 429.83,
-          "volume": 133188200
-        },
         {
           "date": "2025-10-06",
           "open": 440.75,
@@ -2362,13 +2354,13 @@
         "price": 127.44
       },
       "quote": {
-        "price": 127.44,
-        "asOf": "2026-11-25",
+        "price": 133.59,
+        "asOf": "2026-11-27",
         "timestampPrecision": "date",
         "marketStatus": "Closed",
         "isRealTime": false,
-        "netChange": 1.63,
-        "percentChange": 0.013
+        "netChange": 6.15,
+        "percentChange": 0.0483
       },
       "history": [
         {
